@@ -1,0 +1,38 @@
+{
+  "project": "PredictionArena",
+  "network": "base",
+  "chainId": 8453,
+  "contract": "PredictionArena",
+  "address": "0x96c0333657c684Ac125A54a0858471e1c8267355",
+  "txHash": "0x84e5794b408c3d59e56b2bc0402d1038ed968df78a418e1245e18e0c535e631f",
+  "block": 52896032,
+  "deployer": "0x436b9d5e6fBd40eC93E881263bE53e59F8755Ba1",
+  "owner": "0x436b9d5e6fBd40eC93E881263bE53e59F8755Ba1",
+  "feeVault": "0x9520269b506e02c357a712160979a3237C404fE6",
+  "usdc": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  "feeBps": 400,
+  "referralShareBps": 3000,
+  "bootstrapMaxBetUsdc": 50,
+  "minBetUsdc": 5,
+  "gasUsed": "2268327",
+  "effectiveGasPriceWei": "7338564",
+  "feePaidEth": "0.000016646262862428",
+  "verified": true,
+  "deployedAt": "2026-10-21T19:16:00+08:00",
+  "verification": {
+    "explorer": "https://basescan.org/address/0x96c0333657c684Ac125A54a0858471e1c8267355#code",
+    "guid": "uczhfssefh3iii6vyvtyb2hpwnrfuzppfzpwz6xcyw9l3yvehm",
+    "contractName": "PredictionArena",
+    "compiler": "v0.8.20+commit.a1b79de6",
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "evmVersion": "paris",
+    "abiEntries": 77,
+    "verifiedAt": "2026-10-21T19:30:00+08:00"
+  },
+  "status": "deprecated",
+  "deprecatedReason": "pre-hardening bytecode (F-01/F-02/F-03 open); superseded by locally hardened source, awaiting redeploy",
+  "deprecatedAt": "2026-10-21T20:10:00+08:00"
+}

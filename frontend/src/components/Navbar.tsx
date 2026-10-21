@@ -1,0 +1,101 @@
+"use client";
+
+import dynamic from "next/dynamic";
+import { Activity, ShieldCheck } from "lucide-react";
+import { cn } from "@/lib/format";
+import { TARGET_CHAIN } from "@/hooks/usePredictionArena";
+
+export type Category = "All" | "Macro" | "Ecosystem" | "Tech" | "CT Drama";
+
+export const CATEGORIES: Category[] = ["All", "Macro", "Ecosystem", "Tech", "CT Drama"];
+
+const WalletButton = dynamic(() => import("@/components/WalletButton").then((m) => m.WalletButton), {
+  ssr: false,
+  loading: () => (
+    <span className="inline-flex h-9 w-28 animate-pulse rounded-xl border border-gold/20 bg-gold/10" />
+  ),
+});
+
+export function Navbar({
+  active,
+  onChange,
+}: {
+  active: Category;
+  onChange: (category: Category) => void;
+}) {
+  return (
+    <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-void/72 backdrop-blur-md">
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-4 px-4 sm:px-6">
+        {/* logo */}
+        <a href="#" className="group flex items-center gap-2.5">
+          <span className="relative grid size-9 place-items-center rounded-xl border border-gold/40 bg-gradient-to-br from-gold-bright/25 to-gold/5 shadow-[0_0_24px_-6px_rgba(245,158,11,0.6)]">
+            <svg viewBox="0 0 24 24" className="size-5" aria-hidden>
+              <defs>
+                <linearGradient id="arena-gold" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="#FDE68A" />
+                  <stop offset="55%" stopColor="#FBBF24" />
+                  <stop offset="100%" stopColor="#D97706" />
+                </linearGradient>
+              </defs>
+              <path d="M12 2.5 22 12l-10 9.5L2 12 12 2.5Z" fill="url(#arena-gold)" opacity="0.92" />
+              <path d="M12 7.2 17.2 12 12 16.8 6.8 12 12 7.2Z" fill="#0A0A0C" />
+            </svg>
+          </span>
+          <span className="flex flex-col leading-none">
+            <span className="gold-text text-[15px] font-semibold tracking-[0.18em]">PREDICTION</span>
+            <span className="text-[10px] font-medium tracking-[0.42em] text-muted">ARENA</span>
+          </span>
+        </a>
+
+        {/* categories */}
+        <nav className="ml-4 hidden items-center gap-1 lg:flex">
+          {CATEGORIES.map((category) => (
+            <button
+              key={category}
+              onClick={() => onChange(category)}
+              className={cn(
+                "relative rounded-lg px-3 py-2 text-[13px] font-medium transition-colors",
+                active === category ? "text-gold-bright" : "text-muted hover:text-ink"
+              )}
+            >
+              {category}
+              {active === category && (
+                <span className="absolute inset-x-2 -bottom-px h-px bg-gradient-to-r from-transparent via-gold to-transparent" />
+              )}
+            </button>
+          ))}
+        </nav>
+
+        <div className="ml-auto flex items-center gap-2.5">
+          <span className="hidden items-center gap-1.5 rounded-full border border-white/8 bg-white/[0.03] px-3 py-1.5 text-[11px] text-muted sm:flex">
+            <Activity className="size-3 text-profit" />
+            <span className="mono">{TARGET_CHAIN.name}</span>
+          </span>
+          <span className="hidden items-center gap-1.5 rounded-full border border-gold/25 bg-gold/8 px-3 py-1.5 text-[11px] text-gold-bright xl:flex">
+            <ShieldCheck className="size-3" />
+            IPFS 留痕 · 可审计
+          </span>
+          <WalletButton />
+        </div>
+      </div>
+
+      {/* mobile category rail */}
+      <div className="flex gap-1 overflow-x-auto border-t border-white/[0.04] px-4 py-2 lg:hidden">
+        {CATEGORIES.map((category) => (
+          <button
+            key={category}
+            onClick={() => onChange(category)}
+            className={cn(
+              "shrink-0 rounded-full px-3 py-1.5 text-xs transition-colors",
+              active === category
+                ? "border border-gold/40 bg-gold/12 text-gold-bright"
+                : "border border-white/8 text-muted"
+            )}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+    </header>
+  );
+}
