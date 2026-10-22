@@ -113,6 +113,15 @@ else
 fi
 rm -f "$OPEN_OUT"
 
+# ── 3.5 pre-generate debates ─────────────────────────────────────────────────
+# The site is read-only for AI: this tick is the only place a model gets called. MAX_PER_RUN keeps
+# a crowded board from turning one tick into a bill; each market is skipped while its cache is warm.
+if "$NODE" --experimental-strip-types scripts/gen-debates.ts >> "$LOG" 2>&1; then
+  say "debates: $(python3 -c "import json;print(len(json.load(open('frontend/public/debates.json'))['debates']))" 2>/dev/null || echo '?') cached"
+else
+  say "WARN debate pre-generation failed — site keeps serving the existing cache"
+fi
+
 # ── 4. refresh again so the new pool lands in the manifest immediately ───────
 "$HARDHAT" run scripts/ops-refresh.ts --network "$NETWORK" >> "$LOG" 2>&1 && \
   say "post-open refresh ok" || say "WARN post-open refresh failed"

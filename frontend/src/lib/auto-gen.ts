@@ -7,8 +7,12 @@
  * the cron daemon pre-compute the exact text the UI will later show.
  *
  * An LLM is an *optional* enhancer, never a requirement: `scripts/gen-market.ts` and
- * `/api/ai/debate` call the kernel first and only overwrite it when an API key is configured and
- * the call succeeds. With no key the platform still produces fresh, market-specific copy.
+ * `scripts/gen-debates.ts` call the kernel first and only overwrite it when an API key is configured
+ * and the call succeeds. With no key the platform still produces fresh, market-specific copy.
+ *
+ * The browser never reaches a model: debates arrive pre-generated in `public/debates.json`
+ * (see `lib/debate-cache.ts`), and this kernel is only the floor for a market the daemon has not
+ * covered yet.
  */
 
 /* ───────────────────────────── shared primitives ───────────────────────────── */
