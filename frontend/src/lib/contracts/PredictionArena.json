@@ -1,8 +1,8 @@
 {
   "contractName": "PredictionArena",
   "chainId": 8453,
-  "address": "0x96c0333657c684Ac125A54a0858471e1c8267355",
-  "exportedAt": "2026-10-21T12:13:53.479Z",
+  "address": "0x36f1bFbE3E0d0FA0941C031be278149D33f65684",
+  "exportedAt": "2026-10-22T01:35:49.539Z",
   "abi": [
     {
       "inputs": [
