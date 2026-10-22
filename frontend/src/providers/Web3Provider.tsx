@@ -29,7 +29,7 @@ const chains = [base, baseSepolia] as const;
 const config: Config = hasWalletConnect
   ? getDefaultConfig({
       appName: "Prediction Arena",
-      appDescription: "AI 预测对赌竞技场 — Base / USDC",
+      appDescription: "The decentralized AI-driven prediction market — Base / USDC",
       projectId,
       chains,
       ssr: true,

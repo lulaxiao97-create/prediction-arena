@@ -67,9 +67,9 @@ export function AIAgentsDebate({ category }: { category: string }) {
             <Sparkles className="size-4 text-gold-bright" />
           </span>
           <div>
-            <h2 className="text-sm font-semibold tracking-wide text-ink">AI 三智囊团 · 实时辩论</h2>
+            <h2 className="text-sm font-semibold tracking-wide text-ink">AI Agents · Live Debate</h2>
             <p className="text-[11px] text-muted">
-              三个独立人格分别从宏观 / 链上 / 情绪面给出判断，结论附 IPFS 快照
+              Three independent personas argue macro, on-chain and sentiment. Every claim ships with an IPFS snapshot.
             </p>
           </div>
         </div>
@@ -77,14 +77,14 @@ export function AIAgentsDebate({ category }: { category: string }) {
         <div className="ml-auto flex items-center gap-2">
           <span className="chip">
             <span className="size-1.5 animate-pulse rounded-full bg-gold" />
-            {finished ? "辩论结束" : `第 ${Math.min(index + 1, lines.length)} / ${lines.length} 轮`}
+            {finished ? "Debate complete" : `Round ${Math.min(index + 1, lines.length)} / ${lines.length}`}
           </span>
           <button
             onClick={reset}
             className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1.5 text-[11px] text-muted transition-colors hover:border-gold/40 hover:text-gold-bright"
           >
             <RefreshCw className="size-3" />
-            重播
+            Replay
           </button>
         </div>
       </header>
@@ -183,9 +183,9 @@ export function AIAgentsDebate({ category }: { category: string }) {
 
       {finished && (
         <div className="rise-in mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-gold/25 bg-gradient-to-r from-gold/10 to-transparent px-3 py-2.5">
-          <span className="chip chip-gold">共识</span>
+          <span className="chip chip-gold">Consensus</span>
           <p className="text-[11.5px] text-ink/85">
-            三智囊已给出加权结论，全部依据已快照上链（settle 时写入 bytes32 证据哈希）。
+            All three agents posted their verdicts. Every claim is snapshotted, and the bundle hash is written on-chain at settlement.
           </p>
         </div>
       )}
@@ -213,7 +213,7 @@ function EvidenceChip({
         className="inline-flex items-center gap-1 rounded-md border border-white/8 px-1.5 py-0.5 text-[9.5px] text-muted transition-colors hover:border-white/20 hover:text-ink"
       >
         {copied ? <Check className="size-2.5 text-profit" /> : <Copy className="size-2.5" />}
-        {copied ? "已复制" : "复制哈希"}
+        {copied ? "Copied" : "Copy hash"}
       </button>
       <a
         href={ipfsGatewayUrl(cid)}
@@ -222,7 +222,7 @@ function EvidenceChip({
         className="inline-flex items-center gap-1 rounded-md border border-white/8 px-1.5 py-0.5 text-[9.5px] text-muted transition-colors hover:border-gold/40 hover:text-gold-bright"
       >
         <ExternalLink className="size-2.5" />
-        校验 IPFS 快照
+        Verify IPFS snapshot
       </a>
     </div>
   );

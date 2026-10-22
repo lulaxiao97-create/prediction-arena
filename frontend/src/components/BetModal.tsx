@@ -14,7 +14,15 @@ import {
   X,
 } from "lucide-react";
 import type { ArenaPool } from "@/lib/types";
-import { cn, explorerTx, formatUsdc, impliedMultiplier, shortAddr } from "@/lib/format";
+import {
+  cn,
+  explorerTx,
+  formatProbability,
+  formatUsdc,
+  impliedMultiplier,
+  shortAddr,
+} from "@/lib/format";
+import { categoryLabel } from "@/lib/categories";
 import {
   BOOTSTRAP_CAP_USDC,
   MIN_BET_USDC,
@@ -61,6 +69,7 @@ export function BetModal({
   const totalAfter = pool.totalNetPool + netStake;
   const sideAfter = side + netStake;
   const multiplier = impliedMultiplier(totalAfter, sideAfter);
+  const probability = sideAfter > 0n ? Number(sideAfter) / Number(totalAfter) : 0.5;
   const payout = sideAfter > 0n ? (netStake * totalAfter) / sideAfter : 0n;
 
   const tooSmall = amount > 0n && amount < MIN_BET_USDC;
@@ -84,20 +93,13 @@ export function BetModal({
   }, [onClose]);
 
   useEffect(() => {
-    if (done) {
-      queryClient.invalidateQueries();
-    }
+    if (done) queryClient.invalidateQueries();
   }, [done, queryClient]);
 
   async function handleSubmit() {
     if (invalid || pending) return;
     try {
-      await bet({
-        poolId: pool.id,
-        option,
-        amount,
-        referrer: referrer,
-      });
+      await bet({ poolId: pool.id, option, amount, referrer });
     } catch {
       /* surfaced through hook state */
     }
@@ -105,14 +107,16 @@ export function BetModal({
 
   const stepLabel =
     step === "approving"
-      ? "授权 USDC 中…"
+      ? "Approving USDC…"
       : step === "betting"
-        ? "确认下注中…"
+        ? "Confirm in wallet…"
         : step === "confirming"
-          ? "等待链上确认…"
+          ? "Waiting for confirmation…"
           : done
-            ? "下注成功"
-            : "一键下注";
+            ? "Position opened"
+            : "Place Prediction";
+
+  const outcomeLabel = option === 0 ? "Yes" : "No";
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-6">
@@ -123,12 +127,16 @@ export function BetModal({
         role="dialog"
         aria-modal="true"
       >
-        {/* header */}
         <div className="flex items-start gap-3">
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <span className="chip chip-gold">{pool.category}</span>
-              {pool.source === "demo" && <span className="chip">DEMO</span>}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="chip chip-gold">{categoryLabel(pool.category)}</span>
+              {(pool.tags ?? []).slice(0, 2).map((tag) => (
+                <span key={tag} className="chip border-white/10 text-[10px] text-muted/85">
+                  {tag}
+                </span>
+              ))}
+              {pool.source === "demo" && <span className="chip text-[10px]">DEMO</span>}
               {referrer && (
                 <span className="chip border-gold/25 text-[10px] text-gold-bright">
                   REF {shortAddr(referrer, 3)}
@@ -142,7 +150,7 @@ export function BetModal({
           <button
             onClick={onClose}
             className="grid size-8 shrink-0 place-items-center rounded-lg border border-white/8 text-muted transition-colors hover:border-white/20 hover:text-ink"
-            aria-label="关闭"
+            aria-label="Close"
           >
             <X className="size-4" />
           </button>
@@ -151,7 +159,7 @@ export function BetModal({
         {done ? (
           <div className="flex flex-col items-center gap-3 py-6 text-center">
             <CheckCircle2 className="size-10 text-profit" />
-            <p className="text-sm text-ink">下注已上链，彩池已实时更新（含 4% 抽水隔离）。</p>
+            <p className="text-sm text-ink">Your position is on-chain and the liquidity pool is updated.</p>
             {hash && (
               <a
                 href={explorerTx(hash)}
@@ -159,7 +167,7 @@ export function BetModal({
                 rel="noreferrer"
                 className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-2 text-xs text-gold-bright hover:border-gold/40"
               >
-                查看交易 <ExternalLink className="size-3" />
+                View transaction <ExternalLink className="size-3" />
               </a>
             )}
             <button
@@ -169,12 +177,11 @@ export function BetModal({
               }}
               className="btn-gold mt-1 w-full"
             >
-              完成
+              Done
             </button>
           </div>
         ) : (
           <>
-            {/* option selector */}
             <div className="grid grid-cols-2 gap-2">
               {([0, 1] as const).map((value) => {
                 const active = option === value;
@@ -197,12 +204,7 @@ export function BetModal({
                     <p className={cn("text-[11px]", active ? "text-ink" : "text-muted")}>
                       {pool.optionLabels[value]}
                     </p>
-                    <p
-                      className={cn(
-                        "mono text-lg font-semibold",
-                        isYes ? "text-profit" : "text-loss"
-                      )}
-                    >
+                    <p className={cn("mono text-lg font-semibold", isYes ? "text-profit" : "text-loss")}>
                       {mult ? `${mult.toFixed(2)}x` : "—"}
                     </p>
                   </button>
@@ -210,12 +212,11 @@ export function BetModal({
               })}
             </div>
 
-            {/* amount */}
             <div className="rounded-xl border border-white/8 bg-white/[0.02] p-3">
               <div className="flex items-center justify-between text-[11px] text-muted">
-                <span>下注金额</span>
+                <span>Amount</span>
                 <span className="mono">
-                  余额 {balanceValue !== undefined ? `${formatUsdc(balanceValue)} USDC` : "—"}
+                  Balance {balanceValue !== undefined ? `$${formatUsdc(balanceValue)}` : "—"}
                 </span>
               </div>
               <div className="mt-1 flex items-center gap-2">
@@ -250,49 +251,42 @@ export function BetModal({
               </div>
             </div>
 
-            {/* limits */}
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted">
-              <span>最低 {formatUsdc(MIN_BET_USDC, 0)} USDC</span>
+              <span>Min ${formatUsdc(MIN_BET_USDC, 0)}</span>
               <span className="text-white/15">|</span>
               <span className="inline-flex items-center gap-1">
                 <ShieldAlert className="size-3 text-gold" />
-                单笔上限 <span className="mono text-gold-bright">{formatUsdc(cap, 0)}</span> USDC
-                （弱势侧 20%，50 USDC 保护底）
+                Max per trade <span className="mono text-gold-bright">${formatUsdc(cap, 0)}</span>
+                (20% of the lighter side, $50 floor)
               </span>
             </div>
 
-            {/* breakdown */}
             <div className="space-y-1.5 rounded-xl border border-white/6 bg-panel/60 p-3 text-[12px]">
-              <Row label="平台抽水 (4% 即时隔离)" value={`-${formatUsdc(fee)} USDC`} />
+              <Row label="Platform fee (4%, escrowed until settlement)" value={`-$${formatUsdc(fee)}`} />
               {referrer && (
-                <Row
-                  label={`KOL 返佣 (抽水的 30%)`}
-                  value={`${formatUsdc((fee * 3000n) / 10_000n)} USDC`}
-                  muted
-                />
+                <Row label="Referral share (30% of the fee)" value={`$${formatUsdc((fee * 3000n) / 10_000n)}`} muted />
               )}
-              <Row label="计入彩池（税后本金）" value={`${formatUsdc(netStake)} USDC`} />
+              <Row label="Added to liquidity (net stake)" value={`$${formatUsdc(netStake)}`} />
               <div className="my-1 h-px bg-white/6" />
               <Row
-                label={`若 ${pool.optionLabels[option]} 胜出 · 当前赔率 ${multiplier ? multiplier.toFixed(2) : "—"}x`}
-                value={`≈ ${formatUsdc(payout)} USDC`}
+                label={`If ${outcomeLabel} resolves · implied ${formatProbability(probability)}`}
+                value={`≈ $${formatUsdc(payout)}`}
                 highlight
               />
             </div>
 
-            {/* errors / chain guard */}
             {wrongChain && (
               <button onClick={switchToTarget} disabled={switching} className="btn-ghost w-full text-sm">
                 <Wallet className="size-4" />
-                {switching ? "切换中…" : "切换到 Base 网络后继续"}
+                {switching ? "Switching…" : "Switch to Base Mainnet to continue"}
               </button>
             )}
 
             {!hasArena && (
               <p className="flex items-start gap-1.5 rounded-lg border border-gold/25 bg-gold/8 px-2.5 py-2 text-[11px] leading-relaxed text-gold-bright/90">
                 <Info className="mt-0.5 size-3.5 shrink-0" />
-                当前是演示模式：未配置 NEXT_PUBLIC_ARENA_ADDRESS。设置合约地址后此按钮直接走
-                approve + bet 真实链路。
+                Demo mode: NEXT_PUBLIC_ARENA_ADDRESS is not configured. Once set, this button runs the real
+                approve + bet flow.
               </p>
             )}
 
@@ -301,16 +295,13 @@ export function BetModal({
                 {error}
               </p>
             )}
-
-            {tooSmall && !error && (
-              <p className="text-[11.5px] text-loss">下注金额低于 5 USDC 最低门槛。</p>
-            )}
+            {tooSmall && !error && <p className="text-[11.5px] text-loss">Amount is below the $5 minimum.</p>}
             {tooBig && !error && (
               <p className="text-[11.5px] text-loss">
-                超出单笔上限 {formatUsdc(cap)} USDC（防巨鲸：弱势侧 20%，最低保护 50 USDC）。
+                Above the ${formatUsdc(cap)} per-trade cap (20% of the lighter side, $50 floor).
               </p>
             )}
-            {noBalance && !error && <p className="text-[11.5px] text-loss">USDC 余额不足。</p>}
+            {noBalance && !error && <p className="text-[11.5px] text-loss">Insufficient USDC balance.</p>}
 
             <button
               onClick={handleSubmit}
@@ -325,7 +316,7 @@ export function BetModal({
               ) : !address ? (
                 <>
                   <Wallet className="size-4" />
-                  请先连接钱包
+                  Connect a wallet first
                 </>
               ) : (
                 <>
@@ -336,8 +327,8 @@ export function BetModal({
             </button>
 
             <p className="text-center text-[10.5px] leading-relaxed text-muted/70">
-              一键打包：先检查授权，不足时自动 approve，再调用 bet()。合约已 nonReentrant +
-              SafeERC20，抽水与彩池账本隔离。
+              One click: allowance check → approve if needed → bet(). The contract is nonReentrant and
+              keeps fees and liquidity in separate ledgers.
             </p>
           </>
         )}
@@ -402,4 +393,3 @@ export function BetModalHost({
   if (!pool) return null;
   return <BetModal key={`${pool.id}-${option}`} pool={pool} initialOption={option} onClose={onClose} />;
 }
-

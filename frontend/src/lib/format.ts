@@ -16,6 +16,15 @@ export function formatUsdc(value: bigint | undefined | null, digits = 2): string
   });
 }
 
+/** 48960 → "48.96K", 1_250_000 → "1.25M" (used in the stats banner). */
+export function formatCompactUsdc(value: bigint | undefined | null): string {
+  const n = toUsdcNumber(value);
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
+  if (n >= 10_000) return `${(n / 1_000).toFixed(1)}K`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(2)}K`;
+  return n.toFixed(2);
+}
+
 export function toUsdcNumber(value: bigint | undefined | null): number {
   if (!value) return 0;
   return Number(value) / 10 ** USDC_DECIMALS;
@@ -31,6 +40,11 @@ export function sideShare(sidePool: bigint, otherPool: bigint): number {
   const total = Number(sidePool + otherPool);
   if (total === 0) return 0.5;
   return Number(sidePool) / total;
+}
+
+/** 0.6234 → 62% */
+export function formatProbability(share: number): string {
+  return `${Math.round(share * 100)}%`;
 }
 
 export function shortAddr(addr?: string, size = 4): string {
@@ -53,18 +67,23 @@ export function countdown(endTime: number, nowMs = Date.now()): Countdown {
 }
 
 export function formatCountdown(c: Countdown): string {
-  if (c.ended) return "已关盘";
+  if (c.ended) return "Ended";
   if (c.d > 0) return `${c.d}d ${String(c.h).padStart(2, "0")}h ${String(c.m).padStart(2, "0")}m`;
   return `${String(c.h).padStart(2, "0")}:${String(c.m).padStart(2, "0")}:${String(c.s).padStart(2, "0")}`;
 }
 
 export function formatEndDate(endTime: number): string {
-  return new Date(endTime * 1000).toLocaleString("zh-CN", {
-    month: "2-digit",
+  return new Date(endTime * 1000).toLocaleString("en-US", {
+    month: "short",
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false,
   });
+}
+
+export function formatDateShort(endTime: number): string {
+  return new Date(endTime * 1000).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 export function ipfsGatewayUrl(cidOrHash: string): string {

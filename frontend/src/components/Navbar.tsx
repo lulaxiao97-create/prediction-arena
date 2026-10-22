@@ -3,11 +3,7 @@
 import dynamic from "next/dynamic";
 import { Activity, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/format";
-import { TARGET_CHAIN } from "@/hooks/usePredictionArena";
-
-export type Category = "All" | "Macro" | "Ecosystem" | "Tech" | "CT Drama";
-
-export const CATEGORIES: Category[] = ["All", "Macro", "Ecosystem", "Tech", "CT Drama"];
+import { CATEGORY_TABS, type MarketCategory } from "@/lib/categories";
 
 const WalletButton = dynamic(() => import("@/components/WalletButton").then((m) => m.WalletButton), {
   ssr: false,
@@ -20,14 +16,14 @@ export function Navbar({
   active,
   onChange,
 }: {
-  active: Category;
-  onChange: (category: Category) => void;
+  active: MarketCategory;
+  onChange: (category: MarketCategory) => void;
 }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-void/72 backdrop-blur-md">
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-4 px-4 sm:px-6">
-        {/* logo */}
-        <a href="#" className="group flex items-center gap-2.5">
+    <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-void/80 backdrop-blur-xl">
+      <div className="mx-auto flex h-[68px] w-full max-w-7xl items-center gap-3 px-4 sm:px-6">
+        {/* brand */}
+        <a href="#markets" className="group flex shrink-0 items-center gap-2.5" aria-label="Prediction Arena home">
           <span className="relative grid size-9 place-items-center rounded-xl border border-gold/40 bg-gradient-to-br from-gold-bright/25 to-gold/5 shadow-[0_0_24px_-6px_rgba(245,158,11,0.6)]">
             <svg viewBox="0 0 24 24" className="size-5" aria-hidden>
               <defs>
@@ -42,24 +38,28 @@ export function Navbar({
             </svg>
           </span>
           <span className="flex flex-col leading-none">
-            <span className="gold-text text-[15px] font-semibold tracking-[0.18em]">PREDICTION</span>
-            <span className="text-[10px] font-medium tracking-[0.42em] text-muted">ARENA</span>
+            <span className="gold-text text-[15px] font-semibold tracking-[0.06em]">Prediction Arena</span>
+            <span className="mt-1 hidden text-[9.5px] font-medium tracking-[0.02em] text-muted 2xl:block">
+              The Decentralized AI-Driven Prediction Market
+            </span>
           </span>
         </a>
 
-        {/* categories */}
-        <nav className="ml-4 hidden items-center gap-1 lg:flex">
-          {CATEGORIES.map((category) => (
+        {/* category tabs (desktop) */}
+        <nav className="ml-2 hidden items-center gap-0.5 lg:flex" aria-label="Market categories">
+          {CATEGORY_TABS.map((tab) => (
             <button
-              key={category}
-              onClick={() => onChange(category)}
+              key={tab.id}
+              onClick={() => onChange(tab.id)}
+              aria-current={active === tab.id ? "page" : undefined}
               className={cn(
-                "relative rounded-lg px-3 py-2 text-[13px] font-medium transition-colors",
-                active === category ? "text-gold-bright" : "text-muted hover:text-ink"
+                "relative whitespace-nowrap rounded-lg px-2.5 py-2 text-[12.5px] font-medium transition-colors",
+                active === tab.id ? "text-gold-bright" : "text-muted hover:text-ink"
               )}
             >
-              {category}
-              {active === category && (
+              <span className="mr-1 text-[11px] opacity-80">{tab.emoji}</span>
+              {tab.label}
+              {active === tab.id && (
                 <span className="absolute inset-x-2 -bottom-px h-px bg-gradient-to-r from-transparent via-gold to-transparent" />
               )}
             </button>
@@ -67,13 +67,14 @@ export function Navbar({
         </nav>
 
         <div className="ml-auto flex items-center gap-2.5">
-          <span className="hidden items-center gap-1.5 rounded-full border border-white/8 bg-white/[0.03] px-3 py-1.5 text-[11px] text-muted sm:flex">
+          <span className="hidden items-center gap-1.5 rounded-full border border-white/8 bg-white/[0.03] px-3 py-1.5 text-[11px] text-muted md:flex">
             <Activity className="size-3 text-profit" />
-            <span className="mono">{TARGET_CHAIN.name}</span>
+            <span className="size-1.5 rounded-full bg-profit shadow-[0_0_8px_2px_rgba(16,185,129,0.5)]" />
+            <span className="mono">Base Mainnet</span>
           </span>
           <span className="hidden items-center gap-1.5 rounded-full border border-gold/25 bg-gold/8 px-3 py-1.5 text-[11px] text-gold-bright xl:flex">
             <ShieldCheck className="size-3" />
-            IPFS 留痕 · 可审计
+            IPFS Evidence · Auditable
           </span>
           <WalletButton />
         </div>
@@ -81,18 +82,19 @@ export function Navbar({
 
       {/* mobile category rail */}
       <div className="flex gap-1 overflow-x-auto border-t border-white/[0.04] px-4 py-2 lg:hidden">
-        {CATEGORIES.map((category) => (
+        {CATEGORY_TABS.map((tab) => (
           <button
-            key={category}
-            onClick={() => onChange(category)}
+            key={tab.id}
+            onClick={() => onChange(tab.id)}
             className={cn(
               "shrink-0 rounded-full px-3 py-1.5 text-xs transition-colors",
-              active === category
+              active === tab.id
                 ? "border border-gold/40 bg-gold/12 text-gold-bright"
                 : "border border-white/8 text-muted"
             )}
           >
-            {category}
+            <span className="mr-1">{tab.emoji}</span>
+            {tab.short}
           </button>
         ))}
       </div>

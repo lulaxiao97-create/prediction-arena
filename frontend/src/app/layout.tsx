@@ -4,13 +4,13 @@ import "./globals.css";
 import { Web3Provider } from "@/providers/Web3Provider";
 
 export const metadata: Metadata = {
-  title: "Prediction Arena — AI 预测对赌竞技场",
+  title: "Prediction Arena — The Decentralized AI-Driven Prediction Market",
   description:
-    "AI 智囊团驱动的二元预测盘口。Base 链原生 USDC 结算，4% 抽水即时隔离，IPFS 快照留痕，人人可审计。",
+    "Binary prediction markets argued by AI agents and settled in native USDC on Base. 4% fee escrowed per market, IPFS evidence on-chain, auditable by anyone.",
   keywords: ["prediction market", "Base", "USDC", "AI agents", "Web3"],
   openGraph: {
     title: "Prediction Arena",
-    description: "AI 三智囊团辩论 + 链上二元对赌，Base / USDC 结算。",
+    description: "AI agents debate both sides. You take a position in USDC. Settled on Base.",
     type: "website",
   },
 };
@@ -21,7 +21,7 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="zh-CN" className="dark">
+    <html lang="en" className="dark">
       <body className="min-h-screen bg-void text-ink antialiased">
         <div className="bg-aurora" aria-hidden />
         <div className="bg-grid" aria-hidden />

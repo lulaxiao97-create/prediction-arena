@@ -1,20 +1,33 @@
 export type PoolSource = "chain" | "demo";
 
+/** Two-sided AI stances shown on every market card (bull case vs. bear case). */
+export type AiStances = {
+  yes: { agent: string; take: string };
+  no: { agent: string; take: string };
+};
+
 export type ArenaPool = {
   id: bigint;
   title: string;
+  /** Raw on-chain category string (e.g. "Crypto", "Macro"). Use lib/categories to bucket it. */
   category: string;
+  /** Display tags: chain-sourced from the manifest, or derived from the category. */
+  tags: string[];
   /** unix seconds */
   endTime: number;
   /** 0 = none, 1 = open, 2 = settled, 3 = canceled (mirrors the contract enum) */
   status: number;
   winningOption: number;
+  /** Net liquidity in the pool (fees excluded) — what the UI calls Total Liquidity. */
   totalNetPool: bigint;
   option0Pool: bigint;
   option1Pool: bigint;
   /** bytes32 evidence digest recorded by settle(); empty for open pools */
   settlementHash: string;
+  /** Outcome labels: [Yes, No] by default. */
   optionLabels: [string, string];
+  /** AI debate stances rendered inside the card. */
+  aiStances?: AiStances;
   source: PoolSource;
   /** demo-only analytics */
   traders?: number;
@@ -40,3 +53,11 @@ export type AgentProfile = {
 };
 
 export type BetStep = "idle" | "approving" | "betting" | "confirming" | "done";
+
+/** Aggregate numbers for the dashboard banner (from public/pools.json or live chain reads). */
+export type MarketStats = {
+  tvl: bigint;
+  activeMarkets: number;
+  volume24h: bigint;
+  settledMarkets: number;
+};

@@ -73,7 +73,8 @@ function normalizePool(id: bigint, raw: any, labels?: [string, string]): ArenaPo
     option0Pool: BigInt(raw.option0Pool ?? 0n),
     option1Pool: BigInt(raw.option1Pool ?? 0n),
     settlementHash: String(raw.settlementHash ?? ""),
-    optionLabels: labels ?? ["赞成", "反对"],
+    tags: [],
+    optionLabels: labels ?? ["Yes", "No"],
     source: "chain",
   };
 }
@@ -184,6 +185,19 @@ const POOL_CACHE_PREFIX = "arena:poolids:";
 
 type PoolIdCache = { ids: string[]; lastBlock: number };
 
+export type PoolManifestEntry = { id: string; title?: string; category?: string; tags?: string[] };
+export type ManifestStats = {
+  tvlUsdc?: string;
+  volume24hUsdc?: string;
+  activeMarkets?: number;
+  settledMarkets?: number;
+};
+type PoolIndex = {
+  ids: bigint[];
+  meta: Record<string, PoolManifestEntry>;
+  stats: ManifestStats | null;
+};
+
 function readPoolCache(key: string): PoolIdCache {
   try {
     const raw = window.localStorage.getItem(key);
@@ -222,12 +236,23 @@ export function useChainPoolIds() {
       // 1) static manifest — same-origin file, immune to RPC rate limits (see
       //    scripts/sync-pool-list.ts). Only ids are trusted from it; every field is read live.
       const seen = new Set<string>(cached.ids);
+      const meta: Record<string, PoolManifestEntry> = {};
+      let stats: ManifestStats | null = null;
       try {
         const res = await fetch("/pools.json", { cache: "no-store" });
         if (res.ok) {
-          const manifest = (await res.json()) as { address?: string; pools?: { id: string | number }[] };
+          const manifest = (await res.json()) as {
+            address?: string;
+            pools?: PoolManifestEntry[];
+            stats?: ManifestStats;
+          };
           if (String(manifest.address ?? "").toLowerCase() === ARENA_ADDRESS?.toLowerCase()) {
-            for (const p of manifest.pools ?? []) seen.add(String(p.id));
+            for (const entry of manifest.pools ?? []) {
+              const id = String(entry.id);
+              seen.add(id);
+              meta[id] = { ...entry, id };
+            }
+            stats = manifest.stats ?? null;
           }
         }
       } catch {
@@ -278,12 +303,17 @@ export function useChainPoolIds() {
         /* keep manifest/cached ids */
       }
 
-      return [...seen].map((s) => BigInt(s)).sort((a, b) => (a < b ? 1 : -1));
+      const ids = [...seen].map((s) => BigInt(s)).sort((a, b) => (a < b ? 1 : -1));
+      return { ids, meta, stats } as PoolIndex;
     },
   });
 
+  const data = query.data as PoolIndex | undefined;
+
   return {
-    ids: (query.data ?? []) as bigint[],
+    ids: data?.ids ?? ([] as bigint[]),
+    meta: data?.meta ?? ({} as Record<string, PoolManifestEntry>),
+    stats: data?.stats ?? null,
     // `isLoading` is also true for a *disabled* query (status pending + fetchStatus idle),
     // which would pin the page in a permanent loading state. Only report a real in-flight fetch.
     loading: query.fetchStatus === "fetching",
@@ -346,7 +376,7 @@ export function useWithdrawReferralFees() {
 
   const withdraw = useCallback(
     async (poolId: bigint) => {
-      if (!ARENA_ADDRESS) throw new Error("合约地址未配置");
+      if (!ARENA_ADDRESS) throw new Error("Contract address is not configured");
       setPending(true);
       setError(null);
       try {
@@ -374,22 +404,22 @@ export function useWithdrawReferralFees() {
 // ─────────────────────────────────────────────────────────────── errors
 
 const ERROR_MESSAGES: Array<[RegExp, string]> = [
-  [/BetBelowMinimum/, "下注金额低于 5 USDC 最低门槛"],
-  [/BetExceedsCap/, "超出单笔上限（弱势方 20%，最低 50 USDC 保护）"],
-  [/OwnerCannotBet/, "Owner 地址被禁止下注（防止裁判下场）"],
-  [/EmergencyTooEarly/, "尚未到 30 天紧急退款窗口"],
-  [/PoolEnded/, "该盘口已关盘，无法再下注"],
-  [/PoolNotOpen/, "盘口当前不可下注"],
-  [/PoolNotSettled/, "盘口尚未结算"],
-  [/AlreadyClaimed/, "这笔奖励已经领取过了"],
-  [/NothingToClaim/, "没有可领取的金额"],
-  [/NothingToWithdraw/, "暂无可提取余额"],
-  [/ZeroDataHash/, "缺少结算证据哈希"],
-  [/InvalidOption/, "无效的选项"],
-  [/OwnableUnauthorizedAccount|onlyOwner/i, "当前钱包没有该操作权限"],
-  [/User rejected|rejected the request|denied transaction/i, "你取消了钱包签名"],
-  [/insufficient funds/i, "钱包余额不足以支付 gas"],
-  [/ConnectorNotConnected|not connected/i, "请先连接钱包"],
+  [/BetBelowMinimum/, "Amount is below the 5 USDC minimum"],
+  [/BetExceedsCap/, "Above the per-trade cap (20% of the lighter side, 50 USDC floor)"],
+  [/OwnerCannotBet/, "The owner address cannot place predictions (oracle conflict of interest)"],
+  [/EmergencyTooEarly/, "Protection withdrawal opens 30 days after the market closes"],
+  [/PoolEnded/, "This market has closed for trading"],
+  [/PoolNotOpen/, "This market is not open for trading"],
+  [/PoolNotSettled/, "This market has not been resolved yet"],
+  [/AlreadyClaimed/, "Winnings already claimed"],
+  [/NothingToClaim/, "Nothing to claim"],
+  [/NothingToWithdraw/, "Nothing to withdraw"],
+  [/ZeroDataHash/, "Missing settlement evidence hash"],
+  [/InvalidOption/, "Invalid outcome"],
+  [/OwnableUnauthorizedAccount|onlyOwner/i, "This wallet does not have permission for that action"],
+  [/User rejected|rejected the request|denied transaction/i, "You rejected the signature request"],
+  [/insufficient funds/i, "Wallet balance cannot cover gas"],
+  [/ConnectorNotConnected|not connected/i, "Connect a wallet first"],
 ];
 
 export function describeError(error: unknown): string {
@@ -449,10 +479,10 @@ export function useBet() {
   const bet = useCallback(
     async (args: { poolId: bigint; option: 0 | 1; amount: bigint; referrer?: Address }) => {
       const usdc = USDC_BY_CHAIN[chainId] ?? USDC_BY_CHAIN[TARGET_CHAIN_ID];
-      if (!address) throw new Error("请先连接钱包");
-      if (!ARENA_ADDRESS) throw new Error("合约地址未配置（NEXT_PUBLIC_ARENA_ADDRESS）");
-      if (chainId !== TARGET_CHAIN_ID) throw new Error(`请切换到 ${TARGET_CHAIN.name} 网络`);
-      if (!publicClient) throw new Error("RPC 未就绪，请稍后重试");
+      if (!address) throw new Error("Connect a wallet first");
+      if (!ARENA_ADDRESS) throw new Error("Contract address not configured (NEXT_PUBLIC_ARENA_ADDRESS)");
+      if (chainId !== TARGET_CHAIN_ID) throw new Error(`Please switch to ${TARGET_CHAIN.name}`);
+      if (!publicClient) throw new Error("RPC not ready — please retry");
 
       setError(null);
       setHash(undefined);
@@ -489,7 +519,7 @@ export function useBet() {
 
         setStep("confirming");
         const receipt = await publicClient.waitForTransactionReceipt({ hash: betHash });
-        if (receipt.status !== "success") throw new Error("交易已回滚");
+        if (receipt.status !== "success") throw new Error("Transaction reverted");
 
         setStep("done");
         return betHash;
@@ -514,7 +544,7 @@ export function useApproveUsdc() {
 
   const approve = useCallback(
     async (amount: bigint = BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")) => {
-      if (!ARENA_ADDRESS) throw new Error("合约地址未配置");
+      if (!ARENA_ADDRESS) throw new Error("Contract address is not configured");
       setPending(true);
       setError(null);
       try {
@@ -548,7 +578,7 @@ export function useClaimRewards() {
 
   const claim = useCallback(
     async (poolId: bigint) => {
-      if (!ARENA_ADDRESS) throw new Error("合约地址未配置");
+      if (!ARENA_ADDRESS) throw new Error("Contract address is not configured");
       setPending(true);
       setError(null);
       try {
@@ -584,7 +614,7 @@ export function useClaimRefund() {
 
   const refund = useCallback(
     async (poolId: bigint) => {
-      if (!ARENA_ADDRESS) throw new Error("合约地址未配置");
+      if (!ARENA_ADDRESS) throw new Error("Contract address is not configured");
       setPending(true);
       setError(null);
       try {
@@ -623,7 +653,7 @@ export function useEmergencyRefund() {
 
   const forceCancel = useCallback(
     async (poolId: bigint) => {
-      if (!ARENA_ADDRESS) throw new Error("合约地址未配置");
+      if (!ARENA_ADDRESS) throw new Error("Contract address is not configured");
       setPending(true);
       setError(null);
       try {
