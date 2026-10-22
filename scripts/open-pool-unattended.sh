@@ -76,13 +76,15 @@ fi
 # Decide *what* to open before touching the chain: the generator writes logs/generated-market.json,
 # which auto-create-pool.ts prefers over its built-in fallback title.
 GEN_NODE="$(command -v node || echo "$HOME/.local/bin/node")"
-if [[ -x "$GEN_NODE" ]]; then
+if [[ "${SKIP_GENERATE:-0}" != "1" && -x "$GEN_NODE" ]]; then
   "$GEN_NODE" --experimental-strip-types scripts/gen-market.ts >> "$LOG" 2>&1 || \
     echo "[$(date -Is)] WARN generator failed — falling back to the built-in title" >> "$LOG"
+elif [[ "${SKIP_GENERATE:-0}" == "1" ]]; then
+  echo "[$(date -Is)] generator skipped (SKIP_GENERATE=1 — caller already generated)" >> "$LOG"
 fi
 
 set +e
-"${HARDHAT[@]}" run scripts/auto-create-pool.ts --network "$NETWORK" 2>&1 | tee "$LOG"
+"${HARDHAT[@]}" run scripts/auto-create-pool.ts --network "$NETWORK" 2>&1 | tee -a "$LOG"
 STATUS=${PIPESTATUS[0]}
 set -e
 

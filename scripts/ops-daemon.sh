@@ -75,7 +75,7 @@ pool_id() { python3 -c "import json;print(json.load(open('logs/pool-state.json')
 
 POOL_BEFORE="$(pool_id)"
 OPEN_OUT="$(mktemp)"
-bash scripts/open-pool-unattended.sh >> "$OPEN_OUT" 2>&1
+SKIP_GENERATE=1 bash scripts/open-pool-unattended.sh >> "$OPEN_OUT" 2>&1
 OPEN_STATUS=$?
 cat "$OPEN_OUT" >> "$LOG"
 POOL_AFTER="$(pool_id)"

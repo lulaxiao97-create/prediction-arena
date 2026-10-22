@@ -90,10 +90,12 @@ RESP=$(curl -sS -m 15 -X POST -H "content-type: application/json" \
   "${PROXY_ARGS[@]}" --data-binary "$BODY" "$TARGET" 2>&1)
 STATUS=$?
 
+# one log line per attempt: multi-line messages must not shred the log
+ONELINE="${MSG//$'\n'/ | }"
 if [[ $STATUS -eq 0 ]]; then
-  echo "[$STAMP] notify ok ($LEVEL): ${MSG:0:120}" >> "$LOG"
+  echo "[$STAMP] notify ok ($LEVEL): ${ONELINE:0:160}" >> "$LOG"
 else
-  echo "[$STAMP] notify failed (curl $STATUS): ${RESP:0:200}" >> "$LOG"
+  echo "[$STAMP] notify failed (curl $STATUS): ${ONELINE:0:80} :: ${RESP:0:120}" >> "$LOG"
 fi
 
 exit 0
