@@ -19,6 +19,7 @@ import { ProbabilityChart } from "@/components/ProbabilityChart";
 import { useLiveSeries } from "@/hooks/useLiveSeries";
 import { CommunityDiscussion } from "@/components/CommunityDiscussion";
 import { CategoryCover } from "@/components/CategoryCover";
+import { MobileTradeSheet } from "@/components/MobileTradeSheet";
 import { themeFor } from "@/lib/visuals";
 import { useAiDebate } from "@/hooks/useAiDebate";
 import { ActivityLog } from "@/components/ActivityLog";
@@ -65,7 +66,7 @@ export function MarketDetail({ id }: { id: string }) {
     }),
     [pool?.id, pool?.category, pool?.title, pool?.totalNetPool, meta.category, meta.title, share0]
   );
-  const { lines: debate, source: debateSource } = useAiDebate(debateInput);
+  const { lines: debate, source: debateSource, stale: debateStale, staleReason, cachedBand } = useAiDebate(debateInput);
   const cd = pool ? countdown(pool.endTime) : null;
 
   const TABS: { id: Tab; label: string }[] = [
@@ -108,7 +109,7 @@ export function MarketDetail({ id }: { id: string }) {
     <div className="min-h-screen">
       <Navbar active={category} onChange={setCategory} />
 
-      <main className="mx-auto max-w-[1400px] px-4 pb-10 pt-4 sm:px-6">
+      <main className="mx-auto max-w-[1400px] px-4 pb-28 pt-4 sm:px-6 lg:pb-10">
         <Link
           href="/"
           className="inline-flex items-center gap-1.5 rounded-md px-1 py-0.5 text-[11.5px] text-muted transition-colors hover:text-ink"
@@ -136,7 +137,7 @@ export function MarketDetail({ id }: { id: string }) {
                 </span>
               </div>
 
-              <h1 className="mt-2.5 text-[20px] font-bold leading-snug text-ink sm:text-[26px]">{pool.title}</h1>
+              <h1 className="mt-2.5 break-words text-[20px] font-bold leading-[1.2] tracking-tight text-ink [hyphens:auto] sm:text-[26px]">{pool.title}</h1>
 
               <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 <Metric label={t("detail.probability")} value={formatProbability(share0)} tone="profit" />
@@ -253,7 +254,16 @@ export function MarketDetail({ id }: { id: string }) {
                 )}
 
                 {tab === "debate" && (
-                  <ul className="space-y-2">
+                  <>
+                    {debateStale && (
+                      <p className="mb-2 flex items-center gap-1.5 rounded-lg border border-cyan/20 bg-cyan/[0.05] px-2.5 py-1.5 text-[10px] leading-relaxed text-cyan-bright/80 transition-opacity duration-300">
+                        <span className="size-1.5 animate-pulse rounded-full bg-cyan-bright" />
+                        {staleReason === "drift" && cachedBand !== null
+                          ? t("detail.debateDrift", { cached: cachedBand, now: Math.round(share0 * 100) })
+                          : t("detail.debateMissing")}
+                      </p>
+                    )}
+                    <ul className="space-y-2">
                     {debate.map((line, i) => {
                       const agent = AGENTS.find((a) => a.id === line.agent) ?? AGENTS[0];
                       const round = Math.floor(i / 2) + 1;
@@ -291,7 +301,8 @@ export function MarketDetail({ id }: { id: string }) {
                         </li>
                       );
                     })}
-                  </ul>
+                    </ul>
+                  </>
                 )}
 
                 {tab === "activity" && (
@@ -325,11 +336,13 @@ export function MarketDetail({ id }: { id: string }) {
             />
           </div>
 
-          <div className="lg:pt-0">
+          <div className="hidden lg:block lg:pt-0">
             <TradePanel pool={pool} />
           </div>
         </div>
       </main>
+
+      <MobileTradeSheet pool={pool} yesPct={share0} />
 
       <BetModalHost pool={selected?.pool ?? null} option={selected?.option ?? 0} onClose={() => setSelected(null)} />
     </div>

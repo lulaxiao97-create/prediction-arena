@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { generateDebate, type DebateLine } from "@/lib/auto-gen";
+import { generateLocalizedDebate, type DebateLang, type DebateLine } from "@/lib/auto-gen";
 import { SEED_DEBATES } from "@/lib/manifest";
-import { pickDebate, type DebateCache } from "@/lib/debate-cache";
+import { driftOf, pickDebate, type DebateCache } from "@/lib/debate-cache";
+import { useI18n } from "@/components/LocaleProvider";
 
 /** The daemon rewrites this file; a long-lived tab picks changes up without a reload. */
 const POLL_MS = 5 * 60 * 1000;
@@ -27,14 +28,18 @@ export function useAiDebate(input: {
   enabled?: boolean;
 }) {
   const { poolId, category, title, yesPct, netPoolUsdc, enabled = true } = input;
+  const { locale } = useI18n();
 
   const kernel = useMemo(
-    () => generateDebate({ poolId, category, title, yesPct, netPoolUsdc }),
-    [poolId, category, title, yesPct, netPoolUsdc]
+    () => generateLocalizedDebate({ poolId, category, title, yesPct, netPoolUsdc }, locale as DebateLang),
+    [poolId, category, title, yesPct, netPoolUsdc, locale]
   );
 
-  // build-time snapshot → synchronous, identical on server and client
-  const seeded = useMemo(() => pickDebate(SEED_DEBATES as unknown as DebateCache, poolId, yesPct), [poolId, yesPct]);
+  // build-time snapshot → synchronous, identical on server and client (and language-matched)
+  const seeded = useMemo(
+    () => pickDebate(SEED_DEBATES as unknown as DebateCache, poolId, yesPct, locale),
+    [poolId, yesPct, locale]
+  );
 
   const [cache, setCache] = useState<DebateCache | null>(null);
 
@@ -65,15 +70,28 @@ export function useAiDebate(input: {
     };
   }, [enabled]);
 
-  const runtime = useMemo(() => (cache ? pickDebate(cache, poolId, yesPct) : null), [cache, poolId, yesPct]);
+  const runtime = useMemo(
+    () => (cache ? pickDebate(cache, poolId, yesPct, locale) : null),
+    [cache, poolId, yesPct, locale]
+  );
 
   const entry = runtime ?? seeded;
   const lines: DebateLine[] = entry?.lines?.length ? (entry.lines as DebateLine[]) : kernel;
+
+  // `stale` is true whenever what is on screen is not the model's current reading of the book:
+  // either there is no cached debate yet, or the market moved away from the band it was written for.
+  // The UI uses this to show a quiet "recomputing" note instead of silently swapping text.
+  const drift = entry ? driftOf(entry, yesPct) : Number.POSITIVE_INFINITY;
 
   return {
     lines,
     source: entry ? entry.source : ("kernel" as const),
     generatedAt: entry?.at ?? null,
+    /** no fresh model argument set for this market + language + probability band */
+    stale: !entry || drift > 10,
+    /** cached band vs current, so the UI can say "written at 60%, now 81%" */
+    staleReason: !entry ? ("missing" as const) : drift > 10 ? ("drift" as const) : null,
+    cachedBand: entry?.band ?? null,
     pending: false,
   };
 }

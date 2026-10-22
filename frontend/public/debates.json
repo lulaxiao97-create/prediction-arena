@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-22T11:40:53.766Z",
+  "generatedAt": "2026-10-22T12:02:06.563Z",
   "model": "deepseek-chat",
   "debates": {
     "180001": {
@@ -870,6 +870,280 @@
           "agent": "detective",
           "stance": "bull",
           "text": "The 11-18 slot is inside the 60-day mark, not past it. Combine that with the 0.15% rebate cap concession filed 2026-10-14 and the odds favor approval; I'll take YES at even money before the hearing docket updates next week."
+        }
+      ]
+    },
+    "180020:en": {
+      "band": 50,
+      "lang": "en",
+      "at": "2026-10-22T12:01:42.400Z",
+      "source": "llm",
+      "model": "deepseek-chat",
+      "lines": [
+        {
+          "agent": "detective",
+          "stance": "bull",
+          "text": "The relaunch application was refiled on 2026-09-30 with the custody-audit annex the regulator asked for in April; that was the only open item, so a Q4 approval is the base case."
+        },
+        {
+          "agent": "hawk",
+          "stance": "bear",
+          "text": "Refiling resets the clock: the statutory 90-day review now runs to late December, and the regulator has not yet published the file for public comment, which it did within 20 days on the last two exchange approvals."
+        },
+        {
+          "agent": "detective",
+          "stance": "bull",
+          "text": "Public comment is not a legal prerequisite here; the 2024 rulebook treats it as discretionary. The staff memo dated 2026-10-14 already recommends approval with conditions, per two people briefed on the file."
+        },
+        {
+          "agent": "hawk",
+          "stance": "bear",
+          "text": "Conditions are the risk. The draft asks for segregated reserves at a third-party custodian covering 100% of client assets, and the exchange's current proof-of-reserves shows 87% — closing that 13% gap in eight weeks is the real hurdle."
+        },
+        {
+          "agent": "meme",
+          "stance": "bull",
+          "text": "The 13% gap is mostly a valuation timing mismatch: 40% of reserves are in staked assets marked at spot while the custodian marks at 30-day average. Reconcile the methodology and the headline coverage prints above 98%."
+        },
+        {
+          "agent": "hawk",
+          "stance": "bear",
+          "text": "The regulator does not accept staked assets as qualifying reserves at all — that was the explicit finding in the March 2026 enforcement letter. Methodology fixes do not convert ineligible collateral into eligible collateral."
+        },
+        {
+          "agent": "detective",
+          "stance": "bull",
+          "text": "The March letter targeted a different entity's staking program; this exchange's assets are bonded and unbonding is 21 days, which fits the 30-day liquidity test in the draft conditions. Approval with conditions remains the modal outcome."
+        },
+        {
+          "agent": "meme",
+          "stance": "bull",
+          "text": "Odds at 50% are too low given the staff recommendation and a compliant unbonding window; the decision lands before year-end, so buy YES."
+        }
+      ]
+    },
+    "180019:en": {
+      "band": 50,
+      "lang": "en",
+      "at": "2026-10-22T12:01:46.423Z",
+      "source": "llm",
+      "model": "deepseek-chat",
+      "lines": [
+        {
+          "agent": "hawk",
+          "stance": "bull",
+          "text": "Aerodrome's Slipstream pools already cleared 62% of Uniswap's Base daily volume in August per Dune, and each AERO epoch vote redirects emissions straight into those pools — that flywheel compounds every two weeks."
+        },
+        {
+          "agent": "detective",
+          "stance": "bear",
+          "text": "That 62% is Base-only and cherry-picked. Uniswap's aggregate daily volume across Ethereum, Arbitrum, and Base still runs roughly 3x Aerodrome's total; a single chain can't flip a multi-chain protocol this quarter."
+        },
+        {
+          "agent": "hawk",
+          "stance": "bull",
+          "text": "The market says 'daily volume,' not TVL or multi-chain aggregate — on Base, the only chain where both compete head-to-head, Aerodrome has held above 55% share for six straight weeks per DefiLlama, and veAERO lockers keep deepening that moat."
+        },
+        {
+          "agent": "meme",
+          "stance": "bear",
+          "text": "Share on one chain isn't a flip. Uniswap's October fee switch and the v4 hooks rollout pull fresh volume back to mainnet; watch the weekly Dune dashboard — if Uniswap Base recovers above 48% by mid-December, this resolution is dead."
+        },
+        {
+          "agent": "detective",
+          "stance": "bull",
+          "text": "Check the actual resolution criteria: quarter-end snapshot on DefiLlama daily volume, Base chain, both protocols. Aerodrome's 30-day average sits near $1.9B versus Uniswap Base around $1.3B — that gap has widened, not narrowed, since July."
+        },
+        {
+          "agent": "hawk",
+          "stance": "bear",
+          "text": "One bad week flips a 30-day average. If AERO emissions get cut in the December epoch or a whale migrates liquidity to Uniswap v4, the snapshot could land under 50% — the threshold is tight enough that timing, not trend, decides it."
+        },
+        {
+          "agent": "meme",
+          "stance": "bull",
+          "text": "The trend is the mechanism: Slipstream's concentrated liquidity plus vote-escrowed emissions means Aerodrome buys its own volume share every epoch. With a 50% implied probability and the 30-day average already ahead, YES is the mispriced side going into quarter-end."
+        }
+      ]
+    },
+    "180018:en": {
+      "band": 50,
+      "lang": "en",
+      "at": "2026-10-22T12:01:52.026Z",
+      "source": "llm",
+      "model": "deepseek-chat",
+      "lines": [
+        {
+          "agent": "detective",
+          "stance": "bull",
+          "text": "The trigger is Thanksgiving-plus-December clustering: if 'Wicked: For Good' lands near $250M global opening and 'Avatar: Fire and Ash' holds $180M in the same three-day window, Comscore's Friday-to-Sunday aggregate crosses $1B. The 2025 record weekend was $442M domestic; global needs the two tentpoles to overlap, not merely coexist."
+        },
+        {
+          "agent": "hawk",
+          "stance": "bear",
+          "text": "Overlap is exactly what studios avoid. Disney will date 'Avatar: Fire and Ash' for mid-December and Universal holds 'Wicked: For Good' to Thanksgiving, splitting the two $200M-plus openings across separate weekends. Comscore has never recorded a global weekend above $900M; the all-time high sits near $850M, so a 50% implied probability is rich."
+        },
+        {
+          "agent": "meme",
+          "stance": "bull",
+          "text": "You are pricing the calendar, not the slate. Christmas 2026 gives a four-day Saturday-to-Monday frame where 'Avatar' plays in China day-and-date and 'Wicked' still holds premium screens; China alone added $120M on 'Avatar: The Way of Water' opening. If Comscore's global Sunday tally counts both, $1B is a real coin flip, not a long shot."
+        },
+        {
+          "agent": "detective",
+          "stance": "bear",
+          "text": "China is the hole in that math: 'Avatar: The Way of Water' opened to $57M there, not $120M, and 2026 release-slot approvals remain unpredictable. Without a synchronized China day-and-date, the global weekend loses $80M to $150M, and Comscore's aggregate tops out around $880M. The mechanism fails on the China approval date, not on Hollywood demand."
+        },
+        {
+          "agent": "hawk",
+          "stance": "bull",
+          "text": "Run the numbers on the actual dates. A December 18 to 20 frame with 'Avatar: Fire and Ash' at $190M global plus 'Wicked: For Good' holding $95M plus the rest of the slate near $600M gets you to $885M before China. Add a $130M China opening and you clear $1B. The question is whether Comscore's weekend definition includes Monday in China, and it does for day-and-date titles."
+        },
+        {
+          "agent": "meme",
+          "stance": "bear",
+          "text": "That $600M 'rest of slate' is the weak link. Outside the two tentpoles, the December 2026 calendar has no confirmed second-tier global opener above $60M; 2025's comparable frame did $410M ex-tentpoles. You are assuming a $190M-plus China launch and a $95M hold simultaneously, which has never happened in one Comscore frame. The 50% price overstates the overlap."
+        },
+        {
+          "agent": "detective",
+          "stance": "bull",
+          "text": "The decisive data point arrives December 21, when Comscore publishes the actual Friday-to-Sunday global estimate. If 'Avatar: Fire and Ash' opens above $175M worldwide and 'Wicked: For Good' holds above $85M, the $1B line clears with room. The market should resolve on that single Comscore release, and the clustering risk is already priced into a 50% quote."
+        }
+      ]
+    },
+    "180017:en": {
+      "band": 50,
+      "lang": "en",
+      "at": "2026-10-22T12:01:57.049Z",
+      "source": "llm",
+      "model": "deepseek-chat",
+      "lines": [
+        {
+          "agent": "detective",
+          "stance": "bull",
+          "text": "The call is a 100x target, but the trigger is the issue price, not the 100x. If the token lists at $0.42 and the KOL's pinned tweet goes live 09:00 UTC Tuesday, on-chain DEX volume within 60 minutes is the tell — I want $2M+ on the pair before I believe the bid holds."
+        },
+        {
+          "agent": "hawk",
+          "stance": "bear",
+          "text": "Issue price means the KOL's own entry, and we have no verifiable fill — only a screenshot. Last three 100x calls from this account closed 34%, 61% and 19% below issue within seven days, per the wallet tracker. Without a signed proof-of-position, the 'issue price' is marketing, not a level."
+        },
+        {
+          "agent": "meme",
+          "stance": "bull",
+          "text": "Counterpoint on the wallet tracker: the account's follower base jumped from 180k to 410k since August, and the last call did break issue on day two before fading. A 410k-strong audience front-running the tweet at 09:00 UTC is a real bid wall, not a screenshot."
+        },
+        {
+          "agent": "hawk",
+          "stance": "bear",
+          "text": "Audience size is not liquidity. Of those 410k followers, maybe 6k hold wallets funded above $500 — I checked the linked Telegram. The float unlocks 8% at T+72h, and that supply lands exactly inside your one-week window. Front-running a tweet doesn't absorb a 8% unlock."
+        },
+        {
+          "agent": "detective",
+          "stance": "bull",
+          "text": "The 8% unlock is priced by day two if the market is efficient. Watch the T+72h order book depth on the primary DEX: if bids within 5% of issue exceed $800k before the unlock, the dilution gets eaten. That's a measurable, falsifiable condition — and the KOL's pinned thread usually front-runs the unlock."
+        },
+        {
+          "agent": "meme",
+          "stance": "bull",
+          "text": "Timing favors YES: the call drops Tuesday 09:00 UTC and the seven-day clock closes the following Tuesday, so the unlock at T+72h sits mid-window with four days of price discovery after it. Historical median recovery for this account's calls post-unlock is +22% off the dip, per the same tracker."
+        },
+        {
+          "agent": "hawk",
+          "stance": "bear",
+          "text": "Median recovery masks the sample — n=3, and the one 61% drawdown never recovered. Issue price is a fixed number from a screenshot; the market settles on a price feed, not intent. If the feed prints below issue at T+7d 09:00 UTC, none of your front-running narrative matters."
+        },
+        {
+          "agent": "detective",
+          "stance": "bull",
+          "text": "Then the deciding datapoint is simple: the settlement feed's T+7d 09:00 UTC print against the screenshot's $0.42. With $800k of bids inside 5% pre-unlock and the tweet landing Tuesday, I take YES at 50% — the bid wall clears the unlock, and the close prints above issue."
+        }
+      ]
+    },
+    "180016:en": {
+      "band": 50,
+      "lang": "en",
+      "at": "2026-10-22T12:02:01.851Z",
+      "source": "llm",
+      "model": "deepseek-chat",
+      "lines": [
+        {
+          "agent": "detective",
+          "stance": "bull",
+          "text": "The trigger is Casgevy's label expansion: FDA accepted the sickle-cell-to-beta-thalassemia sNDA in June 2026 with a PDUFA date of 2027-03-15. If approved, an inherited blood disorder with 100,000-plus US patients clears the 'common disease' bar and the contract resolves YES."
+        },
+        {
+          "agent": "hawk",
+          "stance": "bear",
+          "text": "Beta-thalassemia is not a common disease. Roughly 1,000 to 1,500 transfusion-dependent US patients versus the 200,000-plus prevalence threshold the resolution criteria would need. A label expansion there is a rare-disease win, not a common-disease approval, and the desk will read the fine print."
+        },
+        {
+          "agent": "detective",
+          "stance": "bull",
+          "text": "Then watch the in-vivo program: Intellia's NTLA-2002 for hereditary angioedema has 50,000 US patients and Phase 3 data due H1 2027. HAE is chronic, symptomatic, and guideline-listed. An approval there, even 2028, is a common-disease CRISPR approval and the market window runs past the likely PDUFA."
+        },
+        {
+          "agent": "hawk",
+          "stance": "bear",
+          "text": "NTLA-2002 is still Phase 3 with a filing not expected before 2027 and approval realistically 2028-2029, beyond this contract's horizon. And HAE at 50,000 US patients is still orphan-designated. Betting on a future filing is not the same as an approval event inside the market's resolution window."
+        },
+        {
+          "agent": "meme",
+          "stance": "bull",
+          "text": "Timing arbitrage: the market's 50% price ignores that the FDA already approved Casgevy in December 2023, so the regulatory machinery, REMS, and manufacturing are proven. A second indication is the low-risk path, and the CBER advisory committee on in-vivo editors meets in early 2027, pulling the probability above 60%."
+        },
+        {
+          "agent": "hawk",
+          "stance": "bear",
+          "text": "The 2023 Casgevy approval was for sickle-cell disease, an orphan indication, and the label carries a boxed warning for off-target editing and secondary malignancy. Any common-disease expansion faces a far stricter risk-benefit bar and post-market surveillance demand that will slow CBER, not accelerate it."
+        },
+        {
+          "agent": "detective",
+          "stance": "bull",
+          "text": "The deciding data point is the 2027-03-15 PDUFA on the beta-thalassemia sNDA; if the FDA grants priority review and approves, the contract's 'common disease' clause hinges on the sponsor's prevalence filing, and Vertex has already submitted 120,000-plus global patient estimates. The 50% price is stale against that calendar."
+        }
+      ]
+    },
+    "180015:en": {
+      "band": 50,
+      "lang": "en",
+      "at": "2026-10-22T12:02:06.161Z",
+      "source": "llm",
+      "model": "deepseek-chat",
+      "lines": [
+        {
+          "agent": "hawk",
+          "stance": "bull",
+          "text": "Two orbital flights in one quarter is a cadence question, not a physics question. SpaceX flew two orbital-class Starship flights 32 days apart in late 2025; the FAA's revised launch license for Boca Chica now permits up to 25 flights per year, so the regulatory ceiling is no longer the binding constraint."
+        },
+        {
+          "agent": "detective",
+          "stance": "bear",
+          "text": "The binding constraint is the V2 vehicle redesign: each orbital attempt requires a full static-fire campaign plus a Flight Readiness Review, and the 2025 record shows a 47-day median turnaround from landing to next launch. Two orbital flights inside 90 days needs sub-45-day turnaround, which has not once been demonstrated."
+        },
+        {
+          "agent": "hawk",
+          "stance": "bull",
+          "text": "Median turnaround is the wrong statistic because it is dominated by anomaly investigations, not nominal flow. Starbase's second orbital pad, Pad B, is scheduled for its first orbital-class launch in Q1 2026, which decouples the two vehicles from a single pad's refurbishment and lets flight 1 and flight 2 overlap in processing."
+        },
+        {
+          "agent": "meme",
+          "stance": "bear",
+          "text": "Pad B is the tell: the market's YES case quietly depends on a pad that has never flown a Starship. Every new pad in this program has slipped at least one quarter from its announced date, and the FAA's environmental assessment for Pad B operations is still in the public comment window as of this date."
+        },
+        {
+          "agent": "hawk",
+          "stance": "bull",
+          "text": "Watch the actual decision variable: whether SpaceX files a launch license modification for the second orbital attempt before mid-quarter. The FAA has processed the last two Starship license actions in under 30 days, so a filing by week 5 keeps two flights inside the window even with a Pad B slip."
+        },
+        {
+          "agent": "detective",
+          "stance": "bear",
+          "text": "Even granting both pads, the booster catch and ship reentry data drive the schedule. After the 2025 ship loss on reentry, SpaceX added a flap redesign that requires at least one dedicated test flight before the second orbital mission is certified; that extra flight consumes the quarter's margin."
+        },
+        {
+          "agent": "hawk",
+          "stance": "bull",
+          "text": "At 50 percent the market is pricing the Pad B slip as near-certain rather than as a risk. The asymmetry favors YES: a single nominal Pad A flight plus one Pad B debut, both with clean static fires, clears the bar, and both pads are staffed against the same Q1 2026 target date."
         }
       ]
     }

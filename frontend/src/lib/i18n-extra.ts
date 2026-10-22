@@ -87,6 +87,8 @@ export const EXTRA: Record<string, ExtraDict> = {
       rule4: "Anyone may trigger Protection Withdrawal 30 days after the close time.",
       liveFallback: "This market is read live from the Prediction Arena contract; its long-form description has not been published to the manifest yet.",
       rulesFallback: "Resolution is written on-chain by settle(outcome, bytes32 evidenceHash). Any position can be refunded at 100% if the market is cancelled, or after 30 days of operator silence via Protection Withdrawal.",
+      debateMissing: "AI is drafting arguments for the current probability…",
+      debateDrift: "Arguments were written at {cached}% — the market is now {now}%. Recomputed shortly.",
     },
     footer: {
       copyright: "© 2026 Prediction Arena Protocol",
@@ -181,6 +183,8 @@ export const EXTRA: Record<string, ExtraDict> = {
       rule4: "關盤 30 天後任何人都可觸發「保護性退款」。",
       liveFallback: "此市場直接從 Prediction Arena 合約讀取；長篇說明尚未寫入清單。",
       rulesFallback: "結算由 settle(outcome, bytes32 evidenceHash) 寫入鏈上。若市場取消，或營運方沉默超過 30 天，任何部位都可 100% 退款。",
+      debateMissing: "AI 正在依最新機率重算論點…",
+      debateDrift: "論點寫於 {cached}% —— 目前市場為 {now}%，稍後重算。",
     },
     footer: {
       copyright: "© 2026 Prediction Arena Protocol",
@@ -270,6 +274,8 @@ export const EXTRA: Record<string, ExtraDict> = {
       rule4: "Jeder kann 30 Tage nach Schluss den Schutz-Rückzug auslösen.",
       liveFallback: "Dieser Markt wird live aus dem Prediction-Arena-Vertrag gelesen; die ausführliche Beschreibung wurde noch nicht im Manifest veröffentlicht.",
       rulesFallback: "Die Abrechnung wird on-chain durch settle(outcome, bytes32 evidenceHash) geschrieben. Bei Stornierung oder 30 Tagen Betreiberstille ist jede Position zu 100 % erstattbar.",
+      debateMissing: "Die KI formuliert Argumente für die aktuelle Wahrscheinlichkeit…",
+      debateDrift: "Argumente stammen von {cached}% — der Markt steht jetzt bei {now}%. Wird neu berechnet.",
     },
     footer: {
       copyright: "© 2026 Prediction Arena Protocol",
@@ -359,6 +365,8 @@ export const EXTRA: Record<string, ExtraDict> = {
       rule4: "Chacun peut déclencher le retrait de protection 30 jours après la clôture.",
       liveFallback: "Ce marché est lu en direct depuis le contrat Prediction Arena ; sa description longue n'a pas encore été publiée dans le manifeste.",
       rulesFallback: "Le règlement est écrit on-chain via settle(outcome, bytes32 evidenceHash). Toute position est remboursable à 100 % si le marché est annulé, ou après 30 jours de silence de l'opérateur.",
+      debateMissing: "L'IA rédige des arguments pour la probabilité actuelle…",
+      debateDrift: "Arguments rédigés à {cached}% — le marché est maintenant à {now}%. Recalcul en cours.",
     },
     footer: {
       copyright: "© 2026 Prediction Arena Protocol",
@@ -445,6 +453,8 @@ export const EXTRA: Record<string, ExtraDict> = {
       rule4: "クローズ 30 日後、誰でも保護引き出しを実行できます。",
       liveFallback: "このマーケットは Prediction Arena コントラクトから直接読み取られます。詳細説明はまだマニフェストに公開されていません。",
       rulesFallback: "決済は settle(outcome, bytes32 evidenceHash) によりオンチェーンに書き込まれます。マーケットがキャンセルされた場合、または運営が 30 日間応答しない場合、全ポジションは 100% 返金可能です。",
+      debateMissing: "AI が現在の確率に合わせて論点を作成中…",
+      debateDrift: "論点は {cached}% 時点のもの — 現在 {now}%。まもなく再計算されます。",
     },
     footer: {
       copyright: "© 2026 Prediction Arena Protocol",
@@ -531,6 +541,8 @@ export const EXTRA: Record<string, ExtraDict> = {
       rule4: "마감 30일 후 누구나 보호 인출을 실행할 수 있습니다.",
       liveFallback: "이 마켓은 Prediction Arena 컨트랙트에서 직접 읽습니다. 상세 설명은 아직 매니페스트에 게시되지 않았습니다.",
       rulesFallback: "정산은 settle(outcome, bytes32 evidenceHash)로 온체인에 기록됩니다. 마켓이 취소되거나 운영자가 30일간 응답하지 않으면 모든 포지션은 100% 환불됩니다.",
+      debateMissing: "AI가 현재 확률에 맞춰 논점을 작성 중…",
+      debateDrift: "논점은 {cached}% 기준 — 현재 {now}%. 곧 재계산됩니다.",
     },
     footer: {
       copyright: "© 2026 Prediction Arena Protocol",

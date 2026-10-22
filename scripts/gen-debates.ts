@@ -31,12 +31,18 @@ const apiKey = (process.env.DEEPSEEK_API_KEY ?? "").trim();
 const baseUrl = (process.env.DEEPSEEK_BASE_URL ?? "https://api.deepseek.com").replace(/\/$/, "");
 const model = process.env.DEEPSEEK_MODEL ?? "deepseek-chat";
 const MAX_PER_RUN = Number(process.env.MAX_PER_RUN ?? 6);
+// English only by default. Add locales (e.g. "en,zh-TW") to pay for more languages; the site
+// falls back to the localised kernel for any language the cache does not cover.
+const LANGS = (process.env.DEBATE_LANGS ?? "en").split(",").map((x) => x.trim()).filter(Boolean);
+const LANG_LABEL: Record<string, string> = {
+  en: "English", "zh-TW": "Traditional Chinese", de: "German", fr: "French", ja: "Japanese", ko: "Korean",
+};
 const TTL_DAYS = Number(process.env.TTL_DAYS ?? 7);
 const FORCE = process.env.FORCE === "1";
 const TTL_MS = TTL_DAYS * 86_400_000;
 
 type Line = { agent: "detective" | "hawk" | "meme"; stance: "bull" | "bear"; text: string };
-type Entry = { band: number; at: string; source: "llm" | "kernel"; model?: string; lines: Line[] };
+type Entry = { band: number; lang?: string; at: string; source: "llm" | "kernel"; model?: string; lines: Line[] };
 type Cache = { version: number; generatedAt: string; model: string; debates: Record<string, Entry> };
 type Pool = { id: string; title?: string; category?: string; probability?: number; source?: string };
 
@@ -81,7 +87,7 @@ function sanitise(raw: unknown, fallback: Line[]): Line[] {
   return out.slice(0, 10);
 }
 
-async function generate(pool: Pool, yesPct: number): Promise<{ lines: Line[]; source: "llm" | "kernel" }> {
+async function generate(pool: Pool, yesPct: number, lang = "en"): Promise<{ lines: Line[]; source: "llm" | "kernel" }> {
   if (!apiKey) return { lines: kernelFallback(pool.title ?? "", pool.category ?? "", yesPct), source: "kernel" };
 
   const today = new Date().toISOString().slice(0, 10);
@@ -92,7 +98,8 @@ Category: ${pool.category ?? "unknown"}
 Implied probability of YES: ${Math.round(yesPct)}%
 
 Write 3 rounds of genuine disagreement between a bull and a bear, then one closing line from the
-side the odds favour. Each line must be specific to THIS market: name the mechanism, data source,
+side the odds favour. Write every line in ${LANG_LABEL[lang] ?? "English"} — the whole response must be
+in that language, including any quoted terms. Each line must be specific to THIS market: name the mechanism, data source,
 level, counterparty or timing that would decide it. No filler, no hedging, no emoji, never repeat
 an argument already made.
 
@@ -149,30 +156,37 @@ async function main() {
     if (spent >= MAX_PER_RUN) break;
     const yesPct = Number(pool.probability ?? 50);
     const band = bandOf(yesPct);
-    const existing = cache.debates[pool.id];
 
-    if (!FORCE && existing && existing.band === band && now - Date.parse(existing.at) < TTL_MS) {
-      reused += 1;
-      continue;
-    }
+    for (const lang of LANGS) {
+      if (spent >= MAX_PER_RUN) break;
+      const key = `${pool.id}:${lang}`;
+      const existing = cache.debates[key];
 
-    try {
-      const { lines, source } = await generate(pool, yesPct);
-      cache.debates[pool.id] = {
-        band,
-        at: new Date().toISOString(),
-        source,
-        model: source === "llm" ? model : undefined,
-        lines,
-      };
-      spent += 1;
-      console.log(`  ${source.padEnd(6)} ${pool.id}  ${(pool.title ?? "").slice(0, 62)}`);
-      // keep the provider happy and the bill predictable
-      if (source === "llm") await new Promise((r) => setTimeout(r, 400));
-    } catch (err) {
-      failed.push(pool.id);
-      console.warn(`  FAIL   ${pool.id}  ${(err as Error).message.slice(0, 80)}`);
+      if (!FORCE && existing && existing.band === band && now - Date.parse(existing.at) < TTL_MS) {
+        reused += 1;
+        continue;
+      }
+
+      try {
+        const { lines, source } = await generate(pool, yesPct, lang);
+        cache.debates[key] = {
+          band,
+          lang,
+          at: new Date().toISOString(),
+          source,
+          model: source === "llm" ? model : undefined,
+          lines,
+        };
+        spent += 1;
+        console.log(`  ${source.padEnd(6)} ${lang.padEnd(6)} ${pool.id}  ${(pool.title ?? "").slice(0, 54)}`);
+        // keep the provider happy and the bill predictable
+        if (source === "llm") await new Promise((r) => setTimeout(r, 400));
+      } catch (err) {
+        failed.push(`${pool.id}:${lang}`);
+        console.warn(`  FAIL   ${pool.id}:${lang}  ${(err as Error).message.slice(0, 70)}`);
+      }
     }
+    if (spent >= MAX_PER_RUN) break;
   }
 
   cache.version = 1;

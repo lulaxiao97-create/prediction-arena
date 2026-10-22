@@ -537,6 +537,185 @@ export function generateDebate(input: {
   return lines;
 }
 
+/* ──────────────────── localized debate (non-English fallback) ─────────────── */
+
+export type DebateLang = "en" | "zh-TW" | "de" | "fr" | "ja" | "ko";
+
+/**
+ * Generic-but-specific arguments per language.
+ *
+ * The English corpus above is rich and category-aware; that does not scale to six languages without
+ * writing 24 arguments per vertical per locale. Instead each non-English locale gets eight solid
+ * arguments — four bull, four bear — that are parameterised with the market's own category,
+ * probability, depth and horizon. The result is genuinely in that language and genuinely about that
+ * market, which is the requirement: never mix English into a non-English page.
+ */
+const I18N_ARGS: Record<Exclude<DebateLang, "en">, { bull: string[]; bear: string[] }> = {
+  "zh-TW": {
+    bull: [
+      "{category} 這一題的定價還沒反映真實資金流：邊際買方是有耐心的長線資金，而不是追消息的短線部位。",
+      "結算機制本身對 YES 有利 —— 條件寫得越機械，越難被情緒或消息面拖走，而目前 {yes}% 的隱含機率已經計入了最壞情況。",
+      "市場深度只有 {pool}，任何一筆認真的建倉都會立刻推動價格；這種盤口裡，籌碼比論點更值錢。",
+      "看空方的核心論據依賴一個從未被驗證的假設，而支持方的論據依賴的是可以查證的數據，這兩者不對等。",
+    ],
+    bear: [
+      "{yes}% 的隱含機率意味著市場幾乎已經把最好情況當成必然，這裡沒有任何安全邊際可言。",
+      "這一類題目上一次的實際結算，落在多數人預期的反面 —— 而且是在數據看起來最有利於多數人的時候。",
+      "距離結算只剩一小段時間，而決定結果的變數還沒發生。時間是空方的朋友，不是多方的。",
+      "盤口太薄（{pool}），少數幾筆大額單就能把機率推到不合理的位置，這個時候的價格不是資訊，是雜訊。",
+    ],
+  },
+  de: {
+    bull: [
+      "Die Bewertung dieser {category}-Frage spiegelt den tatsächlichen Kapitalfluss noch nicht wider: Der Grenzkäufer ist geduldiges Kapital, kein Nachrichten-Trader.",
+      "Die Abrechnungsregel begünstigt YES — je mechanischer die Bedingung, desto schwerer lässt sie sich durch Stimmungsmache verschieben, und {yes}% preist bereits den schlechtesten Fall ein.",
+      "Die Pooltiefe liegt bei nur {pool}. Jede ernsthafte Position bewegt den Preis sofort — in einem so dünnen Buch zählt Größe mehr als Argumente.",
+      "Das Bären-Argument hängt an einer ungeprüften Annahme, das Bullen-Argument an nachprüfbaren Daten. Diese beiden sind nicht gleichwertig.",
+    ],
+    bear: [
+      "{yes}% bedeutet, dass der Markt den besten Fall nahezu als sicher einpreist. Es gibt hier keine Sicherheitsmarge.",
+      "Die letzte vergleichbare Abrechnung in dieser Kategorie ging gegen die Mehrheit aus — genau als die Daten für die Mehrheit am besten aussahen.",
+      "Bis zur Abrechnung bleibt wenig Zeit, und die entscheidende Variable ist noch nicht eingetreten. Die Zeit arbeitet für die Bären.",
+      "Das Buch ist dünn ({pool}). Wenige große Orders können die Wahrscheinlichkeit beliebig verschieben — dieser Preis ist Rauschen, keine Information.",
+    ],
+  },
+  fr: {
+    bull: [
+      "La valorisation de cette question {category} ne reflète pas encore les flux réels : l'acheteur marginal est un capital patient, pas un trader d'actualité.",
+      "La règle de règlement favorise le YES — plus la condition est mécanique, moins elle se laisse déformer par le sentiment, et {yes}% intègre déjà le pire scénario.",
+      "La profondeur du pool n'est que de {pool}. Toute position sérieuse déplace le prix immédiatement — dans un carnet aussi mince, la taille compte plus que les arguments.",
+      "L'argument baissier repose sur une hypothèse jamais vérifiée, l'argument haussier sur des données vérifiables. Les deux ne se valent pas.",
+    ],
+    bear: [
+      "{yes}% signifie que le marché considère le meilleur scénario comme quasi certain. Il n'y a ici aucune marge de sécurité.",
+      "Le dernier règlement comparable dans cette catégorie est allé contre la majorité — précisément quand les données semblaient les meilleures pour elle.",
+      "Il reste peu de temps avant le règlement et la variable décisive n'est pas encore apparue. Le temps est du côté des baissiers.",
+      "Le carnet est mince ({pool}). Quelques grosses ordres suffisent à pousser la probabilité n'importe où — ce prix est du bruit, pas de l'information.",
+    ],
+  },
+  ja: {
+    bull: [
+      "この {category} の質問の価格は、実際の資金フローをまだ織り込んでいません。限界的な買い手は辛抱強い長期資金で、ニュース追随の短期筋ではありません。",
+      "決済条件は YES に有利です。条件が機械的であるほど感情やニュースで動きにくく、{yes}% はすでに最悪のケースを織り込んでいます。",
+      "プール深度は {pool} しかありません。本気のポジションは即座に価格を動かします。これだけ薄い板では、論拠より玉の大きさが効きます。",
+      "弱気の根拠は検証されていない仮定に依存し、強気の根拠は検証可能なデータに依存しています。この二つは等価ではありません。",
+    ],
+    bear: [
+      "{yes}% は、市場が最良のシナリオをほぼ確実視していることを意味します。ここに安全余裕はありません。",
+      "このカテゴリで前回の同種の決済は、多数派の逆に振れました。しかもデータが多数派に最も有利に見えたタイミングで。",
+      "決済までの時間はわずかで、結果を決める変数はまだ発生していません。時間は弱気側の味方です。",
+      "板が薄い（{pool}）。数件の大口で確率はいくらでも動きます。この価格は情報ではなくノイズです。",
+    ],
+  },
+  ko: {
+    bull: [
+      "이 {category} 질문의 가격은 실제 자금 흐름을 아직 반영하지 못했습니다. 한계 매수자는 인내심 있는 장기 자금이지 뉴스 추종 단타가 아닙니다.",
+      "정산 조건은 YES에 유리합니다. 조건이 기계적일수록 심리나 뉴스에 흔들리지 않으며, {yes}%는 이미 최악의 경우를 반영하고 있습니다.",
+      "풀 깊이가 {pool}에 불과합니다. 진지한 포지션은 즉시 가격을 움직입니다. 이렇게 얇은 호가창에서는 논리보다 물량이 중요합니다.",
+      "약세 논리는 검증되지 않은 가정에 기대고, 강세 논리는 검증 가능한 데이터에 기댑니다. 둘은 동등하지 않습니다.",
+    ],
+    bear: [
+      "{yes}%는 시장이 최선의 시나리오를 거의 확실시한다는 뜻입니다. 여기에는 안전 여유가 없습니다.",
+      "이 범주의 직전 유사 정산은 다수 예상의 반대로 끝났습니다. 그것도 데이터가 다수에게 가장 유리해 보이던 시점에.",
+      "정산까지 시간이 얼마 남지 않았고, 결과를 결정할 변수는 아직 발생하지 않았습니다. 시간은 약세 편입니다.",
+      "호가창이 얇습니다({pool}). 몇 건의 대형 주문으로 확률은 얼마든지 밀립니다. 이 가격은 정보가 아니라 잡음입니다.",
+    ],
+  },
+};
+
+/** Filler openers, localised, so the exchange does not start with a bare claim. */
+const I18N_OPENERS: Record<Exclude<DebateLang, "en">, { bull: string[]; bear: string[]; close: string[] }> = {
+  "zh-TW": {
+    bull: ["先看資金流，不聽故事。", "這條論據是可以查證的。", "價格還沒走到該走的地方。"],
+    bear: ["這個價位已經沒有容錯空間。", "多數人的共識本身就是風險。", "時間站在我這邊。"],
+    close: ["在這個機率上，只有 YES 有交易價值。", "在這個機率上，NO 才是對的一邊。"],
+  },
+  de: {
+    bull: ["Zuerst der Kapitalfluss, dann die Geschichte.", "Dieses Argument ist überprüfbar.", "Der Preis ist noch nicht dort, wo er hingehört."],
+    bear: ["Auf diesem Niveau gibt es keine Fehlertoleranz.", "Der Konsens selbst ist das Risiko.", "Die Zeit arbeitet für mich."],
+    close: ["Bei dieser Wahrscheinlichkeit hat nur YES Handelswert.", "Bei dieser Wahrscheinlichkeit ist NO die richtige Seite."],
+  },
+  fr: {
+    bull: ["D'abord les flux, ensuite le récit.", "Cet argument est vérifiable.", "Le prix n'est pas encore là où il devrait être."],
+    bear: ["À ce niveau, aucune marge d'erreur.", "Le consensus lui-même est le risque.", "Le temps travaille pour moi."],
+    close: ["À cette probabilité, seul le YES a de la valeur.", "À cette probabilité, le NO est le bon côté."],
+  },
+  ja: {
+    bull: ["まず資金フロー、物語は後。", "この論拠は検証できます。", "価格はまだ行くべき水準に届いていません。"],
+    bear: ["この水準に許容誤差はありません。", "コンセンサスそのものがリスクです。", "時間はこちらに味方しています。"],
+    close: ["この確率なら YES にしか取引価値はありません。", "この確率なら NO が正しい側です。"],
+  },
+  ko: {
+    bull: ["먼저 자금 흐름, 이야기는 그 다음입니다.", "이 논리는 검증 가능합니다.", "가격은 아직 가야 할 곳에 도달하지 않았습니다."],
+    bear: ["이 수준에는 오차 허용 여지가 없습니다.", "컨센서스 자체가 리스크입니다.", "시간은 내 편입니다."],
+    close: ["이 확률에서는 YES만 거래 가치가 있습니다.", "이 확률에서는 NO가 맞는 쪽입니다."],
+  },
+};
+
+function fill(template: string, ctx: { category: string; yes: string; pool: string }): string {
+  return template
+    .replace(/\{category\}/g, ctx.category)
+    .replace(/\{yes\}/g, ctx.yes)
+    .replace(/\{pool\}/g, ctx.pool);
+}
+
+/**
+ * Debate in a specific language. English uses the rich per-vertical corpus; every other locale uses
+ * the parameterised generic corpus above, so a German page shows German arguments about that market
+ * rather than English arguments or nothing at all.
+ */
+export function generateLocalizedDebate(
+  input: {
+    poolId: string;
+    category: string;
+    title: string;
+    yesPct: number;
+    netPoolUsdc?: number;
+  },
+  lang: DebateLang = "en"
+): DebateLine[] {
+  if (lang === "en") return generateDebate(input);
+
+  const args = I18N_ARGS[lang];
+  const openers = I18N_OPENERS[lang];
+  const key = resolveCategory(input.category, input.title);
+  const readableCategory =
+    lang === "zh-TW"
+      ? { Crypto: "加密貨幣", "AI & Tech": "AI 科技", "Macro & Economy": "宏觀經濟", "Politics & Global": "政治國際", "Science & Space": "科學太空", "Culture & Pop": "文化流行" }[key] ?? key
+      : key;
+
+  const ctx = {
+    category: readableCategory,
+    yes: `${Math.round(input.yesPct)}`,
+    pool: `${Math.round(Number(input.netPoolUsdc ?? 0)).toLocaleString()}`,
+  };
+
+  const r = prng(`i18n-debate:${input.poolId}:${Math.round(input.yesPct)}:${lang}`);
+  const bull = [...args.bull].sort(() => r() - 0.5);
+  const bear = [...args.bear].sort(() => r() - 0.5);
+  const favoursBull = input.yesPct >= 50;
+
+  const lines: DebateLine[] = [];
+  for (let i = 0; i < 2; i++) {
+    lines.push({
+      agent: i === 0 ? "detective" : "hawk",
+      stance: "bull",
+      text: `${i === 0 ? pick(r, openers.bull) + " " : ""}${fill(bull[i % bull.length], ctx)}`,
+    });
+    lines.push({
+      agent: i === 0 ? "hawk" : "meme",
+      stance: "bear",
+      text: `${i === 0 ? pick(r, openers.bear) + " " : ""}${fill(bear[i % bear.length], ctx)}`,
+    });
+  }
+  lines.push({
+    agent: "detective",
+    stance: favoursBull ? "bull" : "bear",
+    text: pick(r, openers.close[((favoursBull ? 0 : 1) + 0) % 2] ? [openers.close[favoursBull ? 0 : 1]] : openers.close),
+  });
+  return lines;
+}
+
 /* ─────────────────────────── community generation ─────────────────────────── */
 
 export type GeneratedComment = {
