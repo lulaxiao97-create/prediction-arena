@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
 import { Web3Provider } from "@/providers/Web3Provider";
+import { LocaleProvider } from "@/components/LocaleProvider";
 
 export const metadata: Metadata = {
   title: "Prediction Arena — The Decentralized AI-Driven Prediction Market",
@@ -25,7 +26,9 @@ export default function RootLayout({
       <body className="min-h-screen bg-void text-ink antialiased">
         <div className="bg-aurora" aria-hidden />
         <div className="bg-grid" aria-hidden />
-        <Web3Provider>{children}</Web3Provider>
+        <Web3Provider>
+          <LocaleProvider>{children}</LocaleProvider>
+        </Web3Provider>
       </body>
     </html>
   );

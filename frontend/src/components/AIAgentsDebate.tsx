@@ -5,12 +5,14 @@ import { motion } from "framer-motion";
 import { Check, Copy, ExternalLink, Fingerprint, RefreshCw, Sparkles } from "lucide-react";
 import { AGENTS, agentLinesFor } from "@/lib/mock-data";
 import { cn, ipfsGatewayUrl } from "@/lib/format";
+import { useI18n } from "@/components/LocaleProvider";
 import type { AgentLine } from "@/lib/types";
 
 const TYPE_SPEED = 18;
 const LINE_PAUSE = 1100;
 
 export function AIAgentsDebate({ category }: { category: string }) {
+  const { t } = useI18n();
   const lines = useMemo(() => agentLinesFor(category), [category]);
   const [index, setIndex] = useState(0);
   const [typed, setTyped] = useState("");
@@ -67,9 +69,9 @@ export function AIAgentsDebate({ category }: { category: string }) {
             <Sparkles className="size-4 text-gold-bright" />
           </span>
           <div>
-            <h2 className="text-sm font-semibold tracking-wide text-ink">AI Agents · Live Debate</h2>
+            <h2 className="text-sm font-semibold tracking-wide text-ink">{t("agent.debateTitle")}</h2>
             <p className="text-[11px] text-muted">
-              Three independent personas argue macro, on-chain and sentiment. Every claim ships with an IPFS snapshot.
+              {t("agent.debateSub")}
             </p>
           </div>
         </div>
@@ -77,14 +79,14 @@ export function AIAgentsDebate({ category }: { category: string }) {
         <div className="ml-auto flex items-center gap-2">
           <span className="chip">
             <span className="size-1.5 animate-pulse rounded-full bg-gold" />
-            {finished ? "Debate complete" : `Round ${Math.min(index + 1, lines.length)} / ${lines.length}`}
+            {finished ? t("agent.complete") : t("agent.round", { n: Math.min(index + 1, lines.length), total: lines.length })}
           </span>
           <button
             onClick={reset}
             className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1.5 text-[11px] text-muted transition-colors hover:border-gold/40 hover:text-gold-bright"
           >
             <RefreshCw className="size-3" />
-            Replay
+            {t("agent.replay")}
           </button>
         </div>
       </header>
@@ -183,9 +185,9 @@ export function AIAgentsDebate({ category }: { category: string }) {
 
       {finished && (
         <div className="rise-in mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-gold/25 bg-gradient-to-r from-gold/10 to-transparent px-3 py-2.5">
-          <span className="chip chip-gold">Consensus</span>
+          <span className="chip chip-gold">{t("agent.consensus")}</span>
           <p className="text-[11.5px] text-ink/85">
-            All three agents posted their verdicts. Every claim is snapshotted, and the bundle hash is written on-chain at settlement.
+            {t("agent.consensusBody")}
           </p>
         </div>
       )}
@@ -202,6 +204,7 @@ function EvidenceChip({
   copied: boolean;
   onCopy: () => void;
 }) {
+  const { t } = useI18n();
   return (
     <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
       <span className="mono inline-flex items-center gap-1 rounded-md border border-gold/20 bg-gold/[0.07] px-1.5 py-0.5 text-[9.5px] text-gold-bright/90">
@@ -213,7 +216,7 @@ function EvidenceChip({
         className="inline-flex items-center gap-1 rounded-md border border-white/8 px-1.5 py-0.5 text-[9.5px] text-muted transition-colors hover:border-white/20 hover:text-ink"
       >
         {copied ? <Check className="size-2.5 text-profit" /> : <Copy className="size-2.5" />}
-        {copied ? "Copied" : "Copy hash"}
+        {copied ? t("agent.copied") : t("agent.copy")}
       </button>
       <a
         href={ipfsGatewayUrl(cid)}
@@ -222,7 +225,7 @@ function EvidenceChip({
         className="inline-flex items-center gap-1 rounded-md border border-white/8 px-1.5 py-0.5 text-[9.5px] text-muted transition-colors hover:border-gold/40 hover:text-gold-bright"
       >
         <ExternalLink className="size-2.5" />
-        Verify IPFS snapshot
+        {t("agent.verify")}
       </a>
     </div>
   );

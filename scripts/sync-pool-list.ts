@@ -137,27 +137,39 @@ async function scanLogs(
     console.warn("  volume scan failed — volume24hUsdc stays null (UI shows the live pool sum)");
   }
 
-  const sorted = rows.sort((a, b) => Number(b.id) - Number(a.id));
+  // Keep the sample/demo markets that ship with the app — this script only owns chain entries.
+  // Without this, the first cron-driven sync would wipe the seeded marketplace.
+  const dest = join(root, process.env.POOL_LIST_OUT ?? "frontend/public/pools.json");
+  let demoRows: any[] = [];
+  let previousFeatured: string | undefined;
+  try {
+    const previous = JSON.parse(readFileSync(dest, "utf8"));
+    demoRows = (previous.pools ?? []).filter((row: any) => row.source === "demo");
+    previousFeatured = previous.featured;
+  } catch {
+    /* first run */
+  }
+
+  const merged = [...rows, ...demoRows].sort((a, b) => Number(b.id) - Number(a.id));
   const out = {
     address: ARENA,
     chainId: CHAIN_ID,
     deployBlock: Number(DEPLOY_BLOCK),
     updatedAt: new Date().toISOString(),
+    featured: previousFeatured ?? merged.find((row) => row.source !== "demo")?.id,
     stats: {
       tvlUsdc: tvl.toString(),
       volume24hUsdc: volume24h > 0n ? volume24h.toString() : null,
       activeMarkets: active,
       settledMarkets: settled,
     },
-    pools: sorted,
+    pools: merged,
   };
 
-  // POOL_LIST_OUT lets a fork rehearsal write somewhere harmless instead of the shipped manifest
-  const dest = join(root, process.env.POOL_LIST_OUT ?? "frontend/public/pools.json");
   mkdirSync(dirname(dest), { recursive: true });
   writeFileSync(dest, JSON.stringify(out, null, 2) + "\n");
   console.log(
-    `\nwrote ${dest} — ${sorted.length} markets, tvl ${ethers.formatUnits(tvl, 6)} USDC, ` +
+    `\nwrote ${dest} — ${merged.length} markets (${rows.length} on-chain + ${demoRows.length} demo), tvl ${ethers.formatUnits(tvl, 6)} USDC, ` +
       `volume24h ${ethers.formatUnits(volume24h, 6)} USDC (${RPC})`
   );
 })().catch((e) => {

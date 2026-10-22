@@ -2,12 +2,376 @@
   "address": "0x36f1bFbE3E0d0FA0941C031be278149D33f65684",
   "chainId": 8453,
   "deployBlock": 52921545,
-  "updatedAt": "2026-10-22T03:12:20.185Z",
+  "updatedAt": "2026-10-22T03:55:33.796Z",
+  "featured": "180001",
   "stats": {
     "tvlUsdc": "0",
     "volume24hUsdc": null,
     "activeMarkets": 0,
     "settledMarkets": 0
   },
-  "pools": []
+  "pools": [
+    {
+      "id": "180020",
+      "title": "Will the exchange relaunch pass regulatory review?",
+      "category": "Culture & Pop",
+      "tags": [
+        "Regulation",
+        "Voided"
+      ],
+      "source": "demo",
+      "status": 3,
+      "endTimeOffsetHours": -120,
+      "liquidityUsdc": "18720",
+      "yesShare": 0.6,
+      "volume24hUsdc": "0",
+      "traders": 168,
+      "description": "Voided — no filing ever existed, so the market was cancelled and every position refunded at 100% of stake.",
+      "resolution": "Cancelled by the operator: the underlying process never started."
+    },
+    {
+      "id": "180019",
+      "title": "Did Aerodrome flip Uniswap in daily volume this quarter?",
+      "category": "Crypto",
+      "tags": [
+        "DEX",
+        "Settled"
+      ],
+      "source": "demo",
+      "status": 2,
+      "winningOption": 0,
+      "endTimeOffsetHours": -72,
+      "liquidityUsdc": "39360",
+      "yesShare": 0.66,
+      "volume24hUsdc": "0",
+      "traders": 205,
+      "settlementHash": "0x9f2c1b7d4e8a05c3b6d1f0e2a7c84b93d5e6f708192a3b4c5d6e7f809a1b2c3d",
+      "description": "Settled YES. Aerodrome printed a higher 24h volume than Uniswap on Base for 9 of 90 days, and the rule required the quarterly average.",
+      "resolution": "Quarterly average daily volume per DeFiLlama: Aerodrome above Uniswap → YES."
+    },
+    {
+      "id": "180018",
+      "title": "Will a single weekend cross $1B at the global box office this year?",
+      "category": "Culture & Pop",
+      "tags": [
+        "Box Office",
+        "Film"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeOffsetHours": 2500,
+      "liquidityUsdc": "7800",
+      "yesShare": 0.18,
+      "volume24hUsdc": "900",
+      "traders": 87,
+      "description": "Only three weekends in history have cleared $1B worldwide. The release calendar has one plausible cluster in Q4 and no obvious back-to-back tentpoles.",
+      "resolution": "Comscore worldwide weekend estimate ≥ $1,000,000,000 → YES."
+    },
+    {
+      "id": "180017",
+      "title": "Will the top KOL's 100x call break issue price within a week?",
+      "category": "Culture & Pop",
+      "tags": [
+        "CT",
+        "Drama"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeOffsetHours": 19,
+      "liquidityUsdc": "22080",
+      "yesShare": 0.6,
+      "volume24hUsdc": "15300",
+      "traders": 531,
+      "description": "The deployer wallet has been splitting exits every six hours into a single market maker's collection address. The community is still posting diamond hands — that usually buys one more leg.",
+      "resolution": "DEX price below the launch price on any venue within 7 days of the call → YES."
+    },
+    {
+      "id": "180016",
+      "title": "Will the FDA approve a CRISPR therapy for a common disease?",
+      "category": "Science & Space",
+      "tags": [
+        "Biotech",
+        "FDA"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeOffsetHours": 2000,
+      "liquidityUsdc": "11500",
+      "yesShare": 0.29,
+      "volume24hUsdc": "1400",
+      "traders": 118,
+      "description": "Sickle-cell was the easy case. A common-disease indication needs durability data across thousands of patients, and only two programmes are that far along.",
+      "resolution": "FDA approval of a CRISPR-based therapy for an indication affecting ≥1% of the population → YES."
+    },
+    {
+      "id": "180015",
+      "title": "Will Starship reach orbit twice within one quarter?",
+      "category": "Science & Space",
+      "tags": [
+        "SpaceX",
+        "Launch"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeOffsetHours": 700,
+      "liquidityUsdc": "18200",
+      "yesShare": 0.44,
+      "volume24hUsdc": "2600",
+      "traders": 174,
+      "description": "Cadence, not capability, is the constraint. Two orbital insertions inside 90 days requires the launch tower and both vehicles to turn around cleanly.",
+      "resolution": "Two SpaceX flights achieve orbital velocity within a 90-day window → YES."
+    },
+    {
+      "id": "180014",
+      "title": "Will a G7 country announce a retail CBDC pilot before July?",
+      "category": "Politics & Global",
+      "tags": [
+        "CBDC",
+        "G7"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeOffsetHours": 1600,
+      "liquidityUsdc": "9400",
+      "yesShare": 0.33,
+      "volume24hUsdc": "1200",
+      "traders": 96,
+      "description": "Wholesale pilots are common, retail pilots are not. Political cost dominates: only two G7 central banks have legislation in place.",
+      "resolution": "Central bank or finance ministry announces a retail-facing CBDC pilot with real users → YES."
+    },
+    {
+      "id": "180013",
+      "title": "Will the EU pass its AI Act enforcement package this quarter?",
+      "category": "Politics & Global",
+      "tags": [
+        "EU",
+        "Regulation"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeOffsetHours": 1100,
+      "liquidityUsdc": "12900",
+      "yesShare": 0.61,
+      "volume24hUsdc": "1800",
+      "traders": 128,
+      "description": "Trilogue negotiations have stalled twice on the general-purpose model annex. Council and Parliament both want a deal before the summer recess.",
+      "resolution": "Official EU Journal publication of the enforcement implementing act → YES."
+    },
+    {
+      "id": "180012",
+      "title": "Will the US avoid a government shutdown past December 20?",
+      "category": "Politics & Global",
+      "tags": [
+        "US",
+        "Budget"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeOffsetHours": 1400,
+      "liquidityUsdc": "34100",
+      "yesShare": 0.72,
+      "volume24hUsdc": "4900",
+      "traders": 356,
+      "description": "A continuing resolution is on the table and both chambers have signalled they want to avoid a holiday shutdown. The tail risk is a single-issue amendment fight.",
+      "resolution": "No lapse in appropriations between Dec 20 and Jan 5 (OPM status unchanged) → YES."
+    },
+    {
+      "id": "180011",
+      "title": "Will the US 10-year yield close above 5% before year end?",
+      "category": "Macro & Economy",
+      "tags": [
+        "Treasuries",
+        "Yields"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeOffsetHours": 900,
+      "liquidityUsdc": "15600",
+      "yesShare": 0.22,
+      "volume24hUsdc": "2100",
+      "traders": 143,
+      "description": "Term premium has been climbing but the 5% level has rejected three times this year. A hot CPI print plus a weak auction could do it in a week.",
+      "resolution": "CNBC/FRED daily close of the 10Y yield ≥ 5.00% on any trading day before Dec 31 → YES."
+    },
+    {
+      "id": "180010",
+      "title": "Will US CPI year-over-year print below 2.5% in November?",
+      "category": "Macro & Economy",
+      "tags": [
+        "CPI",
+        "Inflation"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeOffsetHours": 221,
+      "liquidityUsdc": "27360",
+      "yesShare": 0.4,
+      "volume24hUsdc": "5300",
+      "traders": 241,
+      "description": "Shelter disinflation is finally in the print and goods are already deflationary. Tariff pass-through, however, has not hit the index yet.",
+      "resolution": "BLS CPI release for November shows headline YoY < 2.50% → YES."
+    },
+    {
+      "id": "180009",
+      "title": "Will the Fed cut rates by 25bp at the December meeting?",
+      "category": "Macro & Economy",
+      "tags": [
+        "FOMC",
+        "Rates"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeOffsetHours": 624,
+      "liquidityUsdc": "64320",
+      "yesShare": 0.65,
+      "volume24hUsdc": "9700",
+      "traders": 388,
+      "description": "Core PCE has printed below target for two consecutive months. The dot plot still implies a hold, which is exactly the gap this market is pricing.",
+      "resolution": "FOMC statement announces a 25bp cut to the target range at the December meeting → YES."
+    },
+    {
+      "id": "180008",
+      "title": "Will an open-weight model top the LMSYS leaderboard?",
+      "category": "AI & Tech",
+      "tags": [
+        "Open Source",
+        "Benchmarks"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeOffsetHours": 180,
+      "liquidityUsdc": "19800",
+      "yesShare": 0.58,
+      "volume24hUsdc": "3700",
+      "traders": 162,
+      "description": "Open weights have been within 20 Elo of the frontier for four months. One more distillation cycle could close it — or a closed-model refresh could reopen the gap.",
+      "resolution": "LMSYS Chatbot Arena overall rank #1 held by a model with downloadable weights for 7 consecutive days → YES."
+    },
+    {
+      "id": "180007",
+      "title": "Will a humanoid robot work a paid shift in a commercial factory this year?",
+      "category": "AI & Tech",
+      "tags": [
+        "Robotics",
+        "Manufacturing"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeOffsetHours": 800,
+      "liquidityUsdc": "22400",
+      "yesShare": 0.27,
+      "volume24hUsdc": "4300",
+      "traders": 187,
+      "description": "Pilots are everywhere; paid production shifts are not. The bar here is a documented, customer-billed deployment with published throughput numbers — not a stage demo.",
+      "resolution": "A named manufacturer publicly confirms a humanoid robot on a billed production line with throughput data → YES."
+    },
+    {
+      "id": "180006",
+      "title": "Will an autonomous agent finish top-10% in a public trading contest by Q2?",
+      "category": "AI & Tech",
+      "tags": [
+        "Agents",
+        "Trading"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeOffsetHours": 504,
+      "liquidityUsdc": "42240",
+      "yesShare": 0.55,
+      "volume24hUsdc": "14600",
+      "traders": 319,
+      "description": "Contest must have at least 1,000 human participants and a public leaderboard. Three agent teams already beat the median human desk in last month's invite-only arena.",
+      "resolution": "Any agent-run account in the top 10% of a public contest with ≥1,000 participants, verified by the organiser → YES."
+    },
+    {
+      "id": "180005",
+      "title": "Will GPT-6 ship before July 2026?",
+      "category": "AI & Tech",
+      "tags": [
+        "OpenAI",
+        "LLM"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeOffsetHours": 63,
+      "liquidityUsdc": "31680",
+      "yesShare": 0.4,
+      "volume24hUsdc": "8150",
+      "traders": 274,
+      "description": "Inference payment contracts are up 240% quarter over quarter — a new model is already running in the grey. But frontier capex is committed through 2027 and the last two flagship releases slipped a full quarter each.",
+      "resolution": "An official OpenAI model card or API endpoint named 'gpt-6' published before 2026-07-01 00:00 UTC → YES."
+    },
+    {
+      "id": "180004",
+      "title": "Will Solana flip BNB Chain in monthly DEX volume?",
+      "category": "Crypto",
+      "tags": [
+        "Solana",
+        "DEX"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeOffsetHours": 300,
+      "liquidityUsdc": "38200",
+      "yesShare": 0.48,
+      "volume24hUsdc": "6100",
+      "traders": 291,
+      "description": "DeFiLlama monthly DEX volume, all chains, calendar month. Solana has closed the gap to under 8% twice this quarter but has not printed a clean flip since the memecoin cycle peak.",
+      "resolution": "DeFiLlama 'DEX Volume' ranking for the calendar month shows Solana above BNB Chain → YES."
+    },
+    {
+      "id": "180003",
+      "title": "Will ETH/BTC reclaim 0.04 before year end?",
+      "category": "Crypto",
+      "tags": [
+        "ETH",
+        "Ratio"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeOffsetHours": 624,
+      "liquidityUsdc": "64320",
+      "yesShare": 0.35,
+      "volume24hUsdc": "9700",
+      "traders": 388,
+      "description": "ETH/BTC has compressed for nine months. Staking yields are flat, but L2 fee burn and ETF flow rotation both argue for a catch-up trade. The ratio needs roughly +14% from here to clear the strike.",
+      "resolution": "Binance ETH/BTC daily close ≥ 0.0400 on any day before 23:59 UTC on Dec 31 → YES."
+    },
+    {
+      "id": "180002",
+      "title": "Will Base break 5M daily active addresses this week?",
+      "category": "Crypto",
+      "tags": [
+        "Base",
+        "Layer2"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeOffsetHours": 266,
+      "liquidityUsdc": "76800",
+      "yesShare": 0.83,
+      "volume24hUsdc": "21900",
+      "traders": 836,
+      "description": "Measured on the 7-day rolling average of daily active addresses reported by L2Beat and the official Base dashboard. Three consumer apps crossed 1M weekly actives this month and gas has stayed sub-cent through the entire run.",
+      "resolution": "L2Beat + Base dashboard agree on ≥ 5,000,000 daily active addresses for any single day inside the window → YES."
+    },
+    {
+      "id": "180001",
+      "title": "Will Bitcoin close above $120,000 this week?",
+      "category": "Crypto",
+      "tags": [
+        "BTC",
+        "Weekly"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeOffsetHours": 52,
+      "liquidityUsdc": "89640",
+      "yesShare": 0.62,
+      "volume24hUsdc": "18400",
+      "traders": 412,
+      "description": "Weekly close reference is the Binance BTC/USDT 1W candle. The market resolves YES if the weekly candle closes at or above $120,000.00. Spot ETF net inflows have run 3.1x weekly issuance for three straight weeks while perp funding sits at 41% annualised — positioning is the whole story here.",
+      "resolution": "Binance BTC/USDT weekly candle close ≥ $120,000.00 → YES. Exchange outages longer than 30 minutes at the close push resolution to the next available candle."
+    }
+  ]
 }

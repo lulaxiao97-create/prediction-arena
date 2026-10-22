@@ -22,7 +22,8 @@ import {
   impliedMultiplier,
   shortAddr,
 } from "@/lib/format";
-import { categoryLabel } from "@/lib/categories";
+import { categoryI18nKey } from "@/lib/categories";
+import { useI18n } from "@/components/LocaleProvider";
 import {
   BOOTSTRAP_CAP_USDC,
   MIN_BET_USDC,
@@ -47,6 +48,7 @@ export function BetModal({
   initialOption: 0 | 1;
   onClose: () => void;
 }) {
+  const { t } = useI18n();
   const { address } = useAccount();
   const queryClient = useQueryClient();
   const referrer = useReferrer();
@@ -107,16 +109,16 @@ export function BetModal({
 
   const stepLabel =
     step === "approving"
-      ? "Approving USDC…"
+      ? t("trade.approving")
       : step === "betting"
-        ? "Confirm in wallet…"
+        ? t("trade.confirm")
         : step === "confirming"
-          ? "Waiting for confirmation…"
+          ? t("trade.waiting")
           : done
-            ? "Position opened"
-            : "Place Prediction";
+            ? t("trade.opened")
+            : t("trade.place");
 
-  const outcomeLabel = option === 0 ? "Yes" : "No";
+  const outcomeLabel = option === 0 ? t("card.yes") : t("card.no");
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-6">
@@ -130,7 +132,7 @@ export function BetModal({
         <div className="flex items-start gap-3">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="chip chip-gold">{categoryLabel(pool.category)}</span>
+              <span className="chip chip-gold">{t(categoryI18nKey(pool.category))}</span>
               {(pool.tags ?? []).slice(0, 2).map((tag) => (
                 <span key={tag} className="chip border-white/10 text-[10px] text-muted/85">
                   {tag}
@@ -150,7 +152,7 @@ export function BetModal({
           <button
             onClick={onClose}
             className="grid size-8 shrink-0 place-items-center rounded-lg border border-white/8 text-muted transition-colors hover:border-white/20 hover:text-ink"
-            aria-label="Close"
+            aria-label={t("trade.done")}
           >
             <X className="size-4" />
           </button>
@@ -159,7 +161,7 @@ export function BetModal({
         {done ? (
           <div className="flex flex-col items-center gap-3 py-6 text-center">
             <CheckCircle2 className="size-10 text-profit" />
-            <p className="text-sm text-ink">Your position is on-chain and the liquidity pool is updated.</p>
+            <p className="text-sm text-ink">{t("trade.opened")}</p>
             {hash && (
               <a
                 href={explorerTx(hash)}
@@ -167,7 +169,7 @@ export function BetModal({
                 rel="noreferrer"
                 className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-2 text-xs text-gold-bright hover:border-gold/40"
               >
-                View transaction <ExternalLink className="size-3" />
+                {t("trade.viewTx")} <ExternalLink className="size-3" />
               </a>
             )}
             <button
@@ -177,7 +179,7 @@ export function BetModal({
               }}
               className="btn-gold mt-1 w-full"
             >
-              Done
+              {t("trade.done")}
             </button>
           </div>
         ) : (
@@ -214,9 +216,9 @@ export function BetModal({
 
             <div className="rounded-xl border border-white/8 bg-white/[0.02] p-3">
               <div className="flex items-center justify-between text-[11px] text-muted">
-                <span>Amount</span>
+                <span>{t("trade.amount")}</span>
                 <span className="mono">
-                  Balance {balanceValue !== undefined ? `$${formatUsdc(balanceValue)}` : "—"}
+                  {t("trade.balance")} {balanceValue !== undefined ? `$${formatUsdc(balanceValue)}` : "—"}
                 </span>
               </div>
               <div className="mt-1 flex items-center gap-2">
@@ -252,24 +254,29 @@ export function BetModal({
             </div>
 
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted">
-              <span>Min ${formatUsdc(MIN_BET_USDC, 0)}</span>
+              <span>{t("trade.min")} ${formatUsdc(MIN_BET_USDC, 0)}</span>
               <span className="text-white/15">|</span>
               <span className="inline-flex items-center gap-1">
                 <ShieldAlert className="size-3 text-gold" />
-                Max per trade <span className="mono text-gold-bright">${formatUsdc(cap, 0)}</span>
-                (20% of the lighter side, $50 floor)
+                {t("trade.cap")} <span className="mono text-gold-bright">${formatUsdc(cap, 0)}</span>
+                {t("trade.capHint")}
               </span>
             </div>
 
+            <p className="flex items-start gap-1.5 rounded-lg border border-gold/25 bg-gold/[0.07] px-2.5 py-2 text-[10.5px] leading-relaxed text-gold-bright/90">
+              <ShieldAlert className="mt-0.5 size-3 shrink-0" />
+              {t("trade.bootstrap")}
+            </p>
+
             <div className="space-y-1.5 rounded-xl border border-white/6 bg-panel/60 p-3 text-[12px]">
-              <Row label="Platform fee (4%, escrowed until settlement)" value={`-$${formatUsdc(fee)}`} />
+              <Row label={t("trade.fee")} value={`-$${formatUsdc(fee)}`} />
               {referrer && (
-                <Row label="Referral share (30% of the fee)" value={`$${formatUsdc((fee * 3000n) / 10_000n)}`} muted />
+                <Row label={t("trade.referral")} value={`$${formatUsdc((fee * 3000n) / 10_000n)}`} muted />
               )}
-              <Row label="Added to liquidity (net stake)" value={`$${formatUsdc(netStake)}`} />
+              <Row label={t("trade.netStake")} value={`$${formatUsdc(netStake)}`} />
               <div className="my-1 h-px bg-white/6" />
               <Row
-                label={`If ${outcomeLabel} resolves · implied ${formatProbability(probability)}`}
+                label={t("trade.payoutIf", { outcome: outcomeLabel, prob: formatProbability(probability) })}
                 value={`≈ $${formatUsdc(payout)}`}
                 highlight
               />
@@ -278,15 +285,14 @@ export function BetModal({
             {wrongChain && (
               <button onClick={switchToTarget} disabled={switching} className="btn-ghost w-full text-sm">
                 <Wallet className="size-4" />
-                {switching ? "Switching…" : "Switch to Base Mainnet to continue"}
+                {switching ? "…" : t("trade.switchChain")}
               </button>
             )}
 
             {!hasArena && (
               <p className="flex items-start gap-1.5 rounded-lg border border-gold/25 bg-gold/8 px-2.5 py-2 text-[11px] leading-relaxed text-gold-bright/90">
                 <Info className="mt-0.5 size-3.5 shrink-0" />
-                Demo mode: NEXT_PUBLIC_ARENA_ADDRESS is not configured. Once set, this button runs the real
-                approve + bet flow.
+                {t("trade.demoMode")}
               </p>
             )}
 
@@ -295,13 +301,13 @@ export function BetModal({
                 {error}
               </p>
             )}
-            {tooSmall && !error && <p className="text-[11.5px] text-loss">Amount is below the $5 minimum.</p>}
+            {tooSmall && !error && <p className="text-[11.5px] text-loss">{t("trade.belowMin")}</p>}
             {tooBig && !error && (
               <p className="text-[11.5px] text-loss">
-                Above the ${formatUsdc(cap)} per-trade cap (20% of the lighter side, $50 floor).
+                {t("trade.aboveCap", { cap: formatUsdc(cap) })}
               </p>
             )}
-            {noBalance && !error && <p className="text-[11.5px] text-loss">Insufficient USDC balance.</p>}
+            {noBalance && !error && <p className="text-[11.5px] text-loss">{t("trade.insufficient")}</p>}
 
             <button
               onClick={handleSubmit}
@@ -316,7 +322,7 @@ export function BetModal({
               ) : !address ? (
                 <>
                   <Wallet className="size-4" />
-                  Connect a wallet first
+                  {t("trade.connectFirst")}
                 </>
               ) : (
                 <>
@@ -327,8 +333,7 @@ export function BetModal({
             </button>
 
             <p className="text-center text-[10.5px] leading-relaxed text-muted/70">
-              One click: allowance check → approve if needed → bet(). The contract is nonReentrant and
-              keeps fees and liquidity in separate ledgers.
+              {t("trade.oneClick")}
             </p>
           </>
         )}

@@ -1,20 +1,22 @@
 /**
- * Market taxonomy — the single source of truth for the category tabs.
+ * Market taxonomy — the single source of truth for the category tabs (7 Polymarket-style lanes).
  *
  * On-chain pools carry a free-text `category` (owner chosen, e.g. "Macro", "Crypto", "CT Drama").
- * `toMarketCategory()` folds that into one of the four curated lanes so the tabs never go empty
- * because of a spelling variant. Unknown values land in `other`, which only shows under "All".
+ * `toMarketCategory()` folds that into one of the six curated lanes so tabs never go empty because
+ * of a spelling variant. Unknown values land in `other`, which only shows under "All".
  */
 
-export type MarketCategory = "all" | "crypto" | "ai" | "macro" | "culture";
+export type MarketCategory = "all" | "crypto" | "ai" | "macro" | "politics" | "science" | "culture";
 export type ResolvedCategory = Exclude<MarketCategory, "all"> | "other";
 
-export const CATEGORY_TABS: { id: MarketCategory; label: string; short: string; emoji: string }[] = [
-  { id: "all", label: "All Markets", short: "All", emoji: "🌐" },
-  { id: "crypto", label: "Crypto", short: "Crypto", emoji: "⚡" },
-  { id: "ai", label: "AI & Tech", short: "AI", emoji: "🤖" },
-  { id: "macro", label: "Macro & Economy", short: "Macro", emoji: "📈" },
-  { id: "culture", label: "Culture & Pop", short: "Culture", emoji: "🎮" },
+export const CATEGORY_TABS: { id: MarketCategory; emoji: string; i18n: string }[] = [
+  { id: "all", emoji: "🌐", i18n: "nav.allMarkets" },
+  { id: "crypto", emoji: "⚡", i18n: "nav.crypto" },
+  { id: "ai", emoji: "🤖", i18n: "nav.ai" },
+  { id: "macro", emoji: "📈", i18n: "nav.macro" },
+  { id: "politics", emoji: "🗳️", i18n: "nav.politics" },
+  { id: "science", emoji: "🧬", i18n: "nav.science" },
+  { id: "culture", emoji: "🎮", i18n: "nav.culture" },
 ];
 
 const ALIASES: Record<string, ResolvedCategory> = {
@@ -38,6 +40,7 @@ const ALIASES: Record<string, ResolvedCategory> = {
   technology: "ai",
   agents: "ai",
   llm: "ai",
+  robotics: "ai",
   // macro
   macro: "macro",
   "macro & economy": "macro",
@@ -46,6 +49,26 @@ const ALIASES: Record<string, ResolvedCategory> = {
   fed: "macro",
   rates: "macro",
   macroeconomics: "macro",
+  inflation: "macro",
+  // politics & global
+  politics: "politics",
+  "politics & global": "politics",
+  political: "politics",
+  election: "politics",
+  elections: "politics",
+  geopolitics: "politics",
+  global: "politics",
+  world: "politics",
+  policy: "politics",
+  // science & space
+  science: "science",
+  "science & space": "science",
+  space: "science",
+  biology: "science",
+  biotech: "science",
+  health: "science",
+  climate: "science",
+  physics: "science",
   // culture
   culture: "culture",
   "culture & pop": "culture",
@@ -55,6 +78,8 @@ const ALIASES: Record<string, ResolvedCategory> = {
   memes: "culture",
   community: "culture",
   social: "culture",
+  sports: "culture",
+  entertainment: "culture",
 };
 
 export function toMarketCategory(raw?: string | null): ResolvedCategory {
@@ -70,8 +95,8 @@ export function matchesTab(raw: string | undefined, tab: MarketCategory): boolea
   return toMarketCategory(raw) === tab;
 }
 
-export function categoryLabel(raw?: string | null): string {
+/** Stable i18n key for a pool's category chip. */
+export function categoryI18nKey(raw?: string | null): string {
   const resolved = toMarketCategory(raw);
-  if (resolved === "other") return String(raw ?? "Market");
-  return CATEGORY_TABS.find((t) => t.id === resolved)?.label ?? "Market";
+  return `category.${resolved}`;
 }
