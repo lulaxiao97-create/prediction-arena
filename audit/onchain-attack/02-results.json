@@ -1,0 +1,36 @@
+{
+ "owner": "0x436b9d5e6fBd40eC93E881263bE53e59F8755Ba1",
+ "delegator": "0x63c0c19a282a1b52b07dd5a65b58948a07dae32b",
+ "results": [
+  {
+   "id": "W1",
+   "name": "attacker execute(arena,0,setFeeVault) on owner account",
+   "verdict": "BLOCKED",
+   "detail": "del[\"execute(address,uint256,bytes)\"] is not a function. (In 'del[\"execute(address,uint256,bytes)\"](ARENA, 0, payload)',"
+  },
+  {
+   "id": "W2",
+   "name": "attacker execute(mode,execData) on owner account",
+   "verdict": "BLOCKED",
+   "detail": "NotEntryPointOrSelf()"
+  },
+  {
+   "id": "W3",
+   "name": "attacker executeFromExecutor on owner account",
+   "verdict": "BLOCKED",
+   "detail": "NotDelegationManager()"
+  },
+  {
+   "id": "W4",
+   "name": "arena.feeVault untouched",
+   "verdict": "BLOCKED",
+   "detail": "feeVault is still 0x9520269b506e02c357a712160979a3237C404fE6"
+  },
+  {
+   "id": "W5",
+   "name": "isValidSignature accepts a forged signature",
+   "verdict": "BLOCKED",
+   "detail": "ECDSAInvalidSignature()"
+  }
+ ]
+}

@@ -1,0 +1,40 @@
+{
+ "results": [
+  {
+   "id": "R1",
+   "name": "reenter bet() from transferFrom",
+   "verdict": "BLOCKED",
+   "detail": "ReentrancyGuardReentrantCall()"
+  },
+  {
+   "id": "R2",
+   "name": "reenter claimRewards() from payout",
+   "verdict": "BLOCKED",
+   "detail": "ReentrancyGuardReentrantCall()"
+  },
+  {
+   "id": "R3",
+   "name": "honest claim after disarming the token",
+   "verdict": "OK",
+   "detail": "winner got 96.0 hUSDC"
+  },
+  {
+   "id": "R4",
+   "name": "cross-function reentry (claimRefund inside claimRewards)",
+   "verdict": "BLOCKED",
+   "detail": "ReentrancyGuardReentrantCall()"
+  },
+  {
+   "id": "R5",
+   "name": "honest claim after disarming (cross-fn pool)",
+   "verdict": "OK",
+   "detail": "winner got 96.0 hUSDC"
+  },
+  {
+   "id": "R6",
+   "name": "reenter claimRefund() from refund transfer",
+   "verdict": "BLOCKED",
+   "detail": "ReentrancyGuardReentrantCall()"
+  }
+ ]
+}

@@ -1,0 +1,192 @@
+{
+ "generatedAt": "2026-10-22T01:54:03.273Z",
+ "arena": "0x36f1bFbE3E0d0FA0941C031be278149D33f65684",
+ "results": [
+  {
+   "id": "A1",
+   "name": "attacker createPool",
+   "verdict": "BLOCKED",
+   "detail": "OwnableUnauthorizedAccount(0x70997970C51812dc3A010C7d01b50e0d17dc79C8)"
+  },
+  {
+   "id": "A2",
+   "name": "attacker seedPool",
+   "verdict": "BLOCKED",
+   "detail": "OwnableUnauthorizedAccount(0x70997970C51812dc3A010C7d01b50e0d17dc79C8)"
+  },
+  {
+   "id": "A3",
+   "name": "attacker settle",
+   "verdict": "BLOCKED",
+   "detail": "OwnableUnauthorizedAccount(0x70997970C51812dc3A010C7d01b50e0d17dc79C8)"
+  },
+  {
+   "id": "A4",
+   "name": "attacker cancelPool",
+   "verdict": "BLOCKED",
+   "detail": "OwnableUnauthorizedAccount(0x70997970C51812dc3A010C7d01b50e0d17dc79C8)"
+  },
+  {
+   "id": "A5",
+   "name": "attacker withdrawAdminFees",
+   "verdict": "BLOCKED",
+   "detail": "OwnableUnauthorizedAccount(0x70997970C51812dc3A010C7d01b50e0d17dc79C8)"
+  },
+  {
+   "id": "A6",
+   "name": "attacker rescueERC20(USDC)",
+   "verdict": "BLOCKED",
+   "detail": "OwnableUnauthorizedAccount(0x70997970C51812dc3A010C7d01b50e0d17dc79C8)"
+  },
+  {
+   "id": "A7",
+   "name": "owner rescueERC20(USDC) — bet token locked",
+   "verdict": "BLOCKED",
+   "detail": "CannotRescueBetToken()"
+  },
+  {
+   "id": "A8",
+   "name": "attacker bet 60 > cap 50",
+   "verdict": "BLOCKED",
+   "detail": "BetExceedsCap(60000000, 50000000)"
+  },
+  {
+   "id": "B1",
+   "name": "loser claimRewards",
+   "verdict": "BLOCKED",
+   "detail": "NothingToClaim()"
+  },
+  {
+   "id": "B2",
+   "name": "claimRefund on SETTLED pool",
+   "verdict": "BLOCKED",
+   "detail": "PoolNotCanceled(101)"
+  },
+  {
+   "id": "B3",
+   "name": "winner claimRewards",
+   "verdict": "OK",
+   "detail": "gas 82748"
+  },
+  {
+   "id": "B4",
+   "name": "payout == stake x totalNet/winPool (96.000000)",
+   "verdict": "CONFIRM",
+   "detail": "paid 96.000000 USDC"
+  },
+  {
+   "id": "B5",
+   "name": "winner double-claim",
+   "verdict": "BLOCKED",
+   "detail": "AlreadyClaimed()"
+  },
+  {
+   "id": "B6",
+   "name": "claimRewards on CANCELED pool",
+   "verdict": "BLOCKED",
+   "detail": "PoolNotSettled(102)"
+  },
+  {
+   "id": "B7",
+   "name": "cancel refund",
+   "verdict": "OK",
+   "detail": "gas 80539"
+  },
+  {
+   "id": "B8",
+   "name": "refund == 100% of gross (50.000000)",
+   "verdict": "CONFIRM",
+   "detail": "received 50.000000 USDC"
+  },
+  {
+   "id": "B9",
+   "name": "double refund",
+   "verdict": "BLOCKED",
+   "detail": "AlreadyClaimed()"
+  },
+  {
+   "id": "B10",
+   "name": "both-side bettor refund",
+   "verdict": "OK",
+   "detail": "gas 78539"
+  },
+  {
+   "id": "B11",
+   "name": "both-side refund == 50.000000",
+   "verdict": "CONFIRM",
+   "detail": "received 50.000000 USDC"
+  },
+  {
+   "id": "B12",
+   "name": "both-side double refund",
+   "verdict": "BLOCKED",
+   "detail": "AlreadyClaimed()"
+  },
+  {
+   "id": "C1",
+   "name": "sum(payouts) <= totalNetPool",
+   "verdict": "CONFIRM",
+   "detail": "totalNet 29.760000 | paid 29.759999 | dust 1 wei (stays in contract, nobody can take it)"
+  },
+  {
+   "id": "D1",
+   "name": "settled pool released its rake, escrow zeroed",
+   "verdict": "CONFIRM",
+   "detail": "accumulatedAdminFees 5.240000 USDC, pool.rakeAdmin 0"
+  },
+  {
+   "id": "D2",
+   "name": "KOL claims referral on CANCELED pool",
+   "verdict": "BLOCKED",
+   "detail": "PoolNotSettled(102)"
+  },
+  {
+   "id": "D3",
+   "name": "KOL withdrawReferralFees",
+   "verdict": "OK",
+   "detail": "gas 55138"
+  },
+  {
+   "id": "D4",
+   "name": "KOL cut == 1.2% of stake (0.600000)",
+   "verdict": "CONFIRM",
+   "detail": "paid 0.600000 USDC"
+  },
+  {
+   "id": "D5",
+   "name": "KOL double-withdraw",
+   "verdict": "BLOCKED",
+   "detail": "transaction execution reverted"
+  },
+  {
+   "id": "E1",
+   "name": "referrer == bettor is neutralised",
+   "verdict": "CONFIRM",
+   "detail": "poolReferral[self] = 0.000000 USDC"
+  },
+  {
+   "id": "E2",
+   "name": "sock-puppet referrer rebates 1.2%",
+   "verdict": "CONFIRM",
+   "detail": "sock got 0.600000 USDC → that bet's effective rake is 2.8%, not 4%"
+  },
+  {
+   "id": "G1",
+   "name": "rolling 50-USDC bets (no cumulative cap) dilute the honest winner",
+   "verdict": "CONFIRM",
+   "detail": "honest winner 52.363636 instead of 96.000000 (−43.636364) | attacker spent 500.000000 got 523.636363 → net +23.636363 — requires knowing the outcome first"
+  },
+  {
+   "id": "G2",
+   "name": "losing side escapes a loss after 30d of owner silence",
+   "verdict": "CONFIRM",
+   "detail": "loser recovered 50.000000 USDC (should have lost 50) | the winner's 46.000000 profit evaporates — only reachable if the owner does not settle"
+  },
+  {
+   "id": "F1",
+   "name": "contract balance >= everything still owed",
+   "verdict": "CONFIRM",
+   "detail": "balance 473.040002 USDC vs owed 473.040000 USDC (surplus 0.000002)"
+  }
+ ]
+}
