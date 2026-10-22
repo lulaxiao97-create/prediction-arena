@@ -18,7 +18,9 @@ import { TradePanel } from "@/components/TradePanel";
 import { ProbabilityChart } from "@/components/ProbabilityChart";
 import { useLiveSeries } from "@/hooks/useLiveSeries";
 import { CommunityDiscussion } from "@/components/CommunityDiscussion";
-import { generateDebate } from "@/lib/auto-gen";
+import { CategoryCover } from "@/components/CategoryCover";
+import { themeFor } from "@/lib/visuals";
+import { useAiDebate } from "@/hooks/useAiDebate";
 import { ActivityLog } from "@/components/ActivityLog";
 import { useMarkets } from "@/hooks/useMarkets";
 import { AGENTS } from "@/lib/mock-data";
@@ -52,19 +54,18 @@ export function MarketDetail({ id }: { id: string }) {
   const seedSeries = useMemo(() => probabilitySeries(id, share0, 30), [id, share0]);
   const { series, live, dir } = useLiveSeries(seedSeries, id);
   const activity = useMemo(() => activityFor(id, 10), [id]);
-  // Generated per market: the argument set is chosen from the live probability band and the
-  // market's own title, so two markets in the same category no longer read identically.
-  const debate = useMemo(
-    () =>
-      generateDebate({
-        poolId: String(pool?.id ?? id),
-        category: pool?.category ?? meta.category ?? "default",
-        title: (pool?.title ?? meta.title ?? "") as string,
-        yesPct: (share0 ?? 0) * 100,
-        netPoolUsdc: Number(pool?.totalNetPool ?? 0n) / 1_000_000,
-      }),
+  // Rendered instantly from the deterministic kernel, then upgraded by the server-side model.
+  const debateInput = useMemo(
+    () => ({
+      poolId: String(pool?.id ?? id),
+      category: pool?.category ?? meta.category ?? "default",
+      title: (pool?.title ?? meta.title ?? "") as string,
+      yesPct: (share0 ?? 0) * 100,
+      netPoolUsdc: Number(pool?.totalNetPool ?? 0n) / 1_000_000,
+    }),
     [pool?.id, pool?.category, pool?.title, pool?.totalNetPool, meta.category, meta.title, share0]
   );
+  const { lines: debate, source: debateSource } = useAiDebate(debateInput);
   const cd = pool ? countdown(pool.endTime) : null;
 
   const TABS: { id: Tab; label: string }[] = [
@@ -164,7 +165,12 @@ export function MarketDetail({ id }: { id: string }) {
             </div>
 
             {/* chart (always visible) */}
-            <div className="glass rounded-2xl border-white/10 p-4 transition-colors hover:border-white/15">
+            <div className="glass relative overflow-hidden rounded-2xl border-white/10 p-4 transition-colors hover:border-white/15">
+              <CategoryCover
+                theme={themeFor({ category: pool.category, title: pool.title, tags: pool.tags })}
+                className="z-0"
+                fade="hero"
+              />
               <div className="flex items-center justify-between">
                 <p className="flex items-center gap-1.5 text-[12.5px] font-semibold text-ink">
                   {t("detail.chart")}

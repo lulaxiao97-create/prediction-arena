@@ -14,11 +14,16 @@
  * was used so the log never lies about where the copy came from.
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import * as dotenv from "dotenv";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { generateMarket, currentSlot } from "../frontend/src/lib/auto-gen.ts";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+
+// .env is the source of truth (same convention as every other script here). Without this the
+// generator silently ran in kernel mode even when a key was configured.
+dotenv.config({ path: join(ROOT, ".env"), override: true });
 const OUT = join(ROOT, "logs", "generated-market.json");
 const POOLS = join(ROOT, "frontend", "public", "pools.json");
 
@@ -33,12 +38,18 @@ function liveTitles(): string[] {
 }
 
 const apiKey = (process.env.DEEPSEEK_API_KEY ?? process.env.OPENAI_API_KEY ?? "").trim();
-const baseUrl = (process.env.LLM_BASE_URL ?? "https://api.deepseek.com/v1").replace(/\/$/, "");
-const model = process.env.LLM_MODEL ?? (process.env.DEEPSEEK_API_KEY ? "deepseek-chat" : "gpt-4o-mini");
+// DeepSeek first (DEEPSEEK_* names), generic LLM_* accepted as an override for other providers.
+const baseUrl = (process.env.LLM_BASE_URL ?? process.env.DEEPSEEK_BASE_URL ?? "https://api.deepseek.com").replace(/\/$/, "");
+const model = process.env.LLM_MODEL ?? process.env.DEEPSEEK_MODEL ?? "deepseek-chat";
 
 async function llmRewrite(kernel: ReturnType<typeof generateMarket>): Promise<ReturnType<typeof generateMarket> | null> {
   if (!apiKey) return null;
-  const prompt = `You are the market-desk for a binary prediction protocol. Rewrite this market so it reads like a professional exchange listing. Keep the same category and the same boolean question shape.
+  const today = new Date().toISOString().slice(0, 10);
+  const prompt = `You are the market desk for a binary prediction protocol. Today is ${today}.
+
+Start from this draft and produce a listing that a professional exchange would publish today. Better still: if the draft is stale relative to ${today}, replace the subject with something genuinely current in the same category. Keep it a single yes/no question.
+
+Draft:
 
 Current draft:
 title: ${kernel.title}
@@ -47,7 +58,7 @@ description: ${kernel.description}
 resolution: ${kernel.resolution}
 
 Reply with JSON only: {"title":"...","description":"...","resolution":"..."}
-Rules: title under 90 chars, must be a yes/no question; resolution must be mechanically checkable with a named data source and a deadline; description 2 sentences, no hype.`;
+Rules: title under 90 chars and must be a yes/no question; resolution must be mechanically checkable, naming a specific data source AND a hard deadline; description at most 2 sentences, no hype, no emoji.`;
 
   try {
     const res = await fetch(`${baseUrl}/chat/completions`, {

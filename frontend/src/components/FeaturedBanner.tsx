@@ -5,6 +5,8 @@ import { ArrowRight, Clock3, Flame, Users } from "lucide-react";
 import type { ArenaPool } from "@/lib/types";
 import { countdown, formatCompactUsdc, formatCountdown, formatProbability, sideShare } from "@/lib/format";
 import { categoryI18nKey } from "@/lib/categories";
+import { CategoryCover } from "@/components/CategoryCover";
+import { themeFor } from "@/lib/visuals";
 import { useI18n } from "@/components/LocaleProvider";
 
 export function FeaturedBanner({ pool, onBet }: { pool: ArenaPool; onBet: (pool: ArenaPool, option: 0 | 1) => void }) {
@@ -15,6 +17,12 @@ export function FeaturedBanner({ pool, onBet }: { pool: ArenaPool; onBet: (pool:
 
   return (
     <section className="card-edge relative overflow-hidden rounded-3xl border border-gold/20 bg-gradient-to-br from-gold/[0.10] via-void-elevated to-void">
+      <CategoryCover
+        theme={themeFor({ category: pool.category, title: pool.title, tags: pool.tags })}
+        className="z-0"
+        fade="banner"
+      />
+
       <div className="pointer-events-none absolute -right-24 -top-28 size-72 rounded-full bg-gold/15 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-32 left-1/4 size-72 rounded-full bg-profit/8 blur-3xl" />
 

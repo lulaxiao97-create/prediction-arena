@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Check, Copy, ExternalLink, Fingerprint, RefreshCw, Sparkles } from "lucide-react";
 import { AGENTS } from "@/lib/mock-data";
-import { generateDebate } from "@/lib/auto-gen";
+import { useAiDebate } from "@/hooks/useAiDebate";
 import { cn, ipfsGatewayUrl } from "@/lib/format";
 import { useI18n } from "@/components/LocaleProvider";
 import type { AgentLine } from "@/lib/types";
@@ -28,17 +28,13 @@ export function AIAgentsDebate({
   const { t } = useI18n();
   // Generated from the market at hand; `category` alone still yields a coherent debate so the
   // component stays usable before a pool is selected.
-  const lines = useMemo(
-    () =>
-      generateDebate({
-        poolId: poolId ?? `category:${category}`,
-        category,
-        title: title ?? category,
-        yesPct,
-        netPoolUsdc,
-      }),
-    [poolId, category, title, yesPct, netPoolUsdc]
-  );
+  const { lines, source } = useAiDebate({
+    poolId: poolId ?? `category:${category}`,
+    category,
+    title: title ?? category,
+    yesPct,
+    netPoolUsdc,
+  });
   const [index, setIndex] = useState(0);
   const [typed, setTyped] = useState("");
   const [copied, setCopied] = useState<string | null>(null);

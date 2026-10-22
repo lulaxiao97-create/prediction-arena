@@ -27,6 +27,8 @@ import {
   sideShare,
 } from "@/lib/format";
 import { categoryI18nKey } from "@/lib/categories";
+import { CategoryCover } from "@/components/CategoryCover";
+import { themeFor } from "@/lib/visuals";
 import { useI18n } from "@/components/LocaleProvider";
 import {
   EMERGENCY_REFUND_DELAY_SECONDS,
@@ -91,11 +93,16 @@ export function MarketCard({
     }
   }
 
+  const theme = themeFor({ category: pool.category, title: pool.title, tags: pool.tags });
+
   return (
     <article
       style={{ animationDelay: `${Math.min(index * 0.04, 0.2)}s` }}
       className="glass glass-hover card-edge rise-in group relative flex flex-col gap-3 overflow-hidden rounded-2xl p-4"
     >
+      {/* subject-matched cover: vector scene, photo blended on top when it loads */}
+      <CategoryCover theme={theme} className="z-0 opacity-[0.85] transition-opacity duration-500 group-hover:opacity-100" />
+
       {/* clickable surface → detail page */}
       <Link href={href} className="absolute inset-0 z-0" aria-label={t("card.view")} />
 
