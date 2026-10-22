@@ -16,3 +16,5 @@ logs/*.json
 logs/*.log
 logs/auto-pool-*.log
 logs/.notify-*
+PUBLIC_URL.txt
+logs/tunnel*.log
