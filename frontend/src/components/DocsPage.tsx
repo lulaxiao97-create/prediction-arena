@@ -19,6 +19,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { useI18n } from "@/components/LocaleProvider";
 import { useToast } from "@/components/Toast";
 import {
+  ARENA_ADDRESS,
   DOCS,
   DOC_SECTIONS,
   docsBySection,
@@ -212,7 +213,7 @@ export function DocsPage({ slug }: { slug?: string[] }) {
                 ))}
               </ul>
               <a
-                href={explorerAddress("0x36f1bFbE3E0d0FA0941C031be278149D33f65684")}
+                href={explorerAddress(ARENA_ADDRESS)}
                 target="_blank"
                 rel="noreferrer"
                 className="mt-4 inline-flex items-center gap-1 rounded-lg border border-white/8 px-2 py-1.5 text-[10.5px] text-muted transition-colors hover:border-gold/40 hover:text-gold-bright"

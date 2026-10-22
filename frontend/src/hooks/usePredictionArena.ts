@@ -45,8 +45,11 @@ export const USDC_BY_CHAIN: Record<number, Address> = {
   [baseSepolia.id]: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
 };
 
-export const MIN_BET_USDC = 5n * 1_000_000n;
-export const BOOTSTRAP_CAP_USDC = 50n * 1_000_000n;
+// Mirrors contracts/PredictionArena.sol v2: flat 50 – 10,000 USDC ticket window.
+export const MIN_BET_USDC = 50n * 1_000_000n;
+export const MAX_BET_USDC = 10_000n * 1_000_000n;
+/** @deprecated use MAX_BET_USDC — kept so older imports keep compiling. */
+export const BOOTSTRAP_CAP_USDC = MAX_BET_USDC;
 
 export type PoolRead = {
   title: string;

@@ -50,11 +50,13 @@ export function resolveTradeGuard(input: {
   return "ok";
 }
 
-/** Quick-size chips scale with the live cap so a raised cap is actually reachable in one tap. */
+/**
+ * Quick-size chips for the v2 window. Fixed ladder (50 → 10,000) filtered by the live cap, so a
+ * pool that somehow reports a lower ceiling never offers an unclickable chip.
+ */
+export const QUICK_CHIPS = [50, 100, 500, 1_000, 5_000, 10_000] as const;
+
 export function quickAmountsFor(cap: bigint): number[] {
-  const base = [5, 10, 25, 50];
   const usdc = (n: number) => BigInt(n) * 1_000_000n;
-  if (cap >= usdc(500)) return [...base, 100, 250, 500];
-  if (cap >= usdc(100)) return [...base, 100];
-  return base;
+  return QUICK_CHIPS.filter((chip) => usdc(chip) <= cap);
 }

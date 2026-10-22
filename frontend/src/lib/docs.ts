@@ -28,7 +28,11 @@ export type Doc = {
   body: Record<DocLang, DocBlock[]>;
 };
 
-export const ARENA_ADDRESS = "0x36f1bFbE3E0d0FA0941C031be278149D33f65684";
+/** Single source of truth for the deployed arena. Follows .env.local so a redeploy cannot leave
+ *  the docs pointing at a retired contract. */
+export const ARENA_ADDRESS =
+  (process.env.NEXT_PUBLIC_ARENA_ADDRESS as `0x${string}` | undefined) ??
+  "0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93";
 export const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 
 export const DOC_SECTIONS: { id: DocSection; emoji: string; labelKey: string }[] = [

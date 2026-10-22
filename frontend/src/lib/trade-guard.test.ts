@@ -12,11 +12,11 @@ const base = {
   address: "0x1111111111111111111111111111111111111111" as string,
   wrongChain: false,
   live: true,
-  usdcBalance: U(100),
+  usdcBalance: U(10_000),
   ethBalance: ETH(0.001),
-  amount: U(10),
-  cap: U(50),
-  minBet: U(5),
+  amount: U(100),
+  cap: U(10_000),
+  minBet: U(50),
 };
 
 const cases: [string, Record<string, unknown>, string][] = [
@@ -25,10 +25,10 @@ const cases: [string, Record<string, unknown>, string][] = [
   ["demo market", { live: false }, "demo"],
   ["empty amount", { amount: 0n }, "empty-amount"],
   ["USDC balance is 0", { usdcBalance: 0n }, "no-usdc"],
-  ["amount exceeds USDC balance", { usdcBalance: U(8) }, "insufficient-usdc"],
+  ["amount exceeds USDC balance", { usdcBalance: U(80) }, "insufficient-usdc"],
   ["no ETH for gas", { ethBalance: 0n }, "no-gas"],
-  ["above per-trade cap", { amount: U(60) }, "above-cap"],
-  ["below the minimum", { amount: U(2) }, "below-min"],
+  ["above per-trade cap", { amount: U(10_001), usdcBalance: U(20_000) }, "above-cap"],
+  ["below the minimum", { amount: U(49) }, "below-min"],
   ["all good", {}, "ok"],
 ];
 
@@ -59,7 +59,7 @@ console.log("  ok  gas floor boundary           → no-gas");
 pass++;
 
 // exactly at the gas floor and exactly at the cap are allowed
-assert.equal(resolveTradeGuard({ ...base, ethBalance: GAS_FLOOR, amount: U(50) } as never), "ok");
+assert.equal(resolveTradeGuard({ ...base, ethBalance: GAS_FLOOR, amount: U(10_000) } as never), "ok");
 console.log("  ok  boundaries inclusive         → ok");
 pass++;
 
@@ -73,12 +73,12 @@ console.log("  ok  unknown balances don't block → ok");
 pass++;
 
 // quick chips follow the live cap
-assert.deepEqual(quickAmountsFor(U(50)), [5, 10, 25, 50]);
-assert.deepEqual(quickAmountsFor(U(120)), [5, 10, 25, 50, 100]);
-assert.deepEqual(quickAmountsFor(U(750)), [5, 10, 25, 50, 100, 250, 500]);
-console.log("  ok  quick chips: 50 → [5,10,25,50]");
-console.log("  ok  quick chips: 120 → [.., 100]");
-console.log("  ok  quick chips: 750 → [.., 100,250,500]");
+assert.deepEqual(quickAmountsFor(U(50)), [50]);
+assert.deepEqual(quickAmountsFor(U(600)), [50, 100, 500]);
+assert.deepEqual(quickAmountsFor(U(10_000)), [50, 100, 500, 1_000, 5_000, 10_000]);
+console.log("  ok  quick chips: cap 50 → [50]");
+console.log("  ok  quick chips: cap 600 → [50,100,500]");
+console.log("  ok  quick chips: cap 10k → full ladder");
 pass += 3;
 
 console.log(`\n${pass} assertions passed`);

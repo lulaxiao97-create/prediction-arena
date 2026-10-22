@@ -67,7 +67,7 @@ async function main() {
   await arena.createPool(poolId, "E2E: will the proof pass?", "Tech", endTime);
   await arena.seedPool(poolId, 0, USDC("22.5"));
   await arena.seedPool(poolId, 1, USDC("22.5"));
-  assert.equal(await arena.maxBetFor(poolId), USDC(50), "bootstrap cap must be 50 USDC");
+  assert.equal(await arena.maxBetFor(poolId), USDC(10_000), "v2 cap must be 10,000 USDC");
   console.log(`1) pool ${poolId} opened: seed 22.5 / 22.5, maxBet = ${ethers.formatUnits(await arena.maxBetFor(poolId), 6)} USDC`);
 
   // ── bet with referrer ─────────────────────────────────────────────────

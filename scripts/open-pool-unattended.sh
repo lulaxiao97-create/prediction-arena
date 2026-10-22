@@ -8,7 +8,7 @@
 # Guarantees:
 #   • flock prevents two openings racing on the same nonce / pool id
 #   • POOL_ID defaults to the current unix timestamp (unique per run)
-#   • seeds both sides 22.5 USDC (inside the 20–25 USDC window)
+#   • seeds both sides SEED_PER_SIDE USDC (default 250, so the 50–10,000 v2 window opens sane)
 #   • fails loudly unless the script prints "Liquidity ok" (both sides > 0, cap ≥ 5)
 # ─────────────────────────────────────────────────────────────────────────────
 set -euo pipefail
@@ -45,8 +45,8 @@ export POOL_ID="${POOL_ID:-$(date +%s)}"
 export TITLE="${TITLE:-Will BTC close above \$120k this week?}"
 export CATEGORY="${CATEGORY:-Macro}"
 export DURATION_HOURS="${DURATION_HOURS:-24}"
-export SEED_PER_SIDE="${SEED_PER_SIDE:-22.5}"
-# 1 = skip when the tracked pool is still open (prevents an hourly cron from locking 45 USDC/h)
+export SEED_PER_SIDE="${SEED_PER_SIDE:-250}"
+# 1 = skip when the tracked pool is still open (prevents an hourly cron from locking 500 USDC/h)
 export SKIP_IF_OPEN="${SKIP_IF_OPEN:-1}"
 export POOL_STATE_FILE="${POOL_STATE_FILE:-logs/pool-state.json}"
 export USDC_ADDRESS="${USDC_ADDRESS:-0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913}"
@@ -80,7 +80,7 @@ set -e
 
 # Operational skips are healthy outcomes for a cron tick → exit 0 (and before the error check).
 if grep -q "USDC balance .* < seeds" "$LOG"; then
-  echo "[$(date -Is)] SKIP — fee wallet holds less USDC than the 2×22.5 seed; top up to arm the cron"
+  echo "[$(date -Is)] SKIP — fee wallet holds less USDC than the 2×${SEED_PER_SIDE} seed; top up to arm the cron"
   exit 0
 fi
 if grep -q "^SKIP:" "$LOG"; then

@@ -25,9 +25,11 @@ import {
 import { categoryI18nKey } from "@/lib/categories";
 import { useI18n } from "@/components/LocaleProvider";
 import { useToast } from "@/components/Toast";
+import { AmountSlider } from "@/components/AmountSlider";
+import { quickAmountsFor, resolveTradeGuard } from "@/lib/trade-guard";
 import { recordTrade } from "@/hooks/useTradeHistory";
 import {
-  BOOTSTRAP_CAP_USDC,
+  MAX_BET_USDC,
   MIN_BET_USDC,
   hasArena,
   useBet,
@@ -39,7 +41,7 @@ import {
 
 const FEE_BPS = 400n;
 const BPS = 10_000n;
-const QUICK_AMOUNTS = [5, 10, 25, 50];
+
 
 export function BetModal({
   pool,
@@ -62,10 +64,11 @@ export function BetModal({
   const { balance } = useUsdc();
 
   const [option, setOption] = useState<0 | 1>(initialOption);
-  const [amountInput, setAmountInput] = useState("10");
+  const [amountInput, setAmountInput] = useState("50");
   const { bet, step, error, hash, reset } = useBet();
 
-  const cap = hasArena && capData ? (capData as bigint) : BOOTSTRAP_CAP_USDC;
+  const cap = hasArena && capData ? (capData as bigint) : MAX_BET_USDC;
+  const quickAmounts = useMemo(() => quickAmountsFor(cap), [cap]);
   const parsed = useMemo(() => parseAmount(amountInput), [amountInput]);
   const amount = parsed ?? 0n;
   const balanceValue = (balance.data as bigint | undefined) ?? undefined;
@@ -266,8 +269,8 @@ export function BetModal({
                 />
                 <span className="text-sm font-medium text-muted">USDC</span>
               </div>
-              <div className="mt-2 flex gap-1.5">
-                {QUICK_AMOUNTS.map((quick) => {
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {quickAmounts.map((quick) => {
                   const disabled = BigInt(quick) * 1_000_000n > cap;
                   return (
                     <button
@@ -286,6 +289,14 @@ export function BetModal({
                   );
                 })}
               </div>
+              <AmountSlider
+                value={parsed && parsed > 0n ? parsed : MIN_BET_USDC}
+                min={MIN_BET_USDC}
+                max={cap > MIN_BET_USDC ? cap : MIN_BET_USDC}
+                onChange={(next) => setAmountInput(String(Number(next) / 1_000_000))}
+                disabled={pending}
+                className="mt-3"
+              />
             </div>
 
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted">
@@ -294,13 +305,12 @@ export function BetModal({
               <span className="inline-flex items-center gap-1">
                 <ShieldAlert className="size-3 text-gold" />
                 {t("trade.cap")} <span className="mono text-gold-bright">${formatUsdc(cap, 0)}</span>
-                {t("trade.capHint")}
               </span>
             </div>
 
-            <p className="flex items-start gap-1.5 rounded-lg border border-gold/25 bg-gold/[0.07] px-2.5 py-2 text-[10.5px] leading-relaxed text-gold-bright/90">
-              <ShieldAlert className="mt-0.5 size-3 shrink-0" />
-              {t("trade.bootstrap")}
+            <p className="flex items-start gap-1.5 rounded-lg border border-cyan/25 bg-cyan/[0.06] px-2.5 py-2 text-[10.5px] leading-relaxed text-cyan-bright/90">
+              <Info className="mt-0.5 size-3 shrink-0" />
+              {t("trade.capWindow", { min: formatUsdc(MIN_BET_USDC, 0), max: formatUsdc(cap, 0) })}
             </p>
 
             <div className="space-y-1.5 rounded-xl border border-white/6 bg-panel/60 p-3 text-[12px]">

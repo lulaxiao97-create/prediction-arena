@@ -8,11 +8,12 @@ import { AlertTriangle, ArrowRight, CheckCircle2, ChevronDown, ExternalLink, Fue
 import type { ArenaPool } from "@/lib/types";
 import { cn, explorerTx, formatProbability, formatUsdc, impliedMultiplier } from "@/lib/format";
 import { quickAmountsFor, resolveTradeGuard } from "@/lib/trade-guard";
+import { AmountSlider } from "@/components/AmountSlider";
 import { useI18n } from "@/components/LocaleProvider";
 import { useToast } from "@/components/Toast";
 import { recordTrade } from "@/hooks/useTradeHistory";
 import {
-  BOOTSTRAP_CAP_USDC,
+  MAX_BET_USDC,
   MIN_BET_USDC,
   hasArena,
   useBet,
@@ -40,13 +41,12 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
   const { bet, step, error, hash, reset } = useBet();
 
   const [option, setOption] = useState<0 | 1>(0);
-  const [amountInput, setAmountInput] = useState("10");
+  const [amountInput, setAmountInput] = useState("50");
   const toastId = useRef<string | null>(null);
   const recorded = useRef(false);
 
   const live = hasArena && pool.source === "chain";
-  const cap = live && capData ? (capData as bigint) : BOOTSTRAP_CAP_USDC;
-  const isBootstrap = cap <= BOOTSTRAP_CAP_USDC;
+  const cap = live && capData ? (capData as bigint) : MAX_BET_USDC;
   const amount = useMemo(() => parseAmount(amountInput) ?? 0n, [amountInput]);
   const quickAmounts = useMemo(() => quickAmountsFor(cap), [cap]);
   const [capHintOpen, setCapHintOpen] = useState(false);
@@ -242,7 +242,7 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
           />
           <span className="text-sm font-medium text-muted">USDC</span>
         </div>
-        <div className="mt-2 flex gap-1.5">
+        <div className="mt-2 flex flex-wrap gap-1.5">
           {quickAmounts.map((quick) => {
             const disabled = BigInt(quick) * 1_000_000n > cap;
             const selected = amountInput === String(quick);
@@ -265,6 +265,14 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
             );
           })}
         </div>
+        <AmountSlider
+          value={amount > 0n ? amount : MIN_BET_USDC}
+          min={MIN_BET_USDC}
+          max={cap > MIN_BET_USDC ? cap : MIN_BET_USDC}
+          onChange={(next) => setAmountInput(String(Number(next) / 1_000_000))}
+          disabled={pending}
+          className="mt-3"
+        />
       </div>
 
       {/* implied probability */}
@@ -295,10 +303,7 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
         <Row label={t("trade.odds")} value={multiplier ? `${multiplier.toFixed(2)}x` : "—"} />
       </div>
 
-      <div className={cn(
-        "rounded-xl border px-2.5 py-2",
-        isBootstrap ? "border-gold/25 bg-gold/[0.06]" : "border-white/8 bg-white/[0.02]"
-      )}>
+      <div className={cn("rounded-xl border px-2.5 py-2", "border-white/8 bg-white/[0.02]")}>
         <div className="flex items-center justify-between text-[11px]">
           <span className="flex items-center gap-1 text-muted">
             <ShieldAlert className="size-3" /> {t("trade.cap")}
@@ -306,7 +311,7 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
           <span className="mono font-semibold text-ink">${formatUsdc(cap, 0)}</span>
         </div>
         <div className="mt-1 flex items-center justify-between gap-2 text-[10px] text-muted/70">
-          <span className="truncate">{isBootstrap ? t("trade.capFloor") : t("trade.capDynamic")}</span>
+          <span className="truncate">{t("trade.capWindow", { min: formatUsdc(MIN_BET_USDC, 0), max: formatUsdc(cap, 0) })}</span>
           <button
             onClick={() => setCapHintOpen((v) => !v)}
             className="inline-flex shrink-0 items-center gap-0.5 transition-colors hover:text-gold-bright"
@@ -346,6 +351,13 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
       )}
 
       {error && <p className="rounded-lg border border-loss/30 bg-loss/10 px-2.5 py-2 text-[11px] text-loss">{error}</p>}
+      {amount > 0n && payout > 0n && payout < amount && (
+        <p className="flex items-start gap-1.5 rounded-lg border border-gold/25 bg-gold/[0.06] px-2.5 py-2 text-[10px] leading-relaxed text-gold-bright/90">
+          <Info className="mt-0.5 size-3 shrink-0" />
+          {t("trade.thinSideWarning")}
+        </p>
+      )}
+
       {tooBig && !error && guard !== "above-cap" && (
         <p className="text-[11px] text-loss">{t("trade.aboveCap", { cap: formatUsdc(cap, 0) })}</p>
       )}

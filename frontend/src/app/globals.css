@@ -499,3 +499,56 @@ a:active {
 @media (prefers-reduced-motion: reduce) {
   .pa-mark-core, .pa-mark-sweep { animation: none; }
 }
+
+
+/* ── amount slider (components/AmountSlider.tsx) ────────────────────────── */
+.amount-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 22px;
+  background: transparent;
+  cursor: pointer;
+}
+.amount-slider::-webkit-slider-runnable-track {
+  height: 5px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, #22d3ee 0%, #fbbf24 var(--fill, 50%), rgba(255, 255, 255, 0.09) var(--fill, 50%), rgba(255, 255, 255, 0.09) 100%);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.amount-slider::-moz-range-track {
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+}
+.amount-slider::-moz-range-progress {
+  height: 5px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #22d3ee, #fbbf24);
+}
+.amount-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -5.5px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 32% 28%, #fef3c7, #fbbf24 55%, #b45309 100%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.55), 0 2px 6px rgba(0, 0, 0, 0.5);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.amount-slider:hover::-webkit-slider-thumb {
+  transform: scale(1.12);
+  box-shadow: 0 0 18px rgba(251, 191, 36, 0.75), 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+.amount-slider:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.amount-slider:focus-visible {
+  outline: none;
+}
+.amount-slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.45), 0 0 14px rgba(251, 191, 36, 0.6);
+}

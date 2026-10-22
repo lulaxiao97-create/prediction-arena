@@ -30,7 +30,7 @@ const USDC_BY_CHAIN_ID: Record<number, string> = {
 };
 
 const usdc = (n: string | number) => ethers.parseUnits(String(n), 6);
-const HARDCODED_BOOTSTRAP_CAP = usdc(50); // must match PredictionArena.BOOTSTRAP_MAX_BET
+const HARDCODED_MAX_BET = usdc(10_000); // must match PredictionArena.MAX_BET
 
 const ERC20_ABI = [
   "function decimals() view returns (uint8)",
@@ -67,17 +67,19 @@ async function main() {
     );
   }
 
-  const bootstrapCap: bigint = await arena.BOOTSTRAP_MAX_BET();
-  if (bootstrapCap !== HARDCODED_BOOTSTRAP_CAP) {
+  const bootstrapCap: bigint = await arena.MAX_BET();
+  if (bootstrapCap !== HARDCODED_MAX_BET) {
     console.warn(
-      `⚠ on-chain BOOTSTRAP_MAX_BET = ${ethers.formatUnits(bootstrapCap, 6)} USDC ` +
-        `(expected ${ethers.formatUnits(HARDCODED_BOOTSTRAP_CAP, 6)}). Contract was compiled from a different source.`
+      `⚠ on-chain MAX_BET = ${ethers.formatUnits(bootstrapCap, 6)} USDC ` +
+        `(expected ${ethers.formatUnits(HARDCODED_MAX_BET, 6)}). Contract was compiled from a different source.`
     );
   }
 
-  const seedPerSide = usdc(process.env.SEED_PER_SIDE ?? "22.5");
-  if (seedPerSide < usdc(20) || seedPerSide > usdc(25)) {
-    throw new Error("SEED_PER_SIDE must be within 20..25 USDC");
+  // v2 window is 50–10,000 per ticket, so a 22.5/side seed would let one ticket own the whole
+  // pool. Default 250/side keeps the book readable; the guard below still blocks fat-fingers.
+  const seedPerSide = usdc(process.env.SEED_PER_SIDE ?? "250");
+  if (seedPerSide < usdc(50) || seedPerSide > usdc(50_000)) {
+    throw new Error("SEED_PER_SIDE must be within 50..50000 USDC");
   }
   const seedTotal = seedPerSide * 2n;
 

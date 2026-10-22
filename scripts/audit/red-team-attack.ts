@@ -59,7 +59,7 @@ async function main() {
   await expectRevert(
     "R1",
     "owner (oracle) calls bet()",
-    () => arena.connect(owner).bet(1, 1, USDC(50), ethers.ZeroAddress),
+    () => arena.connect(owner).bet(1, 1, USDC(500), ethers.ZeroAddress),
     "OwnerCannotBet"
   );
 
@@ -88,7 +88,7 @@ async function main() {
   );
 
   // ── R5: KOL tries to pull referral before settlement ────────────────────
-  await arena.connect(alice).bet(1, 1, USDC(50), kol.address); // seeds the escrow
+  await arena.connect(alice).bet(1, 1, USDC(500), kol.address); // seeds the escrow
   await expectRevert(
     "R5",
     "KOL calls withdrawReferralFees(openPool)",
@@ -119,7 +119,7 @@ async function main() {
   const refunded = (await usdc.balanceOf(alice.address)) - aliceBefore;
   const rakeAfterCancel = await arena.accumulatedAdminFees();
   const rakeEscrow = await arena.poolRakeAdmin(1);
-  if (refunded === USDC(50) && rakeAfterCancel === 0n && rakeEscrow === 0n) {
+  if (refunded === USDC(500) && rakeAfterCancel === 0n && rakeEscrow === 0n) {
     results.push({
       id: "R8",
       title: "cancel rug: platform keeps rake?",
@@ -155,7 +155,7 @@ async function main() {
   await arena.createPool(2, "Red-team target B", "Tech", now + 3_600);
   await arena.seedPool(2, 0, USDC("22.5"));
   await arena.seedPool(2, 1, USDC("22.5"));
-  await arena.connect(bob).bet(2, 0, USDC(50), ethers.ZeroAddress);
+  await arena.connect(bob).bet(2, 0, USDC(500), ethers.ZeroAddress);
   await network.provider.send("evm_increaseTime", [3_700]);
   await network.provider.send("evm_mine", []);
   await arena.settle(2, 0, HASH);
@@ -173,7 +173,7 @@ async function main() {
   await arena.createPool(3, "Red-team target C (owner AWOL)", "CT Drama", now3 + 3_600);
   await arena.seedPool(3, 0, USDC("22.5"));
   await arena.seedPool(3, 1, USDC("22.5"));
-  await arena.connect(bob).bet(3, 1, USDC(50), ethers.ZeroAddress);
+  await arena.connect(bob).bet(3, 1, USDC(500), ethers.ZeroAddress);
   await network.provider.send("evm_increaseTime", [30 * DAY + 3_700]);
   await network.provider.send("evm_mine", []);
 
@@ -181,7 +181,7 @@ async function main() {
   const bobBefore = await usdc.balanceOf(bob.address);
   await arena.connect(bob).claimRefund(3);
   const bobRefund = (await usdc.balanceOf(bob.address)) - bobBefore;
-  if (bobRefund === USDC(50)) {
+  if (bobRefund === USDC(500)) {
     results.push({
       id: "R12",
       title: "owner AWOL for 30d → funds recoverable",
@@ -207,7 +207,7 @@ async function main() {
   await arena.seedPool(4, 0, USDC("22.5"));
   await arena.seedPool(4, 1, USDC("22.5"));
   try {
-    await (await arena.connect(alt).bet(4, 0, USDC(20), ethers.ZeroAddress)).wait();
+    await (await arena.connect(alt).bet(4, 0, USDC(100), ethers.ZeroAddress)).wait();
     results.push({
       id: "R13",
       title: "owner bets from a FRESH wallet (sybil)",

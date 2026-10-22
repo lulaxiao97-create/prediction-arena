@@ -31,7 +31,7 @@ describe("PredictionArena (post-P0 hardening)", function () {
     usdc = await ethers.deployContract("MockUSDC");
     await usdc.waitForDeployment();
     for (const u of [owner, alice, bob, kol, other]) {
-      await usdc.mint(u.address, usdcUnits(10_000));
+      await usdc.mint(u.address, usdcUnits(100_000));
     }
 
     arena = await ethers.deployContract("PredictionArena", [
@@ -56,8 +56,9 @@ describe("PredictionArena (post-P0 hardening)", function () {
       expect(await arena.owner()).to.equal(owner.address);
       expect(await arena.PLATFORM_FEE_BPS()).to.equal(400n);
       expect(await arena.REFERRAL_SHARE_BPS()).to.equal(3000n);
-      expect(await arena.MIN_BET()).to.equal(usdcUnits(5));
-      expect(await arena.BOOTSTRAP_MAX_BET()).to.equal(usdcUnits(50));
+      expect(await arena.MIN_BET()).to.equal(usdcUnits(50));
+      expect(await arena.MAX_BET()).to.equal(usdcUnits(10_000));
+      expect(await arena.maxBetFor(POOL)).to.equal(usdcUnits(10_000));
       expect(await arena.EMERGENCY_REFUND_DELAY()).to.equal(BigInt(30 * DAY));
     });
 
@@ -106,39 +107,39 @@ describe("PredictionArena (post-P0 hardening)", function () {
   describe("F-01: owner cannot bet", () => {
     it("blocks the owner address from taking a position", async () => {
       await expect(
-        arena.connect(owner).bet(POOL, 1, usdcUnits(5), ethers.ZeroAddress)
+        arena.connect(owner).bet(POOL, 1, usdcUnits(50), ethers.ZeroAddress)
       ).to.be.revertedWithCustomError(arena, "OwnerCannotBet");
     });
 
     it("still lets normal users bet, and keeps the owner's seed position intact", async () => {
-      await arena.connect(alice).bet(POOL, 1, usdcUnits(50), ethers.ZeroAddress);
+      await arena.connect(alice).bet(POOL, 1, usdcUnits(500), ethers.ZeroAddress);
       const pool = await arena.getPool(POOL);
       expect(pool.option0Pool).to.equal(usdcUnits("22.5")); // owner seed untouched
-      expect(pool.option1Pool).to.equal(usdcUnits("70.5")); // 22.5 seed + 48 net
+      expect(pool.option1Pool).to.equal(usdcUnits("502.5")); // 22.5 seed + 480 net
     });
   });
 
   describe("rake escrow (basis for 100% refunds)", () => {
     it("escrows 4% instead of paying it out immediately", async () => {
-      await arena.connect(alice).bet(POOL, 1, usdcUnits(50), kol.address);
+      await arena.connect(alice).bet(POOL, 1, usdcUnits(500), kol.address);
 
       expect(await arena.accumulatedAdminFees()).to.equal(0n);
-      expect(await arena.poolRakeAdmin(POOL)).to.equal(usdcUnits("1.4"));
-      expect(await arena.poolReferral(POOL, kol.address)).to.equal(usdcUnits("0.6"));
-      expect(await arena.feePaid(POOL, alice.address)).to.equal(usdcUnits(2));
-      expect((await arena.getPool(POOL)).option1Pool).to.equal(usdcUnits("70.5"));
+      expect(await arena.poolRakeAdmin(POOL)).to.equal(usdcUnits("14"));
+      expect(await arena.poolReferral(POOL, kol.address)).to.equal(usdcUnits("6"));
+      expect(await arena.feePaid(POOL, alice.address)).to.equal(usdcUnits(20));
+      expect((await arena.getPool(POOL)).option1Pool).to.equal(usdcUnits("502.5"));
     });
 
     it("routes 100% of the rake to the admin escrow when there is no referrer", async () => {
-      await arena.connect(alice).bet(POOL, 1, usdcUnits(50), ethers.ZeroAddress);
-      expect(await arena.poolRakeAdmin(POOL)).to.equal(usdcUnits(2));
+      await arena.connect(alice).bet(POOL, 1, usdcUnits(500), ethers.ZeroAddress);
+      expect(await arena.poolRakeAdmin(POOL)).to.equal(usdcUnits(20));
       expect(await arena.poolReferral(POOL, alice.address)).to.equal(0n);
     });
 
     it("ignores self-referral", async () => {
-      await arena.connect(alice).bet(POOL, 1, usdcUnits(50), alice.address);
+      await arena.connect(alice).bet(POOL, 1, usdcUnits(500), alice.address);
       expect(await arena.poolReferral(POOL, alice.address)).to.equal(0n);
-      expect(await arena.poolRakeAdmin(POOL)).to.equal(usdcUnits(2));
+      expect(await arena.poolRakeAdmin(POOL)).to.equal(usdcUnits(20));
     });
   });
 
@@ -147,30 +148,31 @@ describe("PredictionArena (post-P0 hardening)", function () {
       await arena.seedPool(POOL, 0, usdcUnits(1_000));
     });
 
-    it("rejects bets below 5 USDC and above the per-ticket cap", async () => {
+    it("enforces the flat v2 window: 50 USDC floor, 10,000 USDC ceiling", async () => {
       await expect(
-        arena.connect(alice).bet(POOL, 1, usdcUnits("4.99"), ethers.ZeroAddress)
+        arena.connect(alice).bet(POOL, 1, usdcUnits("49.99"), ethers.ZeroAddress)
       ).to.be.revertedWithCustomError(arena, "BetBelowMinimum");
 
-      expect(await arena.currentMaxBet(POOL)).to.equal(usdcUnits(50));
+      expect(await arena.currentMaxBet(POOL)).to.equal(usdcUnits(10_000));
       await expect(
-        arena.connect(alice).bet(POOL, 1, usdcUnits(51), ethers.ZeroAddress)
+        arena.connect(alice).bet(POOL, 1, usdcUnits("10000.01"), ethers.ZeroAddress)
       ).to.be.revertedWithCustomError(arena, "BetExceedsCap");
 
-      await arena.connect(alice).bet(POOL, 1, usdcUnits(50), ethers.ZeroAddress);
-
-      // beforeEach seeded 22.5/22.5, then 1000 on side 0 → side1 = 370.5 → 20% = 74.1
+      // v2 removed the 20%-of-weaker-side clamp: the cap must not move when the pool deepens
       await arena.seedPool(POOL, 1, usdcUnits(300));
-      expect(await arena.currentMaxBet(POOL)).to.equal(usdcUnits("74.1"));
-      await expect(
-        arena.connect(bob).bet(POOL, 1, usdcUnits("74.2"), ethers.ZeroAddress)
-      ).to.be.revertedWithCustomError(arena, "BetExceedsCap");
+      expect(await arena.currentMaxBet(POOL)).to.equal(usdcUnits(10_000));
+      await arena.seedPool(POOL, 0, usdcUnits(50_000));
+      expect(await arena.currentMaxBet(POOL)).to.equal(usdcUnits(10_000));
+
+      // both edges are inclusive
+      await arena.connect(alice).bet(POOL, 1, usdcUnits(50), ethers.ZeroAddress);
+      await arena.connect(bob).bet(POOL, 1, usdcUnits(10_000), ethers.ZeroAddress);
     });
 
-    it("never locks a freshly seeded pool (22.5 + 22.5 keeps 5..50 bettable)", async () => {
+    it("a freshly seeded 22.5/22.5 pool still accepts the 50 USDC floor", async () => {
       await openPool(42n, ["22.5", "22.5"]);
-      expect(await arena.currentMaxBet(42n)).to.equal(usdcUnits(50));
-      await arena.connect(alice).bet(42n, 1, usdcUnits(5), ethers.ZeroAddress);
+      expect(await arena.currentMaxBet(42n)).to.equal(usdcUnits(10_000));
+      await arena.connect(alice).bet(42n, 1, usdcUnits(50), ethers.ZeroAddress);
       await arena.connect(bob).bet(42n, 0, usdcUnits(50), ethers.ZeroAddress);
       const pool = await arena.getPool(42n);
       expect(pool.option0Pool).to.be.greaterThan(0n);
@@ -179,20 +181,20 @@ describe("PredictionArena (post-P0 hardening)", function () {
 
     it("rejects invalid options and closes at endTime", async () => {
       await expect(
-        arena.connect(alice).bet(POOL, 2, usdcUnits(10), ethers.ZeroAddress)
+        arena.connect(alice).bet(POOL, 2, usdcUnits(100), ethers.ZeroAddress)
       ).to.be.revertedWithCustomError(arena, "InvalidOption");
 
       await advanceTime(DAY + 1);
       await expect(
-        arena.connect(alice).bet(POOL, 1, usdcUnits(10), ethers.ZeroAddress)
+        arena.connect(alice).bet(POOL, 1, usdcUnits(100), ethers.ZeroAddress)
       ).to.be.revertedWithCustomError(arena, "PoolEnded");
     });
   });
 
   describe("settle & claim", () => {
     beforeEach(async () => {
-      await arena.connect(alice).bet(POOL, 1, usdcUnits(50), kol.address);
-      await arena.connect(bob).bet(POOL, 1, usdcUnits(19), ethers.ZeroAddress);
+      await arena.connect(alice).bet(POOL, 1, usdcUnits(500), kol.address);
+      await arena.connect(bob).bet(POOL, 1, usdcUnits(190), ethers.ZeroAddress);
     });
 
     it("cannot settle before endTime or from a non-owner", async () => {
@@ -211,8 +213,8 @@ describe("PredictionArena (post-P0 hardening)", function () {
       const pool = await arena.getPool(POOL);
       expect(pool.settlementHash).to.equal(EVIDENCE_HASH);
       expect(await arena.poolRakeAdmin(POOL)).to.equal(0n);
-      // alice 1.4 admin + bob 0.76 admin
-      expect(await arena.accumulatedAdminFees()).to.equal(usdcUnits("2.16"));
+      // alice: 20 fee → 14 admin; bob: 7.6 fee → 7.6 admin
+      expect(await arena.accumulatedAdminFees()).to.equal(usdcUnits("21.6"));
     });
 
     it("refuses to settle without an evidence hash", async () => {
@@ -247,29 +249,29 @@ describe("PredictionArena (post-P0 hardening)", function () {
   });
 
   describe("F-02: cancel refunds 100% of gross stake", () => {
-    it("returns the full 50 USDC including the 4% rake", async () => {
-      await arena.connect(alice).bet(POOL, 1, usdcUnits(50), kol.address); // 48 net + 2 fee
+    it("returns the full 500 USDC including the 4% rake", async () => {
+      await arena.connect(alice).bet(POOL, 1, usdcUnits(500), kol.address); // 480 net + 20 fee
       await arena.cancelPool(POOL);
 
-      expect(await arena.pendingRefund(POOL, alice.address)).to.equal(usdcUnits(50));
+      expect(await arena.pendingRefund(POOL, alice.address)).to.equal(usdcUnits(500));
 
       const before = await usdc.balanceOf(alice.address);
       await arena.connect(alice).claimRefund(POOL);
-      expect((await usdc.balanceOf(alice.address)) - before).to.equal(usdcUnits(50));
+      expect((await usdc.balanceOf(alice.address)) - before).to.equal(usdcUnits(500));
     });
 
     it("refunds both sides in full and blocks double refunds", async () => {
-      await arena.connect(alice).bet(POOL, 0, usdcUnits(30), ethers.ZeroAddress); // 28.8 net
-      await arena.connect(bob).bet(POOL, 1, usdcUnits(19), ethers.ZeroAddress); // 18.24 net
+      await arena.connect(alice).bet(POOL, 0, usdcUnits(300), ethers.ZeroAddress); // 288 net
+      await arena.connect(bob).bet(POOL, 1, usdcUnits(190), ethers.ZeroAddress); // 182.4 net
       await arena.cancelPool(POOL);
 
       const aBefore = await usdc.balanceOf(alice.address);
       await arena.connect(alice).claimRefund(POOL);
-      expect((await usdc.balanceOf(alice.address)) - aBefore).to.equal(usdcUnits(30));
+      expect((await usdc.balanceOf(alice.address)) - aBefore).to.equal(usdcUnits(300));
 
       const bBefore = await usdc.balanceOf(bob.address);
       await arena.connect(bob).claimRefund(POOL);
-      expect((await usdc.balanceOf(bob.address)) - bBefore).to.equal(usdcUnits(19));
+      expect((await usdc.balanceOf(bob.address)) - bBefore).to.equal(usdcUnits(190));
 
       await expect(
         arena.connect(bob).claimRefund(POOL)
@@ -277,7 +279,7 @@ describe("PredictionArena (post-P0 hardening)", function () {
     });
 
     it("leaves the platform with zero rake and zero referral on a canceled pool", async () => {
-      await arena.connect(alice).bet(POOL, 1, usdcUnits(50), kol.address);
+      await arena.connect(alice).bet(POOL, 1, usdcUnits(500), kol.address);
       await arena.cancelPool(POOL);
 
       expect(await arena.accumulatedAdminFees()).to.equal(0n);
@@ -289,7 +291,7 @@ describe("PredictionArena (post-P0 hardening)", function () {
     });
 
     it("cannot settle after cancel, and cannot refund before cancel", async () => {
-      await arena.connect(alice).bet(POOL, 1, usdcUnits(50), ethers.ZeroAddress);
+      await arena.connect(alice).bet(POOL, 1, usdcUnits(500), ethers.ZeroAddress);
       await expect(
         arena.connect(alice).claimRefund(POOL)
       ).to.be.revertedWithCustomError(arena, "PoolNotCanceled");
@@ -304,7 +306,7 @@ describe("PredictionArena (post-P0 hardening)", function () {
 
   describe("F-03: permissionless emergency refund", () => {
     it("reverts before endTime + 30 days", async () => {
-      await arena.connect(alice).bet(POOL, 1, usdcUnits(50), ethers.ZeroAddress);
+      await arena.connect(alice).bet(POOL, 1, usdcUnits(500), ethers.ZeroAddress);
 
       const pool = await arena.getPool(POOL);
       const eligibleAt = BigInt(pool.endTime) + BigInt(30 * DAY);
@@ -319,7 +321,7 @@ describe("PredictionArena (post-P0 hardening)", function () {
     });
 
     it("lets ANY address void the pool after the grace period", async () => {
-      await arena.connect(alice).bet(POOL, 1, usdcUnits(50), ethers.ZeroAddress);
+      await arena.connect(alice).bet(POOL, 1, usdcUnits(500), ethers.ZeroAddress);
 
       await advanceTime(DAY + 30 * DAY + 1);
       await expect(arena.connect(other).emergencyRefund(POOL))
@@ -327,15 +329,15 @@ describe("PredictionArena (post-P0 hardening)", function () {
         .withArgs(POOL, other.address, anyValue);
 
       expect((await arena.getPool(POOL)).status).to.equal(3n); // Canceled
-      expect(await arena.pendingRefund(POOL, alice.address)).to.equal(usdcUnits(50));
+      expect(await arena.pendingRefund(POOL, alice.address)).to.equal(usdcUnits(500));
 
       const before = await usdc.balanceOf(alice.address);
       await arena.connect(alice).claimRefund(POOL);
-      expect((await usdc.balanceOf(alice.address)) - before).to.equal(usdcUnits(50));
+      expect((await usdc.balanceOf(alice.address)) - before).to.equal(usdcUnits(500));
     });
 
     it("cannot be used on settled or already canceled pools", async () => {
-      await arena.connect(alice).bet(POOL, 1, usdcUnits(50), ethers.ZeroAddress);
+      await arena.connect(alice).bet(POOL, 1, usdcUnits(500), ethers.ZeroAddress);
       await advanceTime(DAY + 1);
       await arena.settle(POOL, 1, EVIDENCE_HASH);
       await advanceTime(31 * DAY);
@@ -344,7 +346,7 @@ describe("PredictionArena (post-P0 hardening)", function () {
       ).to.be.revertedWithCustomError(arena, "PoolNotOpen");
 
       await openPool(5n, ["22.5", "22.5"]);
-      await arena.connect(bob).bet(5n, 0, usdcUnits(10), ethers.ZeroAddress);
+      await arena.connect(bob).bet(5n, 0, usdcUnits(100), ethers.ZeroAddress);
       await arena.cancelPool(5n);
       await advanceTime(31 * DAY);
       await expect(
@@ -355,7 +357,7 @@ describe("PredictionArena (post-P0 hardening)", function () {
 
   describe("fee isolation across pools", () => {
     it("only released (settled) rake can be withdrawn", async () => {
-      await arena.connect(alice).bet(POOL, 1, usdcUnits(50), kol.address);
+      await arena.connect(alice).bet(POOL, 1, usdcUnits(500), kol.address);
 
       // open pool: nothing is withdrawable, not even as owner
       await expect(arena.withdrawAdminFees()).to.be.revertedWithCustomError(arena, "NothingToWithdraw");
@@ -365,20 +367,20 @@ describe("PredictionArena (post-P0 hardening)", function () {
 
       await advanceTime(DAY + 1);
       await arena.settle(POOL, 1, EVIDENCE_HASH);
-      expect(await arena.accumulatedAdminFees()).to.equal(usdcUnits("1.4"));
+      expect(await arena.accumulatedAdminFees()).to.equal(usdcUnits("14"));
 
       // a second, still-open pool must not be touchable by that withdrawal
       await openPool(2n, ["22.5", "22.5"]);
-      await arena.connect(bob).bet(2n, 0, usdcUnits(50), ethers.ZeroAddress);
+      await arena.connect(bob).bet(2n, 0, usdcUnits(500), ethers.ZeroAddress);
       const vaultBefore = await usdc.balanceOf(feeVault.address);
       await arena.withdrawAdminFees();
-      expect((await usdc.balanceOf(feeVault.address)) - vaultBefore).to.equal(usdcUnits("1.4"));
-      expect(await arena.poolRakeAdmin(2n)).to.equal(usdcUnits(2));
+      expect((await usdc.balanceOf(feeVault.address)) - vaultBefore).to.equal(usdcUnits("14"));
+      expect(await arena.poolRakeAdmin(2n)).to.equal(usdcUnits(20));
 
       // KOL claims its settled cut
       const kolBefore = await usdc.balanceOf(kol.address);
       await arena.connect(kol).withdrawReferralFees(POOL);
-      expect((await usdc.balanceOf(kol.address)) - kolBefore).to.equal(usdcUnits("0.6"));
+      expect((await usdc.balanceOf(kol.address)) - kolBefore).to.equal(usdcUnits("6"));
 
       const balance = await arena.contractBalance();
       const owed = (await arena.accumulatedAdminFees()) + (await arena.poolRakeAdmin(2n));

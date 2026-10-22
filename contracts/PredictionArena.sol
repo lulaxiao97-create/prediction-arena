@@ -75,8 +75,14 @@ contract PredictionArena is Ownable, ReentrancyGuard {
     uint256 public constant BPS_DENOMINATOR = 10_000;
     uint256 public constant PLATFORM_FEE_BPS = 400; // 4.00% of every stake
     uint256 public constant REFERRAL_SHARE_BPS = 3_000; // 30% of the rake == 1.2% of stake
-    uint256 public constant MAX_BET_BPS = 2_000; // 20% of the weaker side
-    uint256 public constant MIN_BET = 5e6; // 5 USDC
+    /// @notice v2 ticket window. A flat 50–10,000 USDC band replaced the old
+    ///         20%-of-the-weaker-side clamp so a single ticket can carry desk size.
+    /// @dev    Removing the proportional guard does not change solvency: every payout is drawn
+    ///         from the same net pool (pari-mutuel), so a large one-sided ticket can only hurt
+    ///         itself by moving the odds against everyone else. What it does change is who can
+    ///         dominate a thin pool — that is a product trade-off, not a fund-safety one.
+    uint256 public constant MIN_BET = 50e6; // 50 USDC
+    uint256 public constant MAX_BET = 10_000e6; // 10,000 USDC
     uint8 public constant OPTION_COUNT = 2;
     uint256 public constant MAX_POOL_DURATION = 365 days;
     uint256 public constant MAX_TITLE_LENGTH = 128;
@@ -84,12 +90,6 @@ contract PredictionArena is Ownable, ReentrancyGuard {
 
     /// @notice Grace period after endTime before anyone may force a canceled pool (F-03).
     uint256 public constant EMERGENCY_REFUND_DELAY = 30 days;
-
-    /// @notice Hardcoded bootstrap floor of the per-ticket cap (50 USDC).
-    /// @dev The 20%-of-weaker-side guard alone makes a freshly seeded pool untradeable:
-    ///      two 22.5 USDC seeds ⇒ 20% = 4.5 USDC < MIN_BET(5). The cap is therefore
-    ///      max(20% of weaker side, BOOTSTRAP_MAX_BET).
-    uint256 public constant BOOTSTRAP_MAX_BET = 50e6; // 50 USDC, immutable by design
 
     // ---------------------------------------------------------------------
     // Immutable / configuration
@@ -510,10 +510,10 @@ contract PredictionArena is Ownable, ReentrancyGuard {
         return _stake[poolId][user][0] + _stake[poolId][user][1] + _feePaid[poolId][user];
     }
 
-    /// @notice Per-ticket ceiling: max(20% of the weaker side, 50 USDC bootstrap floor).
-    function maxBetFor(uint256 poolId) public view returns (uint256) {
-        uint256 percentCap = (_weakerSide(poolId) * MAX_BET_BPS) / BPS_DENOMINATOR;
-        return percentCap > BOOTSTRAP_MAX_BET ? percentCap : BOOTSTRAP_MAX_BET;
+    /// @notice Per-ticket ceiling. Flat in v2: MAX_BET for every pool, no proportional clamp.
+    /// @dev The poolId argument is retained so the ABI (frontend, cron, monitors) keeps working.
+    function maxBetFor(uint256 /* poolId */) public view returns (uint256) {
+        return MAX_BET;
     }
 
     /// @notice Alias kept for the frontend / ops tooling.
@@ -556,12 +556,6 @@ contract PredictionArena is Ownable, ReentrancyGuard {
         if (pool.status == PoolStatus.None) revert PoolNotFound(poolId);
         if (pool.status != PoolStatus.Open) revert PoolNotOpen(poolId);
         if (block.timestamp >= pool.endTime) revert PoolEnded(poolId);
-    }
-
-    function _weakerSide(uint256 poolId) private view returns (uint256) {
-        uint256 side0 = optionPool[poolId][0];
-        uint256 side1 = optionPool[poolId][1];
-        return side0 < side1 ? side0 : side1;
     }
 
     /**

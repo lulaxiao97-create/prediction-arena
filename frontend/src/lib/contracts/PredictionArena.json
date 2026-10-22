@@ -1,8 +1,8 @@
 {
   "contractName": "PredictionArena",
   "chainId": 8453,
-  "address": "0x36f1bFbE3E0d0FA0941C031be278149D33f65684",
-  "exportedAt": "2026-10-22T01:35:49.539Z",
+  "address": "0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93",
+  "exportedAt": "2026-10-22T09:10:26.477Z",
   "abi": [
     {
       "inputs": [
@@ -633,19 +633,6 @@
     },
     {
       "inputs": [],
-      "name": "BOOTSTRAP_MAX_BET",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
       "name": "BPS_DENOMINATOR",
       "outputs": [
         {
@@ -672,7 +659,7 @@
     },
     {
       "inputs": [],
-      "name": "MAX_BET_BPS",
+      "name": "MAX_BET",
       "outputs": [
         {
           "internalType": "uint256",
@@ -1094,7 +1081,7 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "poolId",
+          "name": "",
           "type": "uint256"
         }
       ],

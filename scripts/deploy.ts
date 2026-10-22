@@ -157,14 +157,14 @@ async function main() {
   const owner = await readRetry("owner", () => arena.owner(), "(unknown)");
   const vault = await readRetry("feeVault", () => arena.feeVault(), feeReceiver);
   const minBet = await readRetry("MIN_BET", () => arena.MIN_BET(), 0n);
-  const capFloor = await readRetry("BOOTSTRAP_MAX_BET", () => arena.BOOTSTRAP_MAX_BET(), 0n);
+  const capMax = await readRetry("MAX_BET", () => arena.MAX_BET(), 0n);
   console.log(`Owner           : ${owner}`);
   console.log(`feeVault        : ${vault}`);
   if (String(vault).toLowerCase() !== feeReceiver.toLowerCase()) {
     console.warn("  ⚠ feeVault does not match FEE_RECEIVER — investigate before sending funds");
   }
   console.log(`MIN_BET         : ${ethers.formatUnits(minBet, 6)} USDC`);
-  console.log(`Max ticket floor: ${ethers.formatUnits(capFloor, 6)} USDC`);
+  console.log(`Max ticket     : ${ethers.formatUnits(capMax, 6)} USDC`);
   console.log(`Fee             : ${Number(await readRetry("fee bps", () => arena.PLATFORM_FEE_BPS(), 0n)) / 100}%`);
   console.log(
     `Referral        : ${Number(await arena.REFERRAL_SHARE_BPS()) / 100}% of fee ` +
