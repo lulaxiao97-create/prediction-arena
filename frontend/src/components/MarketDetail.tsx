@@ -17,6 +17,7 @@ import { BetModalHost } from "@/components/BetModal";
 import { TradePanel } from "@/components/TradePanel";
 import { ProbabilityChart } from "@/components/ProbabilityChart";
 import { useLiveSeries } from "@/hooks/useLiveSeries";
+import { CommunityDiscussion } from "@/components/CommunityDiscussion";
 import { ActivityLog } from "@/components/ActivityLog";
 import { useMarkets } from "@/hooks/useMarkets";
 import { AGENTS, agentLinesFor } from "@/lib/mock-data";
@@ -300,6 +301,12 @@ export function MarketDetail({ id }: { id: string }) {
                 )}
               </div>
             </div>
+
+            <CommunityDiscussion
+              poolId={String(pool.id)}
+              category={pool.category ?? meta.category ?? "default"}
+              yesPct={share0 * 100}
+            />
           </div>
 
           <div className="lg:pt-0">

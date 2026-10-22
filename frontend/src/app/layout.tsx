@@ -27,7 +27,9 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className="min-h-screen bg-void text-ink antialiased">
         <div className="bg-aurora" aria-hidden />
+        <div className="bg-mesh" aria-hidden />
         <div className="bg-grid" aria-hidden />
+        <div className="bg-stars" aria-hidden />
         <ChunkReloadGuard />
         <Web3Provider>
           <LocaleProvider>

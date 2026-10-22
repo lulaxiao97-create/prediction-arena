@@ -318,6 +318,9 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
         {capHintOpen && (
           <div className="mt-2 space-y-1.5 border-t border-white/6 pt-2">
             <p className="text-[10px] leading-relaxed text-muted/85">{t("trade.raiseCapBody")}</p>
+            <p className="rounded-md border border-cyan/25 bg-cyan/[0.07] px-2 py-1.5 text-[9.5px] leading-relaxed text-cyan-bright/90">
+              {t("trade.capUpgrade")}
+            </p>
             <Link
               href="/docs/economics/fees"
               className="inline-flex items-center gap-1 text-[10px] text-gold-bright hover:underline"
