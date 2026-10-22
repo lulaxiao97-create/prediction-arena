@@ -3,9 +3,9 @@
   "network": "base",
   "chainId": 8453,
   "contract": "PredictionArena",
-  "address": "0x96c0333657c684Ac125A54a0858471e1c8267355",
-  "txHash": "0x84e5794b408c3d59e56b2bc0402d1038ed968df78a418e1245e18e0c535e631f",
-  "block": 52896032,
+  "address": "0x36f1bFbE3E0d0FA0941C031be278149D33f65684",
+  "txHash": "0x4b08c4580b0e83d39e3a771e74cfb04dccddb1164c5bad1c4a50ee6348909a9b",
+  "block": 52921545,
   "deployer": "0x436b9d5e6fBd40eC93E881263bE53e59F8755Ba1",
   "owner": "0x436b9d5e6fBd40eC93E881263bE53e59F8755Ba1",
   "feeVault": "0x9520269b506e02c357a712160979a3237C404fE6",
@@ -14,14 +14,19 @@
   "referralShareBps": 3000,
   "bootstrapMaxBetUsdc": 50,
   "minBetUsdc": 5,
-  "gasUsed": "2268327",
-  "effectiveGasPriceWei": "7338564",
-  "feePaidEth": "0.000016646262862428",
+  "maxBetBps": 2000,
+  "emergencyRefundDelaySeconds": 2592000,
+  "gasUsed": "2511906",
+  "effectiveGasPriceWei": "6000000",
+  "feePaidEth": "0.000015071436",
   "verified": true,
-  "deployedAt": "2026-10-21T19:16:00+08:00",
+  "deployedAt": "2026-10-22T09:27:17+08:00",
+  "status": "active",
+  "funded": false,
+  "notes": "Hardened build (F-01 cancel 100% refund, F-02 fee isolation, F-03 permissionless emergency refund). Deployed intentionally unfunded: no seed USDC, nextPoolId not opened, cron left paused.",
   "verification": {
-    "explorer": "https://basescan.org/address/0x96c0333657c684Ac125A54a0858471e1c8267355#code",
-    "guid": "uczhfssefh3iii6vyvtyb2hpwnrfuzppfzpwz6xcyw9l3yvehm",
+    "explorer": "https://basescan.org/address/0x36f1bFbE3E0d0FA0941C031be278149D33f65684#code",
+    "guid": "6vhwhjcwmje1x1kfeiq55tj615gdqt7qffw2nym4zuwbz4686s",
     "contractName": "PredictionArena",
     "compiler": "v0.8.20+commit.a1b79de6",
     "optimizer": {
@@ -29,10 +34,20 @@
       "runs": 200
     },
     "evmVersion": "paris",
-    "abiEntries": 77,
-    "verifiedAt": "2026-10-21T19:30:00+08:00"
+    "abiEntries": 86,
+    "verifiedAt": "2026-10-22T09:31:00+08:00"
   },
-  "status": "deprecated",
-  "deprecatedReason": "pre-hardening bytecode (F-01/F-02/F-03 open); superseded by locally hardened source, awaiting redeploy",
-  "deprecatedAt": "2026-10-21T20:10:00+08:00"
+  "superseded": [
+    {
+      "address": "0x96c0333657c684Ac125A54a0858471e1c8267355",
+      "txHash": "0x84e5794b408c3d59e56b2bc0402d1038ed968df78a418e1245e18e0c535e631f",
+      "block": 52896032,
+      "deployedAt": "2026-10-21T19:16:00+08:00",
+      "gasUsed": "2268327",
+      "status": "deprecated",
+      "deprecatedAt": "2026-10-21T20:10:00+08:00",
+      "deprecatedReason": "pre-hardening bytecode (F-01/F-02/F-03 open); superseded by 0x36f1bFbE3E0d0FA0941C031be278149D33f65684",
+      "tvlUsdc": 0
+    }
+  ]
 }
