@@ -421,3 +421,23 @@ button:active:not(:disabled),
 a:active {
   transform: translateY(0.5px) scale(0.995);
 }
+
+
+/* ── locked brand mark motion (see components/Logo.tsx) ─────────────────── */
+@keyframes paCorePulse {
+  0%, 100% { opacity: 0.5; transform: scale(0.9); }
+  50%      { opacity: 1;   transform: scale(1.06); }
+}
+@keyframes paArrowBreath {
+  0%, 100% { opacity: 0.82; }
+  50%      { opacity: 1; }
+}
+.pa-mark-core {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: paCorePulse 3.4s ease-in-out infinite;
+}
+.pa-mark-sweep { animation: paArrowBreath 3.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .pa-mark-core, .pa-mark-sweep { animation: none; }
+}

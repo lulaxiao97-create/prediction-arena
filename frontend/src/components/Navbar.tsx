@@ -10,6 +10,7 @@ import { CATEGORY_TABS, type MarketCategory } from "@/lib/categories";
 import { useI18n } from "@/components/LocaleProvider";
 import { LocaleSwitcher } from "@/components/LocaleProvider";
 import { PortfolioDrawer } from "@/components/PortfolioDrawer";
+import { LogoLockup } from "@/components/Logo";
 
 const WalletButton = dynamic(() => import("@/components/WalletButton").then((m) => m.WalletButton), {
   ssr: false,
@@ -41,26 +42,8 @@ export function Navbar({
     <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-void/85 backdrop-blur-xl">
       <div className="mx-auto flex h-[68px] w-full max-w-[1400px] items-center gap-3 px-4 sm:px-6">
         {/* brand */}
-        <Link href="/" className="group flex shrink-0 items-center gap-2.5" aria-label="Prediction Arena">
-          <span className="relative grid size-9 place-items-center rounded-xl border border-gold/40 bg-gradient-to-br from-gold-bright/25 to-gold/5 shadow-[0_0_24px_-6px_rgba(245,158,11,0.6)]">
-            <svg viewBox="0 0 24 24" className="size-5" aria-hidden>
-              <defs>
-                <linearGradient id="arena-gold" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#FDE68A" />
-                  <stop offset="55%" stopColor="#FBBF24" />
-                  <stop offset="100%" stopColor="#D97706" />
-                </linearGradient>
-              </defs>
-              <path d="M12 2.5 22 12l-10 9.5L2 12 12 2.5Z" fill="url(#arena-gold)" opacity="0.92" />
-              <path d="M12 7.2 17.2 12 12 16.8 6.8 12 12 7.2Z" fill="#0A0A0C" />
-            </svg>
-          </span>
-          <span className="flex flex-col leading-none">
-            <span className="gold-text text-[15px] font-semibold tracking-[0.04em]">Prediction Arena</span>
-            <span className="mt-1 hidden text-[9px] font-medium tracking-[0.02em] text-muted/80 2xl:block">
-              {t("nav.poweredBy")}
-            </span>
-          </span>
+        <Link href="/" className="group flex shrink-0 items-center" aria-label="Prediction Arena">
+          <LogoLockup size={36} subtitle={t("nav.poweredBy")} subtitleClassName="hidden 2xl:block" />
         </Link>
 
         {/* primary navigation */}

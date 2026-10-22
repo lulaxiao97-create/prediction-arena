@@ -39,6 +39,8 @@ export type AgentId = "hawk" | "detective" | "meme";
 export type AgentLine = {
   agent: AgentId;
   text: string;
+  /** Which side of the binary this line argues. Drives the BULL/BEAR chip in the debate feed. */
+  stance?: "bull" | "bear";
   evidenceCid?: string;
 };
 

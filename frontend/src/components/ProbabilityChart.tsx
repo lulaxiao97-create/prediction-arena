@@ -7,10 +7,13 @@ export function ProbabilityChart({
   series,
   height = 190,
   tone = "profit",
+  live = false,
 }: {
   series: number[];
   height?: number;
   tone?: "profit" | "loss";
+  /** Pulses the endpoint — used when the series is ticking. */
+  live?: boolean;
 }) {
   const { line, area, last, min, max } = useMemo(() => {
     const W = 720;
@@ -65,6 +68,10 @@ export function ProbabilityChart({
         <path d={line} fill="none" stroke={stroke} strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round" />
         <circle cx={last[0]} cy={last[1]} r="4" fill={stroke} />
         <circle cx={last[0]} cy={last[1]} r="8" fill={stroke} opacity="0.18" />
+        {live && <circle cx={last[0]} cy={last[1]} r="4" fill="none" stroke={stroke} strokeWidth="1.4" opacity="0.7">
+          <animate attributeName="r" values="4;12;4" dur="2.6s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.7;0;0.7" dur="2.6s" repeatCount="indefinite" />
+        </circle>}
       </svg>
 
       <div className="pointer-events-none absolute inset-y-0 left-0 flex flex-col justify-between py-2 text-[9px] text-muted/50">

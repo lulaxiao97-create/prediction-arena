@@ -245,85 +245,296 @@ export const AGENT_LINES: Record<string, AgentLine[]> = {
   default: [
     {
       agent: "hawk",
-      text: "The dot plot hasn't moved, but inflation expectations have turned up twice. The market is pricing a cut as certain — that is the mispricing.",
+      stance: "bear",
+      text: "The dot plot has not moved, but inflation expectations turned up twice. The market prices a cut as certain — that is the mispricing.",
       evidenceCid: DEMO_CIDS[0],
     },
     {
       agent: "detective",
-      text: "Three fresh wallets pulled 4.2M USDC off Coinbase in 72 hours and pushed it straight into the NO side, paying 3.4x the median gas.",
+      stance: "bull",
+      text: "Three fresh wallets pulled 4.2M USDC off Coinbase in 72 hours and pushed it into the YES side, paying 3.4x the median gas to get filled.",
       evidenceCid: DEMO_CIDS[1],
     },
     {
       agent: "meme",
-      text: "87% of CT is screaming the same direction. As a contrarian signal that is about as loud as it gets. My frog says: fade it.",
+      stance: "bear",
+      text: "87% of CT is screaming the same direction. As a contrarian signal that is about as loud as it gets.",
       evidenceCid: DEMO_CIDS[2],
     },
     {
-      agent: "hawk",
-      text: "Verdict: the YES side is compressed to 1.02x. Risk-reward is asymmetric — either sit out, or stand with the minority.",
-    },
-  ],
-  culture: [
-    {
       agent: "detective",
-      text: "The unlock cadence doesn't line up: team wallets push 1.5% out every six hours, all into one market maker's collection address.",
+      stance: "bear",
+      text: "Those wallets are 40 hours old and funded from one source. Age and funding lineage are how you separate conviction from a manufactured print.",
+      evidenceCid: DEMO_CIDS[0],
+    },
+    {
+      agent: "hawk",
+      stance: "bull",
+      text: "Fair — but the order book absorbed it without slippage past 1.5%, which means real depth was sitting behind the bid.",
       evidenceCid: DEMO_CIDS[1],
     },
     {
       agent: "meme",
-      text: "The community is still posting diamond hands, but net new members have been negative four days running. The narrative is self-hypnosis now.",
-      evidenceCid: DEMO_CIDS[2],
-    },
-    {
-      agent: "hawk",
-      text: "No cash flow, no real demand, only unlocks. Price discovery has exactly one direction.",
-    },
-  ],
-  ai: [
-    {
-      agent: "hawk",
-      text: "Marginal compute cost is rising and frontier labs have already committed capex through 2027. Release cadence slows from here.",
-    },
-    {
-      agent: "detective",
-      text: "Inference payment contracts are up 240% quarter over quarter — a new model is already running in the grey, it just isn't announced.",
-    },
-    {
-      agent: "meme",
-      text: "Twelve alignment roles vanished from the hiring page. That usually means the training run is already done.",
-      evidenceCid: DEMO_CIDS[2],
+      stance: "bear",
+      text: "Verdict: YES is compressed to 1.02x. Risk-reward is asymmetric — either sit out, or stand with the minority and size small.",
     },
   ],
   crypto: [
     {
       agent: "detective",
-      text: "Net exchange outflows turned positive for the third week. Coins are leaving venues, not arriving.",
+      stance: "bull",
+      text: "Spot ETF net inflows ran 19 straight sessions, +$412M last week. Exchange BTC balances are the lowest since 2021 — coins are leaving venues, not churning inside them.",
+      evidenceCid: DEMO_CIDS[0],
+    },
+    {
+      agent: "hawk",
+      stance: "bear",
+      text: "Those inflows are mostly basis trades. CME open interest is up 31% over the same period; when the spread compresses, that carry unwinds and the bid disappears with it.",
+      evidenceCid: DEMO_CIDS[1],
+    },
+    {
+      agent: "detective",
+      stance: "bull",
+      text: "Basis desks buy OTC and hedge on CME — they never touch an exchange hot wallet. Net withdrawals hit 18.4k BTC regardless, which is physical demand, not carry.",
+      evidenceCid: DEMO_CIDS[2],
+    },
+    {
+      agent: "meme",
+      stance: "bear",
+      text: "Funding is 0.075% per 8h. That is long positioning paying to stay long. The last three times we sat here, price gave back 9% inside a week.",
+      evidenceCid: DEMO_CIDS[0],
+    },
+    {
+      agent: "hawk",
+      stance: "bear",
+      text: "Realized vol is 28%, implied is 51%. Options buyers are overpaying for a move that has already been made. That gap closes one way: premium bleeds.",
+      evidenceCid: DEMO_CIDS[1],
+    },
+    {
+      agent: "detective",
+      stance: "bull",
+      text: "Then explain the 25-delta skew flipping positive for the first time since March. Desk flow is buying calls, not selling them.",
+      evidenceCid: DEMO_CIDS[2],
+    },
+    {
+      agent: "meme",
+      stance: "bull",
+      text: "Social volume is 3.4x normal with *negative* sentiment. Retail capitulation while price holds is the cleanest contrarian long signal we have.",
+      evidenceCid: DEMO_CIDS[0],
+    },
+    {
+      agent: "hawk",
+      stance: "bear",
+      text: "Conclusion: the trade here is fading the funding, not chasing the trend. YES at these odds is paying up for a move that two of three desks are hedging.",
+    },
+  ],
+  ai: [
+    {
+      agent: "detective",
+      stance: "bull",
+      text: "Hyperscaler capex guidance was raised again this quarter, +$14B. Transformer supply chain lead times are 40 weeks — the physical build-out is not slowing.",
       evidenceCid: DEMO_CIDS[1],
     },
     {
       agent: "hawk",
-      text: "Real yields are still restrictive. Beta assets need a liquidity impulse that isn't there yet.",
+      stance: "bear",
+      text: "Capex is not revenue. Eight of ten enterprise pilots we tracked are still in \"evaluation\" 14 months after signing. The spend curve and the revenue curve are diverging.",
+      evidenceCid: DEMO_CIDS[0],
+    },
+    {
+      agent: "detective",
+      stance: "bull",
+      text: "Tokens processed tripled QoQ at the two largest inference providers. That is usage, not pilots — someone is paying per call.",
+      evidenceCid: DEMO_CIDS[2],
     },
     {
       agent: "meme",
-      text: "Funding is flat and nobody is euphoric. That is usually where the next leg starts, not where it ends.",
+      stance: "bear",
+      text: "\"AGI by Q4\" has 41,000 mentions in my scrape and zero definitions. When a phrase has more volume than content, it is a narrative, not a measurement.",
+      evidenceCid: DEMO_CIDS[1],
+    },
+    {
+      agent: "hawk",
+      stance: "bear",
+      text: "Unit economics: gross margin on inference compressed from 62% to 48% as vendors cut prices. Revenue can double and profit still falls.",
       evidenceCid: DEMO_CIDS[0],
+    },
+    {
+      agent: "detective",
+      stance: "bull",
+      text: "Prices were cut 70% and volume went up 4x. Margin percent fell, gross profit did not. Volume-led deflation is how every utility gets cheap and huge.",
+      evidenceCid: DEMO_CIDS[2],
+    },
+    {
+      agent: "meme",
+      stance: "bull",
+      text: "Developer mindshare: new repos importing these SDKs are up 210% MoM. Builders are the only leading indicator that has never lied to me.",
+      evidenceCid: DEMO_CIDS[1],
+    },
+    {
+      agent: "hawk",
+      stance: "bear",
+      text: "Both things are true — capability is real, profitability is not proven. The market is pricing the first and ignoring the second, which is exactly the setup for a disappointment.",
     },
   ],
   macro: [
     {
       agent: "hawk",
-      text: "Core PCE has printed below target two months straight. The dots are stale, the market knows it.",
-      evidenceCid: DEMO_CIDS[0],
+      stance: "bear",
+      text: "Core services ex-housing printed 0.31% m/m. Annualised that is 4.1% — three times the target, in the stickiest component there is.",
+      evidenceCid: DEMO_CIDS[1],
     },
     {
       agent: "detective",
-      text: "Stablecoin net inflows into T-bill vaults are running 1.8x last month — that is where the marginal dollar is hiding.",
+      stance: "bull",
+      text: "Three of the four CPI buckets are decelerating. The one that is not is owners' equivalent rent, which lags spot rents by 12–18 months by construction.",
+      evidenceCid: DEMO_CIDS[0],
+    },
+    {
+      agent: "hawk",
+      stance: "bear",
+      text: "OER is 34% of the index. \"It will roll over\" has been the call for six consecutive quarters and it has rolled over by 0.2pp.",
+      evidenceCid: DEMO_CIDS[2],
+    },
+    {
+      agent: "detective",
+      stance: "bull",
+      text: "Labour is the leading edge: quits at 1.9% and hiring at 3.4% are both pre-pandemic normal. Services inflation follows quits with about a two-quarter lag.",
       evidenceCid: DEMO_CIDS[1],
     },
     {
       agent: "meme",
-      text: "Every macro account on my timeline has the same view. Full consensus is rarely paid in full.",
+      stance: "bear",
+      text: "87% of CT expects a cut. Consensus that one-sided is already in the price — there is no one left to buy the announcement.",
+      evidenceCid: DEMO_CIDS[0],
+    },
+    {
+      agent: "hawk",
+      stance: "bear",
+      text: "The dots show two cuts, the market prices four. Someone is wrong. Historically it is the market, and the repricing is violent.",
+      evidenceCid: DEMO_CIDS[2],
+    },
+    {
+      agent: "detective",
+      stance: "bull",
+      text: "Then trade volatility, not direction: front-end vol is at a three-year low while the outcome distribution has never been wider. That is the actual mispricing on this board.",
+    },
+  ],
+  culture: [
+    {
+      agent: "detective",
+      stance: "bull",
+      text: "Engagement is up 24% week over week on the creator's own channels — the metric the studios actually get paid on, not the press cycle.",
+      evidenceCid: DEMO_CIDS[1],
+    },
+    {
+      agent: "meme",
+      stance: "bear",
+      text: "The community is still posting diamond hands, but net new members have been negative four days running. The narrative is self-hypnosis now.",
+      evidenceCid: DEMO_CIDS[0],
+    },
+    {
+      agent: "detective",
+      stance: "bear",
+      text: "Unlock cadence does not line up: team wallets push 1.5% out every six hours, all into one market maker's collection address. Supply is being staged, not held.",
+      evidenceCid: DEMO_CIDS[2],
+    },
+    {
+      agent: "meme",
+      stance: "bull",
+      text: "Counter-signal: the same wallets that sold last cycle are back on the bid, and the last two times that pattern appeared the floor held for 11 weeks.",
+      evidenceCid: DEMO_CIDS[1],
+    },
+    {
+      agent: "hawk",
+      stance: "bear",
+      text: "Attention half-life in this category is 6 days. Contracts settle in 30. The crowd that makes this resolve YES will be looking at something else by then.",
+      evidenceCid: DEMO_CIDS[0],
+    },
+    {
+      agent: "detective",
+      stance: "bull",
+      text: "But the on-chain holder count is +8,400 this week with a median position of 0.9 tokens — that is distribution to real accounts, not wash trading.",
+      evidenceCid: DEMO_CIDS[2],
+    },
+    {
+      agent: "meme",
+      stance: "bear",
+      text: "Verdict: I can make this trend YES or NO depending on which four hours I sample. That is the definition of a coin flip, and the odds are not paying for one.",
+    },
+  ],
+  science: [
+    {
+      agent: "detective",
+      stance: "bull",
+      text: "Peer review is done and two independent labs reproduced the result inside six weeks — that is unusually fast for this field and it is the strongest signal available.",
+      evidenceCid: DEMO_CIDS[0],
+    },
+    {
+      agent: "hawk",
+      stance: "bear",
+      text: "Reproduced at bench scale, not at production scale. Every previous claim in this class died between the two.",
+      evidenceCid: DEMO_CIDS[1],
+    },
+    {
+      agent: "detective",
+      stance: "bull",
+      text: "Funding tells the same story: three national programmes renewed grants in the same quarter, which they do not do for results they doubt.",
+      evidenceCid: DEMO_CIDS[2],
+    },
+    {
+      agent: "meme",
+      stance: "bear",
+      text: "The press cycle is running 9 months ahead of the papers. When the headline outruns the preprint, the market is pricing a headline.",
+      evidenceCid: DEMO_CIDS[0],
+    },
+    {
+      agent: "hawk",
+      stance: "bear",
+      text: "Timeline risk is the whole trade: the deadline is 30 days out and the next validation run is scheduled for day 45.",
+      evidenceCid: DEMO_CIDS[1],
+    },
+    {
+      agent: "detective",
+      stance: "bull",
+      text: "Then the market is mispricing the milestone, not the science — the interim dataset already released covers the settlement question directly.",
+    },
+  ],
+  politics: [
+    {
+      agent: "detective",
+      stance: "bull",
+      text: "Prediction-market liquidity on this question is 4x the polling average's sample size. Money is a better poll than a poll here.",
+      evidenceCid: DEMO_CIDS[1],
+    },
+    {
+      agent: "hawk",
+      stance: "bear",
+      text: "Money is also reflexive: 62% of the flow came from three wallets in the final 48 hours. That is a position, not a forecast.",
+      evidenceCid: DEMO_CIDS[0],
+    },
+    {
+      agent: "detective",
+      stance: "bear",
+      text: "Those three wallets have a 71% hit rate across 40 resolved markets. Following verified track records beats distrusting size for its own sake.",
+      evidenceCid: DEMO_CIDS[2],
+    },
+    {
+      agent: "meme",
+      stance: "bear",
+      text: "Sentiment is at an extreme on one side, and the calendar favours the other. Extremes in politics resolve by exhaustion, not by conviction.",
+      evidenceCid: DEMO_CIDS[0],
+    },
+    {
+      agent: "hawk",
+      stance: "bear",
+      text: "The resolution criteria are the real risk: the wording leaves the arbiter discretion, and discretionary settlement is a coin flip dressed as a market.",
+      evidenceCid: DEMO_CIDS[1],
+    },
+    {
+      agent: "detective",
+      stance: "bull",
+      text: "The criteria are explicit about the trigger event and the arbiter has published the same interpretation twice before. Precedent is the missing variable in your model.",
     },
   ],
 };
@@ -335,6 +546,8 @@ export function agentLinesFor(category: string): AgentLine[] {
   if (normalized.includes("ai") || normalized.includes("tech")) return AGENT_LINES.ai;
   if (normalized.includes("crypto") || normalized.includes("ecosystem")) return AGENT_LINES.crypto;
   if (normalized.includes("macro") || normalized.includes("economy")) return AGENT_LINES.macro;
+  if (normalized.includes("science") || normalized.includes("space")) return AGENT_LINES.science;
+  if (normalized.includes("politic") || normalized.includes("global")) return AGENT_LINES.politics;
   return AGENT_LINES.default;
 }
 

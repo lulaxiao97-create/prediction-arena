@@ -83,7 +83,7 @@ export const DOCS: Doc[] = [
         { kind: "h2", text: "Deployment" },
         {
           kind: "address",
-          label: "PredictionArena",
+          label: "Prediction Arena",
           value: ARENA_ADDRESS,
           note: "Base Mainnet · chainId 8453 · verified source",
         },
@@ -131,7 +131,7 @@ export const DOCS: Doc[] = [
         { kind: "h2", text: "部署資訊" },
         {
           kind: "address",
-          label: "PredictionArena",
+          label: "Prediction Arena",
           value: ARENA_ADDRESS,
           note: "Base 主網 · chainId 8453 · 原始碼已驗證",
         },

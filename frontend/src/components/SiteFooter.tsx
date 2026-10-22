@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowUpRight, ShieldCheck } from "lucide-react";
 import { useI18n } from "@/components/LocaleProvider";
+import { Logo } from "@/components/Logo";
 import { ARENA_ADDRESS } from "@/lib/docs";
 import { explorerAddress, shortAddr } from "@/lib/format";
 
@@ -42,12 +43,7 @@ export function SiteFooter() {
           {/* brand */}
           <div>
             <div className="flex items-center gap-2.5">
-              <span className="grid size-8 place-items-center rounded-lg border border-gold/40 bg-gradient-to-br from-gold-bright/25 to-gold/5">
-                <svg viewBox="0 0 24 24" className="size-4" aria-hidden>
-                  <path d="M12 2.5 22 12l-10 9.5L2 12 12 2.5Z" fill="#FBBF24" opacity="0.9" />
-                  <path d="M12 7.2 17.2 12 12 16.8 6.8 12 12 7.2Z" fill="#0A0A0C" />
-                </svg>
-              </span>
+              <Logo size={32} />
               <div>
                 <p className="gold-text text-[13.5px] font-semibold tracking-[0.04em]">Prediction Arena</p>
                 <p className="text-[9.5px] text-muted/80">{t("nav.poweredBy")}</p>

@@ -48,6 +48,8 @@ export function AIAgentsDebate({ category }: { category: string }) {
 
   const finished = index >= lines.length;
   const activeAgent = !finished ? lines[index]?.agent : undefined;
+  const rounds = Math.max(1, Math.ceil(lines.length / 2));
+  const currentRound = Math.min(rounds, Math.ceil((index + 1) / 2));
 
   async function copyHash(hash: string) {
     try {
@@ -79,7 +81,7 @@ export function AIAgentsDebate({ category }: { category: string }) {
         <div className="ml-auto flex items-center gap-2">
           <span className="chip">
             <span className="size-1.5 animate-pulse rounded-full bg-gold" />
-            {finished ? t("agent.complete") : t("agent.round", { n: Math.min(index + 1, lines.length), total: lines.length })}
+            {finished ? t("agent.complete") : t("agent.round", { n: currentRound, total: rounds })}
           </span>
           <button
             onClick={reset}
@@ -157,6 +159,18 @@ export function AIAgentsDebate({ category }: { category: string }) {
                     <p className="mono text-[9px] uppercase tracking-[0.12em] text-muted/60">
                       {agent.role}
                     </p>
+                    {line.stance && (
+                      <span
+                        className={cn(
+                          "mono mt-0.5 inline-block rounded border px-1 text-[8px] font-semibold uppercase tracking-[0.1em]",
+                          line.stance === "bull"
+                            ? "border-profit/30 bg-profit/10 text-profit"
+                            : "border-loss/30 bg-loss/10 text-loss"
+                        )}
+                      >
+                        {line.stance === "bull" ? "BULL" : "BEAR"}
+                      </span>
+                    )}
                   </div>
                 </div>
 

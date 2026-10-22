@@ -2,10 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useAccount } from "wagmi";
-import { ArrowRight, CheckCircle2, Info, Loader2, ShieldAlert, Wallet } from "lucide-react";
+import Link from "next/link";
+import { useAccount, useBalance } from "wagmi";
+import { AlertTriangle, ArrowRight, CheckCircle2, ChevronDown, ExternalLink, Fuel, Info, Loader2, ShieldAlert, Wallet } from "lucide-react";
 import type { ArenaPool } from "@/lib/types";
 import { cn, explorerTx, formatProbability, formatUsdc, impliedMultiplier } from "@/lib/format";
+import { quickAmountsFor, resolveTradeGuard } from "@/lib/trade-guard";
 import { useI18n } from "@/components/LocaleProvider";
 import { useToast } from "@/components/Toast";
 import { recordTrade } from "@/hooks/useTradeHistory";
@@ -22,7 +24,6 @@ import {
 
 const FEE_BPS = 400n;
 const BPS = 10_000n;
-const QUICK = [5, 10, 25, 50];
 
 export function TradePanel({ pool }: { pool: ArenaPool }) {
   const { t } = useI18n();
@@ -33,6 +34,9 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
   const { wrongChain, switchToTarget, switching } = useChainGuard();
   const { data: capData } = useMaxBet(pool.id);
   const { balance } = useUsdc();
+  // Native ETH, not USDC: the bet() call costs ~149k gas, so a wallet with USDC and zero ETH
+  // still cannot transact. Checked separately so the CTA can say which one is missing.
+  const { data: ethBalance } = useBalance({ address, query: { enabled: Boolean(address) } });
   const { bet, step, error, hash, reset } = useBet();
 
   const [option, setOption] = useState<0 | 1>(0);
@@ -44,6 +48,8 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
   const cap = live && capData ? (capData as bigint) : BOOTSTRAP_CAP_USDC;
   const isBootstrap = cap <= BOOTSTRAP_CAP_USDC;
   const amount = useMemo(() => parseAmount(amountInput) ?? 0n, [amountInput]);
+  const quickAmounts = useMemo(() => quickAmountsFor(cap), [cap]);
+  const [capHintOpen, setCapHintOpen] = useState(false);
   const balanceValue = (balance.data as bigint | undefined) ?? undefined;
 
   const fee = (amount * FEE_BPS) / BPS;
@@ -60,10 +66,46 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
   const tooSmall = amount > 0n && amount < MIN_BET_USDC;
   const tooBig = amount > cap;
   const noBalance = balanceValue !== undefined && amount > balanceValue;
-  const invalid = amount === 0n || tooSmall || tooBig || noBalance;
+  const ethValue = ethBalance?.value;
+  const GAS_FLOOR = 20_000_000_000_000n; // 0.00002 ETH — ~13 bets at 0.01 gwei
+  const noGas = Boolean(address) && ethValue !== undefined && ethValue < GAS_FLOOR;
+  const emptyUsdc = Boolean(address) && balanceValue !== undefined && balanceValue === 0n;
+  const isYes = option === 0;
+  const guard = resolveTradeGuard({
+    address,
+    wrongChain,
+    live,
+    usdcBalance: balanceValue,
+    ethBalance: ethValue,
+    amount,
+    cap,
+    minBet: MIN_BET_USDC,
+  });
+  const invalid = guard !== "ok";
+  const guardView = (() => {
+    switch (guard) {
+      case "no-wallet":
+        return { Icon: Wallet, text: t("trade.connectFirst") };
+      case "wrong-chain":
+        return { Icon: Wallet, text: t("trade.switchChain") };
+      case "demo":
+        return { Icon: Info, text: t("trade.demoMode") };
+      case "no-usdc":
+        return { Icon: AlertTriangle, text: t("trade.depositFirst") };
+      case "insufficient-usdc":
+        return { Icon: AlertTriangle, text: t("trade.insufficientUsdcBtn") };
+      case "no-gas":
+        return { Icon: Fuel, text: t("trade.insufficientGas") };
+      case "above-cap":
+        return { Icon: ShieldAlert, text: t("trade.aboveCap", { cap: formatUsdc(cap, 0) }) };
+      case "below-min":
+        return { Icon: Info, text: t("trade.belowMin") };
+      default:
+        return { Icon: ArrowRight, text: t(isYes ? "trade.buyYes" : "trade.buyNo") };
+    }
+  })();
   const pending = step === "approving" || step === "betting" || step === "confirming";
   const done = step === "done";
-  const isYes = option === 0;
 
   // ── staged progress → toast (Step 1: approve, Step 2: confirm) ────────────
   useEffect(() => {
@@ -178,8 +220,16 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
       <div className="rounded-xl border border-white/8 bg-white/[0.02] p-3">
         <div className="flex items-center justify-between text-[11px] text-muted">
           <span>{t("trade.amount")}</span>
-          <span className="mono">
-            {t("trade.balance")} {balanceValue !== undefined ? `$${formatUsdc(balanceValue)}` : "—"}
+          <span className="mono flex items-center gap-2">
+            <span>
+              {t("trade.balance")} {balanceValue !== undefined ? `$${formatUsdc(balanceValue)}` : "—"}
+            </span>
+            {ethValue !== undefined && (
+              <span className={cn("inline-flex items-center gap-0.5", noGas ? "text-loss" : "text-muted/60")}>
+                <Fuel className="size-2.5" />
+                {(Number(ethValue) / 1e18).toFixed(4)}
+              </span>
+            )}
           </span>
         </div>
         <div className="mt-1 flex items-center gap-2">
@@ -193,7 +243,7 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
           <span className="text-sm font-medium text-muted">USDC</span>
         </div>
         <div className="mt-2 flex gap-1.5">
-          {QUICK.map((quick) => {
+          {quickAmounts.map((quick) => {
             const disabled = BigInt(quick) * 1_000_000n > cap;
             const selected = amountInput === String(quick);
             return (
@@ -245,12 +295,38 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
         <Row label={t("trade.odds")} value={multiplier ? `${multiplier.toFixed(2)}x` : "—"} />
       </div>
 
-      {isBootstrap && (
-        <p className="flex items-start gap-1.5 rounded-lg border border-gold/25 bg-gold/[0.07] px-2.5 py-2 text-[10.5px] leading-relaxed text-gold-bright/90">
-          <ShieldAlert className="mt-0.5 size-3 shrink-0" />
-          {t("trade.bootstrap")}
-        </p>
-      )}
+      <div className={cn(
+        "rounded-xl border px-2.5 py-2",
+        isBootstrap ? "border-gold/25 bg-gold/[0.06]" : "border-white/8 bg-white/[0.02]"
+      )}>
+        <div className="flex items-center justify-between text-[11px]">
+          <span className="flex items-center gap-1 text-muted">
+            <ShieldAlert className="size-3" /> {t("trade.cap")}
+          </span>
+          <span className="mono font-semibold text-ink">${formatUsdc(cap, 0)}</span>
+        </div>
+        <div className="mt-1 flex items-center justify-between gap-2 text-[10px] text-muted/70">
+          <span className="truncate">{isBootstrap ? t("trade.capFloor") : t("trade.capDynamic")}</span>
+          <button
+            onClick={() => setCapHintOpen((v) => !v)}
+            className="inline-flex shrink-0 items-center gap-0.5 transition-colors hover:text-gold-bright"
+          >
+            {t("trade.raiseCap")}
+            <ChevronDown className={cn("size-2.5 transition-transform", capHintOpen && "rotate-180")} />
+          </button>
+        </div>
+        {capHintOpen && (
+          <div className="mt-2 space-y-1.5 border-t border-white/6 pt-2">
+            <p className="text-[10px] leading-relaxed text-muted/85">{t("trade.raiseCapBody")}</p>
+            <Link
+              href="/docs/economics/fees"
+              className="inline-flex items-center gap-1 text-[10px] text-gold-bright hover:underline"
+            >
+              {t("nav.docs")} · Economics <ExternalLink className="size-2.5" />
+            </Link>
+          </div>
+        )}
+      </div>
 
       {!live && (
         <p className="flex items-start gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-2 text-[10.5px] leading-relaxed text-muted">
@@ -267,9 +343,26 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
       )}
 
       {error && <p className="rounded-lg border border-loss/30 bg-loss/10 px-2.5 py-2 text-[11px] text-loss">{error}</p>}
-      {tooSmall && !error && <p className="text-[11px] text-loss">{t("trade.belowMin")}</p>}
-      {tooBig && !error && <p className="text-[11px] text-loss">{t("trade.aboveCap", { cap: formatUsdc(cap, 0) })}</p>}
+      {tooBig && !error && guard !== "above-cap" && (
+        <p className="text-[11px] text-loss">{t("trade.aboveCap", { cap: formatUsdc(cap, 0) })}</p>
+      )}
       {noBalance && !error && <p className="text-[11px] text-loss">{t("trade.insufficient")}</p>}
+      {(emptyUsdc || noBalance || noGas) && !error && (
+        <div className="rounded-lg border border-loss/25 bg-loss/[0.06] px-2.5 py-2 text-[10.5px] leading-relaxed">
+          <p className="flex items-start gap-1.5 text-loss/90">
+            <AlertTriangle className="mt-0.5 size-3 shrink-0" />
+            {t("trade.gasHint")}
+          </p>
+          <a
+            href="https://bridge.base.org/deposit"
+            target="_blank"
+            rel="noreferrer"
+            className="mt-1 inline-flex items-center gap-1 text-gold-bright transition-colors hover:underline"
+          >
+            {t("trade.getUsdc")} <ExternalLink className="size-2.5" />
+          </a>
+        </div>
+      )}
 
       {done && hash ? (
         <div className="space-y-2">
@@ -303,13 +396,9 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
             <span className="inline-flex items-center gap-1.5">
               <Loader2 className="size-4 animate-spin" /> {stepLabel}
             </span>
-          ) : !address ? (
-            <span className="inline-flex items-center gap-1.5">
-              <Wallet className="size-4" /> {t("trade.connectFirst")}
-            </span>
           ) : (
             <span className="inline-flex items-center gap-1.5">
-              {stepLabel} · {isYes ? t("card.yes") : t("card.no")} <ArrowRight className="size-4" />
+              <guardView.Icon className="size-4" /> {guardView.text}
             </span>
           )}
         </button>

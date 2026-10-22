@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import type { Address } from "viem";
 import { useI18n } from "@/components/LocaleProvider";
+import { Logo } from "@/components/Logo";
 import { useToast } from "@/components/Toast";
 import { useMarkets } from "@/hooks/useMarkets";
 import { useTradeHistory, clearTradeHistory } from "@/hooks/useTradeHistory";
@@ -140,7 +141,7 @@ export function PortfolioDrawer({ open, onClose }: { open: boolean; onClose: () 
         )}
       >
         <header className="flex items-center gap-2 border-b border-white/8 px-4 py-3.5">
-          <Wallet className="size-4 text-gold" />
+          <Logo size={22} />
           <p className="text-[13.5px] font-semibold text-ink">{t("portfolio.title")}</p>
           <span className="mono ml-1 rounded-md border border-white/10 px-1.5 py-0.5 text-[10px] text-muted">
             {address ? shortAddr(address, 4) : "—"}

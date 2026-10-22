@@ -16,6 +16,7 @@ import { Navbar } from "@/components/Navbar";
 import { BetModalHost } from "@/components/BetModal";
 import { TradePanel } from "@/components/TradePanel";
 import { ProbabilityChart } from "@/components/ProbabilityChart";
+import { useLiveSeries } from "@/hooks/useLiveSeries";
 import { ActivityLog } from "@/components/ActivityLog";
 import { useMarkets } from "@/hooks/useMarkets";
 import { AGENTS, agentLinesFor } from "@/lib/mock-data";
@@ -46,7 +47,8 @@ export function MarketDetail({ id }: { id: string }) {
   const meta = metaFor(manifest, id);
 
   const share0 = pool ? sideShare(pool.option0Pool, pool.option1Pool) : 0.5;
-  const series = useMemo(() => probabilitySeries(id, share0, 30), [id, share0]);
+  const seedSeries = useMemo(() => probabilitySeries(id, share0, 30), [id, share0]);
+  const { series, live, dir } = useLiveSeries(seedSeries, id);
   const activity = useMemo(() => activityFor(id, 10), [id]);
   const debate = useMemo(() => agentLinesFor(pool?.category ?? meta.category ?? "default"), [pool?.category, meta.category]);
   const cd = pool ? countdown(pool.endTime) : null;
@@ -150,16 +152,32 @@ export function MarketDetail({ id }: { id: string }) {
             {/* chart (always visible) */}
             <div className="glass rounded-2xl border-white/10 p-4 transition-colors hover:border-white/15">
               <div className="flex items-center justify-between">
-                <p className="text-[12.5px] font-semibold text-ink">{t("detail.chart")}</p>
+                <p className="flex items-center gap-1.5 text-[12.5px] font-semibold text-ink">
+                  {t("detail.chart")}
+                  <span className="inline-flex items-center gap-1 rounded-full border border-profit/30 bg-profit/10 px-1.5 py-0.5 text-[8.5px] font-medium uppercase tracking-[0.08em] text-profit">
+                    <span className="size-1 animate-pulse rounded-full bg-profit" />
+                    {t("trade.live")}
+                  </span>
+                </p>
                 <div className="flex items-center gap-3 text-[10.5px] text-muted">
                   <span className="inline-flex items-center gap-1">
                     <span className="size-1.5 rounded-full bg-profit" /> {t("card.yes")}
                   </span>
-                  <span className="mono text-[12px] font-semibold text-ink">{formatProbability(share0)}</span>
+                  <span className="mono text-[12px] font-semibold text-ink transition-colors duration-500">
+                    {(live * 100).toFixed(2)}%
+                  </span>
+                  <span
+                    className={
+                      dir > 0 ? "text-[9px] text-profit" : dir < 0 ? "text-[9px] text-loss" : "text-[9px] text-muted/40"
+                    }
+                    aria-label={dir > 0 ? "ticking up" : dir < 0 ? "ticking down" : "flat"}
+                  >
+                    {dir > 0 ? "▲" : dir < 0 ? "▼" : "—"}
+                  </span>
                 </div>
               </div>
               <div className="mt-3">
-                <ProbabilityChart series={series} height={200} />
+                <ProbabilityChart series={series} height={200} live />
               </div>
               <div className="mt-1 flex justify-between text-[9.5px] text-muted/50">
                 <span>30d</span>
@@ -199,7 +217,7 @@ export function MarketDetail({ id }: { id: string }) {
                   <div className="space-y-3">
                     <p className="text-[12px] leading-relaxed text-muted">
                       {meta.description ||
-                        "This market is read live from the PredictionArena contract; its long-form description has not been published to the manifest yet."}
+                        "This market is read live from the Prediction Arena contract; its long-form description has not been published to the manifest yet."}
                     </p>
                     <div className="grid gap-2 sm:grid-cols-3">
                       <MiniStat label={t("detail.volume")} value={`$${formatCompactUsdc(pool.volume24h ?? 0n)}`} />
@@ -219,6 +237,7 @@ export function MarketDetail({ id }: { id: string }) {
                   <ul className="space-y-2">
                     {debate.map((line, i) => {
                       const agent = AGENTS.find((a) => a.id === line.agent) ?? AGENTS[0];
+                      const round = Math.floor(i / 2) + 1;
                       return (
                         <li
                           key={i}
@@ -226,8 +245,24 @@ export function MarketDetail({ id }: { id: string }) {
                         >
                           <span className="text-base leading-none">{agent.emoji}</span>
                           <div className="min-w-0">
-                            <p className={cn("text-[11px] font-semibold", agent.accent)}>
-                              {agent.name} · <span className="text-muted/60">{agent.role}</span>
+                            <p className={cn("flex flex-wrap items-center gap-1.5 text-[11px] font-semibold", agent.accent)}>
+                              <span className="mono rounded border border-white/10 px-1 text-[8.5px] font-medium text-muted/70">
+                                R{round}
+                              </span>
+                              {agent.name}
+                              <span className="text-muted/60">· {agent.role}</span>
+                              {line.stance && (
+                                <span
+                                  className={cn(
+                                    "mono rounded border px-1 text-[8px] uppercase tracking-[0.1em]",
+                                    line.stance === "bull"
+                                      ? "border-profit/30 bg-profit/10 text-profit"
+                                      : "border-loss/30 bg-loss/10 text-loss"
+                                  )}
+                                >
+                                  {line.stance}
+                                </span>
+                              )}
                             </p>
                             <p className="mt-1 text-[11.5px] leading-relaxed text-ink/85">{line.text}</p>
                             {line.evidenceCid && (
