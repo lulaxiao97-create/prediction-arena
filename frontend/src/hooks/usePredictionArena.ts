@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   useAccount,
   useChainId,
@@ -32,6 +33,12 @@ export const TARGET_CHAIN_ID = Number(
   : base.id;
 
 export const TARGET_CHAIN = TARGET_CHAIN_ID === baseSepolia.id ? baseSepolia : base;
+
+/** First block the arena was deployed at — the event scan starts here. */
+export const ARENA_DEPLOY_BLOCK = BigInt(process.env.NEXT_PUBLIC_ARENA_DEPLOY_BLOCK ?? 52921545);
+
+/** Settled pools keep claimable rewards; the 30-day fallback lets anyone void a stuck pool. */
+export const EMERGENCY_REFUND_DELAY_SECONDS = 30 * 24 * 60 * 60;
 
 export const USDC_BY_CHAIN: Record<number, Address> = {
   [base.id]: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -149,6 +156,139 @@ export function usePendingRewards(poolId: bigint, user?: Address) {
     args: user ? [poolId, user] : undefined,
     query: { enabled: hasArena && Boolean(user), refetchInterval: 12_000 },
   });
+}
+
+/** 100% of the gross stake (net + the 4% rake) on a canceled pool. */
+export function usePendingRefund(poolId: bigint, user?: Address) {
+  return useReadContract({
+    address: ARENA_ADDRESS,
+    abi: ARENA_ABI,
+    functionName: "pendingRefund",
+    args: user ? [poolId, user] : undefined,
+    query: { enabled: hasArena && Boolean(user), refetchInterval: 12_000 },
+  });
+}
+
+/**
+ * Every pool the owner ever opened, newest first, read from the PoolCreated logs.
+ *
+ * The contract has no enumerable id counter (ids are caller-chosen timestamps), so events are
+ * the only on-chain source of truth. Public Base RPCs rate-limit `eth_getLogs`, so the scan is:
+ *   • chunked (1,000 blocks — the public endpoint's practical ceiling),
+ *   • incremental — the last scanned block is cached in localStorage, so a reload only asks for
+ *     the new blocks instead of replaying the whole history,
+ *   • retried with backoff on 429.
+ */
+const POOL_SCAN_CHUNK = 5_000n;
+const POOL_CACHE_PREFIX = "arena:poolids:";
+
+type PoolIdCache = { ids: string[]; lastBlock: number };
+
+function readPoolCache(key: string): PoolIdCache {
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return { ids: [], lastBlock: 0 };
+    const parsed = JSON.parse(raw) as PoolIdCache;
+    return { ids: Array.isArray(parsed.ids) ? parsed.ids : [], lastBlock: Number(parsed.lastBlock) || 0 };
+  } catch {
+    return { ids: [], lastBlock: 0 };
+  }
+}
+
+function writePoolCache(key: string, value: PoolIdCache) {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    /* private mode / quota — cache is an optimisation only */
+  }
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+export function useChainPoolIds() {
+  const publicClient = usePublicClient();
+
+  const query = useQuery({
+    queryKey: ["arena", "poolIds", ARENA_ADDRESS, TARGET_CHAIN_ID],
+    enabled: Boolean(publicClient && hasArena && ARENA_ADDRESS),
+    staleTime: 30_000,
+    refetchInterval: 120_000,
+    refetchOnWindowFocus: false,
+    queryFn: async () => {
+      const client = publicClient!;
+      const cacheKey = `${POOL_CACHE_PREFIX}${ARENA_ADDRESS}`;
+      const cached = typeof window !== "undefined" ? readPoolCache(cacheKey) : { ids: [], lastBlock: 0 };
+
+      // 1) static manifest — same-origin file, immune to RPC rate limits (see
+      //    scripts/sync-pool-list.ts). Only ids are trusted from it; every field is read live.
+      const seen = new Set<string>(cached.ids);
+      try {
+        const res = await fetch("/pools.json", { cache: "no-store" });
+        if (res.ok) {
+          const manifest = (await res.json()) as { address?: string; pools?: { id: string | number }[] };
+          if (String(manifest.address ?? "").toLowerCase() === ARENA_ADDRESS?.toLowerCase()) {
+            for (const p of manifest.pools ?? []) seen.add(String(p.id));
+          }
+        }
+      } catch {
+        /* manifest is an optimisation, never a requirement */
+      }
+
+      // 2) incremental log scan — best effort; a 429 keeps whatever we already have
+      try {
+        const latest = await client.getBlockNumber();
+        const startAt = BigInt(Math.max(cached.lastBlock + 1, 0));
+        const from = startAt > ARENA_DEPLOY_BLOCK ? startAt : ARENA_DEPLOY_BLOCK;
+
+        if (from <= latest) {
+          for (let block = from; block <= latest; block += POOL_SCAN_CHUNK) {
+            const to = block + POOL_SCAN_CHUNK - 1n > latest ? latest : block + POOL_SCAN_CHUNK - 1n;
+            let logs: any[] = [];
+            let failed = false;
+            for (let attempt = 0; attempt < 3; attempt++) {
+              try {
+                logs = (await client.getContractEvents({
+                  address: ARENA_ADDRESS,
+                  abi: ARENA_ABI,
+                  eventName: "PoolCreated",
+                  fromBlock: block,
+                  toBlock: to,
+                } as any)) as any[];
+                break;
+              } catch {
+                if (attempt === 2) failed = true;
+                else await sleep(600 * (attempt + 1));
+              }
+            }
+            if (failed) break; // stop scanning; manifest + cache still serve the list
+            for (const log of logs) {
+              const id = log?.args?.poolId as bigint | undefined;
+              if (id !== undefined) seen.add(id.toString());
+            }
+          }
+        }
+
+        if (typeof window !== "undefined" && from <= latest) {
+          writePoolCache(cacheKey, {
+            ids: [...seen],
+            lastBlock: Number(latest),
+          });
+        }
+      } catch {
+        /* keep manifest/cached ids */
+      }
+
+      return [...seen].map((s) => BigInt(s)).sort((a, b) => (a < b ? 1 : -1));
+    },
+  });
+
+  return {
+    ids: (query.data ?? []) as bigint[],
+    // `isLoading` is also true for a *disabled* query (status pending + fetchStatus idle),
+    // which would pin the page in a permanent loading state. Only report a real in-flight fetch.
+    loading: query.fetchStatus === "fetching",
+    error: query.error ? describeError(query.error) : null,
+  };
 }
 
 export function useUsdc() {
@@ -432,4 +572,79 @@ export function useClaimRewards() {
   );
 
   return { claim, pending, error, hash };
+}
+
+/** Pull back 100% of the gross stake from a Canceled pool (net + the 4% rake). */
+export function useClaimRefund() {
+  const publicClient = usePublicClient();
+  const { writeContractAsync } = useWriteContract();
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hash, setHash] = useState<`0x${string}` | undefined>();
+
+  const refund = useCallback(
+    async (poolId: bigint) => {
+      if (!ARENA_ADDRESS) throw new Error("合约地址未配置");
+      setPending(true);
+      setError(null);
+      try {
+        const txHash = await writeContractAsync({
+          address: ARENA_ADDRESS,
+          abi: ARENA_ABI,
+          functionName: "claimRefund",
+          args: [poolId],
+        });
+        setHash(txHash);
+        await publicClient?.waitForTransactionReceipt({ hash: txHash });
+        return txHash;
+      } catch (e) {
+        setError(describeError(e));
+        throw e;
+      } finally {
+        setPending(false);
+      }
+    },
+    [publicClient, writeContractAsync]
+  );
+
+  return { refund, pending, error, hash };
+}
+
+/**
+ * Permissionless safety valve: once `endTime + 30 days` has passed on a still-Open pool, ANY
+ * wallet can void it so every bettor gets a 100% refund. Needed when the owner key is lost.
+ */
+export function useEmergencyRefund() {
+  const publicClient = usePublicClient();
+  const { writeContractAsync } = useWriteContract();
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hash, setHash] = useState<`0x${string}` | undefined>();
+
+  const forceCancel = useCallback(
+    async (poolId: bigint) => {
+      if (!ARENA_ADDRESS) throw new Error("合约地址未配置");
+      setPending(true);
+      setError(null);
+      try {
+        const txHash = await writeContractAsync({
+          address: ARENA_ADDRESS,
+          abi: ARENA_ABI,
+          functionName: "emergencyRefund",
+          args: [poolId],
+        });
+        setHash(txHash);
+        await publicClient?.waitForTransactionReceipt({ hash: txHash });
+        return txHash;
+      } catch (e) {
+        setError(describeError(e));
+        throw e;
+      } finally {
+        setPending(false);
+      }
+    },
+    [publicClient, writeContractAsync]
+  );
+
+  return { forceCancel, pending, error, hash };
 }

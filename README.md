@@ -89,6 +89,12 @@ cap = max(weakerSide * 2000 / 10000, BOOTSTRAP_MAX_BET);
 - 组件：`Navbar`（分类 Tab + 黑金 ConnectButton）、`AIAgentsDebate`（打字机辩论 + IPFS 校验）、
   `ArenaCard`（倒计时 / 赔率 / 双向彩池 / 挤压 Banner）、`BetModal`（5 USDC 门槛 + 20% 上限实时提示 + 打包下注）
 - 未配置 `NEXT_PUBLIC_ARENA_ADDRESS` 时自动进入演示模式（本地样例盘口），配置后读链上真实数据。
+- **盘口发现**：合约没有自增 id（poolId 是 owner 选的 unix 时间戳），所以列表只能来自
+  `PoolCreated` 事件。前端按 `public/pools.json` 清单（`bun run scripts/sync-pool-list.ts` 生成，
+  `open-pool-unattended.sh` 开盘后会自动同步）+ 增量日志扫描双路取 id；清单只存 id，
+  状态/金额永远实时读链上。
+- **RPC 注意**：`https://mainnet.base.org` 对 `eth_getLogs` 返回 `-32011 request limit reached`，
+  前端与清单脚本默认用 `https://base-rpc.publicnode.com`（免 key，支持 5,000 块范围）。
 
 ## 安全审计
 

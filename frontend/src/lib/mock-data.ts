@@ -119,6 +119,22 @@ export function buildDemoPools(nowSeconds: number = DEMO_ANCHOR): ArenaPool[] {
       traders: 205,
       volume24h: u(6_400),
     },
+    {
+      id: 7n,
+      title: "某交易所重启计划会通过监管审查吗？（已取消）",
+      category: "CT Drama",
+      endTime: t - 86_400 * 3,
+      status: 3,
+      winningOption: 0,
+      totalNetPool: u(18_720),
+      option0Pool: u(11_232),
+      option1Pool: u(7_488),
+      settlementHash: "",
+      optionLabels: ["会通过", "不会"],
+      source: "demo",
+      traders: 168,
+      volume24h: u(0),
+    },
   ];
 }
 

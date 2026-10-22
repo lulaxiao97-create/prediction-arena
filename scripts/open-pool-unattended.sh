@@ -17,7 +17,15 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
 # cron/systemd start with a minimal PATH: make node/bun/hardhat reachable explicitly.
-export PATH="$HOME/.bun/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
+# `node` lives in ~/.local/bin on this box (nvm-free install); without it the hardhat shim
+# dies with `env: 'node': No such file or directory` (exit 127) — that is what killed the
+# 2026-10-21 20:05 tick.
+export PATH="$HOME/.bun/bin:$HOME/.local/bin:$HOME/.hermes/node/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
+
+if ! command -v node >/dev/null 2>&1 && ! command -v bun >/dev/null 2>&1; then
+  echo "[$(date -Is)] no node/bun on PATH (looked in ~/.bun/bin, ~/.local/bin, ~/.hermes/node/bin) — cannot run hardhat" >&2
+  exit 127
+fi
 
 if [[ -f .env ]]; then
   set -a
@@ -87,6 +95,17 @@ fi
 if ! grep -q "Liquidity ok" "$LOG"; then
   echo "[$(date -Is)] FAILED — no liquidity confirmation in $LOG" >&2
   exit 1
+fi
+
+# Keep the frontend's static pool manifest in sync. Best effort: a 429 on the log scan must never
+# fail an otherwise successful tick.
+if command -v bun >/dev/null 2>&1; then
+  if RPC_URL="${MANIFEST_RPC_URL:-https://base-rpc.publicnode.com}" POOL_LIST_OUT="${POOL_LIST_OUT:-frontend/public/pools.json}" \
+      bun run scripts/sync-pool-list.ts >>"$LOG" 2>&1; then
+    echo "[$(date -Is)] pool manifest synced → ${POOL_LIST_OUT:-frontend/public/pools.json}"
+  else
+    echo "[$(date -Is)] warn: pool manifest sync failed — frontend will fall back to log scanning" >&2
+  fi
 fi
 
 echo "[$(date -Is)] OK — pool ${POOL_ID} live, log: $LOG"

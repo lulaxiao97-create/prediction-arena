@@ -57,6 +57,17 @@ const config: HardhatUserConfig = {
       chainId: 84532,
       ...accountsField,
     },
+    // Rehearsal network: only registered when FORK_RPC is exported, so a normal run can never
+    // dial it by accident. Used to dry-run the cron pipeline against a Base-mainnet fork.
+    ...(process.env.FORK_RPC
+      ? {
+          baseFork: {
+            url: process.env.FORK_RPC.trim(),
+            chainId: 8453,
+            ...accountsField,
+          },
+        }
+      : {}),
   },
   etherscan: {
     // A single string (not a per-network map) switches hardhat-verify to the Etherscan V2 API,

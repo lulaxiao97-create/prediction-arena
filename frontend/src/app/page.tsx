@@ -8,6 +8,7 @@ import {
   BrainCircuit,
   Coins,
   Flame,
+  Info,
   ShieldCheck,
   Sparkles,
   Wallet,
@@ -17,8 +18,8 @@ import { AIAgentsDebate } from "@/components/AIAgentsDebate";
 import { ArenaCard } from "@/components/ArenaCard";
 import { BetModalHost } from "@/components/BetModal";
 import { buildDemoPools } from "@/lib/mock-data";
-import { ARENA_ADDRESS, hasArena, usePools } from "@/hooks/usePredictionArena";
-import { cn, explorerAddress, formatUsdc, shortAddr } from "@/lib/format";
+import { ARENA_ADDRESS, hasArena, useChainPoolIds, usePools } from "@/hooks/usePredictionArena";
+import { cn, explorerAddress, shortAddr } from "@/lib/format";
 import type { ArenaPool } from "@/lib/types";
 
 export default function Home() {
@@ -27,23 +28,25 @@ export default function Home() {
 
   // Deterministic on the server, re-anchored to the real clock right after hydration.
   const [demoPools, setDemoPools] = useState<ArenaPool[]>(() => buildDemoPools());
+  // `mounted` keeps the "no on-chain pools yet" banner out of the prerendered HTML — the query
+  // reports `fetching` during SSR, which would otherwise be read as "still loading" forever.
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setDemoPools(buildDemoPools(Math.floor(Date.now() / 1000)));
+    setMounted(true);
   }, []);
-  const ids = useMemo(() => demoPools.map((p) => p.id), [demoPools]);
-  const labels = useMemo(() => {
-    const map: Record<string, [string, string]> = {};
-    for (const pool of demoPools) map[String(pool.id)] = pool.optionLabels;
-    return map;
-  }, [demoPools]);
 
-  const { pools: chainPools } = usePools(ids, labels);
+  // Real pools come from the on-chain PoolCreated logs — the contract has no id counter,
+  // so events are the only source of truth (ids are caller-chosen unix timestamps).
+  const { ids: chainIds, loading: chainLoading } = useChainPoolIds();
+  const { pools: chainPools } = usePools(chainIds);
 
   const pools = useMemo(() => {
-    if (!hasArena || chainPools.length === 0) return demoPools;
-    const onchain = new Map(chainPools.map((p) => [String(p.id), p]));
-    return sim(ids, demoPools, onchain);
-  }, [chainPools, demoPools, ids]);
+    if (!hasArena) return demoPools;
+    return chainPools.length > 0 ? chainPools : demoPools;
+  }, [chainPools, demoPools]);
+
+  const showingDemo = !hasArena || (mounted && chainPools.length === 0 && !chainLoading);
 
   const filtered = useMemo(
     () => (category === "All" ? pools : pools.filter((p) => p.category === category)),
@@ -70,6 +73,24 @@ export default function Home() {
             <span className="mono text-[10.5px] text-gold-bright/70">
               NEXT_PUBLIC_ARENA_ADDRESS + bun run abi:export
             </span>
+          </div>
+        </div>
+      )}
+
+      {hasArena && showingDemo && (
+        <div className="border-b border-white/8 bg-white/[0.03]">
+          <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-2 px-4 py-2 text-[11px] text-muted sm:px-6">
+            <Info className="size-3.5 text-gold" />
+            链上暂无真实盘口（合约
+            <a
+              href={ARENA_ADDRESS ? explorerAddress(ARENA_ADDRESS) : "#"}
+              target="_blank"
+              rel="noreferrer"
+              className="mono text-gold-bright hover:underline"
+            >
+              {ARENA_ADDRESS ? shortAddr(ARENA_ADDRESS, 4) : "—"}
+            </a>
+            已就绪）。下面展示的是演示样例，开盘后自动切换为链上数据。
           </div>
         </div>
       )}
@@ -289,25 +310,6 @@ export default function Home() {
 }
 
 // ── helpers ────────────────────────────────────────────────────────
-
-function sim(
-  ids: bigint[],
-  demo: ArenaPool[],
-  onchain: Map<string, ArenaPool>
-): ArenaPool[] {
-  return ids.map((id) => {
-    const base = demo.find((p) => p.id === id)!;
-    const live = onchain.get(String(id));
-    if (!live) return base;
-    return {
-      ...base,
-      ...live,
-      optionLabels: base.optionLabels,
-      traders: base.traders,
-      volume24h: base.volume24h,
-    };
-  });
-}
 
 function compact(value: bigint): string {
   const n = Number(value) / 1_000_000;

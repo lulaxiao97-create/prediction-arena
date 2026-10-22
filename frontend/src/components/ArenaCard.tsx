@@ -1,11 +1,25 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, ArrowUpRight, Clock3, Droplets, Users } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAccount } from "wagmi";
+import {
+  AlertTriangle,
+  ArrowUpRight,
+  CheckCircle2,
+  Clock3,
+  Coins,
+  Droplets,
+  Loader2,
+  ShieldAlert,
+  Undo2,
+  Users,
+} from "lucide-react";
 import type { ArenaPool } from "@/lib/types";
 import {
   cn,
   countdown,
+  explorerTx,
   formatCountdown,
   formatEndDate,
   formatUsdc,
@@ -13,6 +27,15 @@ import {
   sideShare,
   toUsdcNumber,
 } from "@/lib/format";
+import {
+  EMERGENCY_REFUND_DELAY_SECONDS,
+  hasArena,
+  useClaimRefund,
+  useClaimRewards,
+  useEmergencyRefund,
+  usePendingRefund,
+  usePendingRewards,
+} from "@/hooks/usePredictionArena";
 
 export function ArenaCard({
   pool,
@@ -41,6 +64,61 @@ export function ArenaCard({
 
   const cd = mounted ? countdown(pool.endTime) : null;
   const open = pool.status === 1 && !cd?.ended;
+  const ended = pool.status === 1 && Boolean(cd?.ended);
+
+  // ── state machine: claim / refund / force-cancel ───────────────────────────
+  const { address } = useAccount();
+  const queryClient = useQueryClient();
+  const onChain = hasArena && pool.source === "chain";
+  const { data: rewardData } = usePendingRewards(pool.id, onChain ? address : undefined);
+  const { data: refundData } = usePendingRefund(pool.id, onChain ? address : undefined);
+  const claimRewards = useClaimRewards();
+  const claimRefund = useClaimRefund();
+  const forceRefund = useEmergencyRefund();
+
+  const reward = (rewardData as bigint | undefined) ?? 0n;
+  const refundable = (refundData as bigint | undefined) ?? 0n;
+  const emergencyAt = pool.endTime + EMERGENCY_REFUND_DELAY_SECONDS;
+  const nowSec = mounted ? Math.floor(Date.now() / 1000) : 0;
+  const canForceVoid = pool.status === 1 && ended && nowSec >= emergencyAt;
+  const daysToForce = Math.max(0, Math.ceil((emergencyAt - nowSec) / 86_400));
+
+  function refresh() {
+    queryClient.invalidateQueries();
+  }
+
+  async function handleClaim() {
+    if (!onChain) return;
+    try {
+      await claimRewards.claim(pool.id);
+      refresh();
+    } catch {
+      /* surfaced inline */
+    }
+  }
+  async function handleRefund() {
+    if (!onChain) return;
+    try {
+      await claimRefund.refund(pool.id);
+      refresh();
+    } catch {
+      /* surfaced inline */
+    }
+  }
+  async function handleForceVoid() {
+    if (!onChain) return;
+    if (!window.confirm("强制取消后本盘作废，所有下注按本金 100% 退回。确认执行？")) return;
+    try {
+      await forceRefund.forceCancel(pool.id);
+      refresh();
+    } catch {
+      /* surfaced inline */
+    }
+  }
+
+  const busy = claimRewards.pending || claimRefund.pending || forceRefund.pending;
+  const actionError = claimRewards.error ?? claimRefund.error ?? forceRefund.error;
+  const actionHash = claimRewards.hash ?? claimRefund.hash ?? forceRefund.hash;
 
   return (
     <article
@@ -54,6 +132,12 @@ export function ArenaCard({
         <span className="chip chip-gold">{pool.category}</span>
         {pool.source === "demo" && (
           <span className="chip border-white/10 text-[10px] text-muted/80">DEMO</span>
+        )}
+        {pool.status === 2 && (
+          <span className="chip border-profit/25 bg-profit/8 text-[10px] text-profit">已结算</span>
+        )}
+        {pool.status === 3 && (
+          <span className="chip border-loss/25 bg-loss/8 text-[10px] text-loss">已取消</span>
         )}
         <span className="ml-auto inline-flex items-center gap-1.5 text-[11px] text-muted">
           <Clock3 className="size-3" />
@@ -125,7 +209,7 @@ export function ArenaCard({
         </div>
       )}
 
-      {/* actions */}
+      {/* bet actions */}
       <div className="mt-auto grid grid-cols-2 gap-2">
         <button
           disabled={!open}
@@ -178,6 +262,87 @@ export function ArenaCard({
             </span>
           )}
         </div>
+      )}
+
+      {/* ── state-machine action row ─────────────────────────────────────── */}
+      {onChain && pool.status === 2 && (
+        <div className="rounded-xl border border-profit/20 bg-profit/[0.05] p-2.5">
+          {!address ? (
+            <p className="text-[11px] text-muted">连接钱包后可查看并领取你的奖励。</p>
+          ) : reward > 0n ? (
+            <button
+              onClick={handleClaim}
+              disabled={busy}
+              className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-profit/40 bg-profit/12 py-2 text-[12px] font-semibold text-profit transition-colors hover:bg-profit/20 disabled:opacity-60"
+            >
+              {claimRewards.pending ? <Loader2 className="size-3.5 animate-spin" /> : <Coins className="size-3.5" />}
+              领取奖励 <span className="mono">{formatUsdc(reward)}</span> USDC
+            </button>
+          ) : (
+            <p className="text-[11px] text-muted">本盘你没有待领奖励（未中奖或已领取）。</p>
+          )}
+        </div>
+      )}
+
+      {onChain && pool.status === 3 && (
+        <div className="rounded-xl border border-loss/20 bg-loss/[0.05] p-2.5">
+          {!address ? (
+            <p className="text-[11px] text-muted">盘口已取消，连接钱包后可领回 100% 本金。</p>
+          ) : refundable > 0n ? (
+            <button
+              onClick={handleRefund}
+              disabled={busy}
+              className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-gold/40 bg-gold/12 py-2 text-[12px] font-semibold text-gold-bright transition-colors hover:bg-gold/20 disabled:opacity-60"
+            >
+              {claimRefund.pending ? <Loader2 className="size-3.5 animate-spin" /> : <Undo2 className="size-3.5" />}
+              领取退款 <span className="mono">{formatUsdc(refundable)}</span> USDC（含 4% 手续费）
+            </button>
+          ) : (
+            <p className="text-[11px] text-muted">本盘你没有待退本金（未参与或已领取）。</p>
+          )}
+        </div>
+      )}
+
+      {onChain && ended && pool.status === 1 && (
+        <div className="rounded-xl border border-white/8 bg-white/[0.02] p-2.5">
+          {canForceVoid ? (
+            <>
+              <p className="mb-1.5 flex items-start gap-1.5 text-[11px] leading-relaxed text-gold-bright/90">
+                <ShieldAlert className="mt-0.5 size-3.5 shrink-0" />
+                关盘已超过 30 天仍未结算。任何人可强制取消本盘，所有本金 100% 退回。
+              </p>
+              <button
+                onClick={handleForceVoid}
+                disabled={busy}
+                className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-gold/40 bg-gold/12 py-2 text-[12px] font-semibold text-gold-bright transition-colors hover:bg-gold/20 disabled:opacity-60"
+              >
+                {forceRefund.pending ? <Loader2 className="size-3.5 animate-spin" /> : <ShieldAlert className="size-3.5" />}
+                强制取消并解锁退款
+              </button>
+            </>
+          ) : (
+            <p className="flex items-center gap-1.5 text-[11px] text-muted">
+              <Clock3 className="size-3" />
+              已关盘，等待结算。{daysToForce > 0 ? `${daysToForce} 天后` : "即将"}任何人可强制退款。
+            </p>
+          )}
+        </div>
+      )}
+
+      {actionError && (
+        <p className="rounded-lg border border-loss/30 bg-loss/10 px-2.5 py-2 text-[11px] text-loss">
+          {actionError}
+        </p>
+      )}
+      {actionHash && !actionError && (
+        <a
+          href={explorerTx(actionHash)}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-1.5 text-[11px] text-profit hover:underline"
+        >
+          <CheckCircle2 className="size-3.5" /> 已上链，查看交易
+        </a>
       )}
 
       <span className="pointer-events-none absolute inset-x-6 bottom-0 h-px bg-gradient-to-r from-transparent via-gold/25 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
