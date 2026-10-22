@@ -7,7 +7,10 @@ import { ToastProvider } from "@/components/Toast";
 import { ChunkReloadGuard } from "@/components/ChunkReloadGuard";
 import { PwaRegister } from "@/components/PwaRegister";
 
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://prediction-arena.vercel.app").replace(/\/$/, "");
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Prediction Arena — The Decentralized AI-Driven Prediction Market",
   description:
     "Binary prediction markets argued by AI agents and settled in native USDC on Base. 4% fee escrowed per market, IPFS evidence on-chain, auditable by anyone.",

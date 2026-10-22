@@ -21,6 +21,10 @@ const projectId = (process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? "").trim(
 // Coinbase Wallet so the dApp is usable (RainbowKit's own QR flow stays disabled).
 const hasWalletConnect = /^[a-f0-9]{32}$/i.test(projectId);
 
+// WalletConnect needs an absolute app origin for its metadata; a Vercel preview host would
+// otherwise leak into the QR payload. Falls back to the browser origin when unset.
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "").trim();
+
 const rpcBase = process.env.NEXT_PUBLIC_BASE_RPC_URL || "https://mainnet.base.org";
 const rpcBaseSepolia = process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org";
 
@@ -30,6 +34,7 @@ const config: Config = hasWalletConnect
   ? getDefaultConfig({
       appName: "Prediction Arena",
       appDescription: "The decentralized AI-driven prediction market — Base / USDC",
+      ...(siteUrl ? { appUrl: siteUrl } : {}),
       projectId,
       chains,
       ssr: true,
