@@ -17,6 +17,8 @@ import { AIAgentsDebate } from "@/components/AIAgentsDebate";
 import { MarketCard } from "@/components/MarketCard";
 import { FeaturedBanner } from "@/components/FeaturedBanner";
 import { SearchSortBar, type SortKey } from "@/components/SearchSortBar";
+import { PartnersStrip } from "@/components/PartnersStrip";
+import { SiteFooter } from "@/components/SiteFooter";
 import { BetModalHost } from "@/components/BetModal";
 import { useI18n } from "@/components/LocaleProvider";
 import { useMarkets } from "@/hooks/useMarkets";
@@ -215,26 +217,8 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="mt-4 border-t border-white/6 bg-void/60">
-        <div className="mx-auto flex max-w-[1400px] flex-col gap-4 px-4 py-7 sm:px-6 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="gold-text text-sm font-semibold tracking-[0.1em]">Prediction Arena</p>
-            <p className="mt-1 text-[11px] text-muted">{t("footer.tagline")}</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 text-[11px]">
-            {ARENA_ADDRESS ? (
-              <a href={explorerAddress(ARENA_ADDRESS)} target="_blank" rel="noreferrer" className="chip chip-gold hover:brightness-110">
-                {t("footer.contract")} {shortAddr(ARENA_ADDRESS, 5)}
-              </a>
-            ) : (
-              <span className="chip">{t("footer.notDeployed")}</span>
-            )}
-            <span className="chip">{t("footer.fee")}</span>
-            <span className="chip">{t("footer.referral")}</span>
-            <span className="chip">{t("footer.reentrancy")}</span>
-          </div>
-        </div>
-      </footer>
+      <PartnersStrip />
+      <SiteFooter />
 
       <BetModalHost pool={selected?.pool ?? null} option={selected?.option ?? 0} onClose={() => setSelected(null)} />
     </div>

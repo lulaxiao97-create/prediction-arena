@@ -3,6 +3,8 @@
  * Locale lives in React context + localStorage; every visible string goes through `t()`.
  */
 
+import { EXTRA } from "@/lib/i18n-extra";
+
 export type Locale = "en" | "zh-TW" | "de" | "fr" | "ja" | "ko";
 
 export const LOCALES: { id: Locale; label: string; flag: string; short: string }[] = [
@@ -1402,8 +1404,16 @@ export const LOCALE_STORAGE_KEY = "prediction-arena:locale";
 
 /** Dot-path lookup with {placeholder} interpolation. */
 export function translate(locale: Locale, path: string, vars?: Record<string, string | number>): string {
-  const dict = DICTIONARIES[locale] ?? DICTIONARIES[DEFAULT_LOCALE];
   const [group, key] = path.split(".");
+
+  // Protocol pages (docs / partners / footer / header nav) live in a separate table so the
+  // trading UI's string tree stays untouched when a page is added.
+  const extra = EXTRA[locale]?.[group]?.[key] ?? EXTRA.en?.[group]?.[key];
+  if (typeof extra === "string") {
+    return vars ? extra.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? `{${k}}`)) : extra;
+  }
+
+  const dict = DICTIONARIES[locale] ?? DICTIONARIES[DEFAULT_LOCALE];
   // @ts-expect-error — dictionaries share the same shape as `en`
   let value: unknown = group && key ? dict[group]?.[key] : undefined;
   if (value === undefined) {
