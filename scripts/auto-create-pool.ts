@@ -24,6 +24,10 @@ dotenv.config({ override: true });
  *   bun run pool:auto --network base
  */
 
+// hardhat always runs from the project root; import.meta.url would force ESM and break
+// the CommonJS `import { ethers } from "hardhat"` above.
+const ROOT = process.cwd();
+
 const USDC_BY_CHAIN_ID: Record<number, string> = {
   8453: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
   84532: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
@@ -107,12 +111,27 @@ async function main() {
   }
 
   const poolId = BigInt(process.env.POOL_ID ?? Math.floor(Date.now() / 1000));
-  const durationHours = Number(process.env.DURATION_HOURS ?? 168);
+  // Auto-generated market (scripts/gen-market.ts) wins over the built-in fallback, but an explicit
+  // env var still overrides both — that keeps manual ops available without editing code.
+  type Gen = { title?: string; category?: string; durationHours?: number; resolution?: string; source?: string };
+  let gen: Gen = {};
+  const genPath = join(ROOT, "logs", "generated-market.json");
+  try {
+    if (existsSync(genPath)) {
+      gen = JSON.parse(readFileSync(genPath, "utf8")) as Gen;
+      console.log(`generator    : ${genPath} (${gen.source ?? "kernel"})`);
+    }
+  } catch {
+    console.warn("generated-market.json unreadable — falling back to defaults");
+  }
+
+  const durationHours = Number(process.env.DURATION_HOURS ?? gen.durationHours ?? 168);
   if (!Number.isFinite(durationHours) || durationHours < 1 || durationHours > 24 * 365) {
     throw new Error("DURATION_HOURS must be within 1..8760");
   }
-  const title = (process.env.TITLE ?? "Will BTC close above $100k this quarter?").trim();
-  const category = (process.env.CATEGORY ?? "Macro").trim();
+  const title = (process.env.TITLE ?? gen.title ?? "Will BTC close above $100k this quarter?").trim().slice(0, 128);
+  const category = (process.env.CATEGORY ?? gen.category ?? "Macro").trim().slice(0, 32);
+  if (gen.resolution) console.log(`resolution   : ${gen.resolution.slice(0, 100)}…`);
   const latest = await ethers.provider.getBlock("latest");
   const endTime = BigInt((latest?.timestamp ?? Math.floor(Date.now() / 1000)) + durationHours * 3600);
 

@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Check, Copy, ExternalLink, Fingerprint, RefreshCw, Sparkles } from "lucide-react";
-import { AGENTS, agentLinesFor } from "@/lib/mock-data";
+import { AGENTS } from "@/lib/mock-data";
+import { generateDebate } from "@/lib/auto-gen";
 import { cn, ipfsGatewayUrl } from "@/lib/format";
 import { useI18n } from "@/components/LocaleProvider";
 import type { AgentLine } from "@/lib/types";
@@ -11,9 +12,33 @@ import type { AgentLine } from "@/lib/types";
 const TYPE_SPEED = 18;
 const LINE_PAUSE = 1100;
 
-export function AIAgentsDebate({ category }: { category: string }) {
+export function AIAgentsDebate({
+  category,
+  poolId,
+  title,
+  yesPct = 50,
+  netPoolUsdc,
+}: {
+  category: string;
+  poolId?: string;
+  title?: string;
+  yesPct?: number;
+  netPoolUsdc?: number;
+}) {
   const { t } = useI18n();
-  const lines = useMemo(() => agentLinesFor(category), [category]);
+  // Generated from the market at hand; `category` alone still yields a coherent debate so the
+  // component stays usable before a pool is selected.
+  const lines = useMemo(
+    () =>
+      generateDebate({
+        poolId: poolId ?? `category:${category}`,
+        category,
+        title: title ?? category,
+        yesPct,
+        netPoolUsdc,
+      }),
+    [poolId, category, title, yesPct, netPoolUsdc]
+  );
   const [index, setIndex] = useState(0);
   const [typed, setTyped] = useState("");
   const [copied, setCopied] = useState<string | null>(null);

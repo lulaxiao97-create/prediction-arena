@@ -178,7 +178,17 @@ export default function Home() {
             <p className="mt-1 text-[11.5px] text-muted">{t("agent.debateSub")}</p>
           </div>
           <div className="mt-3">
-            <AIAgentsDebate category={category} />
+            <AIAgentsDebate
+              category={category}
+              poolId={featured ? String(featured.id) : undefined}
+              title={featured?.title}
+              yesPct={
+                featured && featured.totalNetPool > 0n
+                  ? (Number(featured.option0Pool) / Number(featured.totalNetPool)) * 100
+                  : 50
+              }
+              netPoolUsdc={featured ? Number(featured.totalNetPool) / 1_000_000 : undefined}
+            />
           </div>
         </section>
 

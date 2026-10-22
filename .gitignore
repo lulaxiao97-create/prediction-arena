@@ -10,3 +10,8 @@ typechain-types/
 !.env.example
 *.log
 .DS_Store
+
+# runtime artifacts (daemon output, generator handoff, refresh snapshots)
+logs/*.json
+logs/*.log
+logs/auto-pool-*.log

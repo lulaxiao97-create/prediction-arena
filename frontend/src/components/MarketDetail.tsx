@@ -18,9 +18,10 @@ import { TradePanel } from "@/components/TradePanel";
 import { ProbabilityChart } from "@/components/ProbabilityChart";
 import { useLiveSeries } from "@/hooks/useLiveSeries";
 import { CommunityDiscussion } from "@/components/CommunityDiscussion";
+import { generateDebate } from "@/lib/auto-gen";
 import { ActivityLog } from "@/components/ActivityLog";
 import { useMarkets } from "@/hooks/useMarkets";
-import { AGENTS, agentLinesFor } from "@/lib/mock-data";
+import { AGENTS } from "@/lib/mock-data";
 import { activityFor, metaFor, probabilitySeries } from "@/lib/markets";
 import { categoryI18nKey, type MarketCategory } from "@/lib/categories";
 import {
@@ -51,7 +52,19 @@ export function MarketDetail({ id }: { id: string }) {
   const seedSeries = useMemo(() => probabilitySeries(id, share0, 30), [id, share0]);
   const { series, live, dir } = useLiveSeries(seedSeries, id);
   const activity = useMemo(() => activityFor(id, 10), [id]);
-  const debate = useMemo(() => agentLinesFor(pool?.category ?? meta.category ?? "default"), [pool?.category, meta.category]);
+  // Generated per market: the argument set is chosen from the live probability band and the
+  // market's own title, so two markets in the same category no longer read identically.
+  const debate = useMemo(
+    () =>
+      generateDebate({
+        poolId: String(pool?.id ?? id),
+        category: pool?.category ?? meta.category ?? "default",
+        title: (pool?.title ?? meta.title ?? "") as string,
+        yesPct: (share0 ?? 0) * 100,
+        netPoolUsdc: Number(pool?.totalNetPool ?? 0n) / 1_000_000,
+      }),
+    [pool?.id, pool?.category, pool?.title, pool?.totalNetPool, meta.category, meta.title, share0]
+  );
   const cd = pool ? countdown(pool.endTime) : null;
 
   const TABS: { id: Tab; label: string }[] = [
