@@ -94,7 +94,7 @@ export function MarketCard({
   return (
     <article
       style={{ animationDelay: `${Math.min(index * 0.04, 0.2)}s` }}
-      className="glass glass-hover rise-in group relative flex flex-col gap-3 overflow-hidden rounded-2xl p-4"
+      className="glass glass-hover card-edge rise-in group relative flex flex-col gap-3 overflow-hidden rounded-2xl p-4"
     >
       {/* clickable surface → detail page */}
       <Link href={href} className="absolute inset-0 z-0" aria-label={t("card.view")} />

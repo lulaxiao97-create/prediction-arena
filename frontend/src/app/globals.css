@@ -368,3 +368,56 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+
+/* ── interaction polish ─────────────────────────────────────────────────────
+   Hairline gradient edge that lights up on hover, so a card reads as clickable
+   before the cursor even lands on it. The mask keeps it a 1px border, not a fill. */
+.card-edge {
+  position: relative;
+}
+.card-edge::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    140deg,
+    rgba(255, 255, 255, 0.16),
+    rgba(255, 255, 255, 0.03) 38%,
+    rgba(245, 158, 11, 0.22) 100%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.75;
+  transition: opacity 0.25s ease;
+}
+.card-edge:hover::before {
+  opacity: 1;
+  background: linear-gradient(
+    140deg,
+    rgba(85, 160, 255, 0.32),
+    rgba(255, 255, 255, 0.05) 42%,
+    rgba(245, 158, 11, 0.34) 100%
+  );
+}
+
+/* Keyboard users must see where focus is — every actionable element gets a ring. */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+[role="tab"]:focus-visible {
+  outline: 2px solid rgba(245, 158, 11, 0.6);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
+/* Press feedback: every control physically responds, so nothing feels dead. */
+button:active:not(:disabled),
+a:active {
+  transform: translateY(0.5px) scale(0.995);
+}

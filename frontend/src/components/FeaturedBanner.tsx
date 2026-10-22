@@ -14,7 +14,7 @@ export function FeaturedBanner({ pool, onBet }: { pool: ArenaPool; onBet: (pool:
   const href = `/market/${pool.id.toString()}`;
 
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-gold/20 bg-gradient-to-br from-gold/[0.10] via-void-elevated to-void">
+    <section className="card-edge relative overflow-hidden rounded-3xl border border-gold/20 bg-gradient-to-br from-gold/[0.10] via-void-elevated to-void">
       <div className="pointer-events-none absolute -right-24 -top-28 size-72 rounded-full bg-gold/15 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-32 left-1/4 size-72 rounded-full bg-profit/8 blur-3xl" />
 
@@ -71,9 +71,12 @@ export function FeaturedBanner({ pool, onBet }: { pool: ArenaPool; onBet: (pool:
             >
               {t("card.no")} {formatProbability(1 - share0)}
             </button>
-            <span className="inline-flex items-center gap-1 rounded-xl border border-white/10 px-4 py-2 text-[12.5px] text-muted">
+            <a
+              href={href}
+              className="inline-flex items-center gap-1 rounded-xl border border-white/12 px-4 py-2 text-[12.5px] text-ink transition-colors hover:border-gold/50 hover:bg-gold/10 hover:text-gold-bright active:scale-[0.98]"
+            >
               {t("featured.trade")} <ArrowRight className="size-3.5" />
-            </span>
+            </a>
           </div>
         </div>
 

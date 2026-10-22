@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import "./globals.css";
 import { Web3Provider } from "@/providers/Web3Provider";
 import { LocaleProvider } from "@/components/LocaleProvider";
+import { ToastProvider } from "@/components/Toast";
+import { ChunkReloadGuard } from "@/components/ChunkReloadGuard";
 
 export const metadata: Metadata = {
   title: "Prediction Arena — The Decentralized AI-Driven Prediction Market",
@@ -26,8 +28,11 @@ export default function RootLayout({
       <body className="min-h-screen bg-void text-ink antialiased">
         <div className="bg-aurora" aria-hidden />
         <div className="bg-grid" aria-hidden />
+        <ChunkReloadGuard />
         <Web3Provider>
-          <LocaleProvider>{children}</LocaleProvider>
+          <LocaleProvider>
+            <ToastProvider>{children}</ToastProvider>
+          </LocaleProvider>
         </Web3Provider>
       </body>
     </html>

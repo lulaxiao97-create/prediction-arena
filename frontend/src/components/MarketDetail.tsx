@@ -29,15 +29,17 @@ import {
   formatCountdown,
   formatEndDate,
   formatProbability,
-  formatUsdc,
   sideShare,
 } from "@/lib/format";
 import type { ArenaPool } from "@/lib/types";
+
+type Tab = "overview" | "debate" | "activity" | "rules";
 
 export function MarketDetail({ id }: { id: string }) {
   const { t } = useI18n();
   const { pools, manifest, loading } = useMarkets();
   const [category, setCategory] = useState<MarketCategory>("all");
+  const [tab, setTab] = useState<Tab>("overview");
   const [selected, setSelected] = useState<{ pool: ArenaPool; option: 0 | 1 } | null>(null);
 
   const pool = pools.find((p) => p.id.toString() === id);
@@ -45,10 +47,16 @@ export function MarketDetail({ id }: { id: string }) {
 
   const share0 = pool ? sideShare(pool.option0Pool, pool.option1Pool) : 0.5;
   const series = useMemo(() => probabilitySeries(id, share0, 30), [id, share0]);
-  const activity = useMemo(() => activityFor(id, 8), [id]);
+  const activity = useMemo(() => activityFor(id, 10), [id]);
   const debate = useMemo(() => agentLinesFor(pool?.category ?? meta.category ?? "default"), [pool?.category, meta.category]);
-
   const cd = pool ? countdown(pool.endTime) : null;
+
+  const TABS: { id: Tab; label: string }[] = [
+    { id: "overview", label: t("tabs.overview") },
+    { id: "debate", label: t("tabs.debate") },
+    { id: "activity", label: t("tabs.activity") },
+    { id: "rules", label: t("tabs.rules") },
+  ];
 
   if (loading && !pool) {
     return (
@@ -84,15 +92,17 @@ export function MarketDetail({ id }: { id: string }) {
       <Navbar active={category} onChange={setCategory} />
 
       <main className="mx-auto max-w-[1400px] px-4 pb-10 pt-4 sm:px-6">
-        <Link href="/" className="inline-flex items-center gap-1.5 text-[11.5px] text-muted hover:text-ink">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 rounded-md px-1 py-0.5 text-[11.5px] text-muted transition-colors hover:text-ink"
+        >
           <ArrowLeft className="size-3.5" /> {t("detail.back")}
         </Link>
 
         <div className="mt-3 grid gap-4 lg:grid-cols-[1fr_360px]">
-          {/* ── left column ─────────────────────────────────────── */}
           <div className="flex flex-col gap-4">
             {/* header */}
-            <div className="glass relative overflow-hidden rounded-2xl p-4 sm:p-5">
+            <div className="glass relative overflow-hidden rounded-2xl border-white/10 p-4 transition-colors hover:border-white/15 sm:p-5">
               <div className="pointer-events-none absolute -right-20 -top-24 size-56 rounded-full bg-gold/8 blur-3xl" />
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="chip chip-gold">{t(categoryI18nKey(pool.category))}</span>
@@ -101,12 +111,8 @@ export function MarketDetail({ id }: { id: string }) {
                     {tag}
                   </span>
                 ))}
-                {settled && (
-                  <span className="chip border-profit/25 bg-profit/8 text-[10px] text-profit">{t("card.settled")}</span>
-                )}
-                {voided && (
-                  <span className="chip border-loss/25 bg-loss/8 text-[10px] text-loss">{t("card.voided")}</span>
-                )}
+                {settled && <span className="chip border-profit/25 bg-profit/8 text-[10px] text-profit">{t("card.settled")}</span>}
+                {voided && <span className="chip border-loss/25 bg-loss/8 text-[10px] text-loss">{t("card.voided")}</span>}
                 <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-white/8 bg-white/[0.03] px-2 py-0.5 text-[10.5px] text-muted">
                   <Clock3 className="size-2.5" />
                   <span className="mono">{cd ? (cd.ended ? "Ended" : formatCountdown(cd)) : "—"}</span>
@@ -126,31 +132,30 @@ export function MarketDetail({ id }: { id: string }) {
                 <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-profit/20 bg-profit/[0.05] px-2.5 py-2 text-[10.5px] text-muted">
                   <BadgeCheck className="size-3 text-profit" />
                   <span>
-                    {t("detail.settledOn")} · {t("card.yes")}/{t("card.no")} →{" "}
-                    <span className="text-gold-bright">{pool.optionLabels[pool.winningOption]}</span>
+                    {t("detail.settledOn")} · <span className="text-gold-bright">{pool.optionLabels[pool.winningOption]}</span>
                   </span>
                   <a
                     href={explorerTx(pool.settlementHash)}
                     target="_blank"
                     rel="noreferrer"
-                    className="mono ml-auto inline-flex items-center gap-1 text-[10px] text-muted/70 hover:text-gold-bright"
+                    className="mono ml-auto inline-flex items-center gap-1 text-[10px] text-muted/70 transition-colors hover:text-gold-bright"
                   >
                     <Fingerprint className="size-2.5" />
-                    {pool.settlementHash.slice(0, 10)}…{pool.settlementHash.slice(-6)}
+                    {pool.settlementHash.slice(0, 10)}…{pool.settlementHash.slice(-6)} <ExternalLink className="size-2.5" />
                   </a>
                 </div>
               )}
             </div>
 
-            {/* chart */}
-            <div className="glass rounded-2xl p-4">
+            {/* chart (always visible) */}
+            <div className="glass rounded-2xl border-white/10 p-4 transition-colors hover:border-white/15">
               <div className="flex items-center justify-between">
                 <p className="text-[12.5px] font-semibold text-ink">{t("detail.chart")}</p>
                 <div className="flex items-center gap-3 text-[10.5px] text-muted">
                   <span className="inline-flex items-center gap-1">
                     <span className="size-1.5 rounded-full bg-profit" /> {t("card.yes")}
                   </span>
-                  <span className="mono">{formatProbability(share0)}</span>
+                  <span className="mono text-[12px] font-semibold text-ink">{formatProbability(share0)}</span>
                 </div>
               </div>
               <div className="mt-3">
@@ -165,80 +170,103 @@ export function MarketDetail({ id }: { id: string }) {
               </div>
             </div>
 
-            {/* about + rules */}
-            <div className="glass rounded-2xl p-4">
-              <p className="text-[12.5px] font-semibold text-ink">{t("detail.about")}</p>
-              <p className="mt-2 text-[12px] leading-relaxed text-muted">
-                {meta.description ||
-                  "This market is read live from the PredictionArena contract; its long-form description has not been published to the manifest yet."}
-              </p>
-              <div className="mt-3 rounded-xl border border-white/6 bg-white/[0.02] p-3">
-                <p className="flex items-center gap-1.5 text-[11px] font-semibold text-ink">
-                  <ShieldCheck className="size-3.5 text-gold" /> {t("detail.rules")}
-                </p>
-                <p className="mt-1 text-[11.5px] leading-relaxed text-muted">
-                  {meta.resolution ||
-                    "Resolution is written on-chain by settle(outcome, bytes32 evidenceHash). Any position can be refunded at 100% if the market is cancelled, or after 30 days of operator silence via Protection Withdrawal."}
-                </p>
-              </div>
-            </div>
-
-            {/* AI debate */}
-            <div className="glass rounded-2xl p-4">
-              <div className="flex items-center justify-between">
-                <p className="text-[12.5px] font-semibold text-ink">{t("detail.aiDebate")}</p>
-                <span className="chip">
-                  <span className="size-1.5 animate-pulse rounded-full bg-gold" />
-                  AI
-                </span>
+            {/* tabs */}
+            <div className="glass overflow-hidden rounded-2xl border-white/10">
+              <div className="no-scrollbar flex gap-1 overflow-x-auto border-b border-white/8 px-2 py-1.5" role="tablist">
+                {TABS.map((item) => (
+                  <button
+                    key={item.id}
+                    role="tab"
+                    aria-selected={tab === item.id}
+                    onClick={() => setTab(item.id)}
+                    className={cn(
+                      "whitespace-nowrap rounded-lg px-3 py-1.5 text-[12px] font-medium transition-all active:scale-[0.98]",
+                      tab === item.id
+                        ? "bg-gold/12 text-gold-bright shadow-[inset_0_-1px_0_0_rgba(245,158,11,0.6)]"
+                        : "text-muted hover:bg-white/[0.04] hover:text-ink"
+                    )}
+                  >
+                    {item.label}
+                    {item.id === "activity" && (
+                      <span className="mono ml-1.5 rounded bg-white/8 px-1 text-[9px] text-muted">{activity.length}</span>
+                    )}
+                  </button>
+                ))}
               </div>
 
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                <StanceCard
-                  tone="profit"
-                  title={t("detail.bullCase")}
-                  agent={pool.aiStances?.yes.agent ?? AGENTS[0].name}
-                  text={pool.aiStances?.yes.take ?? debate[0]?.text ?? ""}
-                />
-                <StanceCard
-                  tone="loss"
-                  title={t("detail.bearCase")}
-                  agent={pool.aiStances?.no.agent ?? AGENTS[1].name}
-                  text={pool.aiStances?.no.take ?? debate[1]?.text ?? ""}
-                />
-              </div>
-
-              <ul className="mt-3 space-y-2">
-                {debate.map((line, i) => {
-                  const agent = AGENTS.find((a) => a.id === line.agent) ?? AGENTS[0];
-                  return (
-                    <li key={i} className="flex gap-2.5 rounded-xl border border-white/6 bg-white/[0.015] px-3 py-2.5">
-                      <span className="text-base leading-none">{agent.emoji}</span>
-                      <div className="min-w-0">
-                        <p className={cn("text-[11px] font-semibold", agent.accent)}>
-                          {agent.name} · <span className="text-muted/60">{agent.role}</span>
-                        </p>
-                        <p className="mt-1 text-[11.5px] leading-relaxed text-ink/85">{line.text}</p>
+              <div className="p-4" role="tabpanel">
+                {tab === "overview" && (
+                  <div className="space-y-3">
+                    <p className="text-[12px] leading-relaxed text-muted">
+                      {meta.description ||
+                        "This market is read live from the PredictionArena contract; its long-form description has not been published to the manifest yet."}
+                    </p>
+                    <div className="grid gap-2 sm:grid-cols-3">
+                      <MiniStat label={t("detail.volume")} value={`$${formatCompactUsdc(pool.volume24h ?? 0n)}`} />
+                      <MiniStat label={t("detail.liquidity")} value={`$${formatCompactUsdc(pool.totalNetPool)}`} />
+                      <MiniStat label={t("detail.openInterest")} value={`$${formatCompactUsdc(pool.option0Pool + pool.option1Pool)}`} />
+                    </div>
+                    {pool.aiStances && (
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        <StanceCard tone="profit" title={t("detail.bullCase")} agent={pool.aiStances.yes.agent} text={pool.aiStances.yes.take} />
+                        <StanceCard tone="loss" title={t("detail.bearCase")} agent={pool.aiStances.no.agent} text={pool.aiStances.no.take} />
                       </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
+                    )}
+                  </div>
+                )}
 
-            {/* activity */}
-            <div className="glass overflow-hidden rounded-2xl">
-              <div className="flex items-center justify-between border-b border-white/6 px-4 py-3">
-                <p className="text-[12.5px] font-semibold text-ink">{t("detail.activity")}</p>
-                <span className="inline-flex items-center gap-1 text-[10.5px] text-muted">
-                  <Users className="size-3" /> {pool.traders ?? 0}
-                </span>
+                {tab === "debate" && (
+                  <ul className="space-y-2">
+                    {debate.map((line, i) => {
+                      const agent = AGENTS.find((a) => a.id === line.agent) ?? AGENTS[0];
+                      return (
+                        <li
+                          key={i}
+                          className="flex gap-2.5 rounded-xl border border-white/6 bg-white/[0.015] px-3 py-2.5 transition-colors hover:border-white/12"
+                        >
+                          <span className="text-base leading-none">{agent.emoji}</span>
+                          <div className="min-w-0">
+                            <p className={cn("text-[11px] font-semibold", agent.accent)}>
+                              {agent.name} · <span className="text-muted/60">{agent.role}</span>
+                            </p>
+                            <p className="mt-1 text-[11.5px] leading-relaxed text-ink/85">{line.text}</p>
+                            {line.evidenceCid && (
+                              <p className="mono mt-1 text-[9px] text-muted/50">ipfs://{line.evidenceCid.slice(0, 12)}…</p>
+                            )}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+
+                {tab === "activity" && (
+                  <div className="-m-4">
+                    <ActivityLog rows={activity} />
+                  </div>
+                )}
+
+                {tab === "rules" && (
+                  <div className="space-y-3">
+                    <p className="flex items-center gap-1.5 text-[11.5px] font-semibold text-ink">
+                      <ShieldCheck className="size-3.5 text-gold" /> {t("detail.rules")}
+                    </p>
+                    <p className="text-[11.5px] leading-relaxed text-muted">
+                      {meta.resolution ||
+                        "Resolution is written on-chain by settle(outcome, bytes32 evidenceHash). Any position can be refunded at 100% if the market is cancelled, or after 30 days of operator silence via Protection Withdrawal."}
+                    </p>
+                    <ul className="space-y-1.5 text-[11px] text-muted">
+                      <li>· 4% fee is escrowed per market and only released at settlement.</li>
+                      <li>· Winners receive (stake / winning side) × net pool; payouts are pull-based.</li>
+                      <li>· Cancelled markets refund 100% of the gross stake, fee included.</li>
+                      <li>· Anyone may trigger Protection Withdrawal 30 days after the close time.</li>
+                    </ul>
+                  </div>
+                )}
               </div>
-              <ActivityLog rows={activity} />
             </div>
           </div>
 
-          {/* ── right column: trade panel ───────────────────────── */}
           <div className="lg:pt-0">
             <TradePanel pool={pool} />
           </div>
@@ -252,37 +280,27 @@ export function MarketDetail({ id }: { id: string }) {
 
 function Metric({ label, value, tone }: { label: string; value: string; tone?: "profit" }) {
   return (
-    <div className="rounded-xl border border-white/6 bg-white/[0.02] px-2.5 py-2">
+    <div className="rounded-xl border border-white/6 bg-white/[0.02] px-2.5 py-2 transition-colors hover:border-white/12">
       <p className="text-[9px] uppercase tracking-[0.1em] text-muted">{label}</p>
-      <p className={cn("mono mt-0.5 truncate text-[13px] font-semibold", tone === "profit" ? "text-profit" : "text-ink")}>
-        {value}
-      </p>
+      <p className={cn("mono mt-0.5 truncate text-[13px] font-semibold", tone === "profit" ? "text-profit" : "text-ink")}>{value}</p>
     </div>
   );
 }
 
-function StanceCard({
-  tone,
-  title,
-  agent,
-  text,
-}: {
-  tone: "profit" | "loss";
-  title: string;
-  agent: string;
-  text: string;
-}) {
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-white/6 bg-white/[0.02] px-2.5 py-2">
+      <p className="text-[9px] uppercase tracking-[0.1em] text-muted/70">{label}</p>
+      <p className="mono mt-0.5 text-[12.5px] font-semibold text-ink">{value}</p>
+    </div>
+  );
+}
+
+function StanceCard({ tone, title, agent, text }: { tone: "profit" | "loss"; title: string; agent: string; text: string }) {
   const isProfit = tone === "profit";
   return (
-    <div
-      className={cn(
-        "rounded-xl border p-3",
-        isProfit ? "border-profit/20 bg-profit/[0.04]" : "border-loss/20 bg-loss/[0.04]"
-      )}
-    >
-      <p className={cn("text-[9.5px] font-semibold uppercase tracking-[0.12em]", isProfit ? "text-profit" : "text-loss")}>
-        {title}
-      </p>
+    <div className={cn("rounded-xl border p-3 transition-colors", isProfit ? "border-profit/20 bg-profit/[0.04] hover:border-profit/35" : "border-loss/20 bg-loss/[0.04] hover:border-loss/35")}>
+      <p className={cn("text-[9.5px] font-semibold uppercase tracking-[0.12em]", isProfit ? "text-profit" : "text-loss")}>{title}</p>
       <p className="mt-1 text-[10.5px] font-semibold text-ink/90">{agent}</p>
       <p className="mt-1.5 text-[11.5px] leading-relaxed text-muted">{text}</p>
     </div>

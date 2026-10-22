@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAccount } from "wagmi";
 import {
@@ -24,6 +24,8 @@ import {
 } from "@/lib/format";
 import { categoryI18nKey } from "@/lib/categories";
 import { useI18n } from "@/components/LocaleProvider";
+import { useToast } from "@/components/Toast";
+import { recordTrade } from "@/hooks/useTradeHistory";
 import {
   BOOTSTRAP_CAP_USDC,
   MIN_BET_USDC,
@@ -49,6 +51,9 @@ export function BetModal({
   onClose: () => void;
 }) {
   const { t } = useI18n();
+  const toast = useToast();
+  const toastId = useRef<string | null>(null);
+  const recorded = useRef(false);
   const { address } = useAccount();
   const queryClient = useQueryClient();
   const referrer = useReferrer();
@@ -78,6 +83,8 @@ export function BetModal({
   const tooBig = amount > cap;
   const noBalance = balanceValue !== undefined && amount > balanceValue;
   const invalid = amount === 0n || tooSmall || tooBig || noBalance;
+  // Sample markets do not exist on-chain — a live bet() would revert, so the button must not lie.
+  const tradable = hasArena && pool.source === "chain";
   const pending = step === "approving" || step === "betting" || step === "confirming";
   const done = step === "done";
 
@@ -98,8 +105,36 @@ export function BetModal({
     if (done) queryClient.invalidateQueries();
   }, [done, queryClient]);
 
+  useEffect(() => {
+    if (!toastId.current) return;
+    if (step === "approving") {
+      toast.update(toastId.current, { kind: "loading", title: t("toast.approving"), description: t("toast.approvingBody") });
+    } else if (step === "betting" || step === "confirming") {
+      toast.update(toastId.current, { kind: "loading", title: t("toast.betting"), description: t("toast.bettingBody"), hash: undefined });
+    } else if (step === "done") {
+      toast.update(toastId.current, { kind: "success", title: t("toast.placed"), description: t("toast.placedBody"), hash });
+      if (!recorded.current) {
+        recorded.current = true;
+        recordTrade({
+          poolId: pool.id.toString(),
+          title: pool.title,
+          option,
+          amount: Number(amount) / 1e6,
+          txHash: hash,
+          source: pool.source === "chain" ? "chain" : "demo",
+        });
+      }
+      toastId.current = null;
+    } else if (error) {
+      toast.update(toastId.current, { kind: "error", title: t("toast.failed"), description: error });
+      toastId.current = null;
+    }
+  }, [step, error, hash, amount, option, pool.id, pool.title, pool.source, t, toast]);
+
   async function handleSubmit() {
-    if (invalid || pending) return;
+    if (invalid || pending || !tradable) return;
+    recorded.current = false;
+    toastId.current = toast.push({ kind: "loading", title: t("toast.approving"), description: t("toast.approvingBody") });
     try {
       await bet({ poolId: pool.id, option, amount, referrer });
     } catch {
@@ -289,6 +324,13 @@ export function BetModal({
               </button>
             )}
 
+            {hasArena && !tradable && (
+              <p className="flex items-start gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-2 text-[11px] leading-relaxed text-muted">
+                <Info className="mt-0.5 size-3.5 shrink-0" />
+                {t("trade.demoMode")}
+              </p>
+            )}
+
             {!hasArena && (
               <p className="flex items-start gap-1.5 rounded-lg border border-gold/25 bg-gold/8 px-2.5 py-2 text-[11px] leading-relaxed text-gold-bright/90">
                 <Info className="mt-0.5 size-3.5 shrink-0" />
@@ -309,9 +351,11 @@ export function BetModal({
             )}
             {noBalance && !error && <p className="text-[11.5px] text-loss">{t("trade.insufficient")}</p>}
 
+            <Stepper step={step} labels={[t("trade.approving"), t("trade.confirm"), t("trade.opened")]} />
+
             <button
               onClick={handleSubmit}
-              disabled={!hasArena || !address || invalid || pending}
+              disabled={!tradable || !address || invalid || pending}
               className="btn-gold w-full text-sm"
             >
               {pending ? (
@@ -397,4 +441,30 @@ export function BetModalHost({
 }) {
   if (!pool) return null;
   return <BetModal key={`${pool.id}-${option}`} pool={pool} initialOption={option} onClose={onClose} />;
+}
+
+/** Three-dot progress rail: approve → confirm → done. */
+function Stepper({ step, labels }: { step: string; labels: string[] }) {
+  const active = step === "approving" ? 0 : step === "betting" || step === "confirming" ? 1 : step === "done" ? 2 : -1;
+  if (active < 0) return null;
+  return (
+    <div className="flex items-center gap-1.5">
+      {labels.map((label, i) => (
+        <div key={label} className="flex flex-1 items-center gap-1.5">
+          <span
+            className={
+              "grid size-4 shrink-0 place-items-center rounded-full border text-[8px] font-bold transition-colors " +
+              (i <= active ? "border-gold/60 bg-gold/20 text-gold-bright" : "border-white/12 text-muted/50")
+            }
+          >
+            {i < active ? "✓" : i + 1}
+          </span>
+          <span className={"truncate text-[9.5px] " + (i <= active ? "text-gold-bright/90" : "text-muted/50")}>
+            {label}
+          </span>
+          {i < labels.length - 1 && <span className="h-px flex-1 bg-white/10" />}
+        </div>
+      ))}
+    </div>
+  );
 }
