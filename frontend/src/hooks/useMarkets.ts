@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ArenaPool } from "@/lib/types";
 import { DEMO_ANCHOR } from "@/lib/mock-data";
 import { demoPoolToArena, type Manifest } from "@/lib/markets";
 import { SEED_MANIFEST } from "@/lib/manifest";
 import { useChainPoolIds, usePools } from "@/hooks/usePredictionArena";
+
+/** Silent refresh cadence for the market manifest, so a daemon-opened listing appears on its own. */
+const POLL_MS = 60_000;
 
 /**
  * The one hook the UI needs: reads public/pools.json, joins it with live on-chain pools
@@ -13,12 +16,19 @@ import { useChainPoolIds, usePools } from "@/hooks/usePredictionArena";
  *
  * Demo entries are rendered from the manifest; chain entries get their volatile fields
  * (status / liquidity / payouts) from `getPool`, so a stale manifest can never misreport money.
+ *
+ * The manifest is re-fetched every 60s in the background. The ops daemon writes new listings into
+ * that file, so a tab that is already open picks them up without a hard refresh. Polling pauses
+ * while the tab is hidden and only commits state when the file actually changed, which keeps
+ * re-renders (and the chart/timer animations) calm.
  */
 export function useMarkets() {
   // Seed from the build-time snapshot so the first paint (SSR included) already has markets.
   const [manifest, setManifest] = useState<Manifest | null>(SEED_MANIFEST);
   const [manifestError, setManifestError] = useState<string | null>(null);
   const [now, setNow] = useState<number>(DEMO_ANCHOR);
+  const [lastSyncedAt, setLastSyncedAt] = useState<number | null>(null);
+  const lastStamp = useRef<string>("");
 
   useEffect(() => {
     setNow(Math.floor(Date.now() / 1000));
@@ -26,18 +36,47 @@ export function useMarkets() {
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+
+    async function load() {
       try {
-        const res = await fetch("/pools.json", { cache: "no-store" });
+        const res = await fetch(`/pools.json?t=${Date.now()}`, { cache: "no-store" });
         if (!res.ok) throw new Error(`manifest HTTP ${res.status}`);
         const json = (await res.json()) as Manifest;
-        if (!cancelled) setManifest(json);
+        if (cancelled) return;
+
+        // Only replace when the daemon actually wrote something: `updatedAt` moves on every
+        // ops-refresh pass, the address changes only on a redeploy.
+        const stamp = `${json.updatedAt ?? ""}|${json.address ?? ""}|${json.pools?.length ?? 0}`;
+        if (stamp !== lastStamp.current) {
+          lastStamp.current = stamp;
+          setManifest(json);
+          setNow(Math.floor(Date.now() / 1000));
+        }
+        setLastSyncedAt(Date.now());
+        setManifestError(null);
       } catch (e) {
         if (!cancelled) setManifestError(String((e as Error)?.message ?? e));
       }
-    })();
+    }
+
+    void load();
+
+    const tick = () => {
+      if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
+      void load();
+    };
+    const timer = window.setInterval(tick, POLL_MS);
+
+    // a tab coming back into focus should not wait out the remaining interval
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void load();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+
     return () => {
       cancelled = true;
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, []);
 
@@ -105,5 +144,6 @@ export function useMarkets() {
     stats,
     featured,
     loading: !manifest && !manifestError,
+    lastSyncedAt,
   };
 }

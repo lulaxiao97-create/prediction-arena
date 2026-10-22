@@ -68,11 +68,50 @@ fi
 # ── 3. open ──────────────────────────────────────────────────────────────────
 # open-pool-unattended.sh already owns the wallet-balance circuit breaker and the
 # "one live pool at a time" rule; reuse it rather than duplicating those checks here.
-if bash scripts/open-pool-unattended.sh >> "$LOG" 2>&1; then
-  say "open step ok (see logs/auto-pool-*.log for the deployment detail)"
+#
+# We watch the pool id before/after so a successful listing can be announced, and keep this tick's
+# output so a circuit-breaker trip can be reported as a low-balance alert.
+pool_id() { python3 -c "import json;print(json.load(open('logs/pool-state.json'))['poolId'])" 2>/dev/null || true; }
+
+POOL_BEFORE="$(pool_id)"
+OPEN_OUT="$(mktemp)"
+bash scripts/open-pool-unattended.sh >> "$OPEN_OUT" 2>&1
+OPEN_STATUS=$?
+cat "$OPEN_OUT" >> "$LOG"
+POOL_AFTER="$(pool_id)"
+
+if [[ $OPEN_STATUS -eq 0 && -n "$POOL_AFTER" && "$POOL_AFTER" != "$POOL_BEFORE" ]]; then
+  TITLE="$(python3 -c "import json;print(json.load(open('logs/generated-market.json'))['title'])" 2>/dev/null || echo "new listing")"
+  CATEGORY="$(python3 -c "import json;print(json.load(open('logs/generated-market.json'))['category'])" 2>/dev/null || echo "-")"
+  TX="$(grep -oE 'tx=0x[0-9a-fA-F]{64}' "$OPEN_OUT" | head -1 | cut -d= -f2)"
+  ARENA_ADDR="${ARENA_ADDRESS:-unknown}"
+  say "listed pool $POOL_AFTER: $TITLE"
+  bash scripts/notify.sh "New market live: <b>${TITLE}</b>
+${CATEGORY} · pool ${POOL_AFTER} · 10,000 USDC cap
+${ARENA_ADDR}
+${TX:-tx pending}" info
+elif grep -q "SKIP — fee wallet holds less" "$OPEN_OUT"; then
+  BAL="$(grep -oE 'USDC balance [0-9.]+ < seeds [0-9.]+' "$OPEN_OUT" | head -1)"
+  say "open skipped: low fee-wallet balance"
+  # throttle: one low-balance alert per 6h, otherwise an hourly cron becomes a pager
+  LAST_FILE="logs/.notify-low-balance"
+  LAST_TS="$(cat "$LAST_FILE" 2>/dev/null || echo 0)"
+  NOW_TS="$(date +%s)"
+  if (( NOW_TS - LAST_TS > 21600 )); then
+    echo "$NOW_TS" > "$LAST_FILE"
+    bash scripts/notify.sh "Low fee-wallet balance — cron is skipping opens.
+${BAL:-balance below 2x seed}
+Top up USDC on Base to arm the next tick." warn
+  else
+    say "low-balance alert throttled (last sent $(( (NOW_TS - LAST_TS) / 60 ))m ago)"
+  fi
+elif [[ $OPEN_STATUS -ne 0 ]]; then
+  say "WARN open step failed (exit $OPEN_STATUS) — will retry next tick"
+  bash scripts/notify.sh "Open step failed (exit ${OPEN_STATUS}) — check logs/auto-pool-*.log." error
 else
-  say "WARN open step failed — will retry next tick"
+  say "open step ok (pool unchanged — one live pool at a time)"
 fi
+rm -f "$OPEN_OUT"
 
 # ── 4. refresh again so the new pool lands in the manifest immediately ───────
 "$HARDHAT" run scripts/ops-refresh.ts --network "$NETWORK" >> "$LOG" 2>&1 && \
