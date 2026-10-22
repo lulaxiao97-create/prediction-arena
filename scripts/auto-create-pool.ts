@@ -68,6 +68,7 @@ async function main() {
   }
 
   const bootstrapCap: bigint = await arena.MAX_BET();
+  const minBet: bigint = await arena.MIN_BET();
   if (bootstrapCap !== HARDCODED_MAX_BET) {
     console.warn(
       `⚠ on-chain MAX_BET = ${ethers.formatUnits(bootstrapCap, 6)} USDC ` +
@@ -202,7 +203,7 @@ async function main() {
   if (cap < usdc(5)) {
     throw new Error(`max ticket ${ethers.formatUnits(cap, 6)} < MIN_BET 5 — pool would be locked`);
   }
-  console.log(`Liquidity ok : both sides seeded, first retail bet 5..${ethers.formatUnits(cap, 6)} USDC will pass`);
+  console.log(`Liquidity ok : both sides seeded, first retail bet ${ethers.formatUnits(minBet, 6)}..${ethers.formatUnits(cap, 6)} USDC will pass`);
   console.log("──────────────────────────────────────────────────────────────");
   console.log("Settle later with an evidence hash:");
   console.log(

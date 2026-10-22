@@ -3,12 +3,14 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Wallet } from "lucide-react";
 import { shortAddr } from "@/lib/format";
+import { useI18n } from "@/components/LocaleProvider";
 
 /**
  * Isolated so RainbowKit only ever renders on the client (its connectors touch indexedDB /
  * localStorage during wallet discovery, which must not run during prerender).
  */
 export function WalletButton() {
+  const { t } = useI18n();
   return (
     <ConnectButton.Custom>
       {({ account, chain, openAccountModal, openChainModal, openConnectModal, mounted }) => {
@@ -27,7 +29,7 @@ export function WalletButton() {
                 return (
                   <button onClick={openConnectModal} className="btn-gold px-4 py-2 text-[13px]">
                     <Wallet className="size-4" />
-                    Connect Wallet
+                    {t("nav.connect")}
                   </button>
                 );
               }
@@ -37,7 +39,7 @@ export function WalletButton() {
                     onClick={openChainModal}
                     className="rounded-xl border border-loss/40 bg-loss/10 px-4 py-2 text-[13px] font-medium text-loss"
                   >
-                    Wrong Network
+                    {t("nav.wrongNetwork")}
                   </button>
                 );
               }

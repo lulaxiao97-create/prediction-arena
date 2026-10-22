@@ -46,6 +46,8 @@ const config: HardhatUserConfig = {
     localhost: {
       url: "http://127.0.0.1:8545",
       chainId: 31337,
+      // Fork testing needs the real owner key, otherwise createPool() reverts on onlyOwner.
+      ...(process.env.PRIVATE_KEY ? { accounts: [process.env.PRIVATE_KEY] } : {}),
     },
     base: {
       url: process.env.BASE_RPC_URL?.trim() || "https://mainnet.base.org",

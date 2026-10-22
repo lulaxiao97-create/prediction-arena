@@ -217,8 +217,7 @@ export function MarketDetail({ id }: { id: string }) {
                 {tab === "overview" && (
                   <div className="space-y-3">
                     <p className="text-[12px] leading-relaxed text-muted">
-                      {meta.description ||
-                        "This market is read live from the Prediction Arena contract; its long-form description has not been published to the manifest yet."}
+                      {meta.description || t("detail.liveFallback")}
                     </p>
                     <div className="grid gap-2 sm:grid-cols-3">
                       <MiniStat label={t("detail.volume")} value={`$${formatCompactUsdc(pool.volume24h ?? 0n)}`} />
@@ -288,14 +287,12 @@ export function MarketDetail({ id }: { id: string }) {
                       <ShieldCheck className="size-3.5 text-gold" /> {t("detail.rules")}
                     </p>
                     <p className="text-[11.5px] leading-relaxed text-muted">
-                      {meta.resolution ||
-                        "Resolution is written on-chain by settle(outcome, bytes32 evidenceHash). Any position can be refunded at 100% if the market is cancelled, or after 30 days of operator silence via Protection Withdrawal."}
+                      {meta.resolution || t("detail.rulesFallback")}
                     </p>
                     <ul className="space-y-1.5 text-[11px] text-muted">
-                      <li>· 4% fee is escrowed per market and only released at settlement.</li>
-                      <li>· Winners receive (stake / winning side) × net pool; payouts are pull-based.</li>
-                      <li>· Cancelled markets refund 100% of the gross stake, fee included.</li>
-                      <li>· Anyone may trigger Protection Withdrawal 30 days after the close time.</li>
+                      {["detail.rule1", "detail.rule2", "detail.rule3", "detail.rule4"].map((k) => (
+                        <li key={k}>· {t(k)}</li>
+                      ))}
                     </ul>
                   </div>
                 )}

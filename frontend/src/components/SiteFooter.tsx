@@ -92,7 +92,7 @@ export function SiteFooter() {
               <ShieldCheck className="size-3" /> {t("footer.risk")}
             </p>
             <p className="mt-2.5 max-w-sm text-[10.5px] leading-relaxed text-muted/80">{t("footer.riskBody")}</p>
-            <p className="mt-2 text-[10px] text-muted/50">{t("footer.legal")}: MIT-licensed contracts · no custodian</p>
+            <p className="mt-2 text-[10px] text-muted/50">{t("footer.license")}</p>
           </div>
 
           {/* community */}
@@ -117,7 +117,7 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-8 flex flex-col gap-2 border-t border-white/[0.06] pt-4 text-[10px] text-muted/50 sm:flex-row sm:items-center sm:justify-between">
-          <span>{t("footer.copyright")} · All rights reserved.</span>
+          <span>{t("footer.copyright")} · {t("footer.rights")}</span>
           <span className="mono">
             {ARENA_ADDRESS.slice(0, 10)}…{ARENA_ADDRESS.slice(-6)} · Base Mainnet 8453
           </span>

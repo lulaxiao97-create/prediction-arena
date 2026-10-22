@@ -23,8 +23,8 @@ import { BetModalHost } from "@/components/BetModal";
 import { useI18n } from "@/components/LocaleProvider";
 import { useMarkets } from "@/hooks/useMarkets";
 import { CATEGORY_TABS, matchesTab, type MarketCategory } from "@/lib/categories";
-import { ARENA_ADDRESS, hasArena } from "@/hooks/usePredictionArena";
-import { cn, explorerAddress, formatCompactUsdc, shortAddr } from "@/lib/format";
+import { hasArena } from "@/hooks/usePredictionArena";
+import { cn, formatCompactUsdc } from "@/lib/format";
 import type { ArenaPool } from "@/lib/types";
 
 export default function Home() {
@@ -63,30 +63,10 @@ export default function Home() {
   }, [pools, category, query, sort]);
 
   const showFeatured = featured && featured.status === 1 && category === "all" && query.trim() === "";
-  const chainEmpty = mounted && hasArena && pools.filter((p) => p.source === "chain").length === 0;
 
   return (
     <div className="min-h-screen">
       <Navbar active={category} onChange={setCategory} />
-
-      {chainEmpty && (
-        <div className="border-b border-white/8 bg-white/[0.03]">
-          <div className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-2 px-4 py-2 text-[11px] text-muted sm:px-6">
-            <span className="size-1.5 rounded-full bg-gold" />
-            {t("demoBanner.noMarkets")}
-            {ARENA_ADDRESS && (
-              <a
-                href={explorerAddress(ARENA_ADDRESS)}
-                target="_blank"
-                rel="noreferrer"
-                className="mono text-gold-bright hover:underline"
-              >
-                {shortAddr(ARENA_ADDRESS, 4)}
-              </a>
-            )}
-          </div>
-        </div>
-      )}
 
       <main className="mx-auto max-w-[1400px] px-4 pb-10 pt-5 sm:px-6">
         {/* ── featured + dashboard ───────────────────────────────── */}

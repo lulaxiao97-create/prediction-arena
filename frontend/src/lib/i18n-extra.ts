@@ -80,6 +80,14 @@ export const EXTRA: Record<string, ExtraDict> = {
       capWindow: "Flat $50 – $10,000 USDC window",
       thinSideWarning: "This size makes you the dominant holder of this side — if it wins you only buy back your own money minus the fee. Size down to share the pool.",
     },
+    detail: {
+      rule1: "4% fee is escrowed per market and only released at settlement.",
+      rule2: "Winners receive (stake / winning side) × net pool; payouts are pull-based.",
+      rule3: "Cancelled markets refund 100% of the gross stake, fee included.",
+      rule4: "Anyone may trigger Protection Withdrawal 30 days after the close time.",
+      liveFallback: "This market is read live from the Prediction Arena contract; its long-form description has not been published to the manifest yet.",
+      rulesFallback: "Resolution is written on-chain by settle(outcome, bytes32 evidenceHash). Any position can be refunded at 100% if the market is cancelled, or after 30 days of operator silence via Protection Withdrawal.",
+    },
     footer: {
       copyright: "© 2026 Prediction Arena Protocol",
       quickLinks: "Quick links",
@@ -89,6 +97,8 @@ export const EXTRA: Record<string, ExtraDict> = {
         "Decentralized predictions involve market risk. Positions can lose their entire value; past performance is not indicative of future results. Nothing on this site is financial advice. Only commit funds you can afford to lose.",
       community: "Community",
       builtBy: "Built by Vigilo Network",
+      license: "MIT-licensed contracts · no custodian",
+      rights: "All rights reserved.",
     },
   },
   "zh-TW": {
@@ -164,6 +174,14 @@ export const EXTRA: Record<string, ExtraDict> = {
       capWindow: "固定 $50 – $10,000 USDC 區間",
       thinSideWarning: "這個金額會讓你成為該側的主要持倉者 —— 若你贏，只會拿回自己的本金再扣手續費。建議縮小金額與池子分攤。",
     },
+    detail: {
+      rule1: "4% 手續費按市場託管，僅在結算時釋放。",
+      rule2: "勝方獲得（本金 / 勝方總額）× 淨池；賠付採主動領取。",
+      rule3: "取消的市場退還 100% 本金總額，含手續費。",
+      rule4: "關盤 30 天後任何人都可觸發「保護性退款」。",
+      liveFallback: "此市場直接從 Prediction Arena 合約讀取；長篇說明尚未寫入清單。",
+      rulesFallback: "結算由 settle(outcome, bytes32 evidenceHash) 寫入鏈上。若市場取消，或營運方沉默超過 30 天，任何部位都可 100% 退款。",
+    },
     footer: {
       copyright: "© 2026 Prediction Arena Protocol",
       quickLinks: "快速連結",
@@ -173,6 +191,8 @@ export const EXTRA: Record<string, ExtraDict> = {
         "去中心化預測涉及市場風險。部位可能全部損失；過去表現不代表未來結果。本站任何內容均不構成投資建議。請僅投入你能承受損失的資金。",
       community: "社群",
       builtBy: "由 Vigilo Network 打造",
+      license: "合約以 MIT 授權 · 無託管方",
+      rights: "保留所有權利。",
     },
   },
   de: {
@@ -243,6 +263,14 @@ export const EXTRA: Record<string, ExtraDict> = {
       capWindow: "Festes Fenster 50 – 10.000 USDC",
       thinSideWarning: "Diese Größe macht dich zum dominanten Halter dieser Seite — gewinnst du, kaufst du nur dein eigenes Geld minus Gebühr zurück. Kleinere Größe teilt den Pool.",
     },
+    detail: {
+      rule1: "4 % Gebühr wird pro Markt treuhänderisch gehalten und erst bei Abrechnung freigegeben.",
+      rule2: "Gewinner erhalten (Einsatz / Gewinnseite) × Nettopool; Auszahlung erfolgt aktiv.",
+      rule3: "Stornierte Märkte erstatten 100 % des Bruttoeinsatzes inklusive Gebühr.",
+      rule4: "Jeder kann 30 Tage nach Schluss den Schutz-Rückzug auslösen.",
+      liveFallback: "Dieser Markt wird live aus dem Prediction-Arena-Vertrag gelesen; die ausführliche Beschreibung wurde noch nicht im Manifest veröffentlicht.",
+      rulesFallback: "Die Abrechnung wird on-chain durch settle(outcome, bytes32 evidenceHash) geschrieben. Bei Stornierung oder 30 Tagen Betreiberstille ist jede Position zu 100 % erstattbar.",
+    },
     footer: {
       copyright: "© 2026 Prediction Arena Protocol",
       quickLinks: "Schnellzugriff",
@@ -252,6 +280,8 @@ export const EXTRA: Record<string, ExtraDict> = {
         "Dezentrale Prognosen bergen Marktrisiken. Positionen können vollständig an Wert verlieren; vergangene Ergebnisse sind kein Indikator für die Zukunft. Nichts auf dieser Seite ist Finanzberatung.",
       community: "Community",
       builtBy: "Built by Vigilo Network",
+      license: "MIT-lizenzierte Verträge · kein Verwahrer",
+      rights: "Alle Rechte vorbehalten.",
     },
   },
   fr: {
@@ -322,6 +352,14 @@ export const EXTRA: Record<string, ExtraDict> = {
       capWindow: "Fenêtre fixe 50 – 10 000 USDC",
       thinSideWarning: "Cette taille fait de vous le détenteur dominant de ce côté — en cas de gain vous ne récupérez que votre propre argent moins les frais. Réduisez pour partager le pool.",
     },
+    detail: {
+      rule1: "Les 4 % de frais sont séquestrés par marché et libérés au règlement.",
+      rule2: "Les gagnants reçoivent (mise / côté gagnant) × pool net ; retrait actif.",
+      rule3: "Les marchés annulés remboursent 100 % de la mise brute, frais inclus.",
+      rule4: "Chacun peut déclencher le retrait de protection 30 jours après la clôture.",
+      liveFallback: "Ce marché est lu en direct depuis le contrat Prediction Arena ; sa description longue n'a pas encore été publiée dans le manifeste.",
+      rulesFallback: "Le règlement est écrit on-chain via settle(outcome, bytes32 evidenceHash). Toute position est remboursable à 100 % si le marché est annulé, ou après 30 jours de silence de l'opérateur.",
+    },
     footer: {
       copyright: "© 2026 Prediction Arena Protocol",
       quickLinks: "Liens rapides",
@@ -331,6 +369,8 @@ export const EXTRA: Record<string, ExtraDict> = {
         "Les prédictions décentralisées comportent un risque de marché. Les positions peuvent perdre toute leur valeur ; les performances passées ne préjugent pas des résultats futurs. Rien ici n'est un conseil financier.",
       community: "Communauté",
       builtBy: "Built by Vigilo Network",
+      license: "Contrats sous licence MIT · sans dépositaire",
+      rights: "Tous droits réservés.",
     },
   },
   ja: {
@@ -398,6 +438,14 @@ export const EXTRA: Record<string, ExtraDict> = {
       capWindow: "固定 $50 – $10,000 USDC レンジ",
       thinSideWarning: "この金額だとこの側の主要保有者になります — 勝っても手数料を引いた自分の資金が戻るだけです。金額を下げてプールを分け合ってください。",
     },
+    detail: {
+      rule1: "4% の手数料はマーケットごとにエスクローされ、決済時にのみ解放されます。",
+      rule2: "勝者は（ステーク / 勝ち側）× ネットプールを受領。受取は手動です。",
+      rule3: "キャンセルされたマーケットは手数料を含む全額を返金します。",
+      rule4: "クローズ 30 日後、誰でも保護引き出しを実行できます。",
+      liveFallback: "このマーケットは Prediction Arena コントラクトから直接読み取られます。詳細説明はまだマニフェストに公開されていません。",
+      rulesFallback: "決済は settle(outcome, bytes32 evidenceHash) によりオンチェーンに書き込まれます。マーケットがキャンセルされた場合、または運営が 30 日間応答しない場合、全ポジションは 100% 返金可能です。",
+    },
     footer: {
       copyright: "© 2026 Prediction Arena Protocol",
       quickLinks: "クイックリンク",
@@ -407,6 +455,8 @@ export const EXTRA: Record<string, ExtraDict> = {
         "分散型予測には市場リスクが伴います。ポジションは全額を失う可能性があり、過去の実績は将来を保証しません。本サイトの内容は投資助言ではありません。",
       community: "コミュニティ",
       builtBy: "Built by Vigilo Network",
+      license: "MIT ライセンスのコントラクト · カストディなし",
+      rights: "All rights reserved.",
     },
   },
   ko: {
@@ -474,6 +524,14 @@ export const EXTRA: Record<string, ExtraDict> = {
       capWindow: "고정 $50 – $10,000 USDC 구간",
       thinSideWarning: "이 금액이면 해당 쪽의 지배적 보유자가 됩니다 — 이겨도 수수료를 뺀 자기 자금만 돌려받습니다. 금액을 줄여 풀을 나누세요.",
     },
+    detail: {
+      rule1: "4% 수수료는 마켓별로 예치되며 정산 시에만 해제됩니다.",
+      rule2: "승자는 (스테이크 / 승리 측) × 순풀을 받습니다. 수령은 직접 실행합니다.",
+      rule3: "취소된 마켓은 수수료를 포함한 원금 전액을 환불합니다.",
+      rule4: "마감 30일 후 누구나 보호 인출을 실행할 수 있습니다.",
+      liveFallback: "이 마켓은 Prediction Arena 컨트랙트에서 직접 읽습니다. 상세 설명은 아직 매니페스트에 게시되지 않았습니다.",
+      rulesFallback: "정산은 settle(outcome, bytes32 evidenceHash)로 온체인에 기록됩니다. 마켓이 취소되거나 운영자가 30일간 응답하지 않으면 모든 포지션은 100% 환불됩니다.",
+    },
     footer: {
       copyright: "© 2026 Prediction Arena Protocol",
       quickLinks: "빠른 링크",
@@ -483,6 +541,8 @@ export const EXTRA: Record<string, ExtraDict> = {
         "탈중앙화 예측에는 시장 위험이 따릅니다. 포지션은 전액 손실될 수 있으며 과거 성과는 미래를 보장하지 않습니다. 본 사이트의 내용은 투자 조언이 아닙니다.",
       community: "커뮤니티",
       builtBy: "Built by Vigilo Network",
+      license: "MIT 라이선스 컨트랙트 · 수탁자 없음",
+      rights: "All rights reserved.",
     },
   },
 };
