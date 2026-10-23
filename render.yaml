@@ -33,4 +33,4 @@ services:
       - key: NEXT_PUBLIC_AI_DEBATE
         value: "1"
       - key: NEXT_PUBLIC_SITE_URL
-        sync: false
+        value: https://prediction-arena-81d9.onrender.com

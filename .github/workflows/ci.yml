@@ -49,6 +49,6 @@ jobs:
           NEXT_PUBLIC_CHAIN_ID: "8453"
           NEXT_PUBLIC_BASE_RPC_URL: "https://mainnet.base.org"
           NEXT_PUBLIC_ARENA_DEPLOY_BLOCK: "52935381"
-          NEXT_PUBLIC_SITE_URL: "https://prediction-arena.vercel.app"
+          NEXT_PUBLIC_SITE_URL: "https://prediction-arena-81d9.onrender.com"
           NEXT_PUBLIC_AI_DEBATE: "1"
           NEXT_TELEMETRY_DISABLED: "1"

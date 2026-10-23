@@ -8,6 +8,7 @@
 
 *Binary markets · On-chain escrow · IPFS-referenced resolution · No custodian*
 
+[![Live](https://img.shields.io/badge/Live-app-16C784?style=for-the-badge&logo=render&logoColor=white)](https://prediction-arena-81d9.onrender.com)
 [![Base Mainnet](https://img.shields.io/badge/Base-Mainnet%20%C2%B7%208453-0052FF?style=for-the-badge&logo=coinbase&logoColor=white)](https://basescan.org/address/0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93)
 [![Contract V2](https://img.shields.io/badge/Contract-V2%20%C2%B7%20Live-16C784?style=for-the-badge)](https://basescan.org/address/0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93)
 [![Settled in USDC](https://img.shields.io/badge/Settled%20in-USDC-2775CA?style=for-the-badge&logo=usd-coin&logoColor=white)](#smart-contract-v2)
@@ -23,7 +24,7 @@
 
 <br />
 
-**[Launch the app](https://prediction-arena.vercel.app)** · **[Read the docs](https://prediction-arena.vercel.app/docs)** · **[View the contract](https://basescan.org/address/0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93)** · **[Report a vulnerability](SECURITY.md)**
+**[Launch the app](https://prediction-arena-81d9.onrender.com)** · **[Read the docs](https://prediction-arena-81d9.onrender.com/docs)** · **[View the contract](https://basescan.org/address/0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93)** · **[Report a vulnerability](SECURITY.md)**
 
 </div>
 
@@ -57,6 +58,7 @@ glass panels, hairline borders, and a mobile-first trading drawer.
 
 | | |
 |---|---|
+| **Web app** | https://prediction-arena-81d9.onrender.com |
 | **Network** | Base Mainnet — chain id `8453` |
 | **Contract (V2)** | [`0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93`](https://basescan.org/address/0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93) |
 | **Source** | Verified on Basescan · solc `0.8.20` · optimizer `200` · `paris` |
