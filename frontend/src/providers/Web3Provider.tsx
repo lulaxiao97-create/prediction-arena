@@ -52,15 +52,20 @@ const rpcBaseSepolia = process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL || "https://
  * 1rpc/blockpi reject keyless calls, so neither is in the list.
  */
 const baseTransport = fallback([
-  // The configured endpoint stays authoritative for ordinary reads.
-  http(rpcBase, { retryCount: 1, timeout: 12_000 }),
-  // Then, in the order measured from this origin with eth_getLogs (the call the market
-  // scanner actually makes): tenderly answers, drpc rejects the block range with 400,
-  // publicnode refuses this class of client with 403.
+  // Order is measured, not assumed, and it leads with the one endpoint that survives the
+  // call the app actually makes most: `eth_getLogs`. Putting a 429-then-400-then-403 chain in
+  // front of it meant every scan paid three failed round trips and stamped three red lines
+  // into the user's console. Tenderly answers getLogs in ~1s from this origin, so it leads;
+  // NEXT_PUBLIC_BASE_RPC_URL stays in the chain as the first fallback and keeps serving
+  // ordinary reads whenever it is healthy.
   http("https://base.gateway.tenderly.co", { retryCount: 1, timeout: 12_000 }),
+  http(rpcBase, { retryCount: 1, timeout: 12_000 }),
   http("https://base.drpc.org", { retryCount: 1, timeout: 12_000 }),
   http("https://base-rpc.publicnode.com", { retryCount: 1, timeout: 12_000 }),
-]);
+  // `rank: false` — with ranking on, viem periodically probes *every* transport to score it,
+  // and each probe against a rate-limited or origin-restricted endpoint writes a red line into
+  // the console. The order above is already measured, so there is nothing left to rank.
+], { rank: false });
 const baseSepoliaTransport = fallback([
   http(rpcBaseSepolia, { retryCount: 1, timeout: 12_000 }),
   http("https://base-sepolia-rpc.publicnode.com", { retryCount: 1, timeout: 12_000 }),

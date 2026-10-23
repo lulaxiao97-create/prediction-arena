@@ -183,7 +183,12 @@ export function usePendingRefund(poolId: bigint, user?: Address) {
  *     the new blocks instead of replaying the whole history,
  *   • retried with backoff on 429.
  */
-const POOL_SCAN_CHUNK = 5_000n;
+// Measured ceiling for a keyless eth_getLogs: Tenderly's public gateway rejects anything
+// wider than 1,000 blocks ("Block range too large for public access"), and the other public
+// Base endpoints answer a 5,000-block query with 429 / 400 / 403. Scanning in 1,000-block
+// windows keeps every request inside the limit, which is what makes the incremental scan
+// actually finish instead of breaking out after the first rejected chunk.
+const POOL_SCAN_CHUNK = 1_000n;
 const POOL_CACHE_PREFIX = "arena:poolids:";
 
 type PoolIdCache = { ids: string[]; lastBlock: number };
@@ -289,6 +294,10 @@ export function useChainPoolIds() {
               }
             }
             if (failed) break; // stop scanning; manifest + cache still serve the list
+            // Space the windows out: a cold visit scans ~24 chunks and a public gateway
+            // answers a burst with 429. The scan is background work, so 120ms per window
+            // costs a couple of seconds once and keeps the console clean.
+            await sleep(120);
             for (const log of logs) {
               const id = log?.args?.poolId as bigint | undefined;
               if (id !== undefined) seen.add(id.toString());
