@@ -155,7 +155,7 @@ export function MarketDetail({ id }: { id: string }) {
                   <a
                     href={explorerTx(pool.settlementHash)}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="mono ml-auto inline-flex items-center gap-1 text-[10px] text-muted/70 transition-colors hover:text-gold-bright"
                   >
                     <Fingerprint className="size-2.5" />

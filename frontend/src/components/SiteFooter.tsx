@@ -105,7 +105,7 @@ export function SiteFooter() {
                   key={label}
                   href={href}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   aria-label={label}
                   className="grid size-8 place-items-center rounded-lg border border-white/8 bg-white/[0.02] text-muted transition-all hover:-translate-y-0.5 hover:border-gold/40 hover:text-gold-bright"
                 >

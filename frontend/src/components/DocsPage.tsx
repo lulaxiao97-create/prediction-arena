@@ -228,7 +228,7 @@ export function DocsPage({ slug }: { slug?: string[] }) {
               <a
                 href={explorerAddress(ARENA_ADDRESS)}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="mt-4 inline-flex items-center gap-1 rounded-lg border border-white/8 px-2 py-1.5 text-[10.5px] text-muted transition-colors hover:border-gold/40 hover:text-gold-bright"
               >
                 Basescan <ExternalLink className="size-2.5" />
@@ -328,7 +328,7 @@ function Block({
           <a
             href={explorerAddress(block.value)}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="grid size-6 shrink-0 place-items-center rounded-lg border border-white/10 text-muted transition-colors hover:border-gold/40 hover:text-gold-bright"
           >
             <ExternalLink className="size-3" />

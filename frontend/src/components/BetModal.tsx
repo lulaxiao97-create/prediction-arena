@@ -204,7 +204,7 @@ export function BetModal({
               <a
                 href={explorerTx(hash)}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-2 text-xs text-gold-bright hover:border-gold/40"
               >
                 {t("trade.viewTx")} <ExternalLink className="size-3" />

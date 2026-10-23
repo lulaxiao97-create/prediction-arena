@@ -95,7 +95,7 @@ function ToastCard({ item, onClose }: { item: ToastItem; onClose: () => void }) 
           <a
             href={explorerTx(item.hash)}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="mt-1 inline-flex items-center gap-1 text-[10.5px] text-gold-bright hover:underline"
           >
             {item.hash.slice(0, 10)}…{item.hash.slice(-6)} <ExternalLink className="size-2.5" />

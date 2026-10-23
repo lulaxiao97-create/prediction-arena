@@ -256,7 +256,7 @@ function EvidenceChip({
       <a
         href={ipfsGatewayUrl(cid)}
         target="_blank"
-        rel="noreferrer"
+        rel="noopener noreferrer"
         className="inline-flex items-center gap-1 rounded-md border border-white/8 px-1.5 py-0.5 text-[9.5px] text-muted transition-colors hover:border-gold/40 hover:text-gold-bright"
       >
         <ExternalLink className="size-2.5" />

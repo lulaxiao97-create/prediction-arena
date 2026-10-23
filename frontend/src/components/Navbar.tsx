@@ -77,7 +77,7 @@ export function Navbar({
           <a
             href="https://basescan.org"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             title="Open Base explorer"
             className="hidden shrink-0 items-center gap-1.5 rounded-full border border-white/8 bg-white/[0.03] px-2.5 py-1.5 text-[11px] text-muted transition-colors hover:border-profit/40 hover:text-ink lg:flex"
           >

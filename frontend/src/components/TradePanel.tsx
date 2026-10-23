@@ -371,7 +371,7 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
           <a
             href="https://bridge.base.org/deposit"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="mt-1 inline-flex items-center gap-1 text-gold-bright transition-colors hover:underline"
           >
             {t("trade.getUsdc")} <ExternalLink className="size-2.5" />
@@ -387,7 +387,7 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
           <a
             href={explorerTx(hash)}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="block rounded-lg border border-white/10 px-3 py-2 text-center text-[11.5px] text-gold-bright transition-colors hover:border-gold/40"
           >
             {t("trade.viewTx")}

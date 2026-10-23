@@ -294,7 +294,7 @@ export function MarketCard({
             <a
               href={explorerTx(actionHash)}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
               className="flex items-center gap-1 text-[10.5px] text-profit hover:underline"
             >

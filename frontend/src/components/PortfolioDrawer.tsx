@@ -307,7 +307,7 @@ export function PortfolioDrawer({ open, onClose }: { open: boolean; onClose: () 
                       <a
                         href={explorerTx(row.txHash)}
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
                         className="text-gold-bright hover:underline"
                       >
                         <ArrowUpRight className="size-3" />

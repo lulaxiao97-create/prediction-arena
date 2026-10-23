@@ -69,7 +69,7 @@ export function PartnersStrip() {
             key={name}
             href={href}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className={cn(
               "card-edge group flex flex-col gap-2 rounded-xl border p-3 transition-all duration-200",
               "hover:-translate-y-0.5 hover:shadow-[0_10px_30px_-18px_rgba(245,158,11,0.6)]",
