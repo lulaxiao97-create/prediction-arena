@@ -7,6 +7,7 @@ import { ToastProvider } from "@/components/Toast";
 import { ChunkReloadGuard } from "@/components/ChunkReloadGuard";
 import { PwaRegister } from "@/components/PwaRegister";
 import { Warmup } from "@/components/Warmup";
+import { DomainTrustNote } from "@/components/DomainTrustNote";
 
 // Absolute origin for OG/canonical URLs and the WalletConnect appUrl. Production sets this
 // from the host environment; the localhost default keeps `next dev` honest instead of
@@ -90,6 +91,9 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://mainnet.base.org" />
         <PwaRegister />
         <Warmup />
+        {/* Explains the shared-host warning a wallet scanner may raise, with the facts a user
+            can check for themselves. Mounts client-side only — see the component. */}
+        <DomainTrustNote />
         <ChunkReloadGuard />
         <LocaleProvider>
           <Web3Provider>

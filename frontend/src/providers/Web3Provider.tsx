@@ -39,8 +39,12 @@ const hasWalletConnect = /^[a-f0-9]{32}$/i.test(projectId);
  */
 const APP_NAME = "Prediction Arena";
 const APP_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://prediction-arena-81d9.onrender.com").replace(/\/+$/, "");
-const APP_ICON = `${APP_URL}/icon-192.png`;
-const APP_DESCRIPTION = "Binary prediction markets argued by AI agents, settled in native USDC on Base.";
+// Absolute, same-origin, 512px: MetaMask and Blockaid read this from the WalletConnect /
+// injected metadata and compare it with the page origin. A relative path or a 192px icon is
+// enough for a mismatch flag, so the icon is pinned to the largest published size.
+const APP_ICON = `${APP_URL}/icon-512.png`;
+const APP_DESCRIPTION = "Automated Decentralized Prediction Market on Base";
+const APP_LEARN_MORE = `${APP_URL}/docs/security`;
 
 const rpcBase = process.env.NEXT_PUBLIC_BASE_RPC_URL || "https://mainnet.base.org";
 const rpcBaseSepolia = process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org";
@@ -117,6 +121,18 @@ const connectors = hasWalletConnect
 const config: Config = createConfig({
   chains,
   connectors,
+  /**
+   * EIP-6963 (multi-injected provider discovery).
+   *
+   * With several extensions installed (MetaMask + OKX + Bitget + Rabby is a normal combination)
+   * every one of them tries to own `window.ethereum`. EIP-6963 has each provider announce
+   * itself with an rdns id and icon through the `eip6963:announceProvider` event, so RainbowKit
+   * can render them as separate, correctly-branded entries and connect to the exact provider
+   * the user picked — no last-writer-wins collision, and no chance of a branded button opening
+   * a different wallet's prompt. wagmi enables this by default; stating it here keeps the
+   * behaviour visible and pinned, and injectedWallet below is its consumer.
+   */
+  multiInjectedProviderDiscovery: true,
   transports: {
     [base.id]: baseTransport,
     [baseSepolia.id]: baseSepoliaTransport,
@@ -169,7 +185,7 @@ export function Web3Provider({ children }: { children: ReactNode }) {
           theme={rainbowTheme}
           modalSize="compact"
           locale={RAINBOW_LOCALES[locale] as never}
-          appInfo={{ appName: APP_NAME, learnMoreUrl: `${APP_URL}/docs` }}
+          appInfo={{ appName: APP_NAME, learnMoreUrl: APP_LEARN_MORE }}
         >
           {children}
         </RainbowKitProvider>
