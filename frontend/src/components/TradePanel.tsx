@@ -9,6 +9,9 @@ import type { ArenaPool } from "@/lib/types";
 import { cn, explorerTx, formatProbability, formatUsdc, impliedMultiplier } from "@/lib/format";
 import { quickAmountsFor, resolveTradeGuard } from "@/lib/trade-guard";
 import { AmountSlider } from "@/components/AmountSlider";
+import { DemoBadge } from "@/components/DemoBadge";
+import { ShareActions } from "@/components/ShareActions";
+import { select as hapticSelect } from "@/lib/haptics";
 import { useI18n } from "@/components/LocaleProvider";
 import { useToast } from "@/components/Toast";
 import { recordTrade } from "@/hooks/useTradeHistory";
@@ -171,15 +174,20 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
     >
       <div className="flex items-center justify-between">
         <p className="text-[13px] font-semibold text-ink">{t("trade.panel")}</p>
-        <span
-          className={cn(
-            "mono rounded-md border px-1.5 py-0.5 text-[9.5px] uppercase tracking-[0.12em]",
-            live ? "border-profit/30 bg-profit/8 text-profit" : "border-white/10 text-muted/70"
-          )}
-        >
-          {live ? "ON-CHAIN" : "DEMO"}
-        </span>
+        <div className="flex items-center gap-2">
+          <span
+            className={cn(
+              "mono rounded-md border px-1.5 py-0.5 text-[9.5px] uppercase tracking-[0.12em]",
+              live ? "border-profit/30 bg-profit/8 text-profit" : "border-white/10 text-muted/70"
+            )}
+          >
+            {live ? "ON-CHAIN" : "DEMO"}
+          </span>
+          <ShareActions marketId={pool.id} title={pool.title} yesPct={probability} variant="compact" />
+        </div>
       </div>
+
+      {!live && <DemoBadge />}
 
       {/* outcome selector — colour follows the choice immediately */}
       <div className="grid grid-cols-2 gap-2">
@@ -191,7 +199,10 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
           return (
             <button
               key={value}
-              onClick={() => setOption(value)}
+              onClick={() => {
+                hapticSelect();
+                setOption(value);
+              }}
               aria-pressed={active}
               className={cn(
                 "group rounded-xl border px-3 py-2.5 text-left transition-all duration-200 active:scale-[0.98]",
@@ -250,7 +261,10 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
               <button
                 key={quick}
                 disabled={disabled}
-                onClick={() => setAmountInput(String(quick))}
+                onClick={() => {
+                  hapticSelect();
+                  setAmountInput(String(quick));
+                }}
                 className={cn(
                   "mono flex-1 rounded-lg border px-2 py-1 text-[11px] transition-all active:scale-95",
                   disabled
@@ -335,13 +349,6 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
           </div>
         )}
       </div>
-
-      {!live && (
-        <p className="flex items-start gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-2 text-[10.5px] leading-relaxed text-muted">
-          <Info className="mt-0.5 size-3 shrink-0" />
-          {t("trade.demoMode")}
-        </p>
-      )}
 
       {wrongChain && (
         <button onClick={switchToTarget} disabled={switching} className="btn-ghost w-full text-[12.5px]">

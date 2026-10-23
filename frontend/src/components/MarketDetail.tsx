@@ -24,6 +24,8 @@ import { themeFor } from "@/lib/visuals";
 import { useAiDebate } from "@/hooks/useAiDebate";
 import { ActivityLog } from "@/components/ActivityLog";
 import { useMarkets } from "@/hooks/useMarkets";
+import { ShareActions } from "@/components/ShareActions";
+import { DemoBadge } from "@/components/DemoBadge";
 import { AGENTS } from "@/lib/mock-data";
 import { activityFor, metaFor, probabilitySeries } from "@/lib/markets";
 import { categoryI18nKey, type MarketCategory } from "@/lib/categories";
@@ -131,6 +133,7 @@ export function MarketDetail({ id }: { id: string }) {
                 ))}
                 {settled && <span className="chip border-profit/25 bg-profit/8 text-[10px] text-profit">{t("card.settled")}</span>}
                 {voided && <span className="chip border-loss/25 bg-loss/8 text-[10px] text-loss">{t("card.voided")}</span>}
+                {pool.source !== "chain" && !settled && <DemoBadge variant="chip" />}
                 <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-white/8 bg-white/[0.03] px-2 py-0.5 text-[10.5px] text-muted">
                   <Clock3 className="size-2.5" />
                   <span className="mono">{cd ? (cd.ended ? "Ended" : formatCountdown(cd)) : "—"}</span>
@@ -145,6 +148,13 @@ export function MarketDetail({ id }: { id: string }) {
                 <Metric label={t("detail.traders")} value={(pool.traders ?? 0).toLocaleString("en-US")} />
                 <Metric label={t("detail.ends")} value={formatEndDate(pool.endTime)} />
               </div>
+
+              <ShareActions
+                marketId={pool.id}
+                title={pool.title}
+                yesPct={share0}
+                className="mt-3 max-w-md"
+              />
 
               {settled && pool.settlementHash && (
                 <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-profit/20 bg-profit/[0.05] px-2.5 py-2 text-[10.5px] text-muted">

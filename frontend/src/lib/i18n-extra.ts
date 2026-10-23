@@ -8,6 +8,18 @@ export type ExtraDict = Record<string, Record<string, string>>;
 
 export const EXTRA: Record<string, ExtraDict> = {
   en: {
+    // share / demo surfaces (market header, trade panel, mobile sheet)
+    marketing: {
+      shareX: "Share to X",
+      copyLink: "Copy link",
+      copied: "Link copied to clipboard!",
+      copiedShort: "Copied",
+      copiedBody: "Anyone opening it lands straight on this market.",
+      copyFailed: "Couldn't copy — select the link manually",
+      demoBadge: "Demo Trading Mode",
+      demoBadgeBody: "Mainnet liquidity launching soon — positions are simulated.",
+      demoTag: "SIM",
+    },
     nav: {
       markets: "Markets",
       docs: "Docs",
@@ -104,6 +116,18 @@ export const EXTRA: Record<string, ExtraDict> = {
     },
   },
   "zh-TW": {
+    // share / demo surfaces (market header, trade panel, mobile sheet)
+    marketing: {
+      shareX: "分享到 X",
+      copyLink: "複製連結",
+      copied: "連結已複製到剪貼簿！",
+      copiedShort: "已複製",
+      copiedBody: "開啟連結的人會直接進入這個市場。",
+      copyFailed: "複製失敗——請手動選取連結",
+      demoBadge: "模擬交易模式",
+      demoBadgeBody: "主網流動性即將上線——目前的下注為模擬盤。",
+      demoTag: "模擬",
+    },
     nav: {
       markets: "市場",
       docs: "文件",
@@ -200,6 +224,18 @@ export const EXTRA: Record<string, ExtraDict> = {
     },
   },
   de: {
+    // share / demo surfaces (market header, trade panel, mobile sheet)
+    marketing: {
+      shareX: "Auf X teilen",
+      copyLink: "Link kopieren",
+      copied: "Link in die Zwischenablage kopiert!",
+      copiedShort: "Kopiert",
+      copiedBody: "Wer den Link öffnet, landet direkt in diesem Markt.",
+      copyFailed: "Kopieren fehlgeschlagen — Link bitte manuell markieren",
+      demoBadge: "Demo-Handelsmodus",
+      demoBadgeBody: "Mainnet-Liquidität startet bald — Positionen sind simuliert.",
+      demoTag: "SIM",
+    },
     nav: { markets: "Märkte", docs: "Docs", security: "Sicherheit", poweredBy: "Powered by Vigilo Network" },
     docs: {
       sidebarTitle: "Dokumentation",
@@ -291,6 +327,18 @@ export const EXTRA: Record<string, ExtraDict> = {
     },
   },
   fr: {
+    // share / demo surfaces (market header, trade panel, mobile sheet)
+    marketing: {
+      shareX: "Partager sur X",
+      copyLink: "Copier le lien",
+      copied: "Lien copié dans le presse-papiers !",
+      copiedShort: "Copié",
+      copiedBody: "Toute personne qui l'ouvre arrive sur ce marché.",
+      copyFailed: "Copie impossible — sélectionnez le lien manuellement",
+      demoBadge: "Mode démo",
+      demoBadgeBody: "La liquidité mainnet arrive bientôt — les positions sont simulées.",
+      demoTag: "SIM",
+    },
     nav: { markets: "Marchés", docs: "Docs", security: "Sécurité", poweredBy: "Propulsé par Vigilo Network" },
     docs: {
       sidebarTitle: "Documentation",
@@ -382,6 +430,18 @@ export const EXTRA: Record<string, ExtraDict> = {
     },
   },
   ja: {
+    // share / demo surfaces (market header, trade panel, mobile sheet)
+    marketing: {
+      shareX: "Xでシェア",
+      copyLink: "リンクをコピー",
+      copied: "リンクをクリップボードにコピーしました！",
+      copiedShort: "コピー済み",
+      copiedBody: "リンクを開いた人はこのマーケットに直接移動します。",
+      copyFailed: "コピーできません — リンクを手動で選択してください",
+      demoBadge: "デモ取引モード",
+      demoBadgeBody: "メインネットの流動性はまもなく開始 — ポジションはシミュレーションです。",
+      demoTag: "シミュ",
+    },
     nav: { markets: "マーケット", docs: "ドキュメント", security: "セキュリティ", poweredBy: "Powered by Vigilo Network" },
     docs: {
       sidebarTitle: "ドキュメント",
@@ -470,6 +530,18 @@ export const EXTRA: Record<string, ExtraDict> = {
     },
   },
   ko: {
+    // share / demo surfaces (market header, trade panel, mobile sheet)
+    marketing: {
+      shareX: "X에 공유",
+      copyLink: "링크 복사",
+      copied: "링크가 클립보드에 복사되었습니다!",
+      copiedShort: "복사됨",
+      copiedBody: "링크를 여는 사람은 이 마켓으로 바로 이동합니다.",
+      copyFailed: "복사하지 못했습니다 — 링크를 직접 선택하세요",
+      demoBadge: "데모 거래 모드",
+      demoBadgeBody: "메인넷 유동성이 곧 출시됩니다 — 포지션은 시뮬레이션입니다.",
+      demoTag: "시뮬",
+    },
     nav: { markets: "마켓", docs: "문서", security: "보안", poweredBy: "Powered by Vigilo Network" },
     docs: {
       sidebarTitle: "문서",
