@@ -8,6 +8,7 @@ typechain-types/
 .env
 .env.*
 !.env.example
+!frontend/.env.local.example
 *.log
 .DS_Store
 
@@ -18,3 +19,6 @@ logs/auto-pool-*.log
 logs/.notify-*
 PUBLIC_URL.txt
 logs/tunnel*.log
+
+# internal working notes — not part of the public repository
+HANDOFF.md

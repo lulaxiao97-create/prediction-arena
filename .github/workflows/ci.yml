@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contracts:
+    name: Contracts · compile + test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install
+        run: bun install --frozen-lockfile
+      - name: Compile
+        run: npx hardhat compile
+      - name: Test
+        run: npx hardhat test
+        env:
+          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL || 'https://mainnet.base.org' }}
+
+  frontend:
+    name: Frontend · lint + build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install
+        run: bun install --frozen-lockfile
+      - name: Lint
+        run: bun run lint
+      - name: Build
+        run: bun run build
+        env:
+          NEXT_PUBLIC_ARENA_ADDRESS: "0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93"
+          NEXT_PUBLIC_CHAIN_ID: "8453"
+          NEXT_PUBLIC_BASE_RPC_URL: "https://mainnet.base.org"
+          NEXT_PUBLIC_ARENA_DEPLOY_BLOCK: "52935381"
+          NEXT_PUBLIC_SITE_URL: "https://prediction-arena.vercel.app"
+          NEXT_PUBLIC_AI_DEBATE: "1"
+          NEXT_TELEMETRY_DISABLED: "1"

@@ -1,148 +1,341 @@
-# Prediction Arena — AI 预测对赌竞技场
+<div align="center">
 
-二元预测盘口 / Base 原生 USDC 结算 / AI 三智囊辩论 / IPFS 判决留痕。
+<img src="docs/branding/pa-mark.svg" width="112" alt="Prediction Arena mark — PA-MARK-1.0" />
+
+# PREDICTION ARENA
+
+### The decentralized prediction market, argued by AI and settled in USDC on Base.
+
+*Binary markets · On-chain escrow · IPFS-referenced resolution · No custodian*
+
+[![Base Mainnet](https://img.shields.io/badge/Base-Mainnet%20%C2%B7%208453-0052FF?style=for-the-badge&logo=coinbase&logoColor=white)](https://basescan.org/address/0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93)
+[![Contract V2](https://img.shields.io/badge/Contract-V2%20%C2%B7%20Live-16C784?style=for-the-badge)](https://basescan.org/address/0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93)
+[![Settled in USDC](https://img.shields.io/badge/Settled%20in-USDC-2775CA?style=for-the-badge&logo=usd-coin&logoColor=white)](#smart-contract-v2)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](#architecture)
+[![Solidity](https://img.shields.io/badge/Solidity-0.8.20-363636?style=for-the-badge&logo=solidity&logoColor=white)](#smart-contract-v2)
+[![PWA](https://img.shields.io/badge/PWA-Installable-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)](#key-features)
+[![i18n](https://img.shields.io/badge/i18n-6%20Languages-FBBF24?style=for-the-badge)](#key-features)
+[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](#license)
+
+<br />
+
+<img src="docs/branding/social-preview-1280x640.png" alt="Prediction Arena — decentralized prediction markets on Base" width="880" />
+
+<br />
+
+**[Launch the app](https://prediction-arena.vercel.app)** · **[Read the docs](https://prediction-arena.vercel.app/docs)** · **[View the contract](https://basescan.org/address/0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93)** · **[Report a vulnerability](SECURITY.md)**
+
+</div>
+
+---
+
+## Overview
+
+**Prediction Arena** is a fully non-custodial, binary prediction market protocol. Every market is a
+two-sided escrow written in Solidity: participants stake native USDC on `YES` or `NO`, and when the
+market resolves, the losing side's stake is distributed pro-rata to the winners, minus a flat 4%
+rake. There is no house account holding user funds — the winning side claims directly from the
+contract, and the contract's total balance is provably greater than or equal to the sum of every
+market's escrowed collateral.
+
+Two things make it more than another betting pool:
+
+1. **An AI analyst layer that is not a black box.** Each market carries a pre-generated, multi-agent
+   debate — a macro thesis, a skeptical counter-thesis, and a quantitative adjudication — written by
+   DeepSeek and stored as static content. The browser never calls a model at render time, so the page
+   loads like a document and the arguments cannot change under you between refreshes.
+2. **An ops daemon that runs the venue.** Market generation, pool creation, seed liquidity,
+   probability refresh and settlement reporting run as one autonomous cron tick. The site reads a
+   manifest, not a centralized database.
+
+The interface is a **Deep Ocean / Obsidian Glass** system: near-black canvas, layered aurora glow,
+glass panels, hairline borders, and a mobile-first trading drawer.
+
+---
+
+## Live deployment
+
+| | |
+|---|---|
+| **Network** | Base Mainnet — chain id `8453` |
+| **Contract (V2)** | [`0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93`](https://basescan.org/address/0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93) |
+| **Source** | Verified on Basescan · solc `0.8.20` · optimizer `200` · `paris` |
+| **Deploy block** | `52935381` (event scan start: `NEXT_PUBLIC_ARENA_DEPLOY_BLOCK`) |
+| **Collateral** | USDC `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` (6 decimals, native on Base) |
+| **Bet limits** | flat **$50 – $10,000** per position |
+| **Rake** | `400 bps` (4.00%) of each stake · `30%` of the rake to the referring KOL |
+| **Resolution record** | `bytes32` IPFS evidence hash, stored on-chain (`settlementHash`), zero hash reverts |
+| **Status** | Live, unfunded by the operator — liquidity arrives only from participants |
+
+> Earlier deployments (`0x96c0…355`, `0x36f1…5684`) are **retired**. They predate the F-01/F-02/F-03
+> hardening and must not be used. `deployments/` keeps every record for auditability.
+
+---
+
+## Key features
+
+### AI debates that hold a position
+
+Markets ship with three independent voices — **the Advocate**, **the Skeptic**, and **the Quant** —
+each with a distinct mandate and tone, plus a closing call. Arguments are generated server-side by
+DeepSeek (`scripts/gen-debates.ts`) into `frontend/public/debates.json` and cached per market *and
+per language*, so a German reader never receives English copy. When cached copy drifts from live
+market probability, the UI says so ("arguments were written at 60% — now 81%") instead of silently
+swapping text.
+
+A deterministic kernel (`frontend/src/lib/auto-gen.ts`) is the floor, not the fallback: with no API
+key the platform still produces market-specific, reproducible copy. An LLM is an enhancer, never a
+runtime dependency.
+
+### Mobile-first trading drawer
+
+Below the desktop breakpoint the sidebar composition is re-rendered **as the same component** inside
+a bottom sheet — one implementation, two placements, so mobile and desktop can never drift. The
+drawer handles body-scroll lock, `overscroll-contain`, Escape and backdrop dismissal, drag-to-dismiss
+with a pixel threshold, and reserves page padding so the fixed action bar never covers the last card.
+
+### Installable PWA with offline shell
+
+A service worker caches the app shell and static manifests while **never intercepting chain RPC** —
+stale balances are worse than a spinner. Maskable icons, `apple-touch-icon`, splash metadata and
+standalone display mode are wired, so the arena installs to a home screen and launches without
+browser chrome.
+
+### Six languages, no route duplication
+
+`en` · `zh-TW` · `de` · `fr` · `ja` · `ko`. Locale lives in React context plus `localStorage` — no
+`/en/` path prefixes, no duplicated routes, no layout shift. Every visible string, including
+generated debate copy and documentation, goes through the same `t()` surface.
+
+### Transparent fee and liquidity model
+
+| Component | Rate | On a $1,000 position |
+|---|---|---|
+| Platform rake | 4.00% of stake | $40.00 |
+| Referral share (to the KOL) | 30% of rake — 1.20% of stake | $12.00 |
+| Net platform revenue | rake − referral | $28.00 |
+| Into the prize pool | stake − rake | $960.00 |
+
+Three bookkeeping buckets are physically separate — `pool.totalNetPool`, `accumulatedAdminFees`,
+`referralFees[kol]` — so no withdrawal path can reach another bucket's money. The invariant is
+asserted in tests:
+
+```
+address(this).balance  ≥  Σ pools.totalNetPool + accumulatedAdminFees + Σ referralFees[kol]
+```
+
+---
+
+## Architecture
+
+```mermaid
+flowchart LR
+  subgraph Chain["Base Mainnet"]
+    C["PredictionArena.sol<br/>escrow · claims · refunds"]
+    U["USDC (ERC-20)"]
+  end
+
+  subgraph Ops["Ops daemon · cron"]
+    G["gen-market / gen-debates<br/>DeepSeek"]
+    A["auto-create-pool<br/>create + seed both sides"]
+    R["ops-refresh<br/>probabilities · TVL · 24h vol"]
+  end
+
+  subgraph Web["Next.js 16 · Vercel"]
+    UI["Markets · Market detail<br/>AI debate · Docs"]
+    M["public/pools.json<br/>public/debates.json"]
+    W["wagmi v2 + RainbowKit"]
+  end
+
+  G --> M
+  A -->|"createPool · seedPool"| C
+  R -->|"eth_call / getLogs"| C
+  R --> M
+  UI --> M
+  W -->|"approve · bet · claim"| C
+  C <-->|"transferFrom / transfer"| U
+```
 
 ```
 prediction-arena/
 ├── contracts/
-│   ├── PredictionArena.sol          # 核心合约（Ownable + ReentrancyGuard + SafeERC20）
-│   └── mocks/MockUSDC.sol           # 仅本地/测试网用 6 位 USDC
+│   ├── PredictionArena.sol        # escrow, settlement, claims, refunds
+│   └── mocks/MockUSDC.sol         # 6-decimal USDC for local/testnet only
 ├── scripts/
-│   ├── deploy.ts                    # 部署 + 可选 Safe 所有权移交
-│   ├── auto-create-pool.ts          # 原子化开盘：createPool + 双边种子 + 失败回滚
-│   ├── settle-pool.ts               # 带证据哈希的结算（sha256 → bytes32）
-│   └── export-abi.ts                # 编译产物 ABI 导出到前端
-├── test/PredictionArena.test.ts     # 23 个用例
-├── frontend/                        # Next 16 + Tailwind v4 + wagmi v2 + RainbowKit
-├── hardhat.config.ts                # solc 0.8.20, optimizer 200, evmVersion paris
-├── .env.example
-└── README.md
+│   ├── deploy.ts                  # deploy + optional Safe ownership handoff
+│   ├── auto-create-pool.ts        # atomic listing: create → approve → seed ×2, rollback on failure
+│   ├── settle-pool.ts             # settlement with sha256 → bytes32 evidence hash
+│   ├── gen-market.ts              # listing generator (kernel, LLM when a key exists)
+│   ├── gen-debates.ts             # three-voice debate generator, per market per language
+│   ├── ops-refresh.ts             # on-chain state → public/pools.json
+│   ├── ops-daemon.sh              # one cron tick: refresh → generate → open → refresh
+│   ├── export-abi.ts              # compile artifacts → typed ABI for the frontend
+│   └── verify-basescan.sh         # source verification (hardhat-verify V2 quirks handled)
+├── test/PredictionArena.test.ts   # 29 cases: accounting, refunds, access control, reverts
+├── frontend/                      # Next 16 · React 19 · Tailwind v4 · wagmi v2
+├── deployments/                   # machine-readable deployment records
+├── docs/branding/                 # PA-MARK-1.0 · avatar · social preview
+├── tools/brand/build-brand.py     # regenerates every brand asset from one source of truth
+└── hardhat.config.ts              # solc 0.8.20 · optimizer 200 · evmVersion paris
 ```
 
-## 部署记录（Base Mainnet）
+### Design decisions worth knowing
 
-| 项 | 值 |
-|---|---|
-| 合约 | `PredictionArena` |
-| 地址 | `0x96c0333657c684Ac125A54a0858471e1c8267355` |
-| 交易 | `0x84e5794b408c3d59e56b2bc0402d1038ed968df78a418e1245e18e0c535e631f` |
-| 区块 | 52896032 |
-| USDC | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`（Base 原生，6 位） |
-| feeVault | `0x9520269b506e02c357a712160979a3237C404fE6` |
-| Owner | `0x436b9d5e6fBd40eC93E881263bE53e59F8755Ba1`（EIP-7702 委托账户） |
-| Gas | 2,268,327 @ 7.338564 gwei = 0.000016646 ETH |
-| 源码验证 | ✅ Basescan 已验证（solc 0.8.20 / 200 runs / paris） |
-| 状态 | ⚠️ **deprecated** —— 已由加固版源码取代（F-01/F-02/F-03 修复），待重新部署 |
+- **Manifest over database.** The frontend reads `public/pools.json` and `public/debates.json`. A
+  refresh is a file write, not a migration — and the site stays up when the ops box is asleep.
+- **Settlement is a claim about the world.** Nothing in the daemon settles a market; `settle()`
+  requires a human authorization plus a non-zero evidence hash.
+- **Seed liquidity is atomic.** `auto-create-pool.ts` seeds both sides in one transaction path and
+  calls `cancelPool()` if either leg fails, so a market can never exist with one empty side.
+- **One flat ceiling.** V2 removed v1's proportional clamp: `maxBetFor()` returns `MAX_BET` for every
+  pool, so a $10,000 ticket is valid from the first block of a market. Seeds are exempt by design —
+  they are the liquidity the cap is measured against, and they are the operator's own capital.
 
-完整机读记录见 `deployments/base-mainnet.json`。
+---
 
-## 资金模型（每笔下注 A）
+## Quick start
 
-| 项目 | 公式 | 100 USDC（带 KOL） |
-|---|---|---|
-| 平台抽水 | A × 400 / 10000 | 4.00 |
-| KOL 返佣 | 抽水 × 3000 / 10000（= A 的 1.2%） | 1.20 |
-| 平台纯利 | 抽水 − 返佣 | 2.80 |
-| 进彩池 | A − 抽水 | 96.00 |
-
-账本不变式（三本账物理隔离，任何提现都碰不到别人的钱）：
-
-```
-balance ≥ Σ pool.totalNetPool + accumulatedAdminFees + Σ referralFees[kol]
-```
-
-## Phase 2 补丁
-
-### 1. 死穴一：结算留痕
-
-`settle(poolId, winningOption, bytes32 ipfsDataHash)`
-
-- 证据哈希同时写入 `Pool.settlementHash`（storage）与 `PoolSettled` 事件（indexed），
-  可永久追溯、可按哈希过滤日志。
-- 零哈希直接 revert（`ZeroDataHash`）：没有证据就不许判决。
-- `scripts/settle-pool.ts` 对证据文件做 sha256 生成 bytes32，结算后回读校验一致。
-- `scripts/deploy.ts` 支持 `SAFE_ADDRESS`：部署后 `transferOwnership(safe)` 并链上回读确认。
-
-### 2. 死穴二：种子流动性防锁死
-
-原规则「单笔 ≤ 弱势侧 20%」在两池各 22.5 USDC 种子时算出 4.5 USDC < 5 USDC 门槛，
-**开盘即锁死**。修复（合约层，不是脚本层绕）：
-
-```solidity
-uint256 public constant BOOTSTRAP_MAX_BET = 50e6;      // 硬编码 50 USDC
-cap = max(weakerSide * 2000 / 10000, BOOTSTRAP_MAX_BET);
-```
-
-- 池深 < 250 USDC 时，单笔上限恒为 50 USDC → 5~50 USDC 散户单全部可过。
-- 池深 ≥ 250 USDC 后百分位保护自动接管（cap = weaker/5），巨鲸仍被夹住。
-- `scripts/auto-create-pool.ts`：createPool → approve → seed(0) → seed(1)，任一种子腿失败自动
-  `cancelPool()` 回滚，绝不留下单边空盘；结束前校验两侧余额 > 0 且 cap ≥ 5 USDC。
-
-## 前端（frontend/）
-
-- Next 16 App Router + Tailwind v4 + TypeScript
-- wagmi v2 / viem / RainbowKit（Base 8453 + Base Sepolia 84532）
-- `src/providers/Web3Provider.tsx`：链、RPC、WalletConnect、黑金主题
-- `src/hooks/usePredictionArena.ts`：`usePools / usePool / useMaxBet / useStake / useBet / useApproveUsdc / useClaimRewards`
-  - `useBet` 自动判定 allowance：不足先 `approve`，确认后再 `bet`，一步到位
-  - 自定义错误翻译成中文（BetExceedsCap / BetBelowMinimum / AlreadyClaimed …）
-- 组件：`Navbar`（分类 Tab + 黑金 ConnectButton）、`AIAgentsDebate`（打字机辩论 + IPFS 校验）、
-  `ArenaCard`（倒计时 / 赔率 / 双向彩池 / 挤压 Banner）、`BetModal`（5 USDC 门槛 + 20% 上限实时提示 + 打包下注）
-- 未配置 `NEXT_PUBLIC_ARENA_ADDRESS` 时自动进入演示模式（本地样例盘口），配置后读链上真实数据。
-- **盘口发现**：合约没有自增 id（poolId 是 owner 选的 unix 时间戳），所以列表只能来自
-  `PoolCreated` 事件。前端按 `public/pools.json` 清单（`bun run scripts/sync-pool-list.ts` 生成，
-  `open-pool-unattended.sh` 开盘后会自动同步）+ 增量日志扫描双路取 id；清单只存 id，
-  状态/金额永远实时读链上。
-- **RPC 注意**：`https://mainnet.base.org` 对 `eth_getLogs` 返回 `-32011 request limit reached`，
-  前端与清单脚本默认用 `https://base-rpc.publicnode.com`（免 key，支持 5,000 块范围）。
-
-## 安全审计
-
-- 白皮书：[`audit/SECURITY-AUDIT-2026-10-21.md`](audit/SECURITY-AUDIT-2026-10-21.md)
-- 复现特权风险 PoC：`bunx hardhat run scripts/audit/poc-owner-privilege.ts`
-- 扫描/测试：`slither .` · `bun run test`（23 passing）· `hardhat coverage`（91% stmt / 94% line）
-
-## 命令
+**Prerequisites** — Node 20+ (built on 26), `bun` for the frontend, and a Base RPC endpoint. No API
+key is required to run the app; the AI layer degrades to the deterministic kernel.
 
 ```bash
-# 合约
-bun install
-bun run compile
-bun run test                     # 23 passing
-bun run e2e:local                # 一体化 E2E：下注→结算→领奖→提现，6/6 断言（用编译产物 ABI）
-bun run deploy:base-sepolia
-bun run deploy:base
-bun run abi:export               # 编译 → frontend/src/lib/contracts/PredictionArena.json
-
-# 开盘 / 结算
-ARENA_ADDRESS=0x... USDC_ADDRESS=0x... TITLE="..." CATEGORY=Macro \
-  bun run pool:auto --network base
-POOL_ID=1 WINNING_OPTION=1 EVIDENCE_FILE=./evidence/pool-1.json \
-  bun run pool:settle --network base
-
-# 无人值守开盘（flock 防并发，日志落 logs/pool-auto-*.log，失败返回非 0）
-bun run pool:auto:unattended
-# crontab 示例：每小时开一个新盘
-# 5 * * * * cd /mnt/c/Users/Administrator/prediction-arena && ./scripts/open-pool-unattended.sh >> logs/cron.log 2>&1
-
-# 前端
-cd frontend
-cp .env.local.example .env.local
-bun install
-bun dev                          # http://localhost:3000
-bun run build
+git clone https://github.com/<owner>/prediction-arena.git
+cd prediction-arena
 ```
 
-## 部署检查清单
+### Contracts
 
-1. `cp .env.example .env`，填 `PRIVATE_KEY` / `FEE_RECEIVER` / `BASE_RPC_URL`（生产用自建 RPC）。
-2. 先 `deploy:base-sepolia` 全流程走一遍（含开盘 + 下注 + 结算 + 领奖）。
-3. 主网部署时设 `SAFE_ADDRESS`，让 Owner 直接落到 Gnosis Safe。
-4. `bun run abi:export` → 前端 `.env.local` 填 `NEXT_PUBLIC_ARENA_ADDRESS`。
-5. `bash scripts/verify-basescan.sh <ARENA>` —— 走 Etherscan V2（`hardhat verify` 2.1.3 会把 chainid 放 body 里，V2 直接拒，报错还是空的）。
+```bash
+npm install
+npx hardhat compile
+npx hardhat test                    # 29 cases
 
-## 仍然存在的中心化风险（未在本期修复）
+cp .env.example .env                # RPC, deployer key, BASESCAN_API_KEY
+npx hardhat run scripts/deploy.ts --network base
+```
 
-- `settle()` 仍是 Owner 单点写结果；下一步接 UMA / Chainlink + 争议期 + 时间锁。
-- `cancelPool()` 可让平台保留已抽的 4%，属于异常兜底路径，需加时间锁与事件告警。
-- 盘口 option 文案（赞成/反对）存在前端，链上只有 0/1；上链 metadata 留给 Phase 3。
+Local end-to-end on a Hardhat node (deploy → open a pool → bet → settle → claim):
+
+```bash
+npx hardhat node                    # terminal 1
+npx hardhat run scripts/e2e-local.ts --network localhost
+```
+
+### Frontend
+
+```bash
+cd frontend
+bun install
+cp .env.local.example .env.local    # fill the values below
+bun run dev                         # http://localhost:3000
+bun run build && bun run start      # production
+```
+
+### Environment variables
+
+Anything prefixed `NEXT_PUBLIC_` is inlined into the client bundle — never put a secret there.
+
+| Variable | Required | Value / purpose |
+|---|---|---|
+| `NEXT_PUBLIC_ARENA_ADDRESS` | ✅ | `0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93` |
+| `NEXT_PUBLIC_CHAIN_ID` | ✅ | `8453` (Base mainnet) |
+| `NEXT_PUBLIC_BASE_RPC_URL` | ✅ | `https://mainnet.base.org` — public endpoints rate-limit `eth_getLogs`; use a dedicated provider under load |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | ✅ | from [cloud.reown.com](https://cloud.reown.com) — without it QR/deep-link wallets stay disabled |
+| `NEXT_PUBLIC_ARENA_DEPLOY_BLOCK` | ✅ | `52935381` — first block scanned for `PoolCreated` |
+| `NEXT_PUBLIC_SITE_URL` | ✅ on deploy | absolute origin; drives `metadataBase` (OG images) and the WalletConnect `appUrl` |
+| `NEXT_PUBLIC_AI_DEBATE` | — | `1` renders the debate surfaces |
+| `DEEPSEEK_API_KEY` | — | ops box only: market + debate generation. Never on the host |
+
+---
+
+## Smart contract (V2)
+
+```solidity
+// contracts/PredictionArena.sol
+function createPool(uint256 poolId, string title, string category, uint256 endTime) external onlyOwner;
+function seedPool(uint256 poolId, uint8 option, uint256 amount) external onlyOwner nonReentrant;
+function bet(uint256 poolId, uint8 option, uint256 amount, address referrer) external nonReentrant;
+function settle(uint256 poolId, uint8 winningOption, bytes32 ipfsDataHash) external onlyOwner nonReentrant;
+function cancelPool(uint256 poolId) external onlyOwner;
+function emergencyRefund(uint256 poolId) external;          // permissionless after 30 days
+function claimRewards(uint256 poolId) external nonReentrant returns (uint256 payout);
+function claimRefund(uint256 poolId) external nonReentrant returns (uint256 refund);
+```
+
+| Constant | Value | Meaning |
+|---|---|---|
+| `PLATFORM_FEE_BPS` | `400` | 4.00% rake on every stake |
+| `REFERRAL_SHARE_BPS` | `3_000` | 30% of the rake to the referrer |
+| `MIN_BET` / `MAX_BET` | `50e6` / `10_000e6` | $50 minimum, $10,000 maximum |
+| `OPTION_COUNT` | `2` | binary markets only |
+| `MAX_POOL_DURATION` | `365 days` | |
+| `EMERGENCY_REFUND_DELAY` | `30 days` | permissionless refund if the operator goes silent |
+
+**Safety posture.** `Ownable` + `ReentrancyGuard` + `SafeERC20` throughout; checks-effects-interactions
+on every value transfer; per-market state machine (`Open → Settled | Cancelled`); settlement requires
+a non-zero evidence hash; `cancelPool()` refunds 100%; fee buckets are isolated from player collateral;
+`emergencyRefund()` is permissionless after the delay so a dormant operator cannot trap funds.
+
+Read [`SECURITY.md`](SECURITY.md) before reporting anything.
+
+---
+
+## Automation
+
+| Command | What it does |
+|---|---|
+| `bash scripts/ops-daemon.sh` | one full tick: refresh manifest → generate listing → open pool on-chain → refresh again |
+| `SKIP_OPEN=1 bash scripts/ops-daemon.sh` | refresh only, never touches the chain |
+| `bash scripts/ops-daemon.sh --dry-run` | generate + refresh, no transactions |
+| `POOL_ID=7 WINNING_OPTION=1 EVIDENCE_FILE=./evidence.json npx hardhat run scripts/settle-pool.ts --network base` | settlement with a content-derived evidence hash |
+| `bash scripts/verify-basescan.sh` | source verification of the deployed contract |
+
+Every tick is fail-soft: a rate-limited RPC or a dry fee wallet logs and exits `0`, so the next tick
+still runs.
+
+---
+
+## Testing
+
+```bash
+npx hardhat test          # 29 contract cases — accounting invariants, refund paths, access control
+npx hardhat coverage      # solidity-coverage report in coverage/
+cd frontend && bun run lint && bun run build
+```
+
+The suite asserts the three-book invariant after every value-moving path, that a cancelled market
+returns exactly 100% of stake, that settlement without evidence reverts, and that non-owners cannot
+create, seed, settle or cancel.
+
+---
+
+## Brand assets
+
+The mark (`PA-MARK-1.0`) is a shielded plate holding two opposing arrows — the two sides of a market —
+crossing at a diamond, the resolution point. Gold is the affirmative side, cyan the negative.
+
+| Asset | Path |
+|---|---|
+| Mark (SVG, source of truth) | `docs/branding/pa-mark.svg` |
+| Repository avatar (1024²) | `docs/branding/avatar-1024.png` |
+| Social preview (1280×640) | `docs/branding/social-preview-1280x640.png` |
+| Regenerate everything | `python3 tools/brand/build-brand.py` |
+
+---
+
+## Contributing
+
+Issues and pull requests are welcome. Keep the accounting invariant intact, add a test for every
+value-moving change, and never introduce a runtime dependency on a model provider in the client
+bundle. Security disclosures go through [`SECURITY.md`](SECURITY.md) — not the issue tracker.
+
+## License
+
+MIT — see [`LICENSE`](LICENSE).
+
+---
+
+<div align="center">
+<sub>Prediction Arena is experimental software interacting with real funds. Markets are resolved by an
+operator key; read the contract before you stake. Nothing here is financial advice.</sub>
+</div>
