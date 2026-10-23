@@ -16,6 +16,8 @@ import {
 import { fallback } from "viem";
 import { base, baseSepolia } from "wagmi/chains";
 import { coinbaseWallet, injected } from "wagmi/connectors";
+import { useI18n } from "@/components/LocaleProvider";
+import type { Locale } from "@/lib/i18n";
 
 const projectId = (process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? "").trim();
 // WalletConnect needs a real 32-char project id; without it we still ship injected +
@@ -72,6 +74,18 @@ const config: Config = hasWalletConnect
       ssr: true,
     });
 
+// RainbowKit brings its own strings for the connect modal. Left unset it follows the
+// browser language, which produced a Chinese modal inside an English page. Map the app's
+// locale onto it so the wallet surface speaks the same language as the rest of the UI.
+const RAINBOW_LOCALES: Record<Locale, string> = {
+  en: "en-US",
+  "zh-TW": "zh-TW",
+  de: "de",
+  fr: "fr",
+  ja: "ja-JP",
+  ko: "ko-KR",
+};
+
 const rainbowTheme = darkTheme({
   accentColor: "#F59E0B",
   accentColorForeground: "#0A0A0C",
@@ -81,6 +95,7 @@ const rainbowTheme = darkTheme({
 });
 
 export function Web3Provider({ children }: { children: ReactNode }) {
+  const { locale } = useI18n();
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -97,7 +112,7 @@ export function Web3Provider({ children }: { children: ReactNode }) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider theme={rainbowTheme} modalSize="compact">
+        <RainbowKitProvider theme={rainbowTheme} modalSize="compact" locale={RAINBOW_LOCALES[locale] as never}>
           {children}
         </RainbowKitProvider>
       </QueryClientProvider>

@@ -85,11 +85,11 @@ export default function RootLayout({
         <div className="bg-stars" aria-hidden />
         <PwaRegister />
         <ChunkReloadGuard />
-        <Web3Provider>
-          <LocaleProvider>
+        <LocaleProvider>
+          <Web3Provider>
             <ToastProvider>{children}</ToastProvider>
-          </LocaleProvider>
-        </Web3Provider>
+          </Web3Provider>
+        </LocaleProvider>
       </body>
     </html>
   );
