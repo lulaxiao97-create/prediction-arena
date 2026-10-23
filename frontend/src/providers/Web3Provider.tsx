@@ -4,6 +4,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 
 import { RainbowKitProvider, connectorsForWallets, darkTheme } from "@rainbow-me/rainbowkit";
 import {
+  binanceWallet,
   bitgetWallet,
   braveWallet,
   coinbaseWallet,
@@ -86,6 +87,7 @@ const connectors = hasWalletConnect
             okxWallet,
             bitgetWallet,
             trustWallet,
+            binanceWallet,
             tokenPocketWallet,
           ],
         },
