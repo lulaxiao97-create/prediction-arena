@@ -13,7 +13,7 @@ import {
   useSwitchChain,
   useWriteContract,
 } from "wagmi";
-import { erc20Abi, isAddress, zeroAddress, type Abi, type Address } from "viem";
+import { createPublicClient, erc20Abi, http, isAddress, zeroAddress, type Abi, type Address } from "viem";
 import { base, baseSepolia } from "wagmi/chains";
 import arenaArtifact from "@/lib/contracts/PredictionArena.json";
 import type { ArenaPool, BetStep } from "@/lib/types";
@@ -191,6 +191,27 @@ export function usePendingRefund(poolId: bigint, user?: Address) {
 const POOL_SCAN_CHUNK = 1_000n;
 const POOL_CACHE_PREFIX = "arena:poolids:";
 
+/**
+ * The log scan gets its own single-endpoint client.
+ *
+ * wagmi's transport is a ranked fallback, and viem re-orders it from live stability scores —
+ * which means a `getLogs` can still be sent to an endpoint that only answers `eth_call`
+ * (base.org replies 429, drpc 400, publicnode 403). Each of those attempts is a red line in
+ * the browser console even though the retry succeeds. The scan is background work on a
+ * separate budget: pin it to the endpoint that actually serves 1,000-block `getLogs` windows.
+ */
+const LOG_RPC_URL = "https://base.gateway.tenderly.co";
+// Typed loosely on purpose: this client is only used for one call shape, and pinning the
+// generic here fights the wagmi-typed `client` in the `??` fallback below for no benefit.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let logClient: any = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getLogClient(): any {
+  if (typeof window === "undefined") return null;
+  logClient ??= createPublicClient({ chain: base, transport: http(LOG_RPC_URL, { retryCount: 0, timeout: 12_000 }) });
+  return logClient;
+}
+
 type PoolIdCache = { ids: string[]; lastBlock: number };
 
 export type PoolManifestEntry = { id: string; title?: string; category?: string; tags?: string[] };
@@ -280,7 +301,7 @@ export function useChainPoolIds() {
             let failed = false;
             for (let attempt = 0; attempt < 3; attempt++) {
               try {
-                logs = (await client.getContractEvents({
+                logs = (await (getLogClient() ?? client).getContractEvents({
                   address: ARENA_ADDRESS,
                   abi: ARENA_ABI,
                   eventName: "PoolCreated",
@@ -294,10 +315,11 @@ export function useChainPoolIds() {
               }
             }
             if (failed) break; // stop scanning; manifest + cache still serve the list
-            // Space the windows out: a cold visit scans ~24 chunks and a public gateway
-            // answers a burst with 429. The scan is background work, so 120ms per window
-            // costs a couple of seconds once and keeps the console clean.
-            await sleep(120);
+            // Space the windows out: a cold visit scans ~24 one-thousand-block windows, and
+            // the public gateway answers more than ~3 requests/second with 429. 350ms keeps
+            // the scan under that ceiling — it is background work, so the extra seconds cost
+            // nothing the user can see, and no request fails into the console.
+            await sleep(350);
             for (const log of logs) {
               const id = log?.args?.poolId as bigint | undefined;
               if (id !== undefined) seen.add(id.toString());
