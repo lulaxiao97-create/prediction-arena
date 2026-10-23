@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAccount } from "wagmi";
@@ -27,6 +27,7 @@ import {
   sideShare,
 } from "@/lib/format";
 import { categoryI18nKey } from "@/lib/categories";
+import { useMounted } from "@/hooks/useMounted";
 import { CategoryCover } from "@/components/CategoryCover";
 import { themeFor } from "@/lib/visuals";
 import { useI18n } from "@/components/LocaleProvider";
@@ -50,8 +51,7 @@ export function MarketCard({
   index?: number;
 }) {
   const { t } = useI18n();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useMounted();
 
   const share0 = useMemo(() => sideShare(pool.option0Pool, pool.option1Pool), [pool]);
   const share1 = 1 - share0;

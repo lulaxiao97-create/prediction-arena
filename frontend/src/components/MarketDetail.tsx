@@ -26,6 +26,7 @@ import { ActivityLog } from "@/components/ActivityLog";
 import { useMarkets } from "@/hooks/useMarkets";
 import { ShareActions } from "@/components/ShareActions";
 import { DemoBadge } from "@/components/DemoBadge";
+import { useMounted } from "@/hooks/useMounted";
 import { AGENTS } from "@/lib/mock-data";
 import { activityFor, metaFor, probabilitySeries } from "@/lib/markets";
 import { categoryI18nKey, type MarketCategory } from "@/lib/categories";
@@ -69,7 +70,11 @@ export function MarketDetail({ id }: { id: string }) {
     [pool?.id, pool?.category, pool?.title, pool?.totalNetPool, meta.category, meta.title, share0]
   );
   const { lines: debate, source: debateSource, stale: debateStale, staleReason, cachedBand } = useAiDebate(debateInput);
-  const cd = pool ? countdown(pool.endTime) : null;
+  // Countdown and "ends at" are the two values that can differ between the server render
+  // (UTC clock, build-time manifest) and the browser (local clock, local time zone). Both are
+  // gated so the hydrated markup matches and the real values fill in on the next frame.
+  const mounted = useMounted();
+  const cd = pool && mounted ? countdown(pool.endTime) : null;
 
   const TABS: { id: Tab; label: string }[] = [
     { id: "overview", label: t("tabs.overview") },
@@ -146,7 +151,7 @@ export function MarketDetail({ id }: { id: string }) {
                 <Metric label={t("detail.probability")} value={formatProbability(share0)} tone="profit" />
                 <Metric label={t("detail.liquidity")} value={`$${formatCompactUsdc(pool.totalNetPool)}`} />
                 <Metric label={t("detail.traders")} value={(pool.traders ?? 0).toLocaleString("en-US")} />
-                <Metric label={t("detail.ends")} value={formatEndDate(pool.endTime)} />
+                <Metric label={t("detail.ends")} value={mounted ? formatEndDate(pool.endTime) : "—"} />
               </div>
 
               <ShareActions

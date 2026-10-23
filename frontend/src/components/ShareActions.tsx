@@ -7,6 +7,7 @@ import { copyText, marketUrl, tweetIntent } from "@/lib/share";
 import { select, success } from "@/lib/haptics";
 import { useI18n } from "@/components/LocaleProvider";
 import { useToast } from "@/components/Toast";
+import { useMounted } from "@/hooks/useMounted";
 
 /** X's mark (simple-icons path; lucide has no brand glyph). */
 function XIcon({ className }: { className?: string }) {
@@ -40,6 +41,12 @@ export function ShareActions({
 
   const url = useMemo(() => marketUrl(marketId), [marketId]);
   const intent = useMemo(() => tweetIntent({ title, yes, no, url }), [title, yes, no, url]);
+  // The tweet text embeds the live probability, and the market's pools are refreshed on the
+  // client right after mount — so the server's href and the browser's would differ in the
+  // percentages. Until mount, the anchor points at the market itself; from the first effect
+  // on it carries the intent. Both sides then render the same attribute on the hydration pass.
+  const mounted = useMounted();
+  const shareHref = mounted ? intent : url;
 
   const onCopy = useCallback(async () => {
     select();
@@ -62,7 +69,7 @@ export function ShareActions({
     return (
       <div className={cn("flex items-center gap-1.5", className)}>
         <a
-          href={intent}
+          href={shareHref}
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => select()}
@@ -87,7 +94,7 @@ export function ShareActions({
   return (
     <div className={cn("flex items-center gap-2", className)}>
       <a
-        href={intent}
+        href={shareHref}
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => select()}

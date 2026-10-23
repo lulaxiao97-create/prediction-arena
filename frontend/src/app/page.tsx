@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ArrowRight,
   BadgeCheck,
@@ -33,9 +33,6 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("volume");
   const [selected, setSelected] = useState<{ pool: ArenaPool; option: 0 | 1 } | null>(null);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
 
   const { pools, stats, featured, loading } = useMarkets();
 

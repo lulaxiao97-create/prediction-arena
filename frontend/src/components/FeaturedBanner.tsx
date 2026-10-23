@@ -8,11 +8,15 @@ import { categoryI18nKey } from "@/lib/categories";
 import { CategoryCover } from "@/components/CategoryCover";
 import { themeFor } from "@/lib/visuals";
 import { useI18n } from "@/components/LocaleProvider";
+import { useMounted } from "@/hooks/useMounted";
 
 export function FeaturedBanner({ pool, onBet }: { pool: ArenaPool; onBet: (pool: ArenaPool, option: 0 | 1) => void }) {
   const { t } = useI18n();
+  // `countdown()` reads the wall clock, so it may only run after hydration — otherwise the
+  // server's "2d 04h 12m" and the client's "2d 04h 11m" disagree and React throws #418.
+  const mounted = useMounted();
   const share0 = sideShare(pool.option0Pool, pool.option1Pool);
-  const cd = countdown(pool.endTime);
+  const cd = mounted ? countdown(pool.endTime) : null;
   const href = `/market/${pool.id.toString()}`;
 
   return (
@@ -56,7 +60,7 @@ export function FeaturedBanner({ pool, onBet }: { pool: ArenaPool; onBet: (pool:
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Clock3 className="size-3" />
-              <span className="mono">{cd.ended ? "Ended" : formatCountdown(cd)}</span>
+              <span className="mono">{cd ? (cd.ended ? "Ended" : formatCountdown(cd)) : "—"}</span>
             </span>
           </div>
 
