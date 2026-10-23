@@ -62,7 +62,14 @@ export function PortfolioDrawer({ open, onClose }: { open: boolean; onClose: () 
   );
 
   const { data, refetch, isFetching } = useReadContracts({
-    contracts: contracts as any,
+    // Three different reads per pool share one array, so the union wagmi infers is not
+    // assignable to its own `contracts` parameter. The shape below is that union.
+    contracts: contracts as unknown as ReadonlyArray<{
+      address: Address;
+      abi: typeof ARENA_ABI;
+      functionName: string;
+      args: readonly unknown[];
+    }>,
     query: { enabled: Boolean(open && address && hasArena && chainPools.length > 0), refetchInterval: 20_000 },
   });
 
