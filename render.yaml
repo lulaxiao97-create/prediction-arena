@@ -1,0 +1,36 @@
+# Render blueprint — one-click production deploy of the arena frontend.
+#
+# Render has no phone or card requirement on the free plan and runs the app on a
+# plain Node runtime (`next start`), so no framework adapter sits between the
+# build and the server. The committed `render.yaml` is the deploy contract: a
+# blueprint deploy reads it instead of hand-entering settings in the dashboard.
+services:
+  - type: web
+    name: prediction-arena
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: frontend
+    buildCommand: npm install --no-audit --no-fund && npm run build
+    startCommand: npx next start -p $PORT
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      - key: NEXT_PUBLIC_ARENA_ADDRESS
+        value: 0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93
+      - key: NEXT_PUBLIC_CHAIN_ID
+        value: "8453"
+      - key: NEXT_PUBLIC_BASE_RPC_URL
+        value: https://mainnet.base.org
+      - key: NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
+        value: 41ec5b26b8200a989dcb0da5a1fc33d9
+      - key: NEXT_PUBLIC_ARENA_DEPLOY_BLOCK
+        value: "52935381"
+      - key: NEXT_PUBLIC_AI_DEBATE
+        value: "1"
+      - key: NEXT_PUBLIC_SITE_URL
+        sync: false
