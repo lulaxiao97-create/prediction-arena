@@ -12,13 +12,9 @@ typechain-types/
 *.log
 .DS_Store
 
-# runtime artifacts (daemon output, generator handoff, refresh snapshots)
-logs/*.json
-logs/*.log
-logs/auto-pool-*.log
-logs/.notify-*
+# runtime artifacts (daemon output, generator handoff, refresh snapshots, locks)
+logs/
 PUBLIC_URL.txt
-logs/tunnel*.log
 
 # internal working notes — not part of the public repository
 HANDOFF.md
