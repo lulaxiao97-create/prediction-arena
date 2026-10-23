@@ -143,7 +143,7 @@ flowchart LR
     R["ops-refresh<br/>probabilities · TVL · 24h vol"]
   end
 
-  subgraph Web["Next.js 16 · Vercel"]
+  subgraph Web["Next.js 16 · Node host"]
     UI["Markets · Market detail<br/>AI debate · Docs"]
     M["public/pools.json<br/>public/debates.json"]
     W["wagmi v2 + RainbowKit"]
@@ -296,6 +296,30 @@ Every tick is fail-soft: a rate-limited RPC or a dry fee wallet logs and exits `
 still runs.
 
 ---
+
+## Deployment
+
+The live site runs on **Render** (plain Node, `next start`) because the account had to be created
+without a phone-verification step, which Vercel requires. The wiring is committed as code, not
+clicked together in a dashboard:
+
+| Piece | Where |
+|---|---|
+| Service definition | `render.yaml` — root dir `frontend`, `npm install && npm run build`, `next start -p $PORT`, free plan, Oregon |
+| Env vars | declared in `render.yaml`; `NEXT_PUBLIC_SITE_URL` pins the absolute origin used by OG tags and the WalletConnect `appUrl` |
+| Continuous deploy | `.github/workflows/ci.yml` runs contract tests + frontend lint/build, then POSTs the Render deploy hook on `main` |
+| DNS / TLS | Render terminates TLS on `https://prediction-arena-81d9.onrender.com` |
+
+```bash
+# same thing locally, exactly as the host runs it
+cd frontend && npm install && npm run build && npx next start -p 3000
+```
+
+Vercel remains supported (`frontend/vercel.json`, root directory `frontend`) for anyone who can
+complete its verification step; nothing in the app is Render-specific.
+
+> The free Render instance sleeps after inactivity, so the first request after a quiet period pays a
+> ~50 s cold start. Upgrade the plan or move to a paid tier before promoting the URL widely.
 
 ## Testing
 

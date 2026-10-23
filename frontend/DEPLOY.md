@@ -1,7 +1,11 @@
 # Deploying Prediction Arena
 
-Production checklist for a public deployment of `frontend/`. Everything here assumes the Vercel
-(or Netlify / Cloudflare Pages / any Node host) build runs from the repo root.
+Production checklist for a public deployment of `frontend/`.
+
+**Currently live on Render** — `render.yaml` at the repo root is the source of truth for that deploy
+(root dir `frontend`, `npm install && npm run build`, `npx next start -p $PORT`), and CI triggers the
+deploy hook on every push to `main`. The Vercel path below is kept for hosts that can complete
+Vercel's verification step; nothing in the app is host-specific.
 
 ---
 
