@@ -27,9 +27,9 @@ export function WalletButton() {
             {(() => {
               if (!connected) {
                 return (
-                  <button onClick={openConnectModal} className="btn-gold px-4 py-2 text-[13px]">
-                    <Wallet className="size-4" />
-                    {t("nav.connect")}
+                  <button onClick={openConnectModal} className="btn-gold shrink-0 px-3 py-2 text-[13px] sm:px-4">
+                    <Wallet className="size-4 shrink-0" />
+                    <span className="hidden sm:inline">{t("nav.connect")}</span>
                   </button>
                 );
               }
@@ -52,7 +52,7 @@ export function WalletButton() {
                     <span className="size-1.5 rounded-full bg-profit shadow-[0_0_8px_2px_rgba(16,185,129,0.55)]" />
                     {chain.name}
                   </button>
-                  <button onClick={openAccountModal} className="btn-ghost px-3 py-2 text-[13px]">
+                  <button onClick={openAccountModal} className="btn-ghost shrink-0 px-2.5 py-2 text-[13px] sm:px-3">
                     <span className="size-5 rounded-full bg-gradient-to-br from-gold-bright to-gold-deep" />
                     <span className="mono">{shortAddr(account.address)}</span>
                   </button>

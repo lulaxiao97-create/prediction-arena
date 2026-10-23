@@ -33,6 +33,12 @@
   html,
   body {
     height: 100%;
+    max-width: 100vw;
+    /* `clip` (not `hidden`) clamps the layout to the viewport without turning <html> into a
+       scroll container, which would break the sticky header on iOS Safari. Off-canvas panels
+       (portfolio drawer, sheet edges) and decorative glow layers are then genuinely invisible
+       to the scroll box instead of widening documentElement.scrollWidth. */
+    overflow-x: clip;
   }
 
   body {
@@ -47,7 +53,6 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    overflow-x: hidden;
   }
 
   ::selection {

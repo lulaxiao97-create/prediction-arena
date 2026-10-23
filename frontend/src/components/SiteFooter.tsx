@@ -6,6 +6,7 @@ import { useI18n } from "@/components/LocaleProvider";
 import { Logo } from "@/components/Logo";
 import { ARENA_ADDRESS } from "@/lib/docs";
 import { explorerAddress, shortAddr } from "@/lib/format";
+import { GITHUB_REPO } from "@/components/GitHubLink";
 
 /** Brand marks (lucide dropped them) — official simple-icons paths. */
 function BrandIcon({ d, className }: { d: string; className?: string }) {
@@ -27,7 +28,7 @@ const PATHS = {
 };
 
 const COMMUNITY = [
-  { label: "GitHub", href: "https://github.com", path: PATHS.github },
+  { label: "GitHub", href: GITHUB_REPO, path: PATHS.github },
   { label: "X / Twitter", href: "https://x.com", path: PATHS.x },
   { label: "Discord", href: "https://discord.com", path: PATHS.discord },
   { label: "Telegram", href: "https://telegram.org", path: PATHS.telegram },
@@ -76,7 +77,7 @@ export function SiteFooter() {
                 <a
                   href={explorerAddress(ARENA_ADDRESS)}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-muted transition-colors hover:text-gold-bright"
                 >
                   {t("footer.contract")} {shortAddr(ARENA_ADDRESS, 4)}

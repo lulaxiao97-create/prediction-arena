@@ -11,6 +11,7 @@ import { useI18n } from "@/components/LocaleProvider";
 import { LocaleSwitcher } from "@/components/LocaleProvider";
 import { PortfolioDrawer } from "@/components/PortfolioDrawer";
 import { LogoLockup } from "@/components/Logo";
+import { GitHubNavLink } from "@/components/GitHubLink";
 
 const WalletButton = dynamic(() => import("@/components/WalletButton").then((m) => m.WalletButton), {
   ssr: false,
@@ -43,7 +44,12 @@ export function Navbar({
       <div className="mx-auto flex h-[68px] w-full max-w-[1400px] items-center gap-3 px-4 sm:px-6">
         {/* brand */}
         <Link href="/" className="group flex shrink-0 items-center" aria-label="Prediction Arena">
-          <LogoLockup size={36} subtitle={t("nav.poweredBy")} subtitleClassName="hidden 2xl:block" />
+          <LogoLockup
+            size={36}
+            subtitle={t("nav.poweredBy")}
+            subtitleClassName="hidden 2xl:block"
+            wordmarkClassName="hidden sm:flex"
+          />
         </Link>
 
         {/* primary navigation */}
@@ -67,13 +73,13 @@ export function Navbar({
           ))}
         </nav>
 
-        <div className="ml-auto flex shrink-0 items-center gap-2">
+        <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
           <a
             href="https://basescan.org"
             target="_blank"
             rel="noreferrer"
             title="Open Base explorer"
-            className="hidden items-center gap-1.5 rounded-full border border-white/8 bg-white/[0.03] px-2.5 py-1.5 text-[11px] text-muted transition-colors hover:border-profit/40 hover:text-ink lg:flex"
+            className="hidden shrink-0 items-center gap-1.5 rounded-full border border-white/8 bg-white/[0.03] px-2.5 py-1.5 text-[11px] text-muted transition-colors hover:border-profit/40 hover:text-ink lg:flex"
           >
             <Activity className="size-3 text-profit" />
             <span className="size-1.5 rounded-full bg-profit shadow-[0_0_8px_2px_rgba(16,185,129,0.5)]" />
@@ -82,11 +88,12 @@ export function Navbar({
           <button
             onClick={() => setPortfolioOpen(true)}
             aria-haspopup="dialog"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.03] px-2.5 py-2 text-[12px] text-muted transition-colors hover:border-gold/40 hover:bg-gold/8 hover:text-gold-bright active:scale-[0.98]"
+            className="hidden shrink-0 items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.03] px-2.5 py-2 text-[12px] text-muted transition-colors hover:border-gold/40 hover:bg-gold/8 hover:text-gold-bright active:scale-[0.98] sm:inline-flex"
           >
             <Briefcase className="size-3.5" />
             <span className="hidden xl:inline">{t("portfolio.title")}</span>
           </button>
+          <GitHubNavLink />
           <LocaleSwitcher />
           <WalletButton />
         </div>
@@ -94,7 +101,7 @@ export function Navbar({
 
       {/* category rail — markets page only */}
       {onMarkets && onChange && (
-        <div className="no-scrollbar flex gap-1 overflow-x-auto border-t border-white/[0.04] px-4 py-2">
+        <div className="no-scrollbar flex w-full min-w-0 max-w-full gap-1 overflow-x-auto overscroll-x-contain border-t border-white/[0.04] px-4 py-2">
           {CATEGORY_TABS.map((tab) => (
             <button
               key={tab.id}

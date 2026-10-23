@@ -120,16 +120,19 @@ export function LogoLockup({
   subtitle,
   subtitleClassName,
   className,
+  wordmarkClassName,
 }: {
   size?: number;
   subtitle?: string;
   subtitleClassName?: string;
   className?: string;
+  /** Lets a host hide the wordmark at narrow widths and keep only the mark. */
+  wordmarkClassName?: string;
 }) {
   return (
     <span className={cn("flex items-center gap-2.5", className)}>
       <Logo size={size} />
-      <span className="flex flex-col leading-none">
+      <span className={cn("flex flex-col leading-none", wordmarkClassName)}>
         <span className="gold-text text-[15px] font-semibold tracking-[0.04em]">Prediction Arena</span>
         {subtitle && (
           <span className={cn("mt-1 text-[9px] font-medium tracking-[0.02em] text-muted/80", subtitleClassName)}>

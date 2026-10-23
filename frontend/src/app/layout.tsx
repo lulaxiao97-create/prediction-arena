@@ -6,6 +6,7 @@ import { LocaleProvider } from "@/components/LocaleProvider";
 import { ToastProvider } from "@/components/Toast";
 import { ChunkReloadGuard } from "@/components/ChunkReloadGuard";
 import { PwaRegister } from "@/components/PwaRegister";
+import { Warmup } from "@/components/Warmup";
 
 // Absolute origin for OG/canonical URLs and the WalletConnect appUrl. Production sets this
 // from the host environment; the localhost default keeps `next dev` honest instead of
@@ -83,7 +84,12 @@ export default function RootLayout({
         <div className="bg-mesh" aria-hidden />
         <div className="bg-grid" aria-hidden />
         <div className="bg-stars" aria-hidden />
+        {/* React 19 hoists these into <head>: the two RPC hosts the wallet reads through,
+            so the first eth_call does not pay a TLS handshake on top of the cold start. */}
+        <link rel="preconnect" href="https://base-rpc.publicnode.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://mainnet.base.org" />
         <PwaRegister />
+        <Warmup />
         <ChunkReloadGuard />
         <LocaleProvider>
           <Web3Provider>

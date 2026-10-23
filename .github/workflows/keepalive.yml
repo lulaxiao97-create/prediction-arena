@@ -1,0 +1,27 @@
+name: Keep-alive
+
+# Render's free plan sleeps an instance after ~15 minutes without traffic, and a sleeping
+# instance answers the next visitor with a ~50s cold start. A cheap ping every 10 minutes
+# keeps the production instance resident. This is the half of warm-up that a browser cannot
+# do: it covers the first request of a session, before any of our JS is running.
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wake the production instance
+        run: |
+          set -euo pipefail
+          URL="https://prediction-arena-81d9.onrender.com/api/ping"
+          for attempt in 1 2 3; do
+            code=$(curl -sS -o /tmp/ping.json -w "%{http_code}" --max-time 90 "$URL" || true)
+            echo "attempt $attempt -> HTTP $code"
+            if [ "$code" = "200" ]; then cat /tmp/ping.json; echo; exit 0; fi
+            sleep 20
+          done
+          echo "keep-alive ping failed after 3 attempts"
+          exit 1

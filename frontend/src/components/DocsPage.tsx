@@ -29,6 +29,7 @@ import {
   type DocLang,
 } from "@/lib/docs";
 import { cn, explorerAddress } from "@/lib/format";
+import { GITHUB_REPO, GitHubDocsLink, GitHubIcon } from "@/components/GitHubLink";
 
 export function DocsPage({ slug }: { slug?: string[] }) {
   const { t, locale } = useI18n();
@@ -126,6 +127,9 @@ export function DocsPage({ slug }: { slug?: string[] }) {
                 ))}
               </div>
             </div>
+            <div className="mt-2.5">
+              <GitHubDocsLink />
+            </div>
           </aside>
 
           {/* article */}
@@ -147,6 +151,15 @@ export function DocsPage({ slug }: { slug?: string[] }) {
                   {Math.max(2, Math.round((doc.body[lang].reduce((n, b) => n + (b.kind === "p" ? b.text.length : 80), 0)) / 900))}
                   &nbsp;{t("docs.readTime")}
                 </span>
+                <a
+                  href={GITHUB_REPO}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-auto inline-flex items-center gap-1 text-muted/70 transition-colors hover:text-gold-bright"
+                >
+                  <GitHubIcon className="size-3" />
+                  <span>Source</span>
+                </a>
               </div>
 
               {locale !== "en" && locale !== "zh-TW" && (
