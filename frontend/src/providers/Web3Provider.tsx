@@ -13,6 +13,7 @@ import {
   http,
   type Config,
 } from "wagmi";
+import { fallback } from "viem";
 import { base, baseSepolia } from "wagmi/chains";
 import { coinbaseWallet, injected } from "wagmi/connectors";
 
@@ -28,6 +29,20 @@ const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "").trim();
 const rpcBase = process.env.NEXT_PUBLIC_BASE_RPC_URL || "https://mainnet.base.org";
 const rpcBaseSepolia = process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org";
 
+// The configured endpoint stays first, but Base's public gateway answers browser-originated
+// calls with HTTP 429 under any real load ("request limit reached" on eth_getLogs). A plain
+// http() therefore leaves the page unable to read stakes or rewards. `fallback` keeps the
+// configured URL authoritative and rotates to community endpoints only when it fails.
+const baseTransport = fallback([
+  http(rpcBase),
+  http("https://base-rpc.publicnode.com"),
+  http("https://base.llamarpc.com"),
+]);
+const baseSepoliaTransport = fallback([
+  http(rpcBaseSepolia),
+  http("https://base-sepolia-rpc.publicnode.com"),
+]);
+
 const chains = [base, baseSepolia] as const;
 
 const config: Config = hasWalletConnect
@@ -39,8 +54,8 @@ const config: Config = hasWalletConnect
       chains,
       ssr: true,
       transports: {
-        [base.id]: http(rpcBase),
-        [baseSepolia.id]: http(rpcBaseSepolia),
+        [base.id]: baseTransport,
+        [baseSepolia.id]: baseSepoliaTransport,
       },
     })
   : createConfig({
@@ -50,8 +65,8 @@ const config: Config = hasWalletConnect
       // getDefaultConfig handles it above).
       connectors: [injected({ shimDisconnect: true }), coinbaseWallet({ appName: "Prediction Arena" })],
       transports: {
-        [base.id]: http(rpcBase),
-        [baseSepolia.id]: http(rpcBaseSepolia),
+        [base.id]: baseTransport,
+        [baseSepolia.id]: baseSepoliaTransport,
       },
       storage: createStorage({ storage: cookieStorage }),
       ssr: true,
