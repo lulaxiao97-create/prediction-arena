@@ -52,3 +52,16 @@ jobs:
           NEXT_PUBLIC_SITE_URL: "https://prediction-arena-81d9.onrender.com"
           NEXT_PUBLIC_AI_DEBATE: "1"
           NEXT_TELEMETRY_DISABLED: "1"
+
+  deploy:
+    name: Deploy · Render
+    needs: [contracts, frontend]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger the production deploy hook
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then echo "RENDER_DEPLOY_HOOK secret is not set"; exit 1; fi
+          curl -fsS -X POST "$HOOK"
