@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -12,13 +11,11 @@ import { LocaleSwitcher } from "@/components/LocaleProvider";
 import { PortfolioDrawer } from "@/components/PortfolioDrawer";
 import { LogoLockup } from "@/components/Logo";
 import { GitHubNavLink } from "@/components/GitHubLink";
-
-const WalletButton = dynamic(() => import("@/components/WalletButton").then((m) => m.WalletButton), {
-  ssr: false,
-  loading: () => (
-    <span className="inline-flex h-9 w-28 animate-pulse rounded-xl border border-gold/20 bg-gold/10" />
-  ),
-});
+// Imported directly, not via `dynamic(..., { ssr: false })`: that left the header stuck on a
+// loading skeleton whenever the lazily-loaded chunk did not resolve, and a connect button that
+// sometimes never appears is worse than one render more of markup. RainbowKit's
+// `ConnectButton.Custom` gates itself on `mounted`, so SSR is safe.
+import { WalletButton } from "@/components/WalletButton";
 
 export function Navbar({
   active = "all",
