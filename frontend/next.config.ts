@@ -14,6 +14,18 @@ const nextConfig: NextConfig = {
   // Experimental Cache Components / partial prefetching were scaffolded by create-next-app
   // but break client hydration for this fully client-driven dApp under `next dev`
   // (page renders, React never attaches). Keep them off until they are stable.
+  // Serve the WalletConnect verification token from a route handler, ahead of the filesystem:
+  // the handler prefers WALLETCONNECT_DOMAIN_VERIFICATION over the committed file, and Next's
+  // static handler does not guarantee dot-directories under public/.
+  async rewrites() {
+    return {
+      beforeFiles: [
+        { source: "/.well-known/walletconnect.txt", destination: "/api/well-known/walletconnect" },
+      ],
+      afterFiles: [],
+      fallback: [],
+    };
+  },
   turbopack: {
     // The monorepo root also has a bun.lock (Hardhat side); keep the frontend as the root.
     root: process.cwd(),

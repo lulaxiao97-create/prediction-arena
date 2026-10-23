@@ -309,6 +309,7 @@ clicked together in a dashboard:
 | Env vars | declared in `render.yaml`; `NEXT_PUBLIC_SITE_URL` pins the absolute origin used by OG tags and the WalletConnect `appUrl` |
 | Continuous deploy | `.github/workflows/ci.yml` runs contract tests + frontend lint/build, then POSTs the Render deploy hook on `main` |
 | DNS / TLS | Render terminates TLS on `https://prediction-arena-81d9.onrender.com` |
+| WalletConnect domain | origin allowlisted in Reown project `41ec…33d9`; `/.well-known/walletconnect.txt` is served by a route handler that prefers `WALLETCONNECT_DOMAIN_VERIFICATION` over the committed file |
 
 ```bash
 # same thing locally, exactly as the host runs it
