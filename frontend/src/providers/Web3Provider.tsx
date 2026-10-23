@@ -50,16 +50,16 @@ const rpcBaseSepolia = process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL || "https://
  * (probed from this app's own origin), not by reputation: llamarpc fails its preflight and
  * 1rpc/blockpi reject keyless calls, so neither is in the list.
  */
-const baseTransport = fallback(
-  [
-    http(rpcBase, { retryCount: 1, timeout: 12_000 }),
-    http("https://base.drpc.org", { retryCount: 1, timeout: 12_000 }),
-    http("https://base.gateway.tenderly.co", { retryCount: 1, timeout: 12_000 }),
-    http("https://base-rpc.publicnode.com", { retryCount: 1, timeout: 12_000 }),
-  ],
-  // Try the next endpoint quickly: a 429 on the first should not cost the user a 30s wait.
-  { rank: false, retryCount: 1 }
-);
+const baseTransport = fallback([
+  // The configured endpoint stays authoritative for ordinary reads.
+  http(rpcBase, { retryCount: 1, timeout: 12_000 }),
+  // Then, in the order measured from this origin with eth_getLogs (the call the market
+  // scanner actually makes): tenderly answers, drpc rejects the block range with 400,
+  // publicnode refuses this class of client with 403.
+  http("https://base.gateway.tenderly.co", { retryCount: 1, timeout: 12_000 }),
+  http("https://base.drpc.org", { retryCount: 1, timeout: 12_000 }),
+  http("https://base-rpc.publicnode.com", { retryCount: 1, timeout: 12_000 }),
+]);
 const baseSepoliaTransport = fallback([
   http(rpcBaseSepolia, { retryCount: 1, timeout: 12_000 }),
   http("https://base-sepolia-rpc.publicnode.com", { retryCount: 1, timeout: 12_000 }),
