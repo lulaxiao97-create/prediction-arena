@@ -48,6 +48,13 @@ Two things make it more than another betting pool:
 2. **An ops daemon that runs the venue.** Market generation, pool creation, seed liquidity,
    probability refresh and settlement reporting run as one autonomous cron tick. The site reads a
    manifest, not a centralized database.
+3. **A board struck against live numbers, not a template.** Every price market is generated from a
+   public snapshot — Binance 24h tickers for BTC/ETH/SOL, CoinGecko for the Base tokens and the
+   global cap, DefiLlama for Base/Ethereum/Solana TVL — and the strike is the next round level above
+   spot. Yes-shares come from a digital-option model over the distance to that strike, so a target
+   20% away never opens at 50%. Seven lanes (`Crypto & Macro`, `DeFi & L2`, `AI & Web3 Tech`,
+   `Memes & Culture`, `Sports & Esports`, `Politics & Policy`, `Base Ecosystem`) are rebuilt, expired
+   markets dropped, and the result republished on a cron.
 
 The interface is a **Deep Ocean / Obsidian Glass** system: near-black canvas, layered aurora glow,
 glass panels, hairline borders, and a mobile-first trading drawer.
@@ -171,7 +178,11 @@ prediction-arena/
 │   ├── gen-market.ts              # listing generator (kernel, LLM when a key exists)
 │   ├── gen-debates.ts             # three-voice debate generator, per market per language
 │   ├── ops-refresh.ts             # on-chain state → public/pools.json
-│   ├── ops-daemon.sh              # one cron tick: refresh → generate → open → refresh
+│   ├── fetch-prices.ts            # Binance + CoinGecko + DefiLlama → public/prices.json
+│   ├── gen-board.ts               # live snapshot → 30+ markets across the seven lanes
+│   ├── refresh-board.sh           # prices → board (called by the daemon and its own cron)
+│   ├── publish-board.sh           # commit + push the refreshed board so Render rebuilds
+│   ├── ops-daemon.sh              # one cron tick: prices → board → refresh → generate → open
 │   ├── export-abi.ts              # compile artifacts → typed ABI for the frontend
 │   └── verify-basescan.sh         # source verification (hardhat-verify V2 quirks handled)
 ├── test/PredictionArena.test.ts   # 29 cases: accounting, refunds, access control, reverts
@@ -287,7 +298,10 @@ Read [`SECURITY.md`](SECURITY.md) before reporting anything.
 
 | Command | What it does |
 |---|---|
-| `bash scripts/ops-daemon.sh` | one full tick: refresh manifest → generate listing → open pool on-chain → refresh again |
+| `bash scripts/fetch-prices.ts` (via node) | pull the live snapshot: Binance / CoinGecko / DefiLlama |
+| `bash scripts/refresh-board.sh` | prices → regenerate the whole board, drop expired markets |
+| `bash scripts/publish-board.sh` | refresh + commit + push the data files so production rebuilds |
+| `bash scripts/ops-daemon.sh` | one full tick: prices → board → refresh manifest → generate listing → open pool on-chain → refresh again |
 | `SKIP_OPEN=1 bash scripts/ops-daemon.sh` | refresh only, never touches the chain |
 | `bash scripts/ops-daemon.sh --dry-run` | generate + refresh, no transactions |
 | `POOL_ID=7 WINNING_OPTION=1 EVIDENCE_FILE=./evidence.json npx hardhat run scripts/settle-pool.ts --network base` | settlement with a content-derived evidence hash |
