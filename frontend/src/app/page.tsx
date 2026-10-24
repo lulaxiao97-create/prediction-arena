@@ -88,7 +88,26 @@ export default function Home() {
     return sorted;
   }, [pools, category, query, sort, mounted]);
 
-  const showFeatured = featured && featured.status === 1 && category === "all" && query.trim() === "";
+  /**
+   * Hero resolution.
+   *
+   * The old rule only rendered the banner when the tab was "all" and nothing was searched, so
+   * every category tab fell through to a static promo block — a black hole where the market
+   * should be. The hero now always resolves to a real, tradeable market:
+   *   1. the editorially featured market, when it is inside the current view;
+   *   2. otherwise the first market of the current tab (the list is already filtered + sorted,
+   *      so under "Ending Soon" this is the market that resolves next).
+   * Only a genuinely empty result set (a search with no hits) yields no hero, and that case
+   * renders an honest "nothing matches" card rather than the marketing copy.
+   */
+  const hero = useMemo(() => {
+    if (!filtered.length) return null;
+    if (featured && featured.status === 1 && filtered.some((p) => p.id === featured.id)) {
+      return { pool: featured, auto: false };
+    }
+    const open = filtered.find((p) => p.status === 1) ?? filtered[0];
+    return { pool: open, auto: true };
+  }, [filtered, featured]);
 
   return (
     <div className="min-h-screen">
@@ -98,14 +117,27 @@ export default function Home() {
       <main className="mx-auto max-w-[1400px] px-4 pb-10 pt-5 sm:px-6">
         {/* ── featured + dashboard ───────────────────────────────── */}
         <div className="grid gap-4 xl:grid-cols-[1.6fr_1fr]">
-          {showFeatured && featured ? (
-            <FeaturedBanner pool={featured} onBet={(pool, option) => setSelected({ pool, option })} />
+          {hero ? (
+            <FeaturedBanner
+              pool={hero.pool}
+              auto={hero.auto}
+              onBet={(pool, option) => setSelected({ pool, option })}
+            />
           ) : (
             <div className="glass flex flex-col justify-center gap-3 rounded-3xl p-6">
-              <h1 className="text-[26px] font-bold leading-tight text-ink sm:text-[32px]">
-                {t("hero.h1a")} <span className="gold-text">{t("hero.h1b")}</span>
-              </h1>
-              <p className="max-w-xl text-[12.5px] leading-relaxed text-muted">{t("hero.sub")}</p>
+              <h2 className="text-[20px] font-semibold leading-tight text-ink">
+                {t("empty.title")}
+              </h2>
+              <p className="max-w-xl text-[12.5px] leading-relaxed text-muted">{t("empty.body")}</p>
+              <button
+                onClick={() => {
+                  setQuery("");
+                  setCategory("all");
+                }}
+                className="btn-ghost mt-1 w-fit text-[12px]"
+              >
+                {t("empty.clear")}
+              </button>
             </div>
           )}
 

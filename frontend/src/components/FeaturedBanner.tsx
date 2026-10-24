@@ -10,7 +10,20 @@ import { themeFor } from "@/lib/visuals";
 import { useI18n } from "@/components/LocaleProvider";
 import { useMounted } from "@/hooks/useMounted";
 
-export function FeaturedBanner({ pool, onBet }: { pool: ArenaPool; onBet: (pool: ArenaPool, option: 0 | 1) => void }) {
+export function FeaturedBanner({
+  pool,
+  onBet,
+  auto = false,
+}: {
+  pool: ArenaPool;
+  onBet: (pool: ArenaPool, option: 0 | 1) => void;
+  /**
+   * True when the hero was chosen because the current tab has no editorially featured market.
+   * The chip then reads "Top market" — claiming "Featured" for a market nobody featured would
+   * be a small lie repeated on every tab switch.
+   */
+  auto?: boolean;
+}) {
   const { t } = useI18n();
   // `countdown()` reads the wall clock, so it may only run after hydration — otherwise the
   // server's "2d 04h 12m" and the client's "2d 04h 11m" disagree and React throws #418.
@@ -37,7 +50,7 @@ export function FeaturedBanner({ pool, onBet }: { pool: ArenaPool; onBet: (pool:
           <div className="flex flex-wrap items-center gap-2">
             <span className="chip border-gold/40 bg-gold/15 text-gold-bright">
               <Flame className="size-3" />
-              {t("featured.label")}
+              {auto ? t("featured.top") : t("featured.label")}
             </span>
             <span className="chip">{t(categoryI18nKey(pool.category))}</span>
             {(pool.tags ?? []).slice(0, 2).map((tag) => (

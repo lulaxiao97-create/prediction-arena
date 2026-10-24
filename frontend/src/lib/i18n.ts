@@ -61,6 +61,7 @@ const en = {
   },
   featured: {
     label: "Featured Market",
+    top: "Top market",
     trade: "Trade now",
     liquidity: "Liquidity",
     ends: "Ends",
@@ -312,6 +313,7 @@ const zhTW: DeepDict = {
   },
   featured: {
     label: "頭條市場",
+    top: "熱門盤口",
     trade: "立即交易",
     liquidity: "流動性",
     ends: "結束於",
@@ -557,6 +559,7 @@ const de: DeepDict = {
   },
   featured: {
     label: "Markt im Fokus",
+    top: "Top-Markt",
     trade: "Jetzt handeln",
     liquidity: "Liquidität",
     ends: "Endet",
@@ -802,6 +805,7 @@ const fr: DeepDict = {
   },
   featured: {
     label: "Marché à la une",
+    top: "Marché phare",
     trade: "Trader maintenant",
     liquidity: "Liquidité",
     ends: "Fin",
@@ -1047,6 +1051,7 @@ const ja: DeepDict = {
   },
   featured: {
     label: "注目の市場",
+    top: "注目の市場",
     trade: "今すぐ取引",
     liquidity: "流動性",
     ends: "終了",
@@ -1292,6 +1297,7 @@ const ko: DeepDict = {
   },
   featured: {
     label: "주목 마켓",
+    top: "인기 마켓",
     trade: "지금 거래",
     liquidity: "유동성",
     ends: "종료",
