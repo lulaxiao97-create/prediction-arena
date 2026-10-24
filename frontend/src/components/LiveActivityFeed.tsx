@@ -104,9 +104,14 @@ export function LiveActivityFeed({ pools }: { pools: ArenaPool[] }) {
   const [paused, setPaused] = useState(false);
   const lastLiveCount = useRef(0);
 
+  // Only read the chain when the manifest actually lists an on-chain market: with none, there
+  // cannot be a trade to show, and an unnecessary getLogs is exactly what produced a wall of
+  // 400/429 transport errors in the console (every fallback transport tried the range).
+  const hasChainMarket = useMemo(() => pools.some((p) => p.source === "chain"), [pools]);
+
   // One read per mount; a failure is not an error state — the sample stream covers it.
   useEffect(() => {
-    if (!publicClient || !hasArena || !ARENA_ADDRESS) return;
+    if (!publicClient || !hasArena || !ARENA_ADDRESS || !hasChainMarket) return;
     let alive = true;
     (async () => {
       try {
@@ -173,7 +178,7 @@ export function LiveActivityFeed({ pools }: { pools: ArenaPool[] }) {
     return () => {
       alive = false;
     };
-  }, [publicClient, pools]);
+  }, [publicClient, pools, hasChainMarket]);
 
   const nowSec = mounted ? Math.floor(Date.now() / 1000) : 0;
   const hour = mounted ? Math.floor(nowSec / 3_600) : 0;
