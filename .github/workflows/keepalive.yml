@@ -16,12 +16,19 @@ jobs:
       - name: Wake the production instance
         run: |
           set -euo pipefail
-          URL="https://prediction-arena-81d9.onrender.com/api/ping"
-          for attempt in 1 2 3; do
-            code=$(curl -sS -o /tmp/ping.json -w "%{http_code}" --max-time 90 "$URL" || true)
-            echo "attempt $attempt -> HTTP $code"
-            if [ "$code" = "200" ]; then cat /tmp/ping.json; echo; exit 0; fi
-            sleep 20
+          # Ping through the canonical domain first — that is the path a visitor takes, so this
+          # also catches a broken DNS record or a Cloudflare rule. Fall back to the Render origin
+          # so a CDN-side incident does not turn into a false red build while the app is fine.
+          PRIMARY="https://predictionarena.online/api/ping"
+          ORIGIN="https://prediction-arena-81d9.onrender.com/api/ping"
+          for URL in "$PRIMARY" "$ORIGIN"; do
+            for attempt in 1 2 3; do
+              code=$(curl -sS -o /tmp/ping.json -w "%{http_code}" --max-time 90 "$URL" || true)
+              echo "$URL attempt $attempt -> HTTP $code"
+              if [ "$code" = "200" ]; then cat /tmp/ping.json; echo; exit 0; fi
+              sleep 20
+            done
+            echo "no 200 from $URL"
           done
-          echo "keep-alive ping failed after 3 attempts"
+          echo "keep-alive ping failed on both the custom domain and the origin"
           exit 1
