@@ -4,21 +4,18 @@
  * drift apart.
  */
 
+import { SITE_URL } from "@/lib/site";
+
 /**
  * Canonical, absolute market URL.
  *
- * The order matters for hydration: the build-time origin is the same string on the server and
- * in the browser, while `window.location.origin` is not (127.0.0.1 vs localhost, a preview
- * alias, a proxy). Reading the env first keeps the share link identical in both renders — and
- * makes the copied link the public origin rather than whatever host the tab happens to use.
+ * The origin comes from the one build-time constant (`@/lib/site`), which is the same string
+ * on the server and in the browser — `window.location.origin` is not (127.0.0.1 vs localhost,
+ * a preview alias, a proxy). Reading it first keeps the share link identical in both renders
+ * and makes the copied link the public origin rather than whatever host the tab happens to use.
  */
 export function marketUrl(id: string | number | bigint, origin?: string): string {
-  const base = (
-    origin ??
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    (typeof window !== "undefined" ? window.location.origin : undefined) ??
-    "http://localhost:3000"
-  ).replace(/\/+$/, "");
+  const base = (origin ?? SITE_URL).replace(/\/+$/, "");
   return `${base}/market/${id}`;
 }
 

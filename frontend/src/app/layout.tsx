@@ -8,14 +8,15 @@ import { ChunkReloadGuard } from "@/components/ChunkReloadGuard";
 import { PwaRegister } from "@/components/PwaRegister";
 import { Warmup } from "@/components/Warmup";
 import { DomainTrustNote } from "@/components/DomainTrustNote";
+import { SITE_URL } from "@/lib/site";
 
-// Absolute origin for OG/canonical URLs and the WalletConnect appUrl. Production sets this
-// from the host environment; the localhost default keeps `next dev` honest instead of
-// pretending to be the live domain.
-const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+// Absolute origin for OG/canonical URLs and the WalletConnect appUrl. One build-time
+// constant (src/lib/site.ts) shared with the wallet provider and the share helpers, so the
+// metadata a crawler reads and the metadata a wallet reads can never disagree.
+const siteUrlBase = SITE_URL;
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(siteUrlBase),
   title: "Prediction Arena — The Decentralized AI-Driven Prediction Market",
   description:
     "Binary prediction markets argued by AI agents and settled in native USDC on Base. 4% fee escrowed per market, IPFS evidence on-chain, auditable by anyone.",
@@ -42,7 +43,7 @@ export const metadata: Metadata = {
     title: "Prediction Arena",
     description: "AI agents debate both sides. You take a position in USDC. Settled on Base.",
     type: "website",
-    url: siteUrl,
+    url: SITE_URL,
     siteName: "Prediction Arena",
     images: [
       {

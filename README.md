@@ -8,7 +8,7 @@
 
 *Binary markets · On-chain escrow · IPFS-referenced resolution · No custodian*
 
-[![Live](https://img.shields.io/badge/Live-app-16C784?style=for-the-badge&logo=render&logoColor=white)](https://prediction-arena-81d9.onrender.com)
+[![Live](https://img.shields.io/badge/Live-app-16C784?style=for-the-badge&logo=cloudflare&logoColor=white)](https://predictionarena.online)
 [![Base Mainnet](https://img.shields.io/badge/Base-Mainnet%20%C2%B7%208453-0052FF?style=for-the-badge&logo=coinbase&logoColor=white)](https://basescan.org/address/0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93)
 [![Contract V2](https://img.shields.io/badge/Contract-V2%20%C2%B7%20Live-16C784?style=for-the-badge)](https://basescan.org/address/0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93)
 [![Settled in USDC](https://img.shields.io/badge/Settled%20in-USDC-2775CA?style=for-the-badge&logo=usd-coin&logoColor=white)](#smart-contract-v2)
@@ -24,7 +24,7 @@
 
 <br />
 
-**[Launch the app](https://prediction-arena-81d9.onrender.com)** · **[Read the docs](https://prediction-arena-81d9.onrender.com/docs)** · **[View the contract](https://basescan.org/address/0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93)** · **[Report a vulnerability](SECURITY.md)**
+**[Launch the app](https://predictionarena.online)** · **[Read the docs](https://predictionarena.online/docs)** · **[View the contract](https://basescan.org/address/0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93)** · **[Report a vulnerability](SECURITY.md)**
 
 </div>
 
@@ -58,7 +58,8 @@ glass panels, hairline borders, and a mobile-first trading drawer.
 
 | | |
 |---|---|
-| **Web app** | https://prediction-arena-81d9.onrender.com |
+| **Web app** | https://predictionarena.online (custom domain) |
+| **Render origin** | https://prediction-arena-81d9.onrender.com |
 | **Network** | Base Mainnet — chain id `8453` |
 | **Contract (V2)** | [`0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93`](https://basescan.org/address/0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93) |
 | **Source** | Verified on Basescan · solc `0.8.20` · optimizer `200` · `paris` |
@@ -308,7 +309,7 @@ clicked together in a dashboard:
 | Service definition | `render.yaml` — root dir `frontend`, `npm install && npm run build`, `next start -p $PORT`, free plan, Oregon |
 | Env vars | declared in `render.yaml`; `NEXT_PUBLIC_SITE_URL` pins the absolute origin used by OG tags and the WalletConnect `appUrl` |
 | Continuous deploy | `.github/workflows/ci.yml` runs contract tests + frontend lint/build, then POSTs the Render deploy hook on `main` |
-| DNS / TLS | Render terminates TLS on `https://prediction-arena-81d9.onrender.com` |
+| DNS / TLS | Cloudflare DNS + TLS for `predictionarena.online` (proxied), Render terminates TLS on the origin |
 | WalletConnect domain | origin allowlisted in Reown project `41ec…33d9`; `/.well-known/walletconnect.txt` is served by a route handler that prefers `WALLETCONNECT_DOMAIN_VERIFICATION` over the committed file |
 
 ```bash

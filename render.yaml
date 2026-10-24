@@ -15,6 +15,12 @@ services:
     startCommand: npx next start -p $PORT
     healthCheckPath: /
     autoDeploy: true
+    # Custom domains are part of the deploy contract, not a dashboard-only manual step. A
+    # blueprint sync adds them and Render then validates the DNS records that Cloudflare
+    # serves (see frontend/DEPLOY.md → "The production domain").
+    domains:
+      - predictionarena.online
+      - www.predictionarena.online
     envVars:
       - key: NODE_VERSION
         value: "22"
@@ -38,4 +44,4 @@ services:
       # - key: WALLETCONNECT_DOMAIN_VERIFICATION
       #   value: <token from dashboard.reown.com>
       - key: NEXT_PUBLIC_SITE_URL
-        value: https://prediction-arena-81d9.onrender.com
+        value: https://predictionarena.online

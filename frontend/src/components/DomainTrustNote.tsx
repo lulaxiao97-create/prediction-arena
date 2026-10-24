@@ -7,6 +7,7 @@ import { ARENA_ADDRESS } from "@/lib/docs";
 import { explorerAddress } from "@/lib/format";
 import { GITHUB_REPO } from "@/components/GitHubLink";
 import { useMounted } from "@/hooks/useMounted";
+import { SITE_HOST, isPreviewHostname } from "@/lib/site";
 
 const DISMISS_KEY = "arena:trust-note:dismissed";
 
@@ -19,8 +20,8 @@ const DISMISS_KEY = "arena:trust-note:dismissed";
  * score, so the honest move is to state the situation and put the verifiable facts in the same
  * breath: the contract address, the source repository, and where the official deployment is.
  *
- * Shown only on the shared preview host, after mount, and dismissible — a returning visitor
- * sees it once.
+ * Shown only on a shared preview host (never on the canonical `SITE_HOST`), after mount, and
+ * dismissible — a returning visitor sees it once.
  */
 export function DomainTrustNote() {
   const mounted = useMounted();
@@ -36,7 +37,10 @@ export function DomainTrustNote() {
     }
   }, []);
 
-  const isSharedHost = host.endsWith(".onrender.com");
+  // The canonical domain (NEXT_PUBLIC_SITE_URL → SITE_HOST) needs no explanation: it is the
+  // domain the contract, the repo and the docs all point at. Only the shared preview names —
+  // where a wallet scanner's low-reputation warning is legitimate — get the note.
+  const isSharedHost = isPreviewHostname(host);
   if (!mounted || dismissed || !isSharedHost) return null;
 
   const dismiss = () => {
@@ -53,7 +57,9 @@ export function DomainTrustNote() {
       <div className="mx-auto flex max-w-[1400px] items-start gap-2.5 px-4 py-2 sm:items-center sm:px-6">
         <ShieldCheck className="mt-0.5 size-3.5 shrink-0 text-gold-bright sm:mt-0" />
         <p className="min-w-0 flex-1 text-[10.5px] leading-relaxed text-muted sm:text-[11px]">
-          <span className="font-medium text-ink">You are on the official preview domain.</span>{" "}
+          <span className="font-medium text-ink">
+            You are on the official preview domain — {SITE_HOST} is the canonical one.
+          </span>{" "}
           Wallet security scanners treat shared hosting domains as low-trust, so your wallet may
           show a warning. Verify before signing:{" "}
           <a

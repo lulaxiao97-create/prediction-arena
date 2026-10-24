@@ -25,6 +25,7 @@ import { base, baseSepolia } from "wagmi/chains";
 import { coinbaseWallet as coinbaseConnector, injected } from "wagmi/connectors";
 import { useI18n } from "@/components/LocaleProvider";
 import type { Locale } from "@/lib/i18n";
+import { SITE_URL, siteUrl } from "@/lib/site";
 
 const projectId = (process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? "").trim();
 // WalletConnect needs a real 32-char project id; without it we still ship injected +
@@ -34,17 +35,17 @@ const hasWalletConnect = /^[a-f0-9]{32}$/i.test(projectId);
 /**
  * Every wallet that hands us an origin compares it against the page origin before it will
  * open — MetaMask deep links, OKX, Bitget and the WalletConnect relay all reject a mismatch.
- * This value is build-time inlined, so it has to be the live production origin; the fallback
- * keeps a local `next start` run honest instead of pointing at a domain that does not serve it.
+ * The value comes from the one build-time constant in `@/lib/site`, so the origin a wallet
+ * reads and the origin the crawler's OG tags advertise are the same string.
  */
 const APP_NAME = "Prediction Arena";
-const APP_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://prediction-arena-81d9.onrender.com").replace(/\/+$/, "");
+const APP_URL = SITE_URL;
 // Absolute, same-origin, 512px: MetaMask and Blockaid read this from the WalletConnect /
 // injected metadata and compare it with the page origin. A relative path or a 192px icon is
 // enough for a mismatch flag, so the icon is pinned to the largest published size.
-const APP_ICON = `${APP_URL}/icon-512.png`;
+const APP_ICON = siteUrl("/icon-512.png");
 const APP_DESCRIPTION = "Automated Decentralized Prediction Market on Base";
-const APP_LEARN_MORE = `${APP_URL}/docs/security`;
+const APP_LEARN_MORE = siteUrl("/docs/security");
 
 const rpcBase = process.env.NEXT_PUBLIC_BASE_RPC_URL || "https://mainnet.base.org";
 const rpcBaseSepolia = process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org";

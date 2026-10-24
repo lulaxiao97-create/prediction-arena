@@ -79,6 +79,36 @@ committed.
 5. **Set `NEXT_PUBLIC_SITE_URL` to the final domain and redeploy.** It is inlined at build time, so
    changing it later requires a rebuild, not just an env edit.
 
+### The production domain: predictionarena.online
+
+Registrar NS point at Cloudflare (`alaric.ns.cloudflare.com`, `bristol.ns.cloudflare.com`), so every
+record lives in the Cloudflare zone — Render only ever sees the origin it was given.
+
+| Type | Name | Value | Proxy |
+|---|---|---|---|
+| `A` | `@` (root) | the Render origin's IPv4 (or `CNAME` flattening to `prediction-arena-81d9.onrender.com`) | Proxied |
+| `CNAME` | `www` | `prediction-arena-81d9.onrender.com` | Proxied |
+
+Cloudflare flattens a root `CNAME` to an `A` record, so either form works for the apex; the flat
+`CNAME` keeps the value readable if Render's anycast IPs change. Proxying is safe for WalletConnect
+as long as the proxy does not buffer or rewrite `/.well-known/walletconnect.txt` (it is served
+`no-store`, `text/plain`, so a plain "DNS only" record on that name is never needed).
+
+On the platform side both hostnames are added under Settings → Custom Domains:
+
+- `predictionarena.online` (primary)
+- `www.predictionarena.online` (redirects to the apex with a 308 so links never split origins)
+
+Verification for this domain:
+
+```
+dig +short NS predictionarena.online          # alaric / bristol
+dig +short www.predictionarena.online         # resolves to a Render edge
+curl -sI https://predictionarena.online | head -3
+curl -s  https://predictionarena.online/.well-known/walletconnect.txt
+curl -sA 'Twitterbot/1.0' https://predictionarena.online/market/1 | grep -o 'og:url[^>]*'
+```
+
 ### Verifying after the first deploy
 
 ```
