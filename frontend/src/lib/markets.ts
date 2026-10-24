@@ -35,6 +35,16 @@ export type ManifestPool = {
   dataSource?: string;
   /** Snapshot timestamp of those numbers. */
   dataAsOf?: string;
+  /** Structured spot/strike/feed for share text and cards. */
+  marketData?: {
+    asset: string;
+    spotUsd: number;
+    strikeUsd: number;
+    direction: "above" | "below";
+    windowDays: number;
+    source: string;
+    asOf: string;
+  };
 };
 
 export type Manifest = {
@@ -156,6 +166,20 @@ export function demoPoolToArena(pool: ManifestPool, nowSeconds: number): ArenaPo
     source: "demo",
     traders: pool.traders ?? 0,
     volume24h: u(Number(pool.volume24hUsdc ?? "0")),
+    marketData: pool.marketData,
+    // Search covers everything a visitor might type: the question, the lane, the asset ticker,
+    // the resolution source ("binance", "defillama") and the prose that explains the market.
+    searchText: [
+      pool.title,
+      pool.category,
+      ...(pool.tags ?? []),
+      pool.description ?? "",
+      pool.resolution ?? "",
+      pool.dataSource ?? "",
+      pool.marketData?.asset ?? "",
+    ]
+      .join(" ")
+      .toLowerCase(),
   };
 }
 
@@ -172,6 +196,7 @@ export function metaFor(manifest: Manifest | null, id: string) {
     tags: pool?.tags ?? [],
     dataSource: pool?.dataSource ?? "",
     dataAsOf: pool?.dataAsOf ?? "",
+    marketData: pool?.marketData,
     description: pool?.description ?? "",
     resolution: pool?.resolution ?? "",
   };

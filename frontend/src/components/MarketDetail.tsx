@@ -158,6 +158,7 @@ export function MarketDetail({ id }: { id: string }) {
                 marketId={pool.id}
                 title={pool.title}
                 yesPct={share0}
+                market={pool.marketData}
                 className="mt-3 max-w-md"
               />
 

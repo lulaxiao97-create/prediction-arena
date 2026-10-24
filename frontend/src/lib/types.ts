@@ -32,6 +32,24 @@ export type ArenaPool = {
   /** demo-only analytics */
   traders?: number;
   volume24h?: bigint;
+  /**
+   * Numbers behind a data-driven market (spot, strike, feed). Present for price/TVL markets,
+   * absent for editorial ones — the share card and the tweet read it instead of parsing the
+   * title, and its absence is how the UI knows not to claim a live feed.
+   */
+  marketData?: MarketData;
+  /** Lower-cased haystack: title + category + tags + description + resolution + feed name. */
+  searchText?: string;
+};
+
+export type MarketData = {
+  asset: string;
+  spotUsd: number;
+  strikeUsd: number;
+  direction: "above" | "below";
+  windowDays: number;
+  source: string;
+  asOf: string;
 };
 
 export type AgentId = "hawk" | "detective" | "meme";

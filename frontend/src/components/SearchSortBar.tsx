@@ -4,12 +4,17 @@ import { ArrowUpDown, Search, X } from "lucide-react";
 import { cn } from "@/lib/format";
 import { useI18n } from "@/components/LocaleProvider";
 
-export type SortKey = "volume" | "liquidity" | "ending" | "newest";
+export type SortKey = "ending" | "odds" | "newest";
 
+/**
+ * Three sorts, each answering a question a trader actually asks:
+ *   ending — what resolves next (24-72h band first, see `endingRank`)
+ *   odds   — where the cheapest side pays the most
+ *   newest — what was listed most recently
+ */
 export const SORT_OPTIONS: { id: SortKey; i18n: string }[] = [
-  { id: "volume", i18n: "sort.volume" },
-  { id: "liquidity", i18n: "sort.liquidity" },
   { id: "ending", i18n: "sort.ending" },
+  { id: "odds", i18n: "sort.odds" },
   { id: "newest", i18n: "sort.newest" },
 ];
 

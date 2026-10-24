@@ -20,21 +20,74 @@ export function marketUrl(id: string | number | bigint, origin?: string): string
 }
 
 /**
- * X/Twitter web intent. `text` carries the pitch and the mention; `url` is separate so X
- * renders its own card preview from the market's Open Graph tags (title + shield artwork).
+ * Numbers behind a data-driven market. Mirrors `MarketData` in lib/types; declared structurally
+ * here so the share helpers stay usable from a route handler that only has the manifest row.
+ */
+export type ShareMarketData = {
+  asset: string;
+  spotUsd: number;
+  strikeUsd: number;
+  direction: "above" | "below";
+  windowDays: number;
+  source: string;
+  asOf: string;
+};
+
+const MAX_TITLE = 92;
+
+function compactMoney(v: number): string {
+  if (v >= 1e12) return `$${(v / 1e12).toFixed(2)}T`;
+  if (v >= 1e9) return `$${(v / 1e9).toFixed(2)}B`;
+  if (v >= 1_000) return `$${Math.round(v).toLocaleString("en-US")}`;
+  if (v >= 1) return `$${v.toFixed(2)}`;
+  if (v >= 0.01) return `$${v.toFixed(4)}`;
+  return `$${v.toPrecision(3)}`;
+}
+
+/** Payout multiple on the side you are buying: 30% YES pays 3.3×. */
+export function payoutMultiple(yesPct: number, side: "yes" | "no" = "yes"): number {
+  const p = side === "yes" ? yesPct / 100 : 1 - yesPct / 100;
+  return 1 / Math.max(0.02, Math.min(1, Math.max(0, p)));
+}
+
+/**
+ * X/Twitter web intent.
+ *
+ * The tweet answers "why would anyone click this" in one line: the live spot, the strike being
+ * argued over, the probability and the payout multiple, plus which feed verified the numbers.
+ * `url` is passed separately so X still renders the market's own Open Graph card underneath.
+ *
+ * Length is bounded on purpose — X truncates at 280 characters and a truncated number reads as a
+ * typo, so the title is clipped before the numbers ever are.
  */
 export function tweetIntent({
   title,
   yes,
   no,
   url,
+  market,
 }: {
   title: string;
   yes: number;
   no: number;
   url: string;
+  market?: ShareMarketData | null;
 }): string {
-  const text = `I'm predicting on "${title}"! Current probability: ${yes}% YES / ${no}% NO. Check it out on @PredictionArena`;
+  const short = title.length > MAX_TITLE ? `${title.slice(0, MAX_TITLE - 1).trimEnd()}…` : title;
+
+  // The title usually already states the strike; repeating it wastes half the tweet. Say the
+  // number the title cannot know — where spot actually is — and fall back to the full pair only
+  // when the strike is somehow missing from the copy.
+  const strikeText = market ? compactMoney(market.strikeUsd) : "";
+  const head = market
+    ? short.includes(strikeText)
+      ? `"${short}" — ${market.asset} at ${compactMoney(market.spotUsd)} right now.`
+      : `"${short}" — ${market.asset} ${market.direction === "above" ? "above" : "below"} ${strikeText}, spot ${compactMoney(market.spotUsd)}.`
+    : `"${short}"`;
+  const odds = `${yes}% YES · pays ${payoutMultiple(yes).toFixed(1)}×`;
+  const tail = market ? `Verified ${market.source} feed. @PredictionArena` : "@PredictionArena";
+  const text = `${head} ${odds} · ${no}% NO. ${tail}`;
+
   const params = new URLSearchParams({ text, url });
   return `https://x.com/intent/tweet?${params.toString()}`;
 }

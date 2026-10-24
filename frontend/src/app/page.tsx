@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { LiveTicker } from "@/components/LiveTicker";
+import { LiveActivityFeed } from "@/components/LiveActivityFeed";
 import { AIAgentsDebate } from "@/components/AIAgentsDebate";
 import { MarketCard } from "@/components/MarketCard";
 import { FeaturedBanner } from "@/components/FeaturedBanner";
@@ -23,6 +24,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { BetModalHost } from "@/components/BetModal";
 import { useI18n } from "@/components/LocaleProvider";
 import { useMarkets } from "@/hooks/useMarkets";
+import { useMounted } from "@/hooks/useMounted";
 import { CATEGORY_TABS, matchesTab, type MarketCategory } from "@/lib/categories";
 import { hasArena } from "@/hooks/usePredictionArena";
 import { cn, formatCompactUsdc } from "@/lib/format";
@@ -32,33 +34,59 @@ export default function Home() {
   const { t } = useI18n();
   const [category, setCategory] = useState<MarketCategory>("all");
   const [query, setQuery] = useState("");
-  const [sort, setSort] = useState<SortKey>("volume");
+  const [sort, setSort] = useState<SortKey>("ending");
   const [selected, setSelected] = useState<{ pool: ArenaPool; option: 0 | 1 } | null>(null);
 
   const { pools, stats, featured, loading } = useMarkets();
 
+  const mounted = useMounted();
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const rows = pools.filter(
-      (pool) =>
-        matchesTab(pool.category, category) &&
-        (q === "" || pool.title.toLowerCase().includes(q) || pool.category.toLowerCase().includes(q))
-    );
+    const terms = q.split(/\s+/).filter(Boolean);
+    const rows = pools.filter((pool) => {
+      if (!matchesTab(pool.category, category)) return false;
+      if (!terms.length) return true;
+      // Every term has to hit somewhere: title, lane, token ticker, resolution source, prose.
+      const haystack =
+        pool.searchText ??
+        `${pool.title} ${pool.category} ${(pool.tags ?? []).join(" ")}`.toLowerCase();
+      return terms.every((term) => haystack.includes(term));
+    });
+
+    // Payout multiple on the cheap side: 50/50 pays 2.0×, a 15% long shot pays ~6.7×.
+    const payout = (p: ArenaPool) => {
+      const total = Number(p.totalNetPool) || 0;
+      const yes = total ? Number(p.option0Pool) / total : 0.5;
+      return 1 / Math.max(0.02, Math.min(yes, 1 - yes));
+    };
+
+    // "Ending soon" means tradeable now: markets resolving inside 24-72h float above everything
+    // else, then the rest by deadline. `now` only exists after mount so the server and the first
+    // client render sort identically (plain deadline order) — otherwise the two orders differ and
+    // hydration complains.
+    const nowSec = mounted ? Math.floor(Date.now() / 1000) : null;
+    const endingRank = (p: ArenaPool) => {
+      if (nowSec === null) return p.endTime;
+      const hours = (p.endTime - nowSec) / 3_600;
+      if (hours >= 24 && hours <= 72) return -1e9 + p.endTime; // the priority band
+      if (hours < 24) return -5e8 + p.endTime; // resolving within a day: next
+      return p.endTime;
+    };
+
     const sorted = [...rows];
     sorted.sort((a, b) => {
       switch (sort) {
-        case "liquidity":
-          return Number(b.totalNetPool - a.totalNetPool);
-        case "ending":
-          return a.endTime - b.endTime;
+        case "odds":
+          return payout(b) - payout(a);
         case "newest":
           return Number(b.id - a.id);
         default:
-          return Number((b.volume24h ?? 0n) - (a.volume24h ?? 0n));
+          return endingRank(a) - endingRank(b);
       }
     });
     return sorted;
-  }, [pools, category, query, sort]);
+  }, [pools, category, query, sort, mounted]);
 
   const showFeatured = featured && featured.status === 1 && category === "all" && query.trim() === "";
 
@@ -81,6 +109,7 @@ export default function Home() {
             </div>
           )}
 
+          <div className="flex flex-col gap-4">
           <div className="glass flex flex-col gap-3 rounded-3xl p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -109,6 +138,9 @@ export default function Home() {
                 <BrainCircuit className="size-3.5" /> {t("hero.debate")}
               </a>
             </div>
+          </div>
+
+          <LiveActivityFeed pools={pools} />
           </div>
         </div>
 

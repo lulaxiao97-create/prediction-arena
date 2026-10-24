@@ -23,6 +23,18 @@ export type ManifestPool = {
   totalNetPool?: string | null;
   traders?: number;
   tags?: string[];
+  dataSource?: string;
+  dataAsOf?: string;
+  /** spot/strike/feed behind the title — drives the share card's provenance badge. */
+  marketData?: {
+    asset: string;
+    spotUsd: number;
+    strikeUsd: number;
+    direction: "above" | "below";
+    windowDays: number;
+    source: string;
+    asOf: string;
+  };
 };
 
 export type Manifest = {

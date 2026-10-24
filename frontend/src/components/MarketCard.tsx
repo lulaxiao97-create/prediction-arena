@@ -137,7 +137,15 @@ export function MarketCard({
           <span className="mono text-[13px] font-semibold text-profit">
             {t("card.yes")} {formatProbability(share0)}
           </span>
-          <span className="text-[9.5px] uppercase tracking-[0.14em] text-muted/55">{t("card.implied")}</span>
+          <span className="flex items-center gap-1.5 text-[9.5px] uppercase tracking-[0.14em] text-muted/55">
+            {t("card.implied")}
+            {/* Payout on the cheap side — the number the "Highest Yield" sort orders by. */}
+            {share0 > 0 && share0 < 1 && (
+              <span className="mono rounded border border-gold/25 bg-gold/8 px-1 py-0.5 text-[9px] normal-case tracking-normal text-gold-bright">
+                {`${(1 / Math.min(share0, 1 - share0)).toFixed(1)}×`}
+              </span>
+            )}
+          </span>
           <span className="mono text-[13px] font-semibold text-loss">
             {formatProbability(share1)} {t("card.no")}
           </span>

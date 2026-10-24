@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { Check, Link2 } from "lucide-react";
 import { cn } from "@/lib/format";
-import { copyText, marketUrl, tweetIntent } from "@/lib/share";
+import { copyText, marketUrl, payoutMultiple, tweetIntent, type ShareMarketData } from "@/lib/share";
 import { select, success } from "@/lib/haptics";
 import { useI18n } from "@/components/LocaleProvider";
 import { useToast } from "@/components/Toast";
@@ -22,6 +22,7 @@ export function ShareActions({
   marketId,
   title,
   yesPct,
+  market,
   variant = "panel",
   className,
 }: {
@@ -29,6 +30,8 @@ export function ShareActions({
   title: string;
   /** 0..1 — rendered as a whole percentage in the tweet. */
   yesPct: number;
+  /** Spot/strike/feed for a data-driven market; omitted for editorial ones. */
+  market?: ShareMarketData | null;
   variant?: "panel" | "compact";
   className?: string;
 }) {
@@ -40,7 +43,7 @@ export function ShareActions({
   const no = 100 - yes;
 
   const url = useMemo(() => marketUrl(marketId), [marketId]);
-  const intent = useMemo(() => tweetIntent({ title, yes, no, url }), [title, yes, no, url]);
+  const intent = useMemo(() => tweetIntent({ title, yes, no, url, market }), [title, yes, no, url, market]);
   // The tweet text embeds the live probability, and the market's pools are refreshed on the
   // client right after mount — so the server's href and the browser's would differ in the
   // percentages. Until mount, the anchor points at the market itself; from the first effect

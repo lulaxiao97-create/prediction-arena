@@ -49,6 +49,27 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const liquidity = liquidityLabel(pool);
   const titleSize = title.length > 70 ? 44 : 54;
 
+  // Provenance badge: only claim a live feed when the manifest actually carries the numbers.
+  const md = pool?.marketData;
+  const money = (v: number) => {
+    if (v >= 1e12) return `$${(v / 1e12).toFixed(2)}T`;
+    if (v >= 1e9) return `$${(v / 1e9).toFixed(2)}B`;
+    if (v >= 1000) return `$${Math.round(v).toLocaleString("en-US")}`;
+    if (v >= 1) return `$${v.toFixed(2)}`;
+    if (v >= 0.01) return `$${v.toFixed(4)}`;
+    return `$${v.toPrecision(3)}`;
+  };
+  const feedLabel = md
+    ? md.source.toLowerCase().includes("binance")
+      ? "REAL-TIME FEED: BINANCE VERIFICATION"
+      : md.source.toLowerCase().includes("coingecko")
+        ? "REAL-TIME FEED: COINGECKO VERIFICATION"
+        : "REAL-TIME FEED: DEFILLAMA VERIFICATION"
+    : null;
+  const feedLine = md
+    ? `${md.asset} ${md.direction === "above" ? "ABOVE" : "BELOW"} ${money(md.strikeUsd)} · SPOT ${money(md.spotUsd)}`
+    : null;
+
   const card = (
     <div
       style={{
@@ -213,7 +234,32 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           <div style={{ display: "flex", flex: 1 }} />
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", marginTop: 24 }}>
+        {feedLine ? (
+          <div style={{ display: "flex", alignItems: "center", marginTop: 20 }}>
+            <div style={{ display: "flex", fontSize: 13, color: "#5C6C87", letterSpacing: 3.2 }}>
+              {feedLine}
+            </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginLeft: "auto",
+                padding: "8px 16px",
+                borderRadius: 999,
+                border: "1px solid rgba(34,211,238,0.35)",
+                backgroundColor: "rgba(34,211,238,0.08)",
+                fontSize: 13,
+                color: CYAN,
+                letterSpacing: 1.4,
+              }}
+            >
+              <div style={{ display: "flex", width: 8, height: 8, borderRadius: 999, backgroundColor: CYAN, marginRight: 9 }} />
+              {feedLabel}
+            </div>
+          </div>
+        ) : null}
+
+        <div style={{ display: "flex", alignItems: "center", marginTop: feedLine ? 12 : 24 }}>
           <div style={{ display: "flex", fontSize: 13, color: "#5C6C87", letterSpacing: 3.2 }}>
             {"PREDICTION ARENA · PA-MARK-1.0"}
           </div>

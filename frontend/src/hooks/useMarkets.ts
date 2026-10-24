@@ -109,11 +109,16 @@ export function useMarkets() {
   const pools = useMemo<ArenaPool[]>(() => {
     const enrichedChain = chainPools.map((pool) => {
       const meta = manifestMeta[String(pool.id)];
+      const category = meta?.category || pool.category;
       return {
         ...pool,
-        category: meta?.category || pool.category,
+        category,
         tags: meta?.tags ?? [],
         optionLabels: ["Yes", "No"] as [string, string],
+        marketData: meta?.marketData,
+        searchText: [pool.title, category, ...(meta?.tags ?? []), meta?.description ?? "", meta?.resolution ?? ""]
+          .join(" ")
+          .toLowerCase(),
       };
     });
     return [...enrichedChain, ...demoPools];

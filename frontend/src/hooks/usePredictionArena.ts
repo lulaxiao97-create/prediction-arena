@@ -214,7 +214,24 @@ function getLogClient(): any {
 
 type PoolIdCache = { ids: string[]; lastBlock: number };
 
-export type PoolManifestEntry = { id: string; title?: string; category?: string; tags?: string[] };
+export type PoolManifestEntry = {
+  id: string;
+  title?: string;
+  category?: string;
+  tags?: string[];
+  description?: string;
+  resolution?: string;
+  dataSource?: string;
+  marketData?: {
+    asset: string;
+    spotUsd: number;
+    strikeUsd: number;
+    direction: "above" | "below";
+    windowDays: number;
+    source: string;
+    asOf: string;
+  };
+};
 export type ManifestStats = {
   tvlUsdc?: string;
   volume24hUsdc?: string;

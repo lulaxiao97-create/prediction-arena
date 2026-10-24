@@ -183,7 +183,7 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
           >
             {live ? "ON-CHAIN" : "DEMO"}
           </span>
-          <ShareActions marketId={pool.id} title={pool.title} yesPct={probability} variant="compact" />
+          <ShareActions marketId={pool.id} title={pool.title} yesPct={probability} market={pool.marketData} variant="compact" />
         </div>
       </div>
 

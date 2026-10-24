@@ -53,6 +53,19 @@ type Pool = {
   /** Provenance for the numbers in the title (additive field; the UI ignores unknown keys). */
   dataSource?: string;
   dataAsOf?: string;
+  /**
+   * The numbers a share card / tweet needs, in structured form — so the X intent and the OG
+   * card read `spot` and `strike` instead of re-parsing the title with a regex.
+   */
+  marketData?: {
+    asset: string;
+    spotUsd: number;
+    strikeUsd: number;
+    direction: "above" | "below";
+    windowDays: number;
+    source: string;
+    asOf: string;
+  };
 };
 
 /* ───────────────────────────── number helpers ───────────────────────────── */
@@ -186,6 +199,15 @@ function buildBoard(snap: PriceSnapshot, now: Date): Draft[] {
       resolution: `YES if the ${opts.sym}/USDT daily candle on Binance closes at or above ${fmtMoney(strike)} on any day up to and including ${day(opts.deadline)} 23:59 UTC. A print at the level intraday without a daily close resolves NO.`,
       dataSource: `Binance ${opts.sym}USDT`,
       dataAsOf: asOf,
+      marketData: {
+        asset: opts.sym,
+        spotUsd: spot,
+        strikeUsd: strike,
+        direction: "above",
+        windowDays: days,
+        source: "Binance",
+        asOf,
+      },
     });
   };
 
@@ -193,6 +215,7 @@ function buildBoard(snap: PriceSnapshot, now: Date): Draft[] {
   const editorial = (opts: {
     title: string; category: string; tags: string[]; deadline: Date; p: number;
     description: string; resolution: string; dataSource: string;
+    marketData?: Draft["marketData"];
   }) => {
     out.push({
       title: opts.title,
@@ -207,6 +230,7 @@ function buildBoard(snap: PriceSnapshot, now: Date): Draft[] {
       resolution: opts.resolution,
       dataSource: opts.dataSource,
       dataAsOf: asOf,
+      marketData: opts.marketData,
     });
   };
 
@@ -600,6 +624,7 @@ function main() {
       resolution: d.resolution,
       dataSource: d.dataSource,
       dataAsOf: d.dataAsOf,
+      marketData: d.marketData,
     };
   });
 
