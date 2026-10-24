@@ -21,6 +21,9 @@ export type ManifestPool = {
   status?: number;
   winningOption?: number;
   settlementHash?: string;
+  /** Absolute deadline (UTC ISO). Takes precedence over `endTimeOffsetHours` when present. */
+  endTimeUtc?: string;
+  /** Relative fallback used by hand-written seed rows. */
   endTimeOffsetHours?: number;
   liquidityUsdc?: string;
   yesShare?: number;
@@ -28,6 +31,10 @@ export type ManifestPool = {
   traders?: number;
   description?: string;
   resolution?: string;
+  /** Where the numbers in `title` came from (e.g. "Binance BTCUSDT"), for the provenance chip. */
+  dataSource?: string;
+  /** Snapshot timestamp of those numbers. */
+  dataAsOf?: string;
 };
 
 export type Manifest = {
@@ -133,7 +140,11 @@ export function demoPoolToArena(pool: ManifestPool, nowSeconds: number): ArenaPo
     title: pool.title,
     category: pool.category,
     tags: pool.tags ?? [],
-    endTime: nowSeconds + Math.round((pool.endTimeOffsetHours ?? 24) * 3_600),
+    // Absolute deadlines come straight from the manifest so the server and the client agree to
+    // the second; the offset form stays for hand-written seed rows.
+    endTime: pool.endTimeUtc
+      ? Math.floor(Date.parse(pool.endTimeUtc) / 1000)
+      : nowSeconds + Math.round((pool.endTimeOffsetHours ?? 24) * 3_600),
     status: pool.status ?? 1,
     winningOption: pool.winningOption ?? 0,
     totalNetPool: liquidity,
@@ -159,6 +170,8 @@ export function metaFor(manifest: Manifest | null, id: string) {
     title: pool?.title ?? "",
     category: pool?.category ?? "",
     tags: pool?.tags ?? [],
+    dataSource: pool?.dataSource ?? "",
+    dataAsOf: pool?.dataAsOf ?? "",
     description: pool?.description ?? "",
     resolution: pool?.resolution ?? "",
   };

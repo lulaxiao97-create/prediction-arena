@@ -18,6 +18,8 @@ import * as dotenv from "dotenv";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { generateMarket, currentSlot } from "../frontend/src/lib/auto-gen.ts";
+import type { LiveNumbers } from "../frontend/src/lib/auto-gen.ts";
+import { readSnapshot, snapshotAgeMs } from "./fetch-prices.ts";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -49,7 +51,7 @@ async function llmRewrite(kernel: ReturnType<typeof generateMarket>): Promise<Re
 
 Start from this draft and produce a listing that a professional exchange would publish today. Better still: if the draft is stale relative to ${today}, replace the subject with something genuinely current in the same category. Keep it a single yes/no question.
 
-Draft:
+Live market data (use these numbers, never invent a price): ${live ? `BTC $${live.btc?.toFixed(0)}, ETH $${live.eth?.toFixed(2)}, SOL $${live.sol?.toFixed(2)}, total cap $${((live.totalMarketCapUsd ?? 0) / 1e12).toFixed(2)}T, BTC dominance ${live.btcDominance?.toFixed(1)}%, Base TVL $${((live.baseTvlUsd ?? 0) / 1e9).toFixed(2)}B, as of ${live.asOf}` : "unavailable"}
 
 Current draft:
 title: ${kernel.title}
@@ -91,12 +93,35 @@ Rules: title under 90 chars and must be a yes/no question; resolution must be me
   }
 }
 
+/**
+ * Live numbers for the listing. The generator is not allowed to embed a price it did not read:
+ * a snapshot older than three hours is treated as no snapshot, and the crypto lane then only
+ * offers blueprints without a strike in the title.
+ */
+const snap = readSnapshot();
+const ageMs = snapshotAgeMs(snap);
+const fresh = Boolean(snap) && ageMs < 3 * 3600_000;
+const live: LiveNumbers | null = fresh && snap
+  ? {
+      btc: snap.assets.BTC?.usd,
+      eth: snap.assets.ETH?.usd,
+      sol: snap.assets.SOL?.usd,
+      btcDominance: snap.global?.btcDominance,
+      totalMarketCapUsd: snap.global?.totalMarketCapUsd,
+      baseTvlUsd: snap.chains?.base?.tvlUsd,
+      asOf: snap.updatedAt,
+    }
+  : null;
+if (!live) {
+  console.warn(`[gen-market] no usable price snapshot (${snap ? `${Math.round(ageMs / 60_000)}min old` : "missing"}) — price blueprints are skipped`);
+}
+
 const slot = Number(process.env.SLOT ?? currentSlot());
 // category rotates every hour so consecutive opens never repeat a vertical
 const rotation = Number(process.env.ROTATION ?? slot % 6);
 const avoid = liveTitles();
 
-let market = generateMarket({ slot, rotation, avoid });
+let market = generateMarket({ slot, rotation, avoid, live });
 const enhanced = await llmRewrite(market);
 if (enhanced) market = enhanced;
 
@@ -106,6 +131,7 @@ writeFileSync(OUT, JSON.stringify({ ...market, slot, rotation, generatedAt: new 
 console.log("──────────────────────────────────────────────────────────────");
 console.log(`generated   : ${market.title}`);
 console.log(`category    : ${market.category}`);
+console.log(`live data   : ${live ? `BTC $${live.btc?.toLocaleString("en-US")} · snapshot ${live.asOf}` : "none (no price in this listing)"}`);
 console.log(`duration    : ${market.durationHours}h`);
 console.log(`source      : ${market.source}${apiKey ? " (API key present)" : " (kernel — no LLM key configured)"}`);
 console.log(`resolution  : ${market.resolution.slice(0, 110)}…`);

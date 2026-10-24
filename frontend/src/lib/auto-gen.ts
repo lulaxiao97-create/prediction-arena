@@ -65,6 +65,8 @@ export type GeneratedMarket = {
 };
 
 type Blueprint = {
+  /** True when the title embeds a number that must come from a live feed. */
+  needsLive?: boolean;
   title: (o: Ctx) => string;
   description: (o: Ctx) => string;
   resolution: (o: Ctx) => string;
@@ -72,8 +74,19 @@ type Blueprint = {
 };
 
 type Ctx = {
-  /** Rounded price band, e.g. "100k" — keeps the title plausible without a live price feed. */
+  /**
+   * Rounded strike above live spot, e.g. "85,000". Filled from the price snapshot that
+   * `scripts/fetch-prices.ts` writes — never from a constant in this file.
+   */
   band: string;
+  /** Live derived strikes/levels for the other venues (empty when no snapshot is available). */
+  ethBand: string;
+  solBand: string;
+  dominance: string;
+  mcap: string;
+  tvl: string;
+  /** ISO timestamp behind the numbers above, so copy can say how fresh they are. */
+  asOf: string;
   quarter: string;
   month: string;
   model: string;
@@ -81,7 +94,28 @@ type Ctx = {
   seat: string;
 };
 
-const BTC_BANDS = ["92k", "96k", "100k", "104k", "108k", "112k", "118k", "124k"];
+/**
+ * Numbers a blueprint is allowed to embed. Produced from a live snapshot only — this file has
+ * no price constants of its own, which is exactly the bug this type exists to prevent.
+ */
+export type LiveNumbers = {
+  btc?: number;
+  eth?: number;
+  sol?: number;
+  btcDominance?: number;
+  totalMarketCapUsd?: number;
+  baseTvlUsd?: number;
+  asOf: string;
+};
+
+const liveSteps: Record<string, number> = { BTC: 1_000, ETH: 50, SOL: 5 };
+
+/** Next round level above spot: 80,757 → 85,000 (BTC), 2,378 → 2,400 (ETH). */
+function strike(sym: keyof typeof liveSteps, spot: number, pct: number): string {
+  const step = liveSteps[sym];
+  const v = Math.ceil((spot * (1 + pct)) / step) * step;
+  return v >= 1_000 ? v.toLocaleString("en-US") : String(v.toFixed(sym === "SOL" ? 0 : 0));
+}
 const MODELS = ["GPT-6", "Claude 5", "Gemini 3.5", "Llama 5", "DeepSeek V4"];
 const QUARTERS = ["Q1", "Q2", "Q3", "Q4"];
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -89,6 +123,7 @@ const MONTHS = ["January", "February", "March", "April", "May", "June", "July", 
 const BLUEPRINTS: Record<string, Blueprint[]> = {
   Crypto: [
     {
+      needsLive: true,
       title: (c) => `Will BTC close above $${c.band} before ${c.quarter} ends?`,
       description: (c) =>
         `A clean binary on Bitcoin's ${c.quarter} close. The question is deliberately blunt: no "touch" wicks, no intraday prints — the weekly candle body is what counts. In a market this reflexive, the interesting part is not the level but who is willing to hold through the drawdown that usually precedes it.`,
@@ -306,13 +341,21 @@ export function generateMarket(input: {
   avoid?: string[];
   now?: Date;
   source?: "kernel" | "llm";
+  /** Live numbers from scripts/fetch-prices.ts. Required for any blueprint that embeds a price. */
+  live?: LiveNumbers | null;
 }): GeneratedMarket {
   const now = input.now ?? new Date(input.slot * 3_600_000);
   const r = prng(`market:${input.slot}:${input.rotation ?? 0}`);
-  const category = CATEGORY_ORDER[(input.rotation ?? 0) % CATEGORY_ORDER.length];
+  const live = input.live ?? null;
 
   const ctx: Ctx = {
-    band: pick(r, BTC_BANDS),
+    band: live?.btc ? strike("BTC", live.btc, 0.05) : "",
+    ethBand: live?.eth ? strike("ETH", live.eth, 0.06) : "",
+    solBand: live?.sol ? strike("SOL", live.sol, 0.08) : "",
+    dominance: live?.btcDominance ? `${(live.btcDominance + 1).toFixed(1)}%` : "",
+    mcap: live?.totalMarketCapUsd ? `$${(live.totalMarketCapUsd / 1e12).toFixed(2)}T` : "",
+    tvl: live?.baseTvlUsd ? `$${(live.baseTvlUsd / 1e9).toFixed(2)}B` : "",
+    asOf: live?.asOf ?? "",
     quarter: pick(r, QUARTERS),
     month: pick(r, MONTHS),
     model: pick(r, MODELS),
@@ -320,7 +363,18 @@ export function generateMarket(input: {
     seat: pick(r, ["Senate", "House"]),
   };
 
-  const pool = BLUEPRINTS[category];
+  // A blueprint that embeds a live number is unusable without one: skip the lane rather than
+  // print a stale or invented strike.
+  let category = CATEGORY_ORDER[(input.rotation ?? 0) % CATEGORY_ORDER.length];
+  if (!live) {
+    let guard = 0;
+    while (BLUEPRINTS[category].every((b) => b.needsLive) && guard < CATEGORY_ORDER.length) {
+      guard += 1;
+      category = CATEGORY_ORDER[(CATEGORY_ORDER.indexOf(category) + 1) % CATEGORY_ORDER.length];
+    }
+  }
+
+  const pool = BLUEPRINTS[category].filter((b) => !(b.needsLive && !live));
   const avoid = new Set((input.avoid ?? []).map((t) => t.toLowerCase()));
 
   // try up to `pool.length` blueprints so a rolling window never repeats a live title

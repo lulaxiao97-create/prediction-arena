@@ -13,6 +13,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
+import { LiveTicker } from "@/components/LiveTicker";
 import { AIAgentsDebate } from "@/components/AIAgentsDebate";
 import { MarketCard } from "@/components/MarketCard";
 import { FeaturedBanner } from "@/components/FeaturedBanner";
@@ -64,6 +65,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <Navbar active={category} onChange={setCategory} />
+      <LiveTicker />
 
       <main className="mx-auto max-w-[1400px] px-4 pb-10 pt-5 sm:px-6">
         {/* ── featured + dashboard ───────────────────────────────── */}

@@ -37,6 +37,16 @@ NODE="$HOME/.local/bin/node"
 NETWORK="${NETWORK:-base}"
 say "── tick start (network=$NETWORK dry_run=$DRY) ─────────────────────"
 
+# ── 0. live data + board ─────────────────────────────────────────────────────
+# Everything downstream reads numbers, so the snapshot comes first: prices → board → chain
+# refresh (which preserves the generated rows). Fail-soft: a dead feed must not stop the tick,
+# it just leaves yesterday's numbers in place and says so in the log.
+if bash scripts/refresh-board.sh >> "$LOG" 2>&1; then
+  say "board refreshed from live data"
+else
+  say "WARN board refresh failed — visible board keeps its previous numbers"
+fi
+
 # ── 1. refresh ───────────────────────────────────────────────────────────────
 if "$HARDHAT" run scripts/ops-refresh.ts --network "$NETWORK" >> "$LOG" 2>&1; then
   say "refresh ok: $(grep -o '"id"' logs/ops-refresh.json 2>/dev/null | wc -l | tr -d ' ') pool rows"

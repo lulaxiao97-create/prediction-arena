@@ -1,58 +1,111 @@
 /**
- * Market taxonomy — the single source of truth for the category tabs (7 Polymarket-style lanes).
+ * Market taxonomy — the single source of truth for the category tabs.
  *
- * On-chain pools carry a free-text `category` (owner chosen, e.g. "Macro", "Crypto", "CT Drama").
- * `toMarketCategory()` folds that into one of the six curated lanes so tabs never go empty because
- * of a spelling variant. Unknown values land in `other`, which only shows under "All".
+ * Seven lanes, the ones the board is actually generated into (scripts/gen-board.ts writes the
+ * canonical strings verbatim) plus "All Markets". On-chain pools still carry a free-text
+ * `category` chosen by the owner, so `toMarketCategory()` folds that into a lane and never
+ * leaves a tab empty because of a spelling variant. Unknown values land in `other`, which only
+ * appears under "All".
+ *
+ * Adding a lane means three edits, in this order: this file, the `nav.*` + `category.*` keys in
+ * lib/i18n.ts (all six locales), and the generator's category string.
  */
 
-export type MarketCategory = "all" | "crypto" | "ai" | "macro" | "politics" | "science" | "culture";
+export type MarketCategory =
+  | "all"
+  | "crypto"
+  | "defi"
+  | "ai"
+  | "memes"
+  | "sports"
+  | "politics"
+  | "base";
 export type ResolvedCategory = Exclude<MarketCategory, "all"> | "other";
 
 export const CATEGORY_TABS: { id: MarketCategory; emoji: string; i18n: string }[] = [
-  { id: "all", emoji: "🌐", i18n: "nav.allMarkets" },
-  { id: "crypto", emoji: "⚡", i18n: "nav.crypto" },
+  { id: "all", emoji: "🌍", i18n: "nav.allMarkets" },
+  { id: "crypto", emoji: "🪙", i18n: "nav.crypto" },
+  { id: "defi", emoji: "🚀", i18n: "nav.defi" },
   { id: "ai", emoji: "🤖", i18n: "nav.ai" },
-  { id: "macro", emoji: "📈", i18n: "nav.macro" },
-  { id: "politics", emoji: "🗳️", i18n: "nav.politics" },
-  { id: "science", emoji: "🧬", i18n: "nav.science" },
-  { id: "culture", emoji: "🎮", i18n: "nav.culture" },
+  { id: "memes", emoji: "🎭", i18n: "nav.memes" },
+  { id: "sports", emoji: "⚽", i18n: "nav.sports" },
+  { id: "politics", emoji: "🏛️", i18n: "nav.politics" },
+  { id: "base", emoji: "🌐", i18n: "nav.base" },
 ];
 
 const ALIASES: Record<string, ResolvedCategory> = {
-  // crypto
+  // 🪙 Crypto & Macro
   crypto: "crypto",
   cryptocurrency: "crypto",
   bitcoin: "crypto",
   btc: "crypto",
   eth: "crypto",
   ethereum: "crypto",
-  layer2: "crypto",
-  l2: "crypto",
-  defi: "crypto",
-  ecosystem: "crypto",
-  onchain: "crypto",
-  // ai & tech
+  sol: "crypto",
+  solana: "crypto",
+  macro: "crypto",
+  "macro & economy": "crypto",
+  "crypto & macro": "crypto",
+  economy: "crypto",
+  economics: "crypto",
+  fed: "crypto",
+  rates: "crypto",
+  inflation: "crypto",
+  macroeconomics: "crypto",
+  // 🚀 DeFi & L2
+  defi: "defi",
+  "defi & l2": "defi",
+  l2: "defi",
+  layer2: "defi",
+  "layer 2": "defi",
+  layer: "defi",
+  rollup: "defi",
+  rollups: "defi",
+  tvl: "defi",
+  dex: "defi",
+  lending: "defi",
+  yield: "defi",
+  // 🤖 AI & Web3 Tech
   ai: "ai",
   "ai & tech": "ai",
   "ai tech": "ai",
+  "ai & web3 tech": "ai",
+  "ai & web3": "ai",
   tech: "ai",
   technology: "ai",
   agents: "ai",
   llm: "ai",
   robotics: "ai",
-  // macro
-  macro: "macro",
-  "macro & economy": "macro",
-  economy: "macro",
-  economics: "macro",
-  fed: "macro",
-  rates: "macro",
-  macroeconomics: "macro",
-  inflation: "macro",
-  // politics & global
+  science: "ai",
+  "science & space": "ai",
+  // 🎭 Memes & Culture
+  memes: "memes",
+  meme: "memes",
+  "memes & culture": "memes",
+  culture: "memes",
+  "culture & pop": "memes",
+  pop: "memes",
+  "ct drama": "memes",
+  community: "memes",
+  social: "memes",
+  entertainment: "memes",
+  creators: "memes",
+  // ⚽ Sports & Esports
+  sports: "sports",
+  sport: "sports",
+  "sports & esports": "sports",
+  esports: "sports",
+  "e-sports": "sports",
+  football: "sports",
+  soccer: "sports",
+  nba: "sports",
+  basketball: "sports",
+  f1: "sports",
+  formula1: "sports",
+  // 🏛️ Politics & Policy
   politics: "politics",
   "politics & global": "politics",
+  "politics & policy": "politics",
   political: "politics",
   election: "politics",
   elections: "politics",
@@ -60,26 +113,18 @@ const ALIASES: Record<string, ResolvedCategory> = {
   global: "politics",
   world: "politics",
   policy: "politics",
-  // science & space
-  science: "science",
-  "science & space": "science",
-  space: "science",
-  biology: "science",
-  biotech: "science",
-  health: "science",
-  climate: "science",
-  physics: "science",
-  // culture
-  culture: "culture",
-  "culture & pop": "culture",
-  pop: "culture",
-  "ct drama": "culture",
-  meme: "culture",
-  memes: "culture",
-  community: "culture",
-  social: "culture",
-  sports: "culture",
-  entertainment: "culture",
+  regulation: "politics",
+  regulatory: "politics",
+  governance: "politics",
+  // 🌐 Base Ecosystem
+  base: "base",
+  "base ecosystem": "base",
+  "base eco": "base",
+  basechain: "base",
+  aerodrome: "base",
+  degen: "base",
+  onchain: "base",
+  ecosystem: "base",
 };
 
 export function toMarketCategory(raw?: string | null): ResolvedCategory {
