@@ -17,7 +17,10 @@ import argparse, json, os, re, socket, ssl, subprocess, sys, urllib.request
 ZONE = "predictionarena.online"
 WWW = "www." + ZONE
 ORIGIN = "prediction-arena-81d9.onrender.com"
-EXPECTED_NS = {"alaric.ns.cloudflare.com", "bristol.ns.cloudflare.com"}
+# Cloudflare assigns a *fresh* nameserver pair every time a zone is created (the pair is not
+# stable per domain), so asserting a specific pair turns a green setup red after any recreate.
+# What actually matters is that the delegation points at Cloudflare and nowhere else.
+NS_SUFFIX = ".ns.cloudflare.com"
 
 PROXY = None
 FAILS = []
@@ -84,7 +87,8 @@ def main():
 
     print(f"== DNS ({ZONE})")
     ns = sorted(a["data"].rstrip(".") for a in doh(ZONE, "NS").get("Answer", []) if a["type"] == 2)
-    check("nameservers are Cloudflare", set(ns) == EXPECTED_NS, ", ".join(ns) or "none")
+    check("nameservers are Cloudflare", len(ns) >= 2 and all(n.endswith(NS_SUFFIX) for n in ns),
+          ", ".join(ns) or "none")
 
     apex_ips = resolve_a(ZONE)
     www_ips = resolve_a(WWW)
