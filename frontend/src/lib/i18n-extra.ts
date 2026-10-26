@@ -11,6 +11,7 @@ export const EXTRA: Record<string, ExtraDict> = {
     rewards: {
       loading: "Loading rewards…",
       adUnconfiguredTitle: "Rewarded video is not configured",
+      unconfiguredShort: "Ads not configured",
       adUnconfiguredBody: "This build has no ad partner credentials, so no points can be earned here. There is no stand-in video: set the variables below and the real unit appears.",
       adIntro: "Watch a sponsored video and earn 10 points. The reward lands only after the provider confirms playback.",
       adStart: "Watch sponsored video",
@@ -192,6 +193,7 @@ export const EXTRA: Record<string, ExtraDict> = {
     rewards: {
       loading: "讀取獎勵中…",
       adUnconfiguredTitle: "尚未接入激勵視頻",
+      unconfiguredShort: "廣告未接入",
       adUnconfiguredBody: "此版本沒有廣告聯盟憑證，因此這裡賺不到積分。我們不會放替代影片濫竽充數：填上下方變數，真實廣告位就會出現。",
       adIntro: "看一條贊助視頻可賺 10 積分。只有廣告方回調確認播放完成後才入帳。",
       adStart: "觀看贊助視頻",

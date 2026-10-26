@@ -5,6 +5,7 @@ import { Banknote, Loader2, Play, Ticket, Trophy } from "lucide-react";
 import { cn } from "@/lib/format";
 import { useI18n } from "@/components/LocaleProvider";
 import { useRewards } from "@/components/RewardsProvider";
+import { adsConfig } from "@/lib/ads";
 import { POINTS_PER_TICKET, usd } from "@/lib/rewards";
 
 /**
@@ -67,7 +68,7 @@ export function RewardsPanel({ onOpenAd }: { onOpenAd?: () => void }) {
 
       <div className="flex flex-wrap gap-2">
         <button onClick={goAd} className="btn-gold flex-1 py-1.5 text-[11.5px]">
-          <Play className="size-3" /> {t("rewards.watch")}
+          <Play className="size-3" /> {adsConfig().ready ? t("rewards.watch") : t("rewards.unconfiguredShort")}
         </button>
         <button
           onClick={() => void redeem(1)}
