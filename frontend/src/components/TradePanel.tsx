@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useAccount, useBalance } from "wagmi";
-import { AlertTriangle, ArrowRight, CheckCircle2, ChevronDown, ExternalLink, Fuel, Info, Loader2, ShieldAlert, Wallet } from "lucide-react";
+import { AlertTriangle, ArrowRight, CheckCircle2, ChevronDown, Coins, ExternalLink, Fuel, Info, Loader2, ShieldAlert, Ticket, Wallet } from "lucide-react";
 import type { ArenaPool } from "@/lib/types";
 import { cn, explorerTx, formatProbability, formatUsdc, impliedMultiplier } from "@/lib/format";
 import { quickAmountsFor, resolveTradeGuard } from "@/lib/trade-guard";
@@ -13,6 +13,8 @@ import { DemoBadge } from "@/components/DemoBadge";
 import { ShareActions } from "@/components/ShareActions";
 import { select as hapticSelect } from "@/lib/haptics";
 import { useI18n } from "@/components/LocaleProvider";
+import { useRewards } from "@/components/RewardsProvider";
+import { TICKET_CENTS, usd } from "@/lib/rewards";
 import { useToast } from "@/components/Toast";
 import { recordTrade } from "@/hooks/useTradeHistory";
 import {
@@ -42,6 +44,10 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
   // still cannot transact. Checked separately so the CTA can say which one is missing.
   const { data: ethBalance } = useBalance({ address, query: { enabled: Boolean(address) } });
   const { bet, step, error, hash, reset } = useBet();
+  const { view: rewards, stake: stakeTicket, openAd } = useRewards();
+  /** rail A = USDC on Base, rail B = a $1 ticket tracked in the rewards ledger */
+  const [track, setTrack] = useState<"usdc" | "ticket">("usdc");
+  const [ticketPending, setTicketPending] = useState(false);
 
   const [option, setOption] = useState<0 | 1>(0);
   const [amountInput, setAmountInput] = useState("50");
@@ -53,6 +59,13 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
   const amount = useMemo(() => parseAmount(amountInput) ?? 0n, [amountInput]);
   const quickAmounts = useMemo(() => quickAmountsFor(cap), [cap]);
   const [capHintOpen, setCapHintOpen] = useState(false);
+  const tickets = rewards?.tickets ?? 0;
+  const ticketMode = track === "ticket";
+  // A ticket buys `1/prob` $1 shares at the market's current implied price — the same
+  // pari-mutuel maths as a USDC stake, just with a fixed $1 notional.
+  const marketProb = Math.min(0.99, Math.max(0.01, Number(option === 0 ? pool.option0Pool : pool.option1Pool) / Math.max(1, Number(pool.totalNetPool)) || 0.5));
+  const ticketPayoutCents = Math.round(TICKET_CENTS / marketProb);
+  const marketOpen = pool.status === 1;
   const balanceValue = (balance.data as bigint | undefined) ?? undefined;
 
   const fee = (amount * FEE_BPS) / BPS;
@@ -142,6 +155,26 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
     }
   }, [step, error, hash, amount, option, pool.id, pool.title, pool.source, t, toast]);
 
+  async function submitTicket() {
+    if (!marketOpen || ticketPending) return;
+    if (tickets < 1) {
+      openAd();
+      return;
+    }
+    setTicketPending(true);
+    const res = await stakeTicket(pool.id.toString(), option);
+    setTicketPending(false);
+    if (res.ok) {
+      toast.push({
+        kind: "success",
+        title: t("rewards.ticketPlaced"),
+        description: t("rewards.ticketPlacedBody", { prob: `${Math.round(marketProb * 100)}%`, payout: usd(ticketPayoutCents) }),
+      });
+    } else {
+      toast.push({ kind: "error", title: t("rewards.ticketFailed"), description: res.error ?? "" });
+    }
+  }
+
   async function submit() {
     if (invalid || pending || !live) return;
     recorded.current = false;
@@ -192,6 +225,24 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
 
       {!live && <DemoBadge />}
 
+      {/* payment rail — the ticket rail never touches the contract, so it is available on
+          every market and needs no wallet, no gas and no USDC balance */}
+      <div className="grid grid-cols-2 gap-1 rounded-xl border border-white/8 bg-white/[0.02] p-1">
+        {([["usdc", t("rewards.railUsdc"), Coins], ["ticket", t("rewards.railTicket"), Ticket]] as const).map(([id, label, Icon]) => (
+          <button
+            key={id}
+            onClick={() => { hapticSelect(); setTrack(id); }}
+            aria-pressed={track === id}
+            className={cn(
+              "flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-[11.5px] font-medium transition-all",
+              track === id ? "bg-white/8 text-ink shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]" : "text-muted hover:text-ink",
+            )}
+          >
+            <Icon className="size-3" /> {label}
+          </button>
+        ))}
+      </div>
+
       {/* outcome selector — colour follows the choice immediately */}
       <div className="grid grid-cols-2 gap-2">
         {([0, 1] as const).map((value) => {
@@ -230,6 +281,7 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
         })}
       </div>
 
+      {!ticketMode && (<>
       {/* amount */}
       <div className="rounded-xl border border-white/8 bg-white/[0.02] p-3">
         <div className="flex items-center justify-between text-[11px] text-muted">
@@ -353,26 +405,53 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
         )}
       </div>
 
-      {wrongChain && (
+      </>)}
+
+      {ticketMode && (
+        <div className="rounded-xl border border-cyan/25 bg-cyan/[0.05] p-3">
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-1.5 text-[11px] text-cyan-bright/90">
+              <Ticket className="size-3.5" /> {t("rewards.ticketUnit")}
+            </span>
+            <span className="mono rounded-md border border-cyan/30 bg-cyan/10 px-1.5 py-0.5 text-[10px] text-cyan-bright">
+              {tickets} {t("rewards.ticketsShort")}
+            </span>
+          </div>
+          <p className="mono mt-2 text-2xl font-semibold text-ink">{usd(TICKET_CENTS)}</p>
+          <div className="mt-2 grid grid-cols-2 gap-2 text-[10.5px]">
+            <div className="rounded-lg border border-white/6 bg-white/[0.02] px-2 py-1.5">
+              <p className="text-[9px] uppercase tracking-[0.08em] text-muted/60">{t("rewards.ticketShares")}</p>
+              <p className="mono mt-0.5 text-[12.5px] text-ink">{(TICKET_CENTS / 100 / marketProb).toFixed(2)}</p>
+            </div>
+            <div className="rounded-lg border border-white/6 bg-white/[0.02] px-2 py-1.5">
+              <p className="text-[9px] uppercase tracking-[0.08em] text-muted/60">{t("rewards.ticketPays")}</p>
+              <p className="mono mt-0.5 text-[12.5px] text-profit">{usd(ticketPayoutCents)}</p>
+            </div>
+          </div>
+          <p className="mt-2 text-[9.5px] leading-relaxed text-muted/60">{t("rewards.ticketNote")}</p>
+        </div>
+      )}
+
+      {!ticketMode && wrongChain && (
         <button onClick={switchToTarget} disabled={switching} className="btn-ghost w-full text-[12.5px]">
           <Wallet className="size-3.5" />
           {switching ? "…" : t("trade.switchChain")}
         </button>
       )}
 
-      {error && <p className="rounded-lg border border-loss/30 bg-loss/10 px-2.5 py-2 text-[11px] text-loss">{error}</p>}
-      {amount > 0n && payout > 0n && payout < amount && (
+      {!ticketMode && error && <p className="rounded-lg border border-loss/30 bg-loss/10 px-2.5 py-2 text-[11px] text-loss">{error}</p>}
+      {!ticketMode && amount > 0n && payout > 0n && payout < amount && (
         <p className="flex items-start gap-1.5 rounded-lg border border-gold/25 bg-gold/[0.06] px-2.5 py-2 text-[10px] leading-relaxed text-gold-bright/90">
           <Info className="mt-0.5 size-3 shrink-0" />
           {t("trade.thinSideWarning")}
         </p>
       )}
 
-      {tooBig && !error && guard !== "above-cap" && (
+      {!ticketMode && tooBig && !error && guard !== "above-cap" && (
         <p className="text-[11px] text-loss">{t("trade.aboveCap", { cap: formatUsdc(cap, 0) })}</p>
       )}
-      {noBalance && !error && <p className="text-[11px] text-loss">{t("trade.insufficient")}</p>}
-      {(emptyUsdc || noBalance || noGas) && !error && (
+      {!ticketMode && noBalance && !error && <p className="text-[11px] text-loss">{t("trade.insufficient")}</p>}
+      {!ticketMode && (emptyUsdc || noBalance || noGas) && !error && (
         <div className="rounded-lg border border-loss/25 bg-loss/[0.06] px-2.5 py-2 text-[10.5px] leading-relaxed">
           <p className="flex items-start gap-1.5 text-loss/90">
             <AlertTriangle className="mt-0.5 size-3 shrink-0" />
@@ -406,6 +485,23 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
             {t("trade.done")}
           </button>
         </div>
+      ) : ticketMode ? (
+        <button
+          onClick={() => void submitTicket()}
+          disabled={!marketOpen || ticketPending}
+          className={cn(
+            "w-full rounded-xl border py-2.5 text-[13px] font-semibold transition-all active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55",
+            "border-cyan/50 bg-cyan/12 text-cyan-bright hover:bg-cyan/20",
+          )}
+        >
+          {ticketPending ? (
+            <span className="inline-flex items-center gap-1.5"><Loader2 className="size-4 animate-spin" /> {t("rewards.ticketPending")}</span>
+          ) : tickets < 1 ? (
+            <span className="inline-flex items-center gap-1.5"><Ticket className="size-4" /> {t("rewards.ticketWatch")}</span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5"><Ticket className="size-4" /> {t("rewards.ticketCta")}</span>
+          )}
+        </button>
       ) : (
         <button
           onClick={submit}
@@ -429,7 +525,7 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
         </button>
       )}
 
-      <p className="text-[10px] leading-relaxed text-muted/60">{t("trade.oneClick")}</p>
+      <p className="text-[10px] leading-relaxed text-muted/60">{ticketMode ? t("rewards.ticketNote") : t("trade.oneClick")}</p>
     </div>
   );
 }

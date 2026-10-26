@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAccount, useReadContracts } from "wagmi";
@@ -16,6 +17,7 @@ import {
 } from "lucide-react";
 import type { Address } from "viem";
 import { useI18n } from "@/components/LocaleProvider";
+import { RewardsPanel } from "@/components/RewardsPanel";
 import { Logo } from "@/components/Logo";
 import { useToast } from "@/components/Toast";
 import { useMarkets } from "@/hooks/useMarkets";
@@ -42,6 +44,11 @@ type Row = {
 export function PortfolioDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useI18n();
   const toast = useToast();
+  // The drawer lives inside <header>, whose backdrop-filter makes it a containing block for
+  // `position: fixed` — so `inset-y-0` resolved against the 125px header instead of the
+  // viewport. Portalling to <body> puts it back on the viewport.
+  const [portalReady, setPortalReady] = useState(false);
+  useEffect(() => setPortalReady(true), []);
   const { address } = useAccount();
   const queryClient = useQueryClient();
   const { pools } = useMarkets();
@@ -128,7 +135,9 @@ export function PortfolioDrawer({ open, onClose }: { open: boolean; onClose: () 
     }
   }
 
-  return (
+  if (!portalReady) return null;
+
+  return createPortal(
     <>
       <div
         onClick={onClose}
@@ -163,6 +172,10 @@ export function PortfolioDrawer({ open, onClose }: { open: boolean; onClose: () 
         </header>
 
         <div className="flex-1 space-y-4 overflow-y-auto p-4">
+          {/* rewards ledger — points, tickets and the $1 practice book. Works without a wallet,
+              because watching an ad has nothing to do with signing anything. */}
+          <RewardsPanel />
+
           {!address && (
             <div className="rounded-xl border border-gold/25 bg-gold/[0.06] px-3 py-6 text-center">
               <p className="text-[12.5px] font-medium text-gold-bright">{t("trade.connectFirst")}</p>
@@ -323,6 +336,7 @@ export function PortfolioDrawer({ open, onClose }: { open: boolean; onClose: () 
           </section>
         </div>
       </aside>
-    </>
+    </>,
+    document.body,
   );
 }
