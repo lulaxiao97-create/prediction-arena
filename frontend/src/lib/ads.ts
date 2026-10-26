@@ -1,18 +1,22 @@
 /**
  * Rewarded-ad adapter — HypeLab web SDK.
  *
- * What the real SDK actually is (verified against
- * https://api.hypelab.com/v1/scripts/hp-sdk.js?v=0, 29 KB, Aug 2026):
+ * What the real SDK actually is (read off
+ * https://api.hypelab.com/v1/scripts/hp-sdk.js?v=0, 29,170 bytes):
  *
  *   window.HypeLab.initialize({ propertySlug, environment, privacy })
  *   document.createElement("hype-banner")  + attribute placement="<slug>"
- *   document.createElement("hype-native")  + attribute placement="<slug>"
- *   element events: "ready" (creative filled), "error" (auction refused)
+ *   element events: "ready" (creative filled) | "error" (no bid / refused)
  *
- * There is **no rewarded-video API on web** — `showRewarded` / `onReward` do not exist in the
- * bundle (their rewarded units ship on iOS / Android / Unity). So "watch to earn" here means a
- * real sponsored placement rendered by HypeLab, held on screen for a minimum dwell, and only
- * rewarded once the element has fired `ready`. No creative, no reward.
+ * Notes that matter for correctness:
+ * - There is no rewarded-video API on web. `showRewarded` / `onReward` appear 0 times in the
+ *   bundle; rewarded units ship on iOS / Android / Unity only. So "watch to earn" is a real
+ *   sponsored placement held on screen, not a publisher-supplied video.
+ * - `buildImpression()` hardcodes `banner: { w: 0, h: 0 }` — the 0×0 in the auction payload is the
+ *   SDK's own behaviour, not a layout bug on our side.
+ * - The SDK only proceeds on HTTP 200; a 204 means "auction ran, nobody bid", a 400 means the
+ *   property/placement pair is unknown. The element fires `error` for all of them, so we watch the
+ *   fetch status ourselves to tell the user the truth instead of one generic failure.
  */
 
 export type AdsConfig = {
@@ -51,6 +55,26 @@ export function adsConfig(): AdsConfig {
   };
 }
 
+/** Last HTTP status seen on HypeLab's auction endpoint (200 fill / 204 no bid / 400 unknown). */
+let lastAuctionStatus: number | null = null;
+let fetchPatched = false;
+
+function observeAuctions() {
+  if (fetchPatched || typeof window === "undefined" || !window.fetch) return;
+  fetchPatched = true;
+  const orig = window.fetch.bind(window);
+  window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+    const res = await orig(input as RequestInfo, init);
+    try {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+      if (url.includes("/rtb_requests")) lastAuctionStatus = res.status;
+    } catch {
+      /* never let diagnostics break the request */
+    }
+    return res;
+  };
+}
+
 let loading: Promise<boolean> | null = null;
 
 /** Inject HypeLab's bundle once and initialise the property. Resolves false if it never arrives. */
@@ -58,13 +82,14 @@ export function loadAdsSdk(): Promise<boolean> {
   if (typeof window === "undefined") return Promise.resolve(false);
   const cfg = adsConfig();
   if (!cfg.ready || !cfg.scriptUrl) return Promise.resolve(false);
+  observeAuctions();
 
   const init = () => {
     try {
       window.HypeLab?.initialize?.({
         propertySlug: cfg.propertyId,
         environment: "production",
-        // we never need wallet detection for an ad impression; keep it off
+        // an ad impression never needs wallet detection; keep it off
         privacy: { disableWalletDetection: true },
       });
       return true;
@@ -89,24 +114,19 @@ export function loadAdsSdk(): Promise<boolean> {
   return loading;
 }
 
-export type AdMountResult =
-  | { ok: true; destroy: () => void }
-  | { ok: false; reason: string };
+export type AdFailReason = "not-configured" | "sdk-unavailable" | "no-fill" | "invalid-placement" | "timeout";
+export type AdMountResult = { ok: true; destroy: () => void } | { ok: false; reason: AdFailReason };
 
-/**
- * Put a real placement into `host` and resolve when the auction fills it.
- * `reason` carries the provider's own words when it refuses (e.g. the 400 body), so the UI can
- * show a diagnostic instead of a generic failure.
- */
-export async function mountPlacement(host: HTMLElement): Promise<AdMountResult> {
-  const cfg = adsConfig();
-  if (!cfg.ready) return { ok: false, reason: "not-configured" };
-  const loaded = await loadAdsSdk();
-  if (!loaded) return { ok: false, reason: "sdk-unavailable" };
+function auctionError(): AdFailReason {
+  if (lastAuctionStatus === 204) return "no-fill";
+  if (lastAuctionStatus === 400) return "invalid-placement";
+  return "no-fill";
+}
 
+function once(host: HTMLElement, placement: string): Promise<AdMountResult> {
   return new Promise<AdMountResult>((resolve) => {
     const el = document.createElement("hype-banner");
-    el.setAttribute("placement", cfg.placement as string);
+    el.setAttribute("placement", placement);
     el.style.cssText = "display:block;width:100%;min-height:250px;";
 
     let settled = false;
@@ -118,16 +138,34 @@ export async function mountPlacement(host: HTMLElement): Promise<AdMountResult> 
 
     el.addEventListener("ready", () => done({ ok: true, destroy: () => el.remove() }), { once: true });
     el.addEventListener("error", () => {
-      done({
-        ok: false,
-        reason:
-          "The ad network refused this placement (HypeLab: “Unable to find valid placements or properties”). " +
-          "The property/placement pair is not active on the account — nothing was credited.",
-      });
+      const reason = auctionError();
+      el.remove();
+      done({ ok: false, reason });
     }, { once: true });
 
     host.appendChild(el);
-    // an auction that never answers must not hold the dialog hostage
-    window.setTimeout(() => done({ ok: false, reason: "timeout" }), 12_000);
+    window.setTimeout(() => {
+      if (!settled) el.remove();
+      done({ ok: false, reason: "timeout" });
+    }, 9_000);
   });
+}
+
+/**
+ * Put a real placement into `host` and resolve when the auction fills it.
+ * One silent retry on "no bid": a second auction frequently fills where the first one did not.
+ */
+export async function mountPlacement(host: HTMLElement): Promise<AdMountResult> {
+  const cfg = adsConfig();
+  if (!cfg.ready) return { ok: false, reason: "not-configured" };
+  const loaded = await loadAdsSdk();
+  if (!loaded) return { ok: false, reason: "sdk-unavailable" };
+
+  lastAuctionStatus = null;
+  const first = await once(host, cfg.placement as string);
+  if (first.ok) return first;
+  if (first.reason === "invalid-placement" || first.reason === "timeout") return first;
+
+  await new Promise((r) => window.setTimeout(r, 2_500));
+  return once(host, cfg.placement as string);
 }

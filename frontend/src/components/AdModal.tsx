@@ -55,7 +55,15 @@ export function AdModal({ open, onClose }: { open: boolean; onClose: () => void 
 
     const mount = await mountPlacement(hostRef.current);
     if (!mount.ok) {
-      setError(mount.reason === "timeout" ? t("rewards.adTimeout") : mount.reason === "not-configured" ? t("rewards.adUnconfiguredBody") : mount.reason);
+      const msg =
+        mount.reason === "timeout"
+          ? t("rewards.adTimeout")
+          : mount.reason === "invalid-placement"
+            ? t("rewards.adInvalidPlacement", { property: cfg.propertyId ?? "", placement: cfg.placement ?? "" })
+            : mount.reason === "sdk-unavailable"
+              ? t("rewards.unavailable")
+              : t("rewards.adNoFill");
+      setError(msg);
       setPhase("error");
       return;
     }
