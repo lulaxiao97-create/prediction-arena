@@ -160,7 +160,17 @@ export function coverFor(input: Input): CoverSpec {
         : has(subject, /context/i)
           ? "FRONTIER MODELS"
           : "AI · COMPUTE";
-    return { kind: "ai", photo: "ai-lab", accent: "#22D3EE", entity, kicker: "MACHINE INTELLIGENCE", metric: numericTag(tags) };
+    // Agents get the lattice photograph: a lane where five cards share one server hall looks
+    // like a template, and "a network of agents" is exactly what the lattice says.
+    const agents = /agent/i.test(subject);
+    return {
+      kind: agents ? "neural" : "ai",
+      photo: agents ? "neural" : "ai-lab",
+      accent: "#22D3EE",
+      entity,
+      kicker: agents ? "AUTONOMOUS AGENTS" : "MACHINE INTELLIGENCE",
+      metric: numericTag(tags),
+    };
   }
 
   /* 5 — memes & culture. A meme *token* keeps its ticker mark, but wears the street-art photo:

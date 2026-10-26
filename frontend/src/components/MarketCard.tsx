@@ -110,10 +110,11 @@ export function MarketCard({
           </span>
         )}
         <div className="absolute inset-x-0 bottom-0 p-3">
-          <p className="mono truncate text-[8.5px] uppercase tracking-[0.22em]" style={{ color: cover.accent }}>
-            {cover.kicker}
+          <p className="mono flex items-center gap-1 truncate text-[8.5px] uppercase tracking-[0.22em] text-ink/75">
+            <span className="size-1 shrink-0 rounded-full" style={{ backgroundColor: cover.accent }} />
+            <span className="truncate">{cover.kicker}</span>
           </p>
-          <p className="mt-0.5 truncate text-[14px] font-bold leading-none tracking-tight text-ink">
+          <p className="mt-0.5 truncate text-[14px] font-bold leading-none tracking-tight text-ink" style={{ textShadow: "0 1px 10px rgba(3,6,12,0.9)" }}>
             {cover.entity}
           </p>
         </div>

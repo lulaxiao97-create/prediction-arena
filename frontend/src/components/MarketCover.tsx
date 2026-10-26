@@ -221,7 +221,7 @@ export function MarketCover({
         className={cn(
           "absolute inset-0",
           card
-            ? "bg-gradient-to-t from-void via-void/55 to-void/15"
+            ? "bg-gradient-to-t from-void via-void/62 to-void/18"
             : variant === "banner"
               ? "bg-gradient-to-r from-void via-void/70 to-void/25"
               : "bg-gradient-to-r from-void via-void/72 to-void/20",

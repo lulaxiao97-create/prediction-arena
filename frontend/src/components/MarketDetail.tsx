@@ -139,8 +139,9 @@ export function MarketDetail({ id }: { id: string }) {
                   </span>
                 )}
                 <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
-                  <p className="mono truncate text-[9px] uppercase tracking-[0.26em]" style={{ color: cover.accent }}>
-                    {cover.kicker}
+                  <p className="mono flex items-center gap-1.5 truncate text-[9px] uppercase tracking-[0.26em] text-ink/80">
+                    <span className="size-1.5 shrink-0 rounded-full" style={{ backgroundColor: cover.accent }} />
+                    <span className="truncate">{cover.kicker}</span>
                   </p>
                   <p className="mt-1 truncate text-[22px] font-bold leading-none tracking-tight text-ink sm:text-[26px]">
                     {cover.entity}
