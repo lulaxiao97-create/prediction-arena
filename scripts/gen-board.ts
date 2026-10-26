@@ -600,6 +600,19 @@ function main() {
   const now = new Date();
   const drafts = buildBoard(snap, now);
 
+  // Pools that exist on the contract are the contract's rows, not ours: emit them as
+  // `source: "chain"` so the UI reads status/liquidity live and the USDC rail is open. The
+  // registry is written by scripts/sync-opened-pools.py from getPool(), so a pool that was
+  // cancelled still shows up (and reads as Canceled) instead of silently becoming a demo row.
+  const OPENED = join(ROOT, "scripts", "opened-pools.json");
+  type OpenedPool = { id: string; title: string; category?: string; endTimeUtc: string };
+  const openedRows: OpenedPool[] = existsSync(OPENED)
+    ? Object.values(JSON.parse(readFileSync(OPENED, "utf8")) as Record<string, OpenedPool>)
+    : [];
+  const norm = (t: string) => t.toLowerCase().replace(/\s+/g, " ").trim();
+  const openedByTitle = new Map(openedRows.map((o) => [norm(o.title), o]));
+  const openedIds = new Set(openedRows.map((o) => o.id));
+
   // Chain rows are the contract's; only the generated half is rewritten.
   let previous: { pools?: Pool[]; [k: string]: unknown } = {};
   if (existsSync(POOLS)) {
@@ -612,11 +625,40 @@ function main() {
   const chainRows = (previous.pools ?? []).filter((p) => p.source === "chain");
   const prevDemo = new Map((previous.pools ?? []).filter((p) => p.source !== "chain").map((p) => [p.title, p]));
 
+  const usedDemoIds = new Set<string>();
   const generated: Pool[] = drafts.map((d, i) => {
     // Keep the previous share/volume for an unchanged title so a re-run does not look like a jump.
     const prev = prevDemo.get(d.title);
+
+    // A title the opener has already put on chain keeps the contract's id and deadline.
+    const live = openedByTitle.get(norm(d.title));
+    if (live) {
+      return {
+        id: live.id,
+        title: d.title,
+        category: d.category,
+        tags: d.tags,
+        source: "chain" as const,
+        status: 1,
+        endTimeUtc: live.endTimeUtc,
+        liquidityUsdc: d.liquidityUsdc,
+        yesShare: d.yesShare,
+        volume24hUsdc: prev?.volume24hUsdc ?? d.volume24hUsdc,
+        traders: d.traders,
+        description: d.description,
+        resolution: d.resolution,
+        dataSource: d.dataSource,
+        dataAsOf: d.dataAsOf,
+        marketData: d.marketData,
+        visual: coverFor({ title: d.title, category: d.category, tags: d.tags, marketData: d.marketData }),
+      };
+    }
+
+    let demoId = String(ID_BASE + i + 1);
+    while (openedIds.has(demoId) || usedDemoIds.has(demoId)) demoId = String(Number(demoId) + 1);
+    usedDemoIds.add(demoId);
     return {
-      id: String(ID_BASE + i + 1),
+      id: demoId,
       title: d.title,
       category: d.category,
       tags: d.tags,
@@ -650,7 +692,7 @@ function main() {
     chainId: previous.chainId ?? 8453,
     deployBlock: previous.deployBlock ?? 52935381,
     updatedAt: now.toISOString(),
-    featured: chainRows[0]?.id ?? generated[0]?.id,
+    featured: generated.find((p) => p.source === "chain")?.id ?? chainRows[0]?.id ?? generated[0]?.id,
     dataSources: {
       prices: "Binance /api/v3/ticker/24hr (majors) + CoinGecko /simple/price (Base tokens)",
       global: "CoinGecko /global",
@@ -663,7 +705,14 @@ function main() {
       activeMarkets: generated.length + chainRows.length,
       settledMarkets: 0,
     },
-    pools: [...chainRows, ...generated],
+    pools: (() => {
+      const byId = new Map<string, Pool>();
+      for (const row of [...chainRows, ...generated]) {
+        const existing = byId.get(row.id);
+        if (!existing || row.source === "chain") byId.set(row.id, row);
+      }
+      return [...byId.values()];
+    })(),
   };
 
   mkdirSync(dirname(OUT_LOG), { recursive: true });

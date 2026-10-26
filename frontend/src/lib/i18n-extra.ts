@@ -92,7 +92,7 @@ export const EXTRA: Record<string, ExtraDict> = {
       hintLabel: "What does this badge mean?",
       hintLive: "Read live from the Prediction Arena contract on Base: BetPlaced, RewardsClaimed and PoolSettled events from the last 3 hours. The carousel restarts whenever a new event arrives.",
       emptyTitle: "Waiting for the first on-chain event",
-      emptyBody: "The feed reads BetPlaced, RewardsClaimed and PoolSettled on Base. No pool is funded yet, so there is nothing to show — and we would rather show nothing than a made-up row.",
+      emptyBody: "The feed reads BetPlaced, RewardsClaimed and PoolSettled on Base. No bet has been placed since this window opened, so there is nothing to show — and we would rather show nothing than a made-up row.",
       emptyError: "The Base reader could not reach a node just now. The feed retries on the next load.",
     },
     // share / demo surfaces (market header, trade panel, mobile sheet)
@@ -104,7 +104,7 @@ export const EXTRA: Record<string, ExtraDict> = {
       copiedBody: "Anyone opening it lands straight on this market.",
       copyFailed: "Couldn't copy — select the link manually",
       demoBadge: "Off-chain board",
-      demoBadgeBody: "Priced from live feeds. The USDC pool is not funded yet, so USDC trading is off; free tickets work now.",
+      demoBadgeBody: "Priced from live feeds. This listing is not opened on the contract yet, so the USDC rail is not connected here; free tickets work now, and the ops daemon opens every listing within 30 minutes.",
       demoTag: "PRE",
     },
     nav: {
@@ -299,7 +299,7 @@ export const EXTRA: Record<string, ExtraDict> = {
       copiedBody: "開啟連結的人會直接進入這個市場。",
       copyFailed: "複製失敗——請手動選取連結",
       demoBadge: "未上鏈盤口",
-      demoBadgeBody: "價格來自即時行情。USDC 資金池尚未充值，因此 USDC 交易未開啟；免費體驗券可正常使用。",
+      demoBadgeBody: "價格來自即時行情。此盤口尚未在合約上開池，因此這裡的 USDC 通道未接上；免費體驗券可正常使用，營運守護進程會在 30 分鐘內開池。",
       demoTag: "預",
     },
     nav: {

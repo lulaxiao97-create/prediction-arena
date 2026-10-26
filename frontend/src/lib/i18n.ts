@@ -136,7 +136,7 @@ const en = {
     aboveCap: "Above the ${cap} per-trade cap.",
     oneClick:
       "One click: allowance check → approve if needed → bet(). The contract is nonReentrant and keeps fees and liquidity in separate ledgers.",
-    demoMode: "USDC trading is off here: NEXT_PUBLIC_ARENA_ADDRESS is not configured.",
+    demoMode: "This build has no contract address, so the USDC rail cannot connect here.",
     odds: "Odds",
     shares: "Est. shares",
     roi: "Potential ROI",
@@ -246,8 +246,8 @@ const en = {
     reentrancy: "nonReentrant",
   },
   demoBanner: {
-    noContract: "No contract address is configured for this build, so USDC trading is off.",
-    noMarkets: "No on-chain market is listed yet. Everything below is priced from live feeds; USDC pools open when the contract is funded.",
+    noContract: "No contract address is configured for this build, so the USDC rail is not connected.",
+    noMarkets: "No on-chain market is listed yet. Everything below is priced from live feeds; each listing is opened on the contract by the ops daemon.",
   },
   agent: {
     debateTitle: "AI Agents · Live Debate",
@@ -386,7 +386,7 @@ const zhTW: DeepDict = {
     belowMin: "金額低於 $5 最低門檻。",
     aboveCap: "超過單筆上限 ${cap}。",
     oneClick: "一鍵完成：檢查授權 → 必要時 approve → bet()。合約具 nonReentrant，手續費與流動性分帳管理。",
-    demoMode: "此盤口的 USDC 交易未開啟：尚未設定 NEXT_PUBLIC_ARENA_ADDRESS。",
+    demoMode: "此建置沒有合約地址，因此這裡無法接上 USDC 通道。",
     odds: "賠率",
     shares: "預估份額",
     roi: "潛在報酬率",
