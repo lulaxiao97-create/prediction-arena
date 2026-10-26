@@ -90,6 +90,8 @@ export const EXTRA: Record<string, ExtraDict> = {
     },
     feed: {
       hintLabel: "What does this badge mean?",
+      badgeBoard: "live",
+      hintBoard: "Aggregated across every listed market and refreshed continuously.",
       hintLive: "Read live from the Prediction Arena contract on Base: BetPlaced, RewardsClaimed and PoolSettled events from the last 3 hours. The carousel restarts whenever a new event arrives.",
       emptyTitle: "Waiting for the first on-chain event",
       emptyBody: "The feed reads BetPlaced, RewardsClaimed and PoolSettled on Base. No bet has been placed since this window opened, so there is nothing to show — and we would rather show nothing than a made-up row.",

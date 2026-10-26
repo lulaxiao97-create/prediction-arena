@@ -54,8 +54,12 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
   const toastId = useRef<string | null>(null);
   const recorded = useRef(false);
 
+  // `live` is presentation only (which badge to show). The buy rail itself is open whenever the
+  // contract is configured: every listed id has a pool on chain, so bet() lands even when the card
+  // is priced from the demo feed.
   const live = hasArena && pool.source === "chain";
-  const cap = live && capData ? (capData as bigint) : MAX_BET_USDC;
+  const tradable = hasArena;
+  const cap = tradable && capData ? (capData as bigint) : MAX_BET_USDC;
   const amount = useMemo(() => parseAmount(amountInput) ?? 0n, [amountInput]);
   const quickAmounts = useMemo(() => quickAmountsFor(cap), [cap]);
   const [capHintOpen, setCapHintOpen] = useState(false);
@@ -176,7 +180,7 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
   }
 
   async function submit() {
-    if (invalid || pending || !live) return;
+    if (invalid || pending || !tradable) return;
     recorded.current = false;
     toastId.current = toast.push({ kind: "loading", title: t("toast.approving"), description: t("toast.approvingBody") });
     try {
@@ -504,7 +508,7 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
       ) : (
         <button
           onClick={submit}
-          disabled={!live || !address || invalid || pending}
+          disabled={!tradable || !address || invalid || pending}
           className={cn(
             "w-full rounded-xl border py-2.5 text-[13px] font-semibold transition-all active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55",
             isYes

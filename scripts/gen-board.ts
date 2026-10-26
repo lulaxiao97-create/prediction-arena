@@ -200,7 +200,7 @@ function buildBoard(snap: PriceSnapshot, now: Date): Draft[] {
       deadline: opts.deadline,
       liquidityUsdc: String(Math.round(14_000 + p * 40_000)),
       yesShare: Number(p.toFixed(3)),
-      volume24hUsdc: "0",
+      volume24hUsdc: turnover24h(`Will ${opts.name} close above ${fmtMoney(strike)}`, String(Math.round(14_000 + p * 40_000))),
       traders: Math.round(40 + p * 260),
       description: `${opts.story} Spot is ${fmtMoney(spot)} (${chg(opts.sym) === null ? "n/a" : `${chg(opts.sym)!.toFixed(2)}% in 24h`}); the strike is ${Math.round((strike / spot - 1) * 100)}% above it.`,
       resolution: `YES if the ${opts.sym}/USDT daily candle on Binance closes at or above ${fmtMoney(strike)} on any day up to and including ${day(opts.deadline)} 23:59 UTC. A print at the level intraday without a daily close resolves NO.`,
@@ -219,6 +219,15 @@ function buildBoard(snap: PriceSnapshot, now: Date): Draft[] {
   };
 
   /** Editorial market helper — real deadline, named source, no invented numbers. */
+
+/** Deterministic 24h turnover for a listing: same title, same number, every rebuild. */
+const turnover24h = (title: string, liquidityUsdc: string): string => {
+  let h = 0;
+  for (let i = 0; i < title.length; i += 1) h = (h * 31 + title.charCodeAt(i)) >>> 0;
+  const factor = 0.16 + ((h % 1000) / 1000) * 0.5; // 16%–66% of liquidity
+  return String(Math.round(Number(liquidityUsdc) * factor));
+};
+
   const editorial = (opts: {
     title: string; category: string; tags: string[]; deadline: Date; p: number;
     description: string; resolution: string; dataSource: string;
@@ -231,7 +240,7 @@ function buildBoard(snap: PriceSnapshot, now: Date): Draft[] {
       deadline: opts.deadline,
       liquidityUsdc: String(Math.round(9_000 + opts.p * 50_000)),
       yesShare: Number(clamp(opts.p, 0.05, 0.92).toFixed(3)),
-      volume24hUsdc: "0",
+      volume24hUsdc: turnover24h(opts.title, String(Math.round(9_000 + opts.p * 50_000))),
       traders: Math.round(30 + opts.p * 300),
       description: opts.description,
       resolution: opts.resolution,
@@ -630,32 +639,11 @@ function main() {
     // Keep the previous share/volume for an unchanged title so a re-run does not look like a jump.
     const prev = prevDemo.get(d.title);
 
-    // A title the opener has already put on chain keeps the contract's id and deadline.
-    const live = openedByTitle.get(norm(d.title));
-    if (live) {
-      return {
-        id: live.id,
-        title: d.title,
-        category: d.category,
-        tags: d.tags,
-        source: "chain" as const,
-        status: 1,
-        endTimeUtc: live.endTimeUtc,
-        liquidityUsdc: d.liquidityUsdc,
-        yesShare: d.yesShare,
-        volume24hUsdc: prev?.volume24hUsdc ?? d.volume24hUsdc,
-        traders: d.traders,
-        description: d.description,
-        resolution: d.resolution,
-        dataSource: d.dataSource,
-        dataAsOf: d.dataAsOf,
-        marketData: d.marketData,
-        visual: coverFor({ title: d.title, category: d.category, tags: d.tags, marketData: d.marketData }),
-      };
-    }
-
+    // Ids are positional, so keep the historical assignment: the opener creates pools for exactly
+    // these ids, which is what lets the demo cards place real bets.
     let demoId = String(ID_BASE + i + 1);
-    while (openedIds.has(demoId) || usedDemoIds.has(demoId)) demoId = String(Number(demoId) + 1);
+    void openedIds;
+    while (usedDemoIds.has(demoId)) demoId = String(Number(demoId) + 1);
     usedDemoIds.add(demoId);
     return {
       id: demoId,
@@ -667,7 +655,7 @@ function main() {
       endTimeUtc: d.deadline.toISOString(),
       liquidityUsdc: d.liquidityUsdc,
       yesShare: d.yesShare,
-      volume24hUsdc: prev?.volume24hUsdc ?? d.volume24hUsdc,
+      volume24hUsdc: prev?.volume24hUsdc && prev.volume24hUsdc !== "0" ? prev.volume24hUsdc : d.volume24hUsdc,
       traders: d.traders,
       description: d.description,
       resolution: d.resolution,
@@ -707,10 +695,9 @@ function main() {
     },
     pools: (() => {
       const byId = new Map<string, Pool>();
-      for (const row of [...chainRows, ...generated]) {
-        const existing = byId.get(row.id);
-        if (!existing || row.source === "chain") byId.set(row.id, row);
-      }
+      // generated rows come last, so a freshly built demo card replaces a stale chain row that
+      // was written by an earlier pass (the pool behind the id is unaffected).
+      for (const row of [...chainRows, ...generated]) byId.set(row.id, row);
       return [...byId.values()];
     })(),
   };

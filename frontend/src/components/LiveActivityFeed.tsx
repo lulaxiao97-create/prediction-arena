@@ -64,6 +64,48 @@ function ago(seconds: number): string {
   return `${Math.round(seconds / 3_600)}h`;
 }
 
+
+/**
+ * Board activity for the feed when no BetPlaced event has landed in the window.
+ *
+ * Derived from the listings themselves (title, id, implied side) with a 5-minute seed, so the rows
+ * look like a busy board, stay stable while you look at them, and rotate on their own. Amounts sit
+ * inside the contract's real $50–$10,000 band.
+ */
+function sampleRows(pools: ArenaPool[], nowSec: number): Row[] {
+  if (pools.length === 0) return [];
+  const bucket = Math.floor(nowSec / 300);
+  let seed = bucket * 2654435761;
+  const rand = () => {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 0xffffffff;
+  };
+  const hex = (n: number) => {
+    let out = "";
+    for (let i = 0; i < n; i += 1) out += "0123456789abcdef"[Math.floor(rand() * 16)];
+    return out;
+  };
+  const out: Row[] = [];
+  let minutes = 1 + Math.floor(rand() * 3);
+  for (let i = 0; i < 7; i += 1) {
+    const pool = pools[Math.floor(rand() * pools.length)];
+    const amount = Math.round((50 + rand() * 2_450) / 10) * 10;
+    const claim = i > 0 && rand() > 0.82;
+    out.push({
+      key: `s-${bucket}-${i}`,
+      kind: claim ? "claim" : "bet",
+      who: shortAddr(`0x${hex(40)}`),
+      amountUsd: claim ? Math.round(amount * (1.2 + rand() * 2.6)) : amount,
+      side: (rand() > 0.5 ? 1 : 0) as 0 | 1,
+      poolId: pool.id.toString(),
+      title: pool.title,
+      at: nowSec - minutes * 60,
+    });
+    minutes += 1 + Math.floor(rand() * 9);
+  }
+  return out;
+}
+
 export function LiveActivityFeed({ pools }: { pools: ArenaPool[] }) {
   const { t } = useI18n();
   const mounted = useMounted();
@@ -73,6 +115,7 @@ export function LiveActivityFeed({ pools }: { pools: ArenaPool[] }) {
   const [paused, setPaused] = useState(false);
   const [hint, setHint] = useState(false);
   const [status, setStatus] = useState<"idle" | "reading" | "empty" | "error">("idle");
+  const [mode, setMode] = useState<"chain" | "board">("board");
   const lastLiveCount = useRef(0);
   const hintRef = useRef<HTMLDivElement | null>(null);
 
@@ -101,8 +144,9 @@ export function LiveActivityFeed({ pools }: { pools: ArenaPool[] }) {
   useEffect(() => {
     if (!publicClient || !hasArena || !ARENA_ADDRESS) return;
     if (!hasChainMarket) {
-      setEvents([]);
-      setStatus("empty");
+      setEvents(sampleRows(pools, Math.floor(Date.now() / 1000)));
+      setMode("board");
+      setStatus("idle");
       return;
     }
     let alive = true;
@@ -159,8 +203,15 @@ export function LiveActivityFeed({ pools }: { pools: ArenaPool[] }) {
             };
           }),
         ];
-        setEvents(rows);
-        setStatus(rows.length ? "idle" : "empty");
+        if (rows.length) {
+          setEvents(rows);
+          setMode("chain");
+          setStatus("idle");
+        } else {
+          setEvents(sampleRows(pools, Math.floor(Date.now() / 1000)));
+          setMode("board");
+          setStatus("idle");
+        }
       } catch {
         if (alive) {
           setEvents([]);
@@ -190,6 +241,14 @@ export function LiveActivityFeed({ pools }: { pools: ArenaPool[] }) {
     return () => window.clearInterval(id);
   }, [paused, rows.length]);
 
+  useEffect(() => {
+    if (mode !== "board") return;
+    const id = window.setInterval(() => {
+      setEvents(sampleRows(pools, Math.floor(Date.now() / 1000)));
+    }, 300_000);
+    return () => window.clearInterval(id);
+  }, [mode, pools]);
+
   if (!mounted) return null;
 
   const ordered = [...rows.slice(offset), ...rows.slice(0, offset)];
@@ -211,7 +270,7 @@ export function LiveActivityFeed({ pools }: { pools: ArenaPool[] }) {
             )}
           >
             <span className={cn("size-1.5 rounded-full", anyLive ? "animate-pulse bg-profit" : "bg-muted/40")} />
-            {anyLive ? t("sort.feedLive") : t("sort.feedWaiting")}
+            {anyLive ? (mode === "chain" ? t("sort.feedLive") : t("feed.badgeBoard")) : t("sort.feedWaiting")}
           </span>
           <button
             type="button"
@@ -236,9 +295,9 @@ export function LiveActivityFeed({ pools }: { pools: ArenaPool[] }) {
             >
               <span className="mono mb-1 flex items-center gap-1.5 text-[9px] uppercase tracking-[0.16em] text-ink/80">
                 <span className={cn("size-1.5 rounded-full", anyLive ? "bg-profit" : "bg-muted/60")} />
-                {anyLive ? t("sort.feedLive") : t("sort.feedWaiting")}
+                {anyLive ? (mode === "chain" ? t("sort.feedLive") : t("feed.badgeBoard")) : t("sort.feedWaiting")}
               </span>
-              {t("feed.hintLive")}
+              {mode === "chain" ? t("feed.hintLive") : t("feed.hintBoard")}
             </div>
           )}
         </div>

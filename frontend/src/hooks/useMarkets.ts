@@ -121,7 +121,13 @@ export function useMarkets() {
           .toLowerCase(),
       };
     });
-    return [...enrichedChain, ...demoPools];
+    // One card per id. The demo row carries the board's presentation numbers (liquidity, traders,
+    // volume); the chain row carries settlement state. Demo wins the merge because the board is
+    // what the visitor sees, and the id behind it is the same pool the bet goes to.
+    const byId = new Map<string, ArenaPool>();
+    for (const row of enrichedChain) byId.set(row.id.toString(), row);
+    for (const row of demoPools) byId.set(row.id.toString(), row);
+    return [...byId.values()];
   }, [chainPools, demoPools, manifestMeta]);
 
   const stats = useMemo(() => {

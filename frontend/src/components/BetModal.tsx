@@ -86,8 +86,9 @@ export function BetModal({
   const tooBig = amount > cap;
   const noBalance = balanceValue !== undefined && amount > balanceValue;
   const invalid = amount === 0n || tooSmall || tooBig || noBalance;
-  // Sample markets do not exist on-chain — a live bet() would revert, so the button must not lie.
-  const tradable = hasArena && pool.source === "chain";
+  // Every listed id is opened on chain by the ops daemon, so the bet is sent for demo-priced
+  // cards too; the contract is the source of truth for whether it lands.
+  const tradable = hasArena;
   const pending = step === "approving" || step === "betting" || step === "confirming";
   const done = step === "done";
 
