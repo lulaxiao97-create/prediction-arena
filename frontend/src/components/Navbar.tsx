@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Activity, BarChart3, BookOpen, Briefcase, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/format";
 import { CATEGORY_TABS, type MarketCategory } from "@/lib/categories";
@@ -27,8 +27,17 @@ export function Navbar({
   const { t } = useI18n();
   const pathname = usePathname();
   const [portfolioOpen, setPortfolioOpen] = useState(false);
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const onMarkets = pathname === "/";
   const onDocs = pathname?.startsWith("/docs");
+
+  // Keep the selected lane visible after a tap: the rail is ~1100px wide and a thumb that
+  // scrolls to "Politics & Policy" should not have to hunt for it when it re-renders.
+  // `block: "nearest"` keeps the sticky header from yanking the page down.
+  useEffect(() => {
+    if (!onMarkets) return;
+    tabRefs.current[active]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  }, [active, onMarkets]);
 
   const navItems = [
     { href: "/", label: t("nav.markets"), Icon: BarChart3, active: onMarkets },
@@ -98,23 +107,34 @@ export function Navbar({
 
       {/* category rail — markets page only */}
       {onMarkets && onChange && (
-        <div className="no-scrollbar flex w-full min-w-0 max-w-full gap-1 overflow-x-auto overscroll-x-contain border-t border-white/[0.04] px-4 py-2">
-          {CATEGORY_TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => onChange(tab.id)}
-              aria-current={active === tab.id ? "page" : undefined}
-              className={cn(
-                "shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-[11.5px] transition-colors active:scale-[0.98]",
-                active === tab.id
-                  ? "border-gold/40 bg-gold/12 text-gold-bright"
-                  : "border-white/8 text-muted hover:border-white/20 hover:text-ink"
-              )}
-            >
-              <span className="mr-1">{tab.emoji}</span>
-              {t(tab.i18n)}
-            </button>
-          ))}
+        <div className="relative">
+          <div className="no-scrollbar flex w-full min-w-0 max-w-full snap-x scroll-px-4 gap-1 overflow-x-auto overscroll-x-contain border-t border-white/[0.04] px-4 py-2">
+            {CATEGORY_TABS.map((tab) => (
+              <button
+                key={tab.id}
+                ref={(el) => {
+                  tabRefs.current[tab.id] = el;
+                }}
+                onClick={() => onChange(tab.id)}
+                aria-current={active === tab.id ? "page" : undefined}
+                className={cn(
+                  "inline-flex min-h-10 shrink-0 snap-start touch-manipulation items-center whitespace-nowrap rounded-full border px-3.5 py-2 text-[12px] leading-none transition-colors active:scale-[0.98]",
+                  active === tab.id
+                    ? "border-gold/40 bg-gold/12 text-gold-bright"
+                    : "border-white/8 text-muted hover:border-white/20 hover:text-ink"
+                )}
+              >
+                <span className="mr-1">{tab.emoji}</span>
+                {t(tab.i18n)}
+              </button>
+            ))}
+          </div>
+          {/* Scroll affordance: the 7 lanes overflow on every phone, and a hard cut at the
+              viewport edge reads as "that's all there is". */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-y-px right-0 w-7 bg-gradient-to-l from-void via-void/70 to-transparent sm:hidden"
+          />
         </div>
       )}
 

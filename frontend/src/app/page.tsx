@@ -13,6 +13,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
+import { HeroMasthead } from "@/components/HeroMasthead";
 import { LiveTicker } from "@/components/LiveTicker";
 import { LiveActivityFeed } from "@/components/LiveActivityFeed";
 import { AIAgentsDebate } from "@/components/AIAgentsDebate";
@@ -114,9 +115,11 @@ export default function Home() {
       <Navbar active={category} onChange={setCategory} />
       <LiveTicker />
 
-      <main className="mx-auto max-w-[1400px] px-4 pb-10 pt-5 sm:px-6">
+      <main className="mx-auto w-full max-w-[1400px] px-4 pb-10 pt-5 sm:px-6">
+        <HeroMasthead />
+
         {/* ── featured + dashboard ───────────────────────────────── */}
-        <div className="grid gap-4 xl:grid-cols-[1.6fr_1fr]">
+        <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[1.6fr_1fr]">
           {hero ? (
             <FeaturedBanner
               pool={hero.pool}
@@ -124,7 +127,7 @@ export default function Home() {
               onBet={(pool, option) => setSelected({ pool, option })}
             />
           ) : (
-            <div className="glass flex flex-col justify-center gap-3 rounded-3xl p-6">
+            <div className="glass flex min-w-0 flex-col justify-center gap-3 rounded-3xl p-6">
               <h2 className="text-[20px] font-semibold leading-tight text-ink">
                 {t("empty.title")}
               </h2>
@@ -141,43 +144,43 @@ export default function Home() {
             </div>
           )}
 
-          <div className="flex flex-col gap-4">
-          <div className="glass flex flex-col gap-3 rounded-3xl p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[9.5px] uppercase tracking-[0.2em] text-muted">{t("stats.dashboard")}</p>
-                <p className="mt-0.5 text-[13px] font-semibold text-ink">{t("stats.live")}</p>
+          <div className="flex min-w-0 flex-col gap-4">
+            <div className="glass flex min-w-0 flex-col gap-3 rounded-3xl p-4">
+              <div className="flex items-center justify-between">
+                <div className="min-w-0">
+                  <p className="text-[9.5px] uppercase tracking-[0.2em] text-muted">{t("stats.dashboard")}</p>
+                  <p className="mt-0.5 text-[13px] font-semibold text-ink">{t("stats.live")}</p>
+                </div>
+                <ShieldCheck className="size-4 shrink-0 text-gold" />
               </div>
-              <ShieldCheck className="size-4 text-gold" />
+
+              <div className="grid grid-cols-2 gap-2">
+                <Stat label={t("stats.tvl")} value={`$${formatCompactUsdc(stats.tvl)}`} icon={<Coins className="size-3 text-gold" />} />
+                <Stat label={t("stats.active")} value={String(stats.activeMarkets)} icon={<LayoutGrid className="size-3 text-profit" />} />
+                <Stat label={t("stats.volume24h")} value={`$${formatCompactUsdc(stats.volume24h)}`} icon={<TrendingUp className="size-3 text-gold-bright" />} />
+                <Stat label={t("stats.settled")} value={String(stats.settledMarkets)} icon={<BadgeCheck className="size-3 text-muted" />} />
+              </div>
+
+              <div className="rounded-xl border border-white/6 bg-white/[0.02] px-3 py-2">
+                <p className="mono text-[10px] leading-relaxed text-muted/80">{t("stats.invariant")}</p>
+              </div>
+
+              <div className="mt-auto flex flex-wrap gap-2">
+                <a href="#markets" className="btn-gold flex-1 text-[12.5px]">
+                  <Coins className="size-3.5" /> {t("hero.browse")}
+                </a>
+                <a href="#debate" className="btn-ghost flex-1 text-[12.5px]">
+                  <BrainCircuit className="size-3.5" /> {t("hero.debate")}
+                </a>
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              <Stat label={t("stats.tvl")} value={`$${formatCompactUsdc(stats.tvl)}`} icon={<Coins className="size-3 text-gold" />} />
-              <Stat label={t("stats.active")} value={String(stats.activeMarkets)} icon={<LayoutGrid className="size-3 text-profit" />} />
-              <Stat label={t("stats.volume24h")} value={`$${formatCompactUsdc(stats.volume24h)}`} icon={<TrendingUp className="size-3 text-gold-bright" />} />
-              <Stat label={t("stats.settled")} value={String(stats.settledMarkets)} icon={<BadgeCheck className="size-3 text-muted" />} />
-            </div>
-
-            <div className="rounded-xl border border-white/6 bg-white/[0.02] px-3 py-2">
-              <p className="mono text-[10px] leading-relaxed text-muted/80">{t("stats.invariant")}</p>
-            </div>
-
-            <div className="mt-auto flex flex-wrap gap-2">
-              <a href="#markets" className="btn-gold flex-1 text-[12.5px]">
-                <Coins className="size-3.5" /> {t("hero.browse")}
-              </a>
-              <a href="#debate" className="btn-ghost flex-1 text-[12.5px]">
-                <BrainCircuit className="size-3.5" /> {t("hero.debate")}
-              </a>
-            </div>
-          </div>
-
-          <LiveActivityFeed pools={pools} />
+            <LiveActivityFeed pools={pools} />
           </div>
         </div>
 
         {/* ── filters ─────────────────────────────────────────────── */}
-        <section id="markets" className="scroll-mt-24 pt-6">
+        <section id="markets" className="scroll-mt-[136px] pt-6">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="mono text-[9.5px] uppercase tracking-[0.28em] text-gold/80">LIVE MARKETS</p>
@@ -192,13 +195,15 @@ export default function Home() {
             <SearchSortBar query={query} onQuery={setQuery} sort={sort} onSort={setSort} count={filtered.length} />
           </div>
 
-          <div className="no-scrollbar mt-2.5 flex gap-1.5 overflow-x-auto pb-1">
+          {/* Phones already have this rail pinned under the header — repeating it here would
+              just add 44px of duplicated chrome between the search box and the cards. */}
+          <div className="no-scrollbar mt-2.5 hidden snap-x gap-1.5 overflow-x-auto pb-1 sm:flex">
             {CATEGORY_TABS.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setCategory(tab.id)}
                 className={cn(
-                  "shrink-0 rounded-full border px-3 py-1.5 text-[11.5px] transition-colors",
+                  "shrink-0 snap-start touch-manipulation whitespace-nowrap rounded-full border px-3 py-1.5 text-[11.5px] transition-colors",
                   category === tab.id
                     ? "border-gold/50 bg-gold/12 text-gold-bright"
                     : "border-white/8 text-muted hover:border-white/20 hover:text-ink"
@@ -234,7 +239,7 @@ export default function Home() {
         </section>
 
         {/* ── debate ───────────────────────────────────────────────── */}
-        <section id="debate" className="scroll-mt-24 pt-8">
+        <section id="debate" className="scroll-mt-[136px] pt-8">
           <div>
             <p className="mono text-[9.5px] uppercase tracking-[0.28em] text-gold/80">AI INTELLIGENCE</p>
             <h2 className="mt-1 text-[19px] font-semibold tracking-tight text-ink sm:text-[22px]">{t("agent.debateTitle")}</h2>
@@ -280,9 +285,9 @@ export default function Home() {
 
 function Stat({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-white/6 bg-white/[0.025] px-2.5 py-2">
-      <div className="flex items-center justify-between">
-        <p className="truncate text-[9px] uppercase tracking-[0.1em] text-muted">{label}</p>
+    <div className="min-w-0 rounded-xl border border-white/6 bg-white/[0.025] px-2.5 py-2">
+      <div className="flex items-center justify-between gap-1">
+        <p className="min-w-0 truncate text-[9px] uppercase tracking-[0.1em] text-muted">{label}</p>
         {icon}
       </div>
       <p className="mono mt-0.5 text-[16px] font-semibold text-ink">{value}</p>

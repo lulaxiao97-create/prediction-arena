@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Clock3, Flame, Users } from "lucide-react";
+import { ArrowRight, Clock3, Flame, ShieldCheck, Users } from "lucide-react";
 import type { ArenaPool } from "@/lib/types";
 import { countdown, formatCompactUsdc, formatCountdown, formatProbability, sideShare } from "@/lib/format";
 import { categoryI18nKey } from "@/lib/categories";
@@ -33,7 +33,7 @@ export function FeaturedBanner({
   const href = `/market/${pool.id.toString()}`;
 
   return (
-    <section className="card-edge relative overflow-hidden rounded-3xl border border-gold/20 bg-gradient-to-br from-gold/[0.10] via-void-elevated to-void">
+    <section className="card-edge relative flex min-w-0 flex-col overflow-hidden rounded-3xl border border-gold/20 bg-gradient-to-br from-gold/[0.10] via-void-elevated to-void">
       <CategoryCover
         theme={themeFor({ category: pool.category, title: pool.title, tags: pool.tags })}
         className="z-0"
@@ -45,7 +45,7 @@ export function FeaturedBanner({
 
       <Link href={href} className="absolute inset-0 z-0" aria-label={t("featured.trade")} />
 
-      <div className="relative z-10 grid gap-6 p-5 sm:p-7 lg:grid-cols-[1.25fr_0.75fr]">
+      <div className="relative z-10 grid flex-1 content-center gap-6 p-5 sm:p-7 lg:grid-cols-[1.25fr_0.75fr]">
         <div className="flex flex-col justify-center">
           <div className="flex flex-wrap items-center gap-2">
             <span className="chip border-gold/40 bg-gold/15 text-gold-bright">
@@ -126,6 +126,21 @@ export function FeaturedBanner({
             ${formatCompactUsdc(pool.totalNetPool)} {t("featured.liquidity")}
           </p>
         </div>
+      </div>
+
+      {/* Provenance strip: the card is taller than its content on wide screens (it matches the
+          dashboard column), and dead space under a CTA reads as an unfinished layout. This is
+          the one line a trader actually wants there — where the number came from and how the
+          outcome gets settled. */}
+      <div className="relative z-10 mt-auto flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 border-t border-white/[0.07] bg-void/25 px-5 py-2.5 text-[10px] text-muted/75 sm:px-7">
+        <span className="mono uppercase tracking-[0.16em] text-muted/45">source</span>
+        <span className="mono min-w-0 truncate text-ink/70">
+          {pool.marketData?.source ?? "curated in manifest"}
+        </span>
+        <span className="ml-auto inline-flex shrink-0 items-center gap-1 text-profit/85">
+          <ShieldCheck className="size-3" />
+          <span className="mono">{t("hero.baseBadge")}</span>
+        </span>
       </div>
     </section>
   );

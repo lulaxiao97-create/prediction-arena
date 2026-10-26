@@ -8,6 +8,20 @@ export type ExtraDict = Record<string, Record<string, string>>;
 
 export const EXTRA: Record<string, ExtraDict> = {
   en: {
+    slogan: {
+      kicker: "Live on Base · real-time data",
+      lineA: "The decentralized prediction market",
+      lineB: "powered by real-time data & AI",
+      sub: "Binance, CoinGecko and DefiLlama feeds price every strike in real time. Two AI agents argue both sides. USDC settles on Base, and every resolution is written on-chain as a hash anyone can verify.",
+      chip1: "Real-time feeds",
+      chip2: "USDC on Base",
+      chip3: "AI agent debate",
+    },
+    feed: {
+      hintLabel: "What does this badge mean?",
+      hintSample: "These rows are built from the live board — real market titles and real probabilities — because no on-chain trade landed in the last 3 hours. The moment a bet, claim or settlement is detected, this badge flips to on-chain and the carousel restarts from the newest event.",
+      hintLive: "Read live from the Prediction Arena contract on Base: BetPlaced, RewardsClaimed and PoolSettled events from the last 3 hours. The carousel restarts whenever a new event arrives.",
+    },
     // share / demo surfaces (market header, trade panel, mobile sheet)
     marketing: {
       shareX: "Share to X",
@@ -116,6 +130,20 @@ export const EXTRA: Record<string, ExtraDict> = {
     },
   },
   "zh-TW": {
+    slogan: {
+      kicker: "Base 主網 · 即時數據",
+      lineA: "由即時數據與 AI 驅動的",
+      lineB: "去中心化預測市場",
+      sub: "Binance、CoinGecko、DefiLlama 的即時行情為每個盤口定價；兩位 AI 代理分別論證多空；USDC 在 Base 鏈上結算，每次結算都以雜湊寫入鏈上，任何人都能驗證。",
+      chip1: "即時行情源",
+      chip2: "Base 上的 USDC",
+      chip3: "AI 代理辯論",
+    },
+    feed: {
+      hintLabel: "這個標記代表什麼？",
+      hintSample: "這些紀錄由即時盤口生成（標題與機率皆為真實），因為過去 3 小時沒有鏈上成交。一旦偵測到下注、領獎或結算事件，標記會立刻切換為 on-chain，輪播從最新事件重新開始。",
+      hintLive: "直接讀取 Base 上的競技場合約：近 3 小時的 BetPlaced、RewardsClaimed、PoolSettled 事件。有新事件時輪播會自動重新開始。",
+    },
     // share / demo surfaces (market header, trade panel, mobile sheet)
     marketing: {
       shareX: "分享到 X",
@@ -224,6 +252,20 @@ export const EXTRA: Record<string, ExtraDict> = {
     },
   },
   de: {
+    slogan: {
+      kicker: "Live auf Base · Echtzeitdaten",
+      lineA: "Der dezentrale Prediction-Markt,",
+      lineB: "angetrieben von Echtzeitdaten & KI",
+      sub: "Kurse von Binance, CoinGecko und DefiLlama bepreisen jeden Strike in Echtzeit. Zwei KI-Agenten argumentieren beide Seiten. USDC wird auf Base abgerechnet, jede Auflösung als Hash on-chain geschrieben.",
+      chip1: "Echtzeit-Feeds",
+      chip2: "USDC auf Base",
+      chip3: "KI-Agenten-Debatte",
+    },
+    feed: {
+      hintLabel: "Was bedeutet dieses Abzeichen?",
+      hintSample: "Diese Zeilen stammen aus dem Live-Board — echte Markttitel und echte Wahrscheinlichkeiten — weil in den letzten 3 Stunden kein On-Chain-Trade eingegangen ist. Sobald ein Bet, Claim oder Settlement erkannt wird, wechselt das Abzeichen auf on-chain und das Karussell startet mit dem neuesten Ereignis neu.",
+      hintLive: "Live aus dem Prediction-Arena-Vertrag auf Base gelesen: BetPlaced-, RewardsClaimed- und PoolSettled-Events der letzten 3 Stunden. Das Karussell startet bei jedem neuen Ereignis neu.",
+    },
     // share / demo surfaces (market header, trade panel, mobile sheet)
     marketing: {
       shareX: "Auf X teilen",
@@ -327,6 +369,20 @@ export const EXTRA: Record<string, ExtraDict> = {
     },
   },
   fr: {
+    slogan: {
+      kicker: "En direct sur Base · données temps réel",
+      lineA: "Le marché de prédiction décentralisé",
+      lineB: "propulsé par les données temps réel et l'IA",
+      sub: "Les flux Binance, CoinGecko et DefiLlama fixent chaque strike en temps réel. Deux agents IA défendent chaque camp. L'USDC se règle sur Base, et chaque résolution est inscrite on-chain sous forme de hash vérifiable.",
+      chip1: "Flux temps réel",
+      chip2: "USDC sur Base",
+      chip3: "Débat d'agents IA",
+    },
+    feed: {
+      hintLabel: "Que signifie ce badge ?",
+      hintSample: "Ces lignes proviennent du tableau live — vrais titres, vraies probabilités — car aucune transaction on-chain n'a eu lieu ces 3 dernières heures. Dès qu'un pari, une réclamation ou un règlement est détecté, le badge passe à on-chain et le carrousel repart du plus récent événement.",
+      hintLive: "Lu en direct du contrat Prediction Arena sur Base : événements BetPlaced, RewardsClaimed et PoolSettled des 3 dernières heures. Le carrousel repart à chaque nouvel événement.",
+    },
     // share / demo surfaces (market header, trade panel, mobile sheet)
     marketing: {
       shareX: "Partager sur X",
@@ -430,6 +486,20 @@ export const EXTRA: Record<string, ExtraDict> = {
     },
   },
   ja: {
+    slogan: {
+      kicker: "Base メインネット · リアルタイムデータ",
+      lineA: "リアルタイムデータとAIが動かす",
+      lineB: "分散型予測市場",
+      sub: "Binance・CoinGecko・DefiLlama のライブ価格がすべてのストライクを定価します。2体のAIエージェントが両サイドを論証し、USDC は Base で決済、解決の証拠はハッシュとしてオンチェーンに記録されます。",
+      chip1: "リアルタイムフィード",
+      chip2: "Base の USDC",
+      chip3: "AIエージェント討論",
+    },
+    feed: {
+      hintLabel: "このバッジの意味は？",
+      hintSample: "この行はライブ盤面（実際のタイトルと確率）から生成されています。過去3時間にオンチェーンの取引がなかったためです。ベット・請求・決済イベントを検知すると、バッジは即座に on-chain に切り替わり、カルーセルは最新イベントから再開します。",
+      hintLive: "Base 上の Prediction Arena コントラクトから直接読み取り：過去3時間の BetPlaced・RewardsClaimed・PoolSettled イベント。新しいイベントが届くたびにカルーセルが再開します。",
+    },
     // share / demo surfaces (market header, trade panel, mobile sheet)
     marketing: {
       shareX: "Xでシェア",
@@ -530,6 +600,20 @@ export const EXTRA: Record<string, ExtraDict> = {
     },
   },
   ko: {
+    slogan: {
+      kicker: "Base 메인넷 · 실시간 데이터",
+      lineA: "실시간 데이터와 AI가 이끄는",
+      lineB: "탈중앙화 예측 시장",
+      sub: "Binance·CoinGecko·DefiLlama 라이브 시세가 모든 행사가를 실시간으로 책정합니다. 두 AI 에이전트가 양측을 논증하고, USDC는 Base에서 결제되며 모든 정산 증거는 해시로 온체인에 기록됩니다.",
+      chip1: "실시간 피드",
+      chip2: "Base의 USDC",
+      chip3: "AI 에이전트 토론",
+    },
+    feed: {
+      hintLabel: "이 배지는 무슨 뜻인가요?",
+      hintSample: "이 행들은 라이브 보드(실제 제목과 확률)에서 생성됩니다. 최근 3시간 동안 온체인 거래가 없었기 때문입니다. 베팅·수령·정산 이벤트가 감지되는 즉시 배지가 on-chain으로 전환되고 캐러셀은 최신 이벤트부터 다시 시작합니다.",
+      hintLive: "Base의 Prediction Arena 컨트랙트에서 직접 읽습니다: 최근 3시간의 BetPlaced·RewardsClaimed·PoolSettled 이벤트. 새 이벤트가 오면 캐러셀이 다시 시작됩니다.",
+    },
     // share / demo surfaces (market header, trade panel, mobile sheet)
     marketing: {
       shareX: "X에 공유",

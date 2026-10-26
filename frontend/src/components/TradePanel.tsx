@@ -29,7 +29,7 @@ import {
 const FEE_BPS = 400n;
 const BPS = 10_000n;
 
-export function TradePanel({ pool }: { pool: ArenaPool }) {
+export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: boolean }) {
   const { t } = useI18n();
   const toast = useToast();
   const { address } = useAccount();
@@ -168,7 +168,10 @@ export function TradePanel({ pool }: { pool: ArenaPool }) {
   return (
     <div
       className={cn(
-        "glass sticky top-[86px] flex flex-col gap-3.5 rounded-2xl border p-4 transition-colors duration-300",
+        "glass flex flex-col gap-3.5 rounded-2xl border p-4 transition-colors duration-300",
+        // Only the desktop right column wants to stick; inside the mobile sheet the same
+        // `top-[86px]` offsets the panel 86px down its own scroll container, leaving a hole.
+        sticky && "sticky top-[86px]",
         isYes ? "border-profit/25 shadow-[0_0_40px_-24px_rgba(16,185,129,0.75)]" : "border-loss/25 shadow-[0_0_40px_-24px_rgba(239,68,68,0.7)]"
       )}
     >

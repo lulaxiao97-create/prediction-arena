@@ -21,12 +21,16 @@ export function MobileTradeSheet({ pool, yesPct }: { pool: ArenaPool; yesPct: nu
   const [dragY, setDragY] = useState(0);
   const startY = useRef<number | null>(null);
   const dragging = useRef(false);
+  const closeRef = useRef<HTMLButtonElement | null>(null);
+  const sheetRef = useRef<HTMLDivElement | null>(null);
 
-  // lock background scroll while the sheet is up
+  // lock background scroll while the sheet is up, and move focus into the dialog so a keyboard
+  // user is inside it instead of tabbing through the page behind it
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    sheetRef.current?.focus({ preventScroll: true });
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
     };
@@ -86,7 +90,9 @@ export function MobileTradeSheet({ pool, yesPct }: { pool: ArenaPool; yesPct: nu
       <div
         className={cn(
           "fixed inset-0 z-50 lg:hidden",
-          open ? "pointer-events-auto" : "pointer-events-none"
+          // `invisible` (not just pointer-events-none) keeps the closed sheet out of the tab
+          // order and the accessibility tree while still letting the transform animate.
+          open ? "pointer-events-auto visible" : "pointer-events-none invisible"
         )}
         aria-hidden={!open}
       >
@@ -98,11 +104,14 @@ export function MobileTradeSheet({ pool, yesPct }: { pool: ArenaPool; yesPct: nu
           )}
         />
         <div
+          ref={sheetRef}
           role="dialog"
           aria-modal="true"
           aria-label={t("trade.panel")}
+          tabIndex={-1}
           className={cn(
-            "absolute inset-x-0 bottom-0 flex max-h-[88vh] flex-col rounded-t-3xl border-t border-white/12 bg-void/97 backdrop-blur-2xl transition-transform duration-300 ease-out",
+            "absolute inset-x-0 bottom-0 flex max-h-[88vh] flex-col rounded-t-3xl border-t border-white/12 bg-void/97 shadow-[0_-24px_60px_-20px_rgba(0,0,0,0.8)] backdrop-blur-2xl transition-transform duration-300 ease-out will-change-transform outline-none",
+            "max-h-[88dvh]",
             open ? "translate-y-0" : "translate-y-full"
           )}
           style={{ transform: open ? `translateY(${dragY}px)` : undefined }}
@@ -112,7 +121,7 @@ export function MobileTradeSheet({ pool, yesPct }: { pool: ArenaPool; yesPct: nu
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
-            className="flex shrink-0 items-center justify-center py-2.5"
+            className="flex shrink-0 touch-none items-center justify-center py-2.5"
           >
             <span className="h-1 w-10 rounded-full bg-white/25" />
           </div>
@@ -120,16 +129,17 @@ export function MobileTradeSheet({ pool, yesPct }: { pool: ArenaPool; yesPct: nu
           <div className="flex shrink-0 items-center gap-2 px-4 pb-1">
             <p className="truncate text-[13px] font-semibold text-ink">{pool.title}</p>
             <button
+              ref={closeRef}
               onClick={() => setOpen(false)}
               aria-label="Close"
-              className="ml-auto grid size-7 shrink-0 place-items-center rounded-lg border border-white/10 text-muted"
+              className="ml-auto grid size-8 shrink-0 place-items-center rounded-lg border border-white/10 text-muted transition-colors hover:border-white/25 hover:text-ink"
             >
               <X className="size-3.5" />
             </button>
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-[max(env(safe-area-inset-bottom),1rem)]">
-            <TradePanel pool={pool} />
+            <TradePanel pool={pool} sticky={false} />
           </div>
         </div>
       </div>

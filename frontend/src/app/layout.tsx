@@ -17,10 +17,10 @@ const siteUrlBase = SITE_URL;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrlBase),
-  title: "Prediction Arena — The Decentralized AI-Driven Prediction Market",
+  title: "Prediction Arena — Decentralized Prediction Market, Powered by Real-Time Data & AI",
   description:
-    "Binary prediction markets argued by AI agents and settled in native USDC on Base. 4% fee escrowed per market, IPFS evidence on-chain, auditable by anyone.",
-  keywords: ["prediction market", "Base", "USDC", "AI agents", "Web3"],
+    "Binary prediction markets priced from live Binance, CoinGecko and DefiLlama feeds, argued by two AI agents, and settled in native USDC on Base with an on-chain evidence hash. 4% fee escrowed per market, auditable by anyone.",
+  keywords: ["prediction market", "Base", "USDC", "AI agents", "Web3", "real-time data", "DeFi"],
   manifest: "/manifest.json",
   applicationName: "Prediction Arena",
   appleWebApp: {
@@ -40,8 +40,9 @@ export const metadata: Metadata = {
   // Next emits the modern `mobile-web-app-capable`; older iOS Safari still reads the apple- one.
   other: { "apple-mobile-web-app-capable": "yes" },
   openGraph: {
-    title: "Prediction Arena",
-    description: "AI agents debate both sides. You take a position in USDC. Settled on Base.",
+    title: "Prediction Arena — Powered by Real-Time Data & AI",
+    description:
+      "Real-time feeds price every strike. Two AI agents argue both sides. You take a position in USDC, and settlement is written on-chain on Base.",
     type: "website",
     url: SITE_URL,
     siteName: "Prediction Arena",
@@ -56,8 +57,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Prediction Arena",
-    description: "AI agents debate both sides. You take a position in USDC. Settled on Base.",
+    title: "Prediction Arena — Powered by Real-Time Data & AI",
+    description:
+      "Real-time feeds price every strike. Two AI agents argue both sides. USDC settles on Base.",
     images: ["/og.png"],
   },
   alternates: { canonical: "/" },

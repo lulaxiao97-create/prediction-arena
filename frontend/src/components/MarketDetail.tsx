@@ -151,7 +151,7 @@ export function MarketDetail({ id }: { id: string }) {
                 <Metric label={t("detail.probability")} value={formatProbability(share0)} tone="profit" />
                 <Metric label={t("detail.liquidity")} value={`$${formatCompactUsdc(pool.totalNetPool)}`} />
                 <Metric label={t("detail.traders")} value={(pool.traders ?? 0).toLocaleString("en-US")} />
-                <Metric label={t("detail.ends")} value={mounted ? formatEndDate(pool.endTime) : "—"} />
+                <Metric label={t("card.ends")} value={mounted ? formatEndDate(pool.endTime) : "—"} />
               </div>
 
               <ShareActions
