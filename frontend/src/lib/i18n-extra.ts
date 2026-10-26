@@ -10,6 +10,17 @@ export const EXTRA: Record<string, ExtraDict> = {
   en: {
     rewards: {
       loading: "Loading rewards…",
+      adUnconfiguredTitle: "Rewarded video is not configured",
+      adUnconfiguredBody: "This build has no ad partner credentials, so no points can be earned here. There is no stand-in video: set the variables below and the real unit appears.",
+      adIntro: "Watch a sponsored video and earn 10 points. The reward lands only after the provider confirms playback.",
+      adStart: "Watch sponsored video",
+      adRequesting: "Requesting a sponsored video…",
+      adPlaying: "Playing in the sponsor's player",
+      adPlayingHint: "The reward is credited when the ad network fires its reward callback — closing early pays nothing.",
+      adClosed: "Closed before the reward — nothing was credited.",
+      adSdkUnavailable: "The ad SDK did not load, so nothing was credited. Check the script URL and placement.",
+      adProviderError: "The ad network could not serve a video. Nothing was credited.",
+      retry: "Try again",
       title: "Free tickets",
       demoTag: "practice ledger",
       points: "Points",
@@ -35,7 +46,7 @@ export const EXTRA: Record<string, ExtraDict> = {
       done: "Done",
       close: "Close",
       playingHint: "{s}s left — closing early cancels the reward.",
-      adFootnote: "Points are credited by the server against a receipt signed when the ad started, so a refresh or a second tab cannot mint them. The video is simulated until an ad partner (HypeLab or similar) is connected.",
+      adFootnote: "Points are credited by our server against a receipt signed when the request starts, and only after the ad network's reward callback fires. No ad, no points.",
       dailyCap: "Daily ad limit reached — resets at 00:00 UTC.",
       unavailable: "Ad unit unavailable right now.",
       tooFast: "That finished too quickly — nothing was credited.",
@@ -52,7 +63,7 @@ export const EXTRA: Record<string, ExtraDict> = {
       ticketPending: "Recording…",
       ticketWatch: "No tickets — watch an ad (+10)",
       ticketCta: "Use 1 Free Ticket",
-      watchCta: "Watch 15s → +10 points",
+      watchCta: "Watch a sponsored video → +10 points",
     },
     slogan: {
       kicker: "Live on Base · real-time data",
@@ -65,8 +76,10 @@ export const EXTRA: Record<string, ExtraDict> = {
     },
     feed: {
       hintLabel: "What does this badge mean?",
-      hintSample: "These rows are built from the live board — real market titles and real probabilities — because no on-chain trade landed in the last 3 hours. The moment a bet, claim or settlement is detected, this badge flips to on-chain and the carousel restarts from the newest event.",
       hintLive: "Read live from the Prediction Arena contract on Base: BetPlaced, RewardsClaimed and PoolSettled events from the last 3 hours. The carousel restarts whenever a new event arrives.",
+      emptyTitle: "Waiting for the first on-chain event",
+      emptyBody: "The feed reads BetPlaced, RewardsClaimed and PoolSettled on Base. No pool is funded yet, so there is nothing to show — and we would rather show nothing than a made-up row.",
+      emptyError: "The Base reader could not reach a node just now. The feed retries on the next load.",
     },
     // share / demo surfaces (market header, trade panel, mobile sheet)
     marketing: {
@@ -76,9 +89,9 @@ export const EXTRA: Record<string, ExtraDict> = {
       copiedShort: "Copied",
       copiedBody: "Anyone opening it lands straight on this market.",
       copyFailed: "Couldn't copy — select the link manually",
-      demoBadge: "Demo Trading Mode",
-      demoBadgeBody: "Mainnet liquidity launching soon — positions are simulated.",
-      demoTag: "SIM",
+      demoBadge: "Off-chain board",
+      demoBadgeBody: "Priced from live feeds. The USDC pool is not funded yet, so USDC trading is off; free tickets work now.",
+      demoTag: "PRE",
     },
     nav: {
       markets: "Markets",
@@ -178,6 +191,17 @@ export const EXTRA: Record<string, ExtraDict> = {
   "zh-TW": {
     rewards: {
       loading: "讀取獎勵中…",
+      adUnconfiguredTitle: "尚未接入激勵視頻",
+      adUnconfiguredBody: "此版本沒有廣告聯盟憑證，因此這裡賺不到積分。我們不會放替代影片濫竽充數：填上下方變數，真實廣告位就會出現。",
+      adIntro: "看一條贊助視頻可賺 10 積分。只有廣告方回調確認播放完成後才入帳。",
+      adStart: "觀看贊助視頻",
+      adRequesting: "正在請求廣告…",
+      adPlaying: "廣告播放中",
+      adPlayingHint: "廣告聯盟觸發 reward 回調後才會入帳；提前關閉不發獎勵。",
+      adClosed: "未看完就關閉，未入帳。",
+      adSdkUnavailable: "廣告 SDK 未載入，未入帳。請檢查 script URL 與 placement。",
+      adProviderError: "廣告聯盟暫時沒有可播的素材，未入帳。",
+      retry: "重試",
       title: "免費體驗券",
       demoTag: "練習帳本",
       points: "積分",
@@ -203,7 +227,7 @@ export const EXTRA: Record<string, ExtraDict> = {
       done: "完成",
       close: "關閉",
       playingHint: "剩 {s} 秒 —— 提前關閉不發獎勵。",
-      adFootnote: "積分由伺服器按「開始播放時簽發的憑證」入帳，刷新或開第二個分頁都無法重複領取。廣告影片在接入 HypeLab 之類的聯盟前為模擬素材。",
+      adFootnote: "積分由伺服器按「請求開始時簽發的憑證」入帳，且必須等廣告聯盟 reward 回調成功。沒有廣告，就沒有積分。",
       dailyCap: "今日廣告次數已用完 —— UTC 00:00 重置。",
       unavailable: "廣告位暫時不可用。",
       tooFast: "結束得太快，未入帳。",
@@ -220,7 +244,7 @@ export const EXTRA: Record<string, ExtraDict> = {
       ticketPending: "記錄中…",
       ticketWatch: "沒有券 —— 看廣告 +10",
       ticketCta: "使用 1 張體驗券",
-      watchCta: "看 15 秒 → +10 積分",
+      watchCta: "看贊助視頻 → +10 積分",
     },
     slogan: {
       kicker: "Base 主網 · 即時數據",
@@ -233,8 +257,10 @@ export const EXTRA: Record<string, ExtraDict> = {
     },
     feed: {
       hintLabel: "這個標記代表什麼？",
-      hintSample: "這些紀錄由即時盤口生成（標題與機率皆為真實），因為過去 3 小時沒有鏈上成交。一旦偵測到下注、領獎或結算事件，標記會立刻切換為 on-chain，輪播從最新事件重新開始。",
       hintLive: "直接讀取 Base 上的競技場合約：近 3 小時的 BetPlaced、RewardsClaimed、PoolSettled 事件。有新事件時輪播會自動重新開始。",
+      emptyTitle: "等待第一筆鏈上事件",
+      emptyBody: "活動流只讀 Base 上的 BetPlaced、RewardsClaimed、PoolSettled。目前沒有任何盤口資金池，因此沒有可顯示的紀錄——我們寧可空著，也不編造任何一筆。",
+      emptyError: "剛剛連不上 Base 節點，下次載入會自動重試。",
     },
     // share / demo surfaces (market header, trade panel, mobile sheet)
     marketing: {
@@ -244,9 +270,9 @@ export const EXTRA: Record<string, ExtraDict> = {
       copiedShort: "已複製",
       copiedBody: "開啟連結的人會直接進入這個市場。",
       copyFailed: "複製失敗——請手動選取連結",
-      demoBadge: "模擬交易模式",
-      demoBadgeBody: "主網流動性即將上線——目前的下注為模擬盤。",
-      demoTag: "模擬",
+      demoBadge: "未上鏈盤口",
+      demoBadgeBody: "價格來自即時行情。USDC 資金池尚未充值，因此 USDC 交易未開啟；免費體驗券可正常使用。",
+      demoTag: "預",
     },
     nav: {
       markets: "市場",
@@ -355,7 +381,6 @@ export const EXTRA: Record<string, ExtraDict> = {
     },
     feed: {
       hintLabel: "Was bedeutet dieses Abzeichen?",
-      hintSample: "Diese Zeilen stammen aus dem Live-Board — echte Markttitel und echte Wahrscheinlichkeiten — weil in den letzten 3 Stunden kein On-Chain-Trade eingegangen ist. Sobald ein Bet, Claim oder Settlement erkannt wird, wechselt das Abzeichen auf on-chain und das Karussell startet mit dem neuesten Ereignis neu.",
       hintLive: "Live aus dem Prediction-Arena-Vertrag auf Base gelesen: BetPlaced-, RewardsClaimed- und PoolSettled-Events der letzten 3 Stunden. Das Karussell startet bei jedem neuen Ereignis neu.",
     },
     // share / demo surfaces (market header, trade panel, mobile sheet)
@@ -367,8 +392,8 @@ export const EXTRA: Record<string, ExtraDict> = {
       copiedBody: "Wer den Link öffnet, landet direkt in diesem Markt.",
       copyFailed: "Kopieren fehlgeschlagen — Link bitte manuell markieren",
       demoBadge: "Demo-Handelsmodus",
-      demoBadgeBody: "Mainnet-Liquidität startet bald — Positionen sind simuliert.",
-      demoTag: "SIM",
+      demoBadgeBody: "Preise aus Live-Feeds. Der USDC-Pool ist noch nicht gedeckt, daher ist USDC-Handel aus; freie Tickets funktionieren.",
+      demoTag: "PRE",
     },
     nav: { markets: "Märkte", docs: "Docs", security: "Sicherheit", poweredBy: "Powered by Vigilo Network" },
     docs: {
@@ -472,7 +497,6 @@ export const EXTRA: Record<string, ExtraDict> = {
     },
     feed: {
       hintLabel: "Que signifie ce badge ?",
-      hintSample: "Ces lignes proviennent du tableau live — vrais titres, vraies probabilités — car aucune transaction on-chain n'a eu lieu ces 3 dernières heures. Dès qu'un pari, une réclamation ou un règlement est détecté, le badge passe à on-chain et le carrousel repart du plus récent événement.",
       hintLive: "Lu en direct du contrat Prediction Arena sur Base : événements BetPlaced, RewardsClaimed et PoolSettled des 3 dernières heures. Le carrousel repart à chaque nouvel événement.",
     },
     // share / demo surfaces (market header, trade panel, mobile sheet)
@@ -589,7 +613,6 @@ export const EXTRA: Record<string, ExtraDict> = {
     },
     feed: {
       hintLabel: "このバッジの意味は？",
-      hintSample: "この行はライブ盤面（実際のタイトルと確率）から生成されています。過去3時間にオンチェーンの取引がなかったためです。ベット・請求・決済イベントを検知すると、バッジは即座に on-chain に切り替わり、カルーセルは最新イベントから再開します。",
       hintLive: "Base 上の Prediction Arena コントラクトから直接読み取り：過去3時間の BetPlaced・RewardsClaimed・PoolSettled イベント。新しいイベントが届くたびにカルーセルが再開します。",
     },
     // share / demo surfaces (market header, trade panel, mobile sheet)
@@ -703,7 +726,6 @@ export const EXTRA: Record<string, ExtraDict> = {
     },
     feed: {
       hintLabel: "이 배지는 무슨 뜻인가요?",
-      hintSample: "이 행들은 라이브 보드(실제 제목과 확률)에서 생성됩니다. 최근 3시간 동안 온체인 거래가 없었기 때문입니다. 베팅·수령·정산 이벤트가 감지되는 즉시 배지가 on-chain으로 전환되고 캐러셀은 최신 이벤트부터 다시 시작합니다.",
       hintLive: "Base의 Prediction Arena 컨트랙트에서 직접 읽습니다: 최근 3시간의 BetPlaced·RewardsClaimed·PoolSettled 이벤트. 새 이벤트가 오면 캐러셀이 다시 시작됩니다.",
     },
     // share / demo surfaces (market header, trade panel, mobile sheet)

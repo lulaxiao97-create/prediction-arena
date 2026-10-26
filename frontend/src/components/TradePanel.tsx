@@ -217,7 +217,7 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
               live ? "border-profit/30 bg-profit/8 text-profit" : "border-white/10 text-muted/70"
             )}
           >
-            {live ? "ON-CHAIN" : "DEMO"}
+            {live ? "ON-CHAIN" : t("card.demo")}
           </span>
           <ShareActions marketId={pool.id} title={pool.title} yesPct={probability} market={pool.marketData} variant="compact" />
         </div>

@@ -176,7 +176,7 @@ export function BetModal({
                   {tag}
                 </span>
               ))}
-              {pool.source === "demo" && <span className="chip text-[10px]">DEMO</span>}
+              {pool.source === "demo" && <span className="chip text-[10px]">{t("card.demo")}</span>}
               {referrer && (
                 <span className="chip border-gold/25 text-[10px] text-gold-bright">
                   REF {shortAddr(referrer, 3)}

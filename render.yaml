@@ -45,3 +45,13 @@ services:
       #   value: <token from dashboard.reown.com>
       - key: NEXT_PUBLIC_SITE_URL
         value: https://predictionarena.online
+      # Rewarded ads (Watch-to-Earn). Publisher credentials come from the HypeLab dashboard;
+      # until they are set the unit is disabled and no points can be earned.
+      # - key: NEXT_PUBLIC_ADS_PROVIDER
+      #   value: hypelab
+      # - key: NEXT_PUBLIC_ADS_SCRIPT_URL
+      #   value: https://<publisher-script-from-hypelab-dashboard>
+      # - key: NEXT_PUBLIC_HYPELAB_PROPERTY_ID
+      #   value: <property id>
+      # - key: NEXT_PUBLIC_HYPELAB_PLACEMENT_ID
+      #   value: <rewarded placement slug>

@@ -460,7 +460,7 @@ export const AGENT_LINES: Record<string, AgentLine[]> = {
     {
       agent: "meme",
       stance: "bear",
-      text: "Verdict: I can make this trend YES or NO depending on which four hours I sample. That is the definition of a coin flip, and the odds are not paying for one.",
+      text: "Verdict: I can make this trend YES or NO depending on which four-hour window I pick. That is the definition of a coin flip, and the odds are not paying for one.",
     },
   ],
   science: [
@@ -504,7 +504,7 @@ export const AGENT_LINES: Record<string, AgentLine[]> = {
     {
       agent: "detective",
       stance: "bull",
-      text: "Prediction-market liquidity on this question is 4x the polling average's sample size. Money is a better poll than a poll here.",
+      text: "Prediction-market liquidity on this question is 4x the polling average's margin of error. Money is a better poll than a poll here.",
       evidenceCid: DEMO_CIDS[1],
     },
     {

@@ -476,7 +476,7 @@ const ARGUMENTS: Record<string, { bull: string[]; bear: string[] }> = {
   },
   "Politics & Global": {
     bull: [
-      "Liquidity on this question is now larger than the polling average's sample size, and it has been early twice.",
+      "Liquidity on this question now exceeds the polling average's margin of error, and it has been early twice.",
       "The resolution criteria are mechanical: the trigger event, not the interpretation, decides this.",
       "The arbiter has published the same reading twice before. Precedent is the missing variable in the bear case.",
       "Committee calendars are public and the remaining window is wider than the headline suggests.",
@@ -820,7 +820,7 @@ const COMMENTS: Record<string, { bull: string[]; bear: string[] }> = {
   },
   "Politics & Global": {
     bull: [
-      "Money has been early on this question twice. The flow is bigger than the polling sample now.",
+      "Money has been early on this question twice. The flow is bigger than the polling margin now.",
       "The arbiter has read the criteria the same way twice before. Precedent matters more than polls.",
       "Committee calendar gives them a real window. This is not a coin flip.",
     ],
