@@ -316,7 +316,7 @@ export function LiveActivityFeed({ pools }: { pools: ArenaPool[] }) {
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
         >
-          {ordered.slice(0, ROWS).map((row) => {
+          {ordered.slice(0, ROWS).sort((a, b) => b.at - a.at).map((row) => {
             const side = row.side === 0 ? "YES" : "NO";
             return (
               <a
