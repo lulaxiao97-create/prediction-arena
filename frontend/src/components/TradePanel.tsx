@@ -428,7 +428,6 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
               <p className="mono mt-0.5 text-[12.5px] text-profit">{usd(ticketPayoutCents)}</p>
             </div>
           </div>
-          <p className="mt-2 text-[9.5px] leading-relaxed text-muted/60">{t("rewards.ticketNote")}</p>
         </div>
       )}
 
