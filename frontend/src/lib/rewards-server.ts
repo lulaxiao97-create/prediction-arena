@@ -16,6 +16,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import {
   AD_SECONDS,
+  type AuditEvent,
   MAX_ADS_PER_DAY,
   POINTS_PER_AD,
   type Ledger,
@@ -139,6 +140,11 @@ export function creditAd(ledger: Ledger, receiptId: string, now = Date.now()): L
     seenAds,
     updatedAt: now,
   };
+}
+
+/** Append one audit line; the tail is capped so the signed cookie cannot grow forever. */
+export function pushEvent(ledger: Ledger, ev: AuditEvent): Ledger {
+  return { ...ledger, events: [...(ledger.events ?? []), ev].slice(-40) };
 }
 
 export { COOKIE as REWARDS_COOKIE, MAX_AGE as REWARDS_MAX_AGE, emptyLedger };

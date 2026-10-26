@@ -18,6 +18,7 @@ import {
   decodeLedger,
   encodeLedger,
   poolIndex,
+  pushEvent,
   readPools,
   rollDay,
   signAdReceipt,
@@ -91,11 +92,13 @@ export async function POST(req: NextRequest) {
       if (!check.ok || !check.id) {
         return NextResponse.json({ ok: false, error: check.reason ?? "invalid-receipt" }, { status: 400 });
       }
-      const next = creditAd(ledger, check.id, now);
-      if (next.points === ledger.points) {
+      const credited = creditAd(ledger, check.id, now);
+      if (credited.points === ledger.points) {
         return NextResponse.json({ ok: false, error: "already-credited" }, { status: 409 });
       }
-      return respond(next, { awarded: next.points - ledger.points });
+      const awarded = credited.points - ledger.points;
+      const next = pushEvent(credited, { at: now, kind: "ad", points: awarded });
+      return respond(next, { awarded });
     }
 
     /* ── points → ticket ───────────────────────────────────────────── */
@@ -103,12 +106,15 @@ export async function POST(req: NextRequest) {
       const affordable = Math.floor(ledger.points / POINTS_PER_TICKET);
       const count = clampInt(body.count ?? 1, 1, Math.min(20, affordable));
       if (affordable < 1) return NextResponse.json({ ok: false, error: "not-enough-points" }, { status: 400 });
-      const next: Ledger = {
-        ...ledger,
-        points: ledger.points - count * POINTS_PER_TICKET,
-        tickets: ledger.tickets + count,
-        updatedAt: now,
-      };
+      const next = pushEvent(
+        {
+          ...ledger,
+          points: ledger.points - count * POINTS_PER_TICKET,
+          tickets: ledger.tickets + count,
+          updatedAt: now,
+        },
+        { at: now, kind: "redeem", points: -(count * POINTS_PER_TICKET), tickets: count, cents: count * TICKET_CENTS },
+      );
       return respond(next, { redeemed: count });
     }
 
@@ -127,7 +133,8 @@ export async function POST(req: NextRequest) {
       const prob = option === 0 ? yes : 1 - yes;
       const entryBps = clampInt(Math.round(prob * 10_000), 100, 9_900);
 
-      const next: Ledger = {
+      const next = pushEvent(
+        {
         ...ledger,
         tickets: ledger.tickets - 1,
         stakes: [
@@ -143,7 +150,9 @@ export async function POST(req: NextRequest) {
           },
         ].slice(-40),
         updatedAt: now,
-      };
+        },
+        { at: now, kind: "stake", tickets: -1, cents: TICKET_CENTS, poolId, entryBps },
+      );
       return respond(next, { staked: entryBps });
     }
 
@@ -155,12 +164,27 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ ok: false, error: "below-threshold" }, { status: 400 });
       }
       if (ledger.cashout) return NextResponse.json({ ok: false, error: "already-requested" }, { status: 409 });
-      const next: Ledger = {
-        ...ledger,
-        cashout: { at: now, cents: view.settledProfitCents, status: "queued" },
-        updatedAt: now,
-      };
-      return respond(next, { requestedCents: view.settledProfitCents });
+
+      // A payout needs somewhere to land. We record the Base address verbatim (validated, never
+      // derived) and prepare the admin transfer against it; the ledger still holds no keys.
+      const wallet = String(body.wallet ?? "").trim();
+      const valid = /^0x[a-fA-F0-9]{40}$/.test(wallet);
+      if (wallet && !valid) return NextResponse.json({ ok: false, error: "bad-wallet" }, { status: 400 });
+      const to = valid ? wallet : null;
+
+      const next = pushEvent(
+        {
+          ...ledger,
+          cashout: { at: now, cents: view.settledProfitCents, status: "queued", to },
+          updatedAt: now,
+        },
+        { at: now, kind: "cashout", cents: view.settledProfitCents, to },
+      );
+      return respond(next, {
+        requestedCents: view.settledProfitCents,
+        // what ops has to execute; network + asset are fixed, the amount is the realised profit
+        transfer: { network: "base", chainId: 8453, asset: "USDC", amountCents: view.settledProfitCents, to },
+      });
     }
 
     default:

@@ -34,7 +34,32 @@ export type TicketStake = {
   at: number;
 };
 
-export type CashoutRequest = { at: number; cents: number; status: "queued" };
+export type CashoutRequest = {
+  at: number;
+  cents: number;
+  status: "queued";
+  /** Base address the admin transfer is prepared for; null until the user supplies one */
+  to?: string | null;
+};
+
+/**
+ * One line in the ledger's own history. Every mutation appends exactly one, so the panel can show
+ * a flow the user can audit ("10 points in → 100 → 1 ticket → stake on #700001 → $10 reached")
+ * instead of a set of numbers that appear from nowhere.
+ */
+export type AuditEvent = {
+  at: number;
+  kind: "ad" | "redeem" | "stake" | "cashout";
+  /** points moved (positive = earned) */
+  points?: number;
+  /** tickets moved (positive = minted, negative = spent) */
+  tickets?: number;
+  cents?: number;
+  poolId?: string;
+  entryBps?: number;
+  /** where an admin transfer would go, for cashout rows */
+  to?: string | null;
+};
 
 export type Ledger = {
   v: 1;
@@ -46,6 +71,8 @@ export type Ledger = {
   adsDay: string;
   adsToday: number;
   cashout?: CashoutRequest;
+  /** append-only trail, capped so the cookie stays small */
+  events?: AuditEvent[];
   updatedAt: number;
 };
 
@@ -79,6 +106,8 @@ export type RewardsView = {
   canWithdraw: boolean;
   withdrawMinCents: number;
   cashout?: CashoutRequest;
+  /** newest last; the panel renders the tail */
+  events: AuditEvent[];
   rates: {
     pointsPerAd: number;
     pointsPerTicket: number;
@@ -137,6 +166,7 @@ export function toView(ledger: Ledger, pools: Record<string, ResolvedPool>, adsL
     canWithdraw: settledProfitCents >= WITHDRAW_MIN_CENTS && !ledger.cashout,
     withdrawMinCents: WITHDRAW_MIN_CENTS,
     cashout: ledger.cashout,
+    events: (ledger.events ?? []).slice(-16),
     rates: {
       pointsPerAd: POINTS_PER_AD,
       pointsPerTicket: POINTS_PER_TICKET,

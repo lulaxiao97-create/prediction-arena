@@ -21,7 +21,7 @@ type Ctx = Stored & {
   completeAd: (token: string) => Promise<{ ok: boolean; awarded?: number; error?: string }>;
   redeem: (count?: number) => Promise<{ ok: boolean; redeemed?: number; error?: string }>;
   stake: (poolId: string, option: 0 | 1) => Promise<{ ok: boolean; error?: string; entryBps?: number }>;
-  requestCashout: () => Promise<{ ok: boolean; error?: string }>;
+  requestCashout: (wallet?: string) => Promise<{ ok: boolean; error?: string }>;
   openAd: () => void;
   adOpen: boolean;
   closeAd: () => void;
@@ -118,8 +118,8 @@ export function RewardsProvider({ children }: { children: React.ReactNode }) {
     [apply],
   );
 
-  const requestCashout = useCallback(async () => {
-    const { data } = await call("cashout");
+  const requestCashout = useCallback(async (wallet?: string) => {
+    const { data } = await call("cashout", wallet ? { wallet } : {});
     apply(data.view as RewardsView | undefined);
     return { ok: Boolean(data.ok), error: data.ok ? undefined : String(data.error ?? "failed") };
   }, [apply]);

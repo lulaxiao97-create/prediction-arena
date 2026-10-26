@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CheckCircle2, Loader2, Play, ShieldAlert, X, Zap } from "lucide-react";
+import { CheckCircle2, Loader2, Play, RefreshCw, ShieldAlert, X, Zap } from "lucide-react";
 import { useI18n } from "@/components/LocaleProvider";
 import { useRewards } from "@/components/RewardsProvider";
 import { adsConfig, mountPlacement } from "@/lib/ads";
@@ -10,84 +10,165 @@ import { AD_SECONDS } from "@/lib/rewards";
 /**
  * Watch-to-earn surface, wired to HypeLab's real web SDK.
  *
- * Flow: server signs a receipt → the sponsored placement is auctioned into this dialog → the
- * element only counts once HypeLab fires `ready` (a filled creative) → it stays on screen for
- * AD_SECONDS → the receipt is redeemed and points land. Any other path pays nothing:
- * a refused auction shows the provider's own error, closing early cancels, and a build without
- * credentials says so instead of playing a stand-in.
+ * Flow: server signs a receipt → the placement is auctioned into this dialog → the element must
+ * fire `ready` (a filled creative) → it stays on screen for AD_SECONDS → the receipt is redeemed
+ * and points land. Everything else pays nothing.
+ *
+ * When the auction comes back empty (HTTP 204 — the common case on a young property) the dialog
+ * does not dead-end: the user can re-auction on demand, and a silent off-screen probe re-checks
+ * demand every 15s up to 3 times. A probe that fills triggers a visible mount without the user
+ * touching anything.
  */
+const RETRY_EVERY_MS = 15_000;
+const MAX_AUTO_RETRIES = 3;
+
 export function AdModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useI18n();
   const { startAd, completeAd, view } = useRewards();
-  const [phase, setPhase] = useState<"intro" | "mounting" | "viewing" | "credited" | "error">("intro");
+  const [phase, setPhase] = useState<"intro" | "mounting" | "viewing" | "credited" | "nofill" | "error">("intro");
   const [left, setLeft] = useState(AD_SECONDS);
   const [awarded, setAwarded] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [attempts, setAttempts] = useState(0);
+  const [autoLeft, setAutoLeft] = useState<number | null>(null);
   const hostRef = useRef<HTMLDivElement | null>(null);
   const destroyRef = useRef<(() => void) | null>(null);
+  const timers = useRef<number[]>([]);
+  const cancelled = useRef(false);
+  const probing = useRef(false);
 
   const cfg = adsConfig();
   const adsLeft = view?.rates.adsLeftToday ?? 0;
 
+  const clearTimers = useCallback(() => {
+    timers.current.forEach((id) => window.clearTimeout(id));
+    timers.current = [];
+    setAutoLeft(null);
+  }, []);
+
   const cleanup = useCallback(() => {
+    cancelled.current = true;
+    probing.current = false;
+    clearTimers();
     destroyRef.current?.();
     destroyRef.current = null;
     if (hostRef.current) hostRef.current.innerHTML = "";
-  }, []);
+  }, [clearTimers]);
 
+  const failWith = useCallback((reason: string) => {
+    const message =
+      reason === "invalid-placement"
+        ? t("rewards.adInvalidPlacement", { property: cfg.propertyId ?? "", placement: cfg.placement ?? "" })
+        : reason === "sdk-unavailable"
+          ? t("rewards.unavailable")
+          : reason === "daily-cap"
+            ? t("rewards.dailyCap")
+            : reason === "provider"
+              ? t("rewards.adProviderError")
+              : t("rewards.adNoFill");
+    setError(message);
+    setPhase("error");
+  }, [t, cfg.propertyId, cfg.placement]);
+
+  /** put a real placement on screen and, once filled, run the dwell + credit */
+  const mount = useCallback(
+    async (receiptToken: string) => {
+      if (!hostRef.current) {
+        failWith("sdk-unavailable");
+        return;
+      }
+      setPhase("mounting");
+      const res = await mountPlacement(hostRef.current, { retries: 1 });
+      if (!res.ok) {
+        if (res.reason === "no-fill" || res.reason === "timeout") {
+          setPhase("nofill");
+          return;
+        }
+        failWith(res.reason);
+        return;
+      }
+
+      destroyRef.current = res.destroy;
+      setLeft(AD_SECONDS);
+      setPhase("viewing");
+
+      const started = Date.now();
+      const tick = window.setInterval(async () => {
+        const remain = Math.max(0, AD_SECONDS - Math.floor((Date.now() - started) / 1000));
+        setLeft(remain);
+        if (remain > 0) return;
+        window.clearInterval(tick);
+        const credited = await completeAd(receiptToken);
+        if (credited.ok) {
+          setAwarded(credited.awarded ?? 0);
+          setPhase("credited");
+        } else {
+          failWith("provider");
+        }
+      }, 500);
+    },
+    [completeAd, failWith],
+  );
+
+  /** one full attempt: receipt → auction → (dwell) */
   const run = useCallback(async () => {
     cleanup();
-    setAwarded(0);
+    cancelled.current = false;
+    probing.current = false;
+    clearTimers();
     setError(null);
+    setAwarded(0);
     setPhase("mounting");
 
     const receipt = await startAd();
     if ("error" in receipt) {
-      setError(receipt.error === "daily-cap" ? t("rewards.dailyCap") : t("rewards.unavailable"));
-      setPhase("error");
+      failWith(receipt.error === "daily-cap" ? "daily-cap" : "sdk-unavailable");
       return;
     }
-    if (!hostRef.current) {
-      setError(t("rewards.unavailable"));
-      setPhase("error");
-      return;
-    }
+    await mount(receipt.token);
+  }, [cleanup, clearTimers, startAd, mount, failWith]);
 
-    const mount = await mountPlacement(hostRef.current);
-    if (!mount.ok) {
-      const msg =
-        mount.reason === "timeout"
-          ? t("rewards.adTimeout")
-          : mount.reason === "invalid-placement"
-            ? t("rewards.adInvalidPlacement", { property: cfg.propertyId ?? "", placement: cfg.placement ?? "" })
-            : mount.reason === "sdk-unavailable"
-              ? t("rewards.unavailable")
-              : t("rewards.adNoFill");
-      setError(msg);
-      setPhase("error");
-      return;
-    }
-    destroyRef.current = mount.destroy;
-    setLeft(AD_SECONDS);
-    setPhase("viewing");
-
-    // dwell: the creative has to stay on screen before the receipt can be redeemed
-    const started = Date.now();
-    const tick = window.setInterval(async () => {
-      const remain = Math.max(0, AD_SECONDS - Math.floor((Date.now() - started) / 1000));
-      setLeft(remain);
-      if (remain > 0) return;
-      window.clearInterval(tick);
-      const res = await completeAd(receipt.token);
-      if (res.ok) {
-        setAwarded(res.awarded ?? 0);
-        setPhase("credited");
-      } else {
-        setError(t("rewards.adProviderError"));
-        setPhase("error");
+  /**
+   * Silent demand check: a real auction, mounted 1px off-screen. A fill means demand is back, so
+   * we immediately run the visible flow; empty means we wait another 15s, up to MAX_AUTO_RETRIES.
+   * Written as one cancellable loop — a recursive callback would trip the hooks lint rule and is
+   * harder to stop cleanly when the dialog closes mid-wait.
+   */
+  const startProbing = useCallback(
+    async (from: number) => {
+      if (probing.current) return;
+      probing.current = true;
+      let attempt = from;
+      while (attempt < MAX_AUTO_RETRIES && !cancelled.current) {
+        for (let s = Math.round(RETRY_EVERY_MS / 1000); s > 0; s--) {
+          if (cancelled.current) return;
+          setAutoLeft(s);
+          await new Promise((r) => window.setTimeout(r, 1_000));
+        }
+        if (cancelled.current) return;
+        setAutoLeft(null);
+        const host = hostRef.current ?? document.createElement("div");
+        const probe = await mountPlacement(host, { probe: true });
+        if (cancelled.current) return;
+        if (probe.ok) {
+          probing.current = false;
+          await run();
+          return;
+        }
+        attempt += 1;
+        setAttempts(attempt);
       }
-    }, 500);
-  }, [cleanup, startAd, completeAd, t]);
+      probing.current = false;
+    },
+    [run],
+  );
+
+  // kick off the probe chain the first time we land in "no fill"
+  useEffect(() => {
+    if (phase === "nofill" && attempts < MAX_AUTO_RETRIES && !cancelled.current) {
+      void startProbing(attempts);
+    }
+  }, [phase, attempts, startProbing]);
 
   useEffect(() => {
     if (!open) {
@@ -95,6 +176,8 @@ export function AdModal({ open, onClose }: { open: boolean; onClose: () => void 
       setPhase("intro");
       setError(null);
       setAwarded(0);
+      setAttempts(0);
+      setAutoLeft(null);
     }
   }, [open, cleanup]);
 
@@ -168,6 +251,28 @@ export function AdModal({ open, onClose }: { open: boolean; onClose: () => void 
               <button onClick={() => void run()} disabled={adsLeft <= 0} className="btn-ghost py-2 text-[12.5px]">
                 {t("rewards.retry")}
               </button>
+            </div>
+          ) : phase === "nofill" ? (
+            <div className="flex flex-col gap-2.5">
+              <p className="rounded-lg border border-gold/25 bg-gold/[0.06] px-2.5 py-2 text-[10.5px] leading-relaxed text-gold-bright/90">
+                {t("rewards.adNoFill")}
+              </p>
+              {autoLeft !== null ? (
+                <p className="flex items-center gap-1.5 text-[10.5px] text-muted">
+                  <Loader2 className="size-3 animate-spin" />
+                  {t("rewards.autoRetryIn", { n: autoLeft, i: attempts + 1, max: MAX_AUTO_RETRIES })}
+                </p>
+              ) : attempts >= MAX_AUTO_RETRIES ? (
+                <p className="text-[10.5px] text-muted/70">{t("rewards.autoRetryDone", { max: MAX_AUTO_RETRIES })}</p>
+              ) : null}
+              <div className="flex items-center gap-2">
+                <button onClick={() => void run()} disabled={adsLeft <= 0} className="btn-gold flex-1 py-2 text-[12.5px] disabled:opacity-50">
+                  <RefreshCw className="size-3.5" /> {t("rewards.retryAuction")}
+                </button>
+                <button onClick={onClose} className="btn-ghost flex-1 py-2 text-[12.5px]">
+                  {t("rewards.done")}
+                </button>
+              </div>
             </div>
           ) : (
             <>

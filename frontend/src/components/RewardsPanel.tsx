@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Banknote, Loader2, Play, Ticket, Trophy } from "lucide-react";
+import { useCallback, useState } from "react";
+import { Banknote, Loader2, Play, ScrollText, Ticket, Trophy } from "lucide-react";
 import { cn } from "@/lib/format";
 import { useI18n } from "@/components/LocaleProvider";
 import { useRewards } from "@/components/RewardsProvider";
@@ -19,6 +20,12 @@ import { POINTS_PER_TICKET, usd } from "@/lib/rewards";
 export function RewardsPanel({ onOpenAd }: { onOpenAd?: () => void }) {
   const { t } = useI18n();
   const { view, loading, redeem, requestCashout, openAd } = useRewards();
+  const [wallet, setWallet] = useState("");
+  const [cashoutError, setCashoutError] = useState<string | null>(null);
+  const submitCashout = useCallback(async () => {
+    const res = await requestCashout(wallet.trim() || undefined);
+    setCashoutError(res.ok ? null : (res.error ?? "failed"));
+  }, [requestCashout, wallet]);
 
   const goAd = onOpenAd ?? openAd;
 
@@ -114,6 +121,19 @@ export function RewardsPanel({ onOpenAd }: { onOpenAd?: () => void }) {
       )}
 
       {/* cashout gate */}
+      {view.canWithdraw && (
+        <div className="flex flex-col gap-1">
+          <input
+            value={wallet}
+            onChange={(e) => setWallet(e.target.value)}
+            placeholder="0x… Base address for the USDC payout"
+            spellCheck={false}
+            className="mono w-full rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1.5 text-[10.5px] text-ink placeholder:text-muted/45 focus:border-cyan/50 focus:outline-none"
+          />
+          <p className="text-[9px] leading-relaxed text-muted/50">{t("rewards.payoutAddressHint")}</p>
+          {cashoutError && <p className="text-[9.5px] text-loss">{cashoutError === "bad-wallet" ? t("rewards.badWallet") : cashoutError}</p>}
+        </div>
+      )}
       <div className="flex items-center gap-2 rounded-lg border border-white/8 bg-white/[0.02] px-2.5 py-2">
         <Banknote className={cn("size-3.5 shrink-0", view.canWithdraw ? "text-profit" : "text-muted/45")} />
         <div className="min-w-0 flex-1">
@@ -129,7 +149,7 @@ export function RewardsPanel({ onOpenAd }: { onOpenAd?: () => void }) {
           )}
         </div>
         <button
-          onClick={() => void requestCashout()}
+          onClick={() => void submitCashout()}
           disabled={!view.canWithdraw}
           className={cn(
             "shrink-0 rounded-lg border px-2 py-1 text-[10.5px] transition-colors",
@@ -142,9 +162,40 @@ export function RewardsPanel({ onOpenAd }: { onOpenAd?: () => void }) {
         </button>
       </div>
 
+      {view.events.length > 0 && (
+        <div className="flex flex-col gap-1 rounded-lg border border-white/6 bg-white/[0.015] px-2 py-1.5">
+          <p className="flex items-center gap-1 text-[8.5px] uppercase tracking-[0.12em] text-muted/55">
+            <ScrollText className="size-2.5" /> {t("rewards.auditTitle")}
+          </p>
+          <ul className="flex flex-col gap-0.5">
+            {view.events.slice(-5).reverse().map((e, i) => (
+              <li key={`${e.at}-${i}`} className="mono flex items-center justify-between gap-2 text-[9px] text-muted/70">
+                <span className="truncate">{auditLine(e, t)}</span>
+                <span className="shrink-0 text-muted/40">{new Date(e.at).toISOString().slice(5, 16).replace("T", " ")}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <p className="text-[9px] leading-relaxed text-muted/40">{t("rewards.ledgerNote")}</p>
     </div>
   );
+}
+
+function auditLine(e: { kind: string; points?: number; tickets?: number; cents?: number; poolId?: string; entryBps?: number; to?: string | null }, t: (k: string, v?: Record<string, string | number>) => string) {
+  switch (e.kind) {
+    case "ad":
+      return t("rewards.auditAd", { n: e.points ?? 0 });
+    case "redeem":
+      return t("rewards.auditRedeem", { n: e.tickets ?? 0, pts: Math.abs(e.points ?? 0) });
+    case "stake":
+      return t("rewards.auditStake", { id: e.poolId ?? "?", p: ((e.entryBps ?? 0) / 100).toFixed(1) });
+    case "cashout":
+      return t("rewards.auditCashout", { amount: usd(e.cents ?? 0), to: e.to ? `${e.to.slice(0, 6)}…${e.to.slice(-4)}` : "—" });
+    default:
+      return e.kind;
+  }
 }
 
 function Stat({ label, value, tone }: { label: string; value: string; tone: string }) {
