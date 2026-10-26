@@ -18,11 +18,9 @@ import { TradePanel } from "@/components/TradePanel";
 import { ProbabilityChart } from "@/components/ProbabilityChart";
 import { useLiveSeries } from "@/hooks/useLiveSeries";
 import { CommunityDiscussion } from "@/components/CommunityDiscussion";
-import { CategoryCover } from "@/components/CategoryCover";
 import { MarketCover } from "@/components/MarketCover";
 import { coverOf } from "@/lib/covers";
 import { MobileTradeSheet } from "@/components/MobileTradeSheet";
-import { themeFor } from "@/lib/visuals";
 import { useAiDebate } from "@/hooks/useAiDebate";
 import { ActivityLog } from "@/components/ActivityLog";
 import { useMarkets } from "@/hooks/useMarkets";
@@ -207,11 +205,6 @@ export function MarketDetail({ id }: { id: string }) {
 
             {/* chart (always visible) */}
             <div className="glass relative overflow-hidden rounded-2xl border-white/10 p-4 transition-colors hover:border-white/15">
-              <CategoryCover
-                theme={themeFor({ category: pool.category, title: pool.title, tags: pool.tags })}
-                className="z-0"
-                fade="hero"
-              />
               <div className="flex items-center justify-between">
                 <p className="flex items-center gap-1.5 text-[12.5px] font-semibold text-ink">
                   {t("detail.chart")}

@@ -28,7 +28,7 @@ import { useMarkets } from "@/hooks/useMarkets";
 import { useMounted } from "@/hooks/useMounted";
 import { CATEGORY_TABS, matchesTab, type MarketCategory } from "@/lib/categories";
 import { hasArena } from "@/hooks/usePredictionArena";
-import { cn, formatCompactUsdc } from "@/lib/format";
+import { formatCompactUsdc } from "@/lib/format";
 import type { ArenaPool } from "@/lib/types";
 
 export default function Home() {
@@ -195,25 +195,8 @@ export default function Home() {
             <SearchSortBar query={query} onQuery={setQuery} sort={sort} onSort={setSort} count={filtered.length} />
           </div>
 
-          {/* Phones already have this rail pinned under the header — repeating it here would
-              just add 44px of duplicated chrome between the search box and the cards. */}
-          <div className="no-scrollbar mt-2.5 hidden snap-x gap-1.5 overflow-x-auto pb-1 sm:flex">
-            {CATEGORY_TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setCategory(tab.id)}
-                className={cn(
-                  "shrink-0 snap-start touch-manipulation whitespace-nowrap rounded-full border px-3 py-1.5 text-[11.5px] transition-colors",
-                  category === tab.id
-                    ? "border-gold/50 bg-gold/12 text-gold-bright"
-                    : "border-white/8 text-muted hover:border-white/20 hover:text-ink"
-                )}
-              >
-                <span className="mr-1">{tab.emoji}</span>
-                {t(tab.i18n)}
-              </button>
-            ))}
-          </div>
+          {/* The lane rail lives in the sticky header on every screen — repeating it here put two
+              identical rows of pills 200px apart. Search + sort is all this row needs to be. */}
 
           <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {filtered.map((pool, index) => (
