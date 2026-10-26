@@ -40,6 +40,11 @@ export type ArenaPool = {
   marketData?: MarketData;
   /** Lower-cased haystack: title + category + tags + description + resolution + feed name. */
   searchText?: string;
+  /**
+   * Resolved artwork (photo + accent + entity) written by scripts/gen-board.ts. Optional so an
+   * older manifest still renders: the UI falls back to `coverOf(pool)` on the fly.
+   */
+  visual?: import("@/lib/covers").CoverSpec;
 };
 
 export type MarketData = {

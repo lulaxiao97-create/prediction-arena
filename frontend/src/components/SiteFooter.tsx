@@ -118,7 +118,12 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-8 flex flex-col gap-2 border-t border-white/[0.06] pt-4 text-[10px] text-muted/50 sm:flex-row sm:items-center sm:justify-between">
-          <span>{t("footer.copyright")} · {t("footer.rights")}</span>
+          <span>
+            {t("footer.copyright")} · {t("footer.rights")}{" "}
+            <Link href="/credits" className="text-muted/70 underline-offset-2 transition-colors hover:text-gold-bright hover:underline">
+              Image credits
+            </Link>
+          </span>
           <span className="mono">
             {ARENA_ADDRESS.slice(0, 10)}…{ARENA_ADDRESS.slice(-6)} · Base Mainnet 8453
           </span>

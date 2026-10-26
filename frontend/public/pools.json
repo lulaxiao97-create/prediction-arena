@@ -3,7 +3,7 @@
   "address": "0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93",
   "chainId": 8453,
   "deployBlock": 52935381,
-  "updatedAt": "2026-10-26T03:05:05.953Z",
+  "updatedAt": "2026-10-26T03:07:08.468Z",
   "featured": "700001",
   "dataSources": {
     "prices": "Binance /api/v3/ticker/24hr (majors) + CoinGecko /simple/price (Base tokens)",

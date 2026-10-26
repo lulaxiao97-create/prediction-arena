@@ -27,6 +27,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ASSETS, readSnapshot, snapshotAgeMs } from "./fetch-prices.ts";
 import type { PriceSnapshot } from "./fetch-prices.ts";
+import { coverFor } from "../frontend/src/lib/covers.ts";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const POOLS = join(ROOT, "frontend", "public", "pools.json");
@@ -66,6 +67,12 @@ type Pool = {
     source: string;
     asOf: string;
   };
+  /**
+   * Resolved artwork, written at generation time (see frontend/src/lib/covers.ts). The manifest
+   * carries it so the OG route and any other consumer read the same photo/accent/mark the cards
+   * use, instead of re-deriving it with a second copy of the rules.
+   */
+  visual?: ReturnType<typeof coverFor>;
 };
 
 /* ───────────────────────────── number helpers ───────────────────────────── */
@@ -625,6 +632,7 @@ function main() {
       dataSource: d.dataSource,
       dataAsOf: d.dataAsOf,
       marketData: d.marketData,
+      visual: coverFor({ title: d.title, category: d.category, tags: d.tags, marketData: d.marketData }),
     };
   });
 

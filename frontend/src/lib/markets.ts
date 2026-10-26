@@ -35,6 +35,8 @@ export type ManifestPool = {
   dataSource?: string;
   /** Snapshot timestamp of those numbers. */
   dataAsOf?: string;
+  /** Resolved artwork written by gen-board (photo/accent/entity/mark). */
+  visual?: import("@/lib/covers").CoverSpec;
   /** Structured spot/strike/feed for share text and cards. */
   marketData?: {
     asset: string;
@@ -167,6 +169,7 @@ export function demoPoolToArena(pool: ManifestPool, nowSeconds: number): ArenaPo
     traders: pool.traders ?? 0,
     volume24h: u(Number(pool.volume24hUsdc ?? "0")),
     marketData: pool.marketData,
+    visual: pool.visual,
     // Search covers everything a visitor might type: the question, the lane, the asset ticker,
     // the resolution source ("binance", "defillama") and the prose that explains the market.
     searchText: [

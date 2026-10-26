@@ -28,8 +28,8 @@ import {
 } from "@/lib/format";
 import { categoryI18nKey } from "@/lib/categories";
 import { useMounted } from "@/hooks/useMounted";
-import { CategoryCover } from "@/components/CategoryCover";
-import { themeFor } from "@/lib/visuals";
+import { MarketCover } from "@/components/MarketCover";
+import { coverOf } from "@/lib/covers";
 import { useI18n } from "@/components/LocaleProvider";
 import {
   EMERGENCY_REFUND_DELAY_SECONDS,
@@ -93,23 +93,40 @@ export function MarketCard({
     }
   }
 
-  const theme = themeFor({ category: pool.category, title: pool.title, tags: pool.tags });
+  const cover = coverOf(pool);
 
   return (
     <article
       style={{ animationDelay: `${Math.min(index * 0.04, 0.2)}s` }}
-      className="glass glass-hover card-edge rise-in group relative flex flex-col gap-3 overflow-hidden rounded-2xl p-4"
+      className="glass glass-hover card-edge rise-in group relative flex flex-col overflow-hidden rounded-2xl"
     >
-      {/* subject-matched cover: vector scene, photo blended on top when it loads */}
-      <CategoryCover theme={theme} className="z-0 opacity-[0.85] transition-opacity duration-500 group-hover:opacity-100" />
+      {/* Subject band: the photograph + motif + the entity this market is actually about.
+          It replaces the old full-card wash, which read as "every card is the same grey tile". */}
+      <div className="relative h-[112px] w-full shrink-0 overflow-hidden border-b border-white/[0.07]">
+        <MarketCover spec={cover} variant="card" />
+        {cover.metric && (
+          <span className="mono absolute right-2.5 top-2.5 rounded-md border border-white/12 bg-void/60 px-1.5 py-0.5 text-[10px] text-ink/90 backdrop-blur-sm">
+            {cover.metric}
+          </span>
+        )}
+        <div className="absolute inset-x-0 bottom-0 p-3">
+          <p className="mono truncate text-[8.5px] uppercase tracking-[0.22em]" style={{ color: cover.accent }}>
+            {cover.kicker}
+          </p>
+          <p className="mt-0.5 truncate text-[14px] font-bold leading-none tracking-tight text-ink">
+            {cover.entity}
+          </p>
+        </div>
+      </div>
 
+      <div className="relative flex flex-1 flex-col gap-3 p-4">
       {/* clickable surface → detail page */}
       <Link href={href} className="absolute inset-0 z-0" aria-label={t("card.view")} />
 
       {/* header */}
       <div className="pointer-events-none relative z-10 flex flex-wrap items-center gap-1.5">
         <span className="chip chip-gold">{t(categoryI18nKey(pool.category))}</span>
-        {(pool.tags ?? []).slice(0, 2).map((tag) => (
+        {(pool.tags ?? []).slice(0, 1).map((tag) => (
           <span key={tag} className="chip border-white/10 text-[10px] text-muted/85">
             {tag}
           </span>
@@ -311,6 +328,7 @@ export function MarketCard({
           )}
         </div>
       )}
+      </div>
     </article>
   );
 }

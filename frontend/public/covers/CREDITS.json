@@ -1,0 +1,19 @@
+{
+  "note": "Cover photography shipped in /covers. Files are downscaled and colour-graded for the dark UI; the originals are unchanged. Markets never fetch an image at runtime.",
+  "images": [
+    { "file": "crypto.jpg", "subject": "Bitcoin coin in front of a trading terminal", "license": "Unsplash License", "source": "https://unsplash.com" },
+    { "file": "macro.jpg", "subject": "Candlestick chart", "license": "Unsplash License", "source": "https://unsplash.com" },
+    { "file": "space.jpg", "subject": "Earth from orbit", "license": "Unsplash License", "source": "https://unsplash.com" },
+    { "file": "football.jpg", "subject": "Floodlit football pitch at night", "license": "CC0", "source": "Openverse" },
+    { "file": "basketball.jpg", "subject": "Indoor basketball arena", "license": "CC0", "source": "Openverse" },
+    { "file": "motorsport.jpg", "subject": "Formula 1 car on track", "license": "CC0", "source": "Openverse" },
+    { "file": "gold.jpg", "subject": "Gold bullion bars", "license": "CC0", "source": "Wikimedia Commons" },
+    { "file": "ai-lab.jpg", "subject": "Data-centre server hall", "license": "CC0", "source": "Openverse" },
+    { "file": "neural.jpg", "subject": "Network of nodes", "license": "CC0", "source": "Openverse" },
+    { "file": "meme.jpg", "subject": "Street-art mural", "license": "CC0", "source": "Openverse" },
+    { "file": "chain.jpg", "subject": "Night skyline", "license": "CC0", "source": "Openverse" },
+    { "file": "capitol.jpg", "subject": "United States Capitol dome", "license": "CC0", "source": "Wikimedia Commons" },
+    { "file": "esports.jpg", "subject": "Esports arena stage (VCT Americas, Riot Games Arena)", "license": "CC BY-SA 4.0", "source": "https://commons.wikimedia.org/wiki/File:Riot_Games_Arena_VCT_Americas_February_2024.jpg", "credit": "Wikimedia Commons contributor" },
+    { "file": "eu.jpg", "subject": "European Parliament hemicycle, Strasbourg", "license": "CC BY-SA 3.0", "source": "https://commons.wikimedia.org/wiki/File:European_Parliament_Strasbourg_Hemicycle_-_Diliff.jpg", "credit": "Diliff / Wikimedia Commons" }
+  ]
+}

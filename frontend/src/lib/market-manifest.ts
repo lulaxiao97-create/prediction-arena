@@ -25,6 +25,8 @@ export type ManifestPool = {
   tags?: string[];
   dataSource?: string;
   dataAsOf?: string;
+  /** Resolved artwork written by gen-board; the OG card reads it as its backdrop. */
+  visual?: import("@/lib/covers").CoverSpec;
   /** spot/strike/feed behind the title — drives the share card's provenance badge. */
   marketData?: {
     asset: string;

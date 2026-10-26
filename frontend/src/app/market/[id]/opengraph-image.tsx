@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { impliedYes, liquidityLabel, readPool } from "@/lib/market-manifest";
+import { coverOf } from "@/lib/covers";
 
 // Node runtime: the market manifest and the brand mark are read straight off disk, so a
 // share card never depends on an outbound request at the moment someone posts a link.
@@ -33,6 +34,22 @@ async function markDataUri(): Promise<string | null> {
   }
 }
 
+/**
+ * The market's own cover, inlined as a data URI.
+ *
+ * Satori cannot fetch a relative URL at render time (it has no document base), and a share card
+ * that silently loses its artwork is worse than one that never had it — so the JPEG is read off
+ * disk and embedded. Falls back to null if the file is missing; the gradients still carry it.
+ */
+async function coverDataUri(photo: string): Promise<string | null> {
+  try {
+    const buf = await readFile(path.join(process.cwd(), "public", "covers", `${photo}.jpg`));
+    return `data:image/jpeg;base64,${buf.toString("base64")}`;
+  } catch {
+    return null;
+  }
+}
+
 function clampTitle(title: string): string {
   const clean = title.replace(/\s+/g, " ").trim();
   return clean.length > 104 ? `${clean.slice(0, 101).trimEnd()}…` : clean;
@@ -41,6 +58,14 @@ function clampTitle(title: string): string {
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const [pool, mark] = await Promise.all([readPool(id), markDataUri()]);
+  const cover = coverOf({
+    visual: pool?.visual,
+    title: pool?.title,
+    category: pool?.category,
+    tags: pool?.tags,
+    marketData: pool?.marketData,
+  });
+  const coverUri = await coverDataUri(cover.photo);
 
   const yes = Math.round(impliedYes(pool) * 100);
   const no = 100 - yes;
@@ -84,6 +109,43 @@ export default async function Image({ params }: { params: Promise<{ id: string }
         fontFamily: "sans-serif",
       }}
     >
+      {/* the market's own cover, inlined — this is what makes the share card look like the site */}
+      {coverUri ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={coverUri}
+          width={1200}
+          height={630}
+          alt=""
+          style={{ position: "absolute", top: 0, left: 0, width: 1200, height: 630, objectFit: "cover", opacity: 0.62 }}
+        />
+      ) : null}
+      <div
+        style={{
+          position: "absolute",
+          display: "flex",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background:
+            "linear-gradient(104deg, rgba(5,8,15,0.97) 0%, rgba(5,8,15,0.9) 42%, rgba(5,8,15,0.52) 100%)",
+        }}
+      />
+      {/* accent wash from the subject's colour, so BTC gold and EU blue cards differ at a glance */}
+      <div
+        style={{
+          position: "absolute",
+          display: "flex",
+          top: -180,
+          left: -120,
+          width: 760,
+          height: 620,
+          borderRadius: 9999,
+          background: `radial-gradient(circle at center, ${cover.accent}55 0%, rgba(5,8,15,0) 66%)`,
+        }}
+      />
+
       {/* deep-ocean light: two soft colour fields, no blur filter (satori has none) */}
       <div
         style={{
@@ -176,6 +238,20 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           </div>
           <div style={{ display: "flex", marginLeft: 14, fontSize: 14, color: MUTED, letterSpacing: 1.6 }}>
             {`MARKET #${id}`}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              marginLeft: 14,
+              padding: "6px 12px",
+              borderRadius: 8,
+              border: `1px solid ${cover.accent}66`,
+              fontSize: 14,
+              color: cover.accent,
+              letterSpacing: 2.2,
+            }}
+          >
+            {cover.entity}
           </div>
           <div style={{ display: "flex", marginLeft: "auto", fontSize: 14, color: MUTED, letterSpacing: 1.2 }}>
             {`LIQUIDITY ${liquidity}`}

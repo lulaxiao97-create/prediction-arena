@@ -19,6 +19,8 @@ import { ProbabilityChart } from "@/components/ProbabilityChart";
 import { useLiveSeries } from "@/hooks/useLiveSeries";
 import { CommunityDiscussion } from "@/components/CommunityDiscussion";
 import { CategoryCover } from "@/components/CategoryCover";
+import { MarketCover } from "@/components/MarketCover";
+import { coverOf } from "@/lib/covers";
 import { MobileTradeSheet } from "@/components/MobileTradeSheet";
 import { themeFor } from "@/lib/visuals";
 import { useAiDebate } from "@/hooks/useAiDebate";
@@ -111,6 +113,7 @@ export function MarketDetail({ id }: { id: string }) {
 
   const settled = pool.status === 2;
   const voided = pool.status === 3;
+  const cover = coverOf(pool);
 
   return (
     <div className="min-h-screen">
@@ -127,7 +130,27 @@ export function MarketDetail({ id }: { id: string }) {
         <div className="mt-3 grid gap-4 lg:grid-cols-[1fr_360px]">
           <div className="flex flex-col gap-4">
             {/* header */}
-            <div className="glass relative overflow-hidden rounded-2xl border-white/10 p-4 transition-colors hover:border-white/15 sm:p-5">
+            <div className="glass relative overflow-hidden rounded-2xl border-white/10 transition-colors hover:border-white/15">
+              {/* Subject art: same engine as the cards, at hero scale — the entity and its real
+                  number sit on the photograph, so the page announces what it is before the title. */}
+              <div className="relative h-[152px] w-full overflow-hidden border-b border-white/[0.07] sm:h-[190px]">
+                <MarketCover spec={cover} variant="detail" />
+                {cover.metric && (
+                  <span className="mono absolute right-4 top-4 rounded-lg border border-white/12 bg-void/55 px-2 py-1 text-[11.5px] text-ink/90 backdrop-blur-sm sm:right-5 sm:top-5">
+                    {cover.metric}
+                  </span>
+                )}
+                <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
+                  <p className="mono truncate text-[9px] uppercase tracking-[0.26em]" style={{ color: cover.accent }}>
+                    {cover.kicker}
+                  </p>
+                  <p className="mt-1 truncate text-[22px] font-bold leading-none tracking-tight text-ink sm:text-[26px]">
+                    {cover.entity}
+                  </p>
+                </div>
+              </div>
+
+              <div className="relative p-4 sm:p-5">
               <div className="pointer-events-none absolute -right-20 -top-24 size-56 rounded-full bg-gold/8 blur-3xl" />
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="chip chip-gold">{t(categoryI18nKey(pool.category))}</span>
@@ -179,6 +202,7 @@ export function MarketDetail({ id }: { id: string }) {
                   </a>
                 </div>
               )}
+              </div>
             </div>
 
             {/* chart (always visible) */}
