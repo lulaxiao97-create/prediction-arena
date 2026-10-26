@@ -18,7 +18,7 @@ export const POINTS_PER_TICKET = 100;
 export const TICKET_CENTS = 100;
 /** realised profit required before a payout can be requested, in cents */
 export const WITHDRAW_MIN_CENTS = 1000;
-export const AD_SECONDS = 15;
+export const AD_SECONDS = 10;
 /** anti-farm cap: the ad unit is the only way to earn, so the cap *is* the economics */
 export const MAX_ADS_PER_DAY = 12;
 

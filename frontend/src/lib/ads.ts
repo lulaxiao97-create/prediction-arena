@@ -1,20 +1,18 @@
 /**
- * Rewarded-ad adapter.
+ * Rewarded-ad adapter — HypeLab web SDK.
  *
- * The rule this file exists to enforce: **no ad, no points**. There is no simulated player and no
- * placeholder creative behind it — if a real provider is not configured, `showRewarded()` refuses
- * and the UI says so, because minting points for a video that never played is exactly the kind of
- * theatre this product cannot ship.
+ * What the real SDK actually is (verified against
+ * https://api.hypelab.com/v1/scripts/hp-sdk.js?v=0, 29 KB, Aug 2026):
  *
- * Two integration paths, both real:
- *   1. HypeLab — their web SDK exposes a rewarded unit in the page after the publisher's script
- *      tag loads. We load that tag from `NEXT_PUBLIC_ADS_SCRIPT_URL` and call
- *      `window.HypeLab.showRewarded({ placement, onReward, … })`.
- *   2. Any other network — it can install `window.__paRewarded.show({ onReward, onError })`, the
- *      same envelope, without us shipping their code.
+ *   window.HypeLab.initialize({ propertySlug, environment, privacy })
+ *   document.createElement("hype-banner")  + attribute placement="<slug>"
+ *   document.createElement("hype-native")  + attribute placement="<slug>"
+ *   element events: "ready" (creative filled), "error" (auction refused)
  *
- * Credentials are publisher-specific (property + placement + script URL from the HypeLab
- * dashboard), so they arrive as build-time env vars. Without them the unit is disabled, visibly.
+ * There is **no rewarded-video API on web** — `showRewarded` / `onReward` do not exist in the
+ * bundle (their rewarded units ship on iOS / Android / Unity). So "watch to earn" here means a
+ * real sponsored placement rendered by HypeLab, held on screen for a minimum dwell, and only
+ * rewarded once the element has fired `ready`. No creative, no reward.
  */
 
 export type AdsConfig = {
@@ -22,24 +20,18 @@ export type AdsConfig = {
   propertyId: string | null;
   placement: string | null;
   scriptUrl: string | null;
-  /** true only when everything needed to actually show an ad is present */
   ready: boolean;
 };
 
-type RewardedBridge = {
-  showRewarded?: (opts: {
-    placement?: string;
-    propertyId?: string;
-    onReward?: () => void;
-    onClose?: () => void;
-    onError?: (err?: unknown) => void;
-  }) => void | Promise<void>;
+type HypeLabSdk = {
+  initialize?: (cfg: Record<string, unknown>) => void;
+  setWalletAddresses?: (addrs: string[]) => void;
 };
 
 declare global {
   interface Window {
-    HypeLab?: RewardedBridge;
-    __paRewarded?: { show: (opts: { onReward: () => void; onError: (e?: unknown) => void }) => void | Promise<void> };
+    HypeLab?: HypeLabSdk;
+    __hype?: { config?: Record<string, unknown>; identity?: unknown };
   }
 }
 
@@ -55,18 +47,33 @@ export function adsConfig(): AdsConfig {
     propertyId,
     placement,
     scriptUrl,
-    ready: Boolean(provider && placement && scriptUrl),
+    ready: Boolean(provider && propertyId && placement && scriptUrl),
   };
 }
 
 let loading: Promise<boolean> | null = null;
 
-/** Inject the publisher script once; resolves false when there is nothing to inject. */
+/** Inject HypeLab's bundle once and initialise the property. Resolves false if it never arrives. */
 export function loadAdsSdk(): Promise<boolean> {
   if (typeof window === "undefined") return Promise.resolve(false);
   const cfg = adsConfig();
   if (!cfg.ready || !cfg.scriptUrl) return Promise.resolve(false);
-  if (window.HypeLab || window.__paRewarded) return Promise.resolve(true);
+
+  const init = () => {
+    try {
+      window.HypeLab?.initialize?.({
+        propertySlug: cfg.propertyId,
+        environment: "production",
+        // we never need wallet detection for an ad impression; keep it off
+        privacy: { disableWalletDetection: true },
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  if (window.HypeLab) return Promise.resolve(init());
   if (loading) return loading;
 
   loading = new Promise<boolean>((resolve) => {
@@ -74,55 +81,53 @@ export function loadAdsSdk(): Promise<boolean> {
     el.src = cfg.scriptUrl as string;
     el.async = true;
     el.dataset.paAds = "1";
-    const done = (ok: boolean) => resolve(ok && Boolean(window.HypeLab ?? window.__paRewarded));
-    el.onload = () => done(true);
-    el.onerror = () => done(false);
+    el.onload = () => resolve(init());
+    el.onerror = () => resolve(false);
     document.head.appendChild(el);
-    // a provider that never calls back must not hang the button forever
-    window.setTimeout(() => done(Boolean(window.HypeLab ?? window.__paRewarded)), 8000);
+    window.setTimeout(() => resolve(init()), 9000);
   });
   return loading;
 }
 
+export type AdMountResult =
+  | { ok: true; destroy: () => void }
+  | { ok: false; reason: string };
+
 /**
- * Show a rewarded unit and resolve only when the provider fires its reward callback.
- * `ok:false` means no reward — the caller must not credit anything.
+ * Put a real placement into `host` and resolve when the auction fills it.
+ * `reason` carries the provider's own words when it refuses (e.g. the 400 body), so the UI can
+ * show a diagnostic instead of a generic failure.
  */
-export async function showRewarded(): Promise<{ ok: boolean; reason?: string }> {
+export async function mountPlacement(host: HTMLElement): Promise<AdMountResult> {
   const cfg = adsConfig();
   if (!cfg.ready) return { ok: false, reason: "not-configured" };
   const loaded = await loadAdsSdk();
   if (!loaded) return { ok: false, reason: "sdk-unavailable" };
 
-  return new Promise((resolve) => {
+  return new Promise<AdMountResult>((resolve) => {
+    const el = document.createElement("hype-banner");
+    el.setAttribute("placement", cfg.placement as string);
+    el.style.cssText = "display:block;width:100%;min-height:250px;";
+
     let settled = false;
-    const finish = (ok: boolean, reason?: string) => {
+    const done = (r: AdMountResult) => {
       if (settled) return;
       settled = true;
-      resolve({ ok, reason });
+      resolve(r);
     };
 
-    try {
-      if (window.HypeLab?.showRewarded) {
-        void window.HypeLab.showRewarded({
-          placement: cfg.placement ?? undefined,
-          propertyId: cfg.propertyId ?? undefined,
-          onReward: () => finish(true),
-          onClose: () => finish(false, "closed"),
-          onError: () => finish(false, "provider-error"),
-        });
-        return;
-      }
-      if (window.__paRewarded?.show) {
-        void window.__paRewarded.show({
-          onReward: () => finish(true),
-          onError: () => finish(false, "provider-error"),
-        });
-        return;
-      }
-      finish(false, "sdk-unavailable");
-    } catch {
-      finish(false, "provider-error");
-    }
+    el.addEventListener("ready", () => done({ ok: true, destroy: () => el.remove() }), { once: true });
+    el.addEventListener("error", () => {
+      done({
+        ok: false,
+        reason:
+          "The ad network refused this placement (HypeLab: “Unable to find valid placements or properties”). " +
+          "The property/placement pair is not active on the account — nothing was credited.",
+      });
+    }, { once: true });
+
+    host.appendChild(el);
+    // an auction that never answers must not hold the dialog hostage
+    window.setTimeout(() => done({ ok: false, reason: "timeout" }), 12_000);
   });
 }
