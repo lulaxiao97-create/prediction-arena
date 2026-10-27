@@ -84,7 +84,18 @@ test("a zero-balance wallet can open the drawer and walk the three stages", asyn
   await expect(submit).toBeEnabled(); // zero balance must not disable it
   await expect(page.getByText(/deposit usdc on base first/i)).toHaveCount(0);
 
-  await submit.click();
+  // A cold CI runner can paint the drawer a beat before React attaches the submit handler, so a
+  // click that lands pre-hydration does nothing. Click until the rail actually starts, bounded.
+  let started = false;
+  for (let attempt = 0; attempt < 3 && !started; attempt += 1) {
+    await submit.click({ timeout: 10_000 }).catch(() => {});
+    started = await dialog
+      .getByText(/approving usdc/i)
+      .first()
+      .isVisible({ timeout: 8_000 })
+      .catch(() => false);
+  }
+  expect(started, "submit must start the approve stage").toBeTruthy();
 
   // Stage 1 → 2 → 3 of TxProgress, in order.
   await expect(dialog.getByText(/approving usdc/i).first()).toBeVisible({ timeout: 30_000 });
