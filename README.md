@@ -10,7 +10,7 @@
 
 [![Live](https://img.shields.io/badge/Live-app-16C784?style=for-the-badge&logo=cloudflare&logoColor=white)](https://predictionarena.online)
 [![Base Mainnet](https://img.shields.io/badge/Base-Mainnet%20%C2%B7%208453-0052FF?style=for-the-badge&logo=coinbase&logoColor=white)](https://basescan.org/address/0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5)
-[![Contract V2](https://img.shields.io/badge/Contract-V2%20%C2%B7%20Live-16C784?style=for-the-badge)](https://basescan.org/address/0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5)
+[![Contract V3](https://img.shields.io/badge/Contract-V3%20%C2%B7%20Live-16C784?style=for-the-badge)](https://basescan.org/address/0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5)
 [![Settled in USDC](https://img.shields.io/badge/Settled%20in-USDC-2775CA?style=for-the-badge&logo=usd-coin&logoColor=white)](#smart-contract-v2)
 [![Next.js 16](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](#architecture)
 [![Solidity](https://img.shields.io/badge/Solidity-0.8.20-363636?style=for-the-badge&logo=solidity&logoColor=white)](#smart-contract-v2)
@@ -68,7 +68,7 @@ glass panels, hairline borders, and a mobile-first trading drawer.
 | **Web app** | https://predictionarena.online (custom domain) |
 | **Render origin** | https://prediction-arena-81d9.onrender.com |
 | **Network** | Base Mainnet — chain id `8453` |
-| **Contract (V2)** | [`0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5`](https://basescan.org/address/0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5) |
+| **Contract (V3)** | [`0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5`](https://basescan.org/address/0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5) |
 | **Source** | Verified on Basescan · solc `0.8.20` · optimizer `200` · `paris` |
 | **Deploy block** | `52935381` (event scan start: `NEXT_PUBLIC_ARENA_DEPLOY_BLOCK`) |
 | **Collateral** | USDC `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` (6 decimals, native on Base) |
@@ -205,7 +205,7 @@ prediction-arena/
 │   ├── publish-board.sh           # commit + push the refreshed board so Render rebuilds
 │   ├── ops-daemon.sh              # one cron tick: prices → board → refresh → generate → open
 │   ├── export-abi.ts              # compile artifacts → typed ABI for the frontend
-│   └── verify-basescan.sh         # source verification (hardhat-verify V2 quirks handled)
+│   └── verify-basescan.sh         # source verification (hardhat-verify 2.x quirks handled)
 ├── test/PredictionArena.test.ts   # 29 cases: accounting, refunds, access control, reverts
 ├── frontend/                      # Next 16 · React 19 · Tailwind v4 · wagmi v2
 ├── deployments/                   # machine-readable deployment records
@@ -223,7 +223,7 @@ prediction-arena/
   requires a human authorization plus a non-zero evidence hash.
 - **Seed liquidity is atomic.** `auto-create-pool.ts` seeds both sides in one transaction path and
   calls `cancelPool()` if either leg fails, so a market can never exist with one empty side.
-- **One flat ceiling.** V2 removed v1's proportional clamp: `maxBetFor()` returns `MAX_BET` for every
+- **One flat ceiling.** v2 removed v1's proportional clamp (v3 keeps it): `maxBetFor()` returns `MAX_BET` for every
   pool, so a $10,000 ticket is valid from the first block of a market. Seeds are exempt by design —
   they are the liquidity the cap is measured against, and they are the operator's own capital.
 
@@ -284,7 +284,7 @@ Anything prefixed `NEXT_PUBLIC_` is inlined into the client bundle — never put
 
 ---
 
-## Smart contract (V2)
+## Smart contract (V3)
 
 ```solidity
 // contracts/PredictionArena.sol

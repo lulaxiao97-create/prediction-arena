@@ -8,6 +8,8 @@ import { keccak256, toHex } from "viem";
 import { Check, Copy, ExternalLink, Loader2, Pause, Play, RefreshCw, ShieldCheck, TriangleAlert } from "lucide-react";
 
 import { adminMessage } from "@/lib/admin-auth";
+import { SocialLinks } from "@/components/SocialLinks";
+import { SOCIAL } from "@/lib/social";
 import { ARENA_ABI, ARENA_ADDRESS, usePools } from "@/hooks/usePredictionArena";
 import { useMarkets } from "@/hooks/useMarkets";
 import type { Cashout, Grant, OpsSnapshot } from "@/lib/ops-metrics";
@@ -123,13 +125,40 @@ export default function AdminPage() {
           <p className="text-[10px] uppercase tracking-[0.18em] text-gold/70">Internal</p>
           <h1 className="mt-1 text-2xl font-semibold text-ink">Operations console</h1>
           <p className="mt-1 text-[12px] text-muted">
-            Monetisation, payouts, settlement and ledger for PredictionArena · Base mainnet
+            Monetisation, payouts, settlement and ledger for PredictionArena · Base mainnet ·{" "}
+            <a
+              href={`https://basescan.org/address/${ARENA_ADDRESS ?? ""}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mono text-gold/80 hover:text-gold-bright"
+            >
+              {ARENA_ADDRESS ? `${ARENA_ADDRESS.slice(0, 8)}…${ARENA_ADDRESS.slice(-6)}` : "contract not configured"}
+            </a>{" "}
+            ·{" "}
+            <a
+              href={SOCIAL.x.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mono text-muted hover:text-ink"
+            >
+              {SOCIAL.x.handle}
+            </a>{" "}
+            ·{" "}
+            <a
+              href={SOCIAL.telegram.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mono text-muted hover:text-ink"
+            >
+              {SOCIAL.telegram.handle}
+            </a>
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Link href="/" className="chip border-white/10 text-[11px] text-muted hover:text-ink">
             ← Board
           </Link>
+          <SocialLinks className="hidden sm:flex" />
           <ConnectButton showBalance={false} chainStatus="icon" accountStatus="address" />
         </div>
       </header>

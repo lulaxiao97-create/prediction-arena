@@ -10,11 +10,32 @@ frontend/node_modules) because it bundles librsvg.
 from __future__ import annotations
 
 import pathlib
+import re
 import subprocess
 import textwrap
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 OUT = ROOT / "docs" / "branding"
+
+
+def arena_address() -> str:
+    """Live contract address, read from the same sources the app uses.
+
+    A social preview that advertises a retired address is a phishing vector: someone can point
+    users at the old contract and "recover" their position. Prefer .env, then the shipped
+    manifest, then the deployment record.
+    """
+    env = ROOT / ".env"
+    if env.exists():
+        m = re.search(r"^ARENA_ADDRESS=(0x[0-9a-fA-F]{40})\s*$", env.read_text(encoding="utf-8"), re.M)
+        if m:
+            return m.group(1)
+    manifest = ROOT / "frontend" / "public" / "pools.json"
+    if manifest.exists():
+        m = re.search(r'"address":\s*"(0x[0-9a-fA-F]{40})"', manifest.read_text(encoding="utf-8"))
+        if m:
+            return m.group(1)
+    return "0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5"
 OUT.mkdir(parents=True, exist_ok=True)
 
 OBSIDIAN = "#05080F"
@@ -158,14 +179,14 @@ def social_svg() -> str:
     <rect x="96" y="452" width="176" height="38" rx="19" fill="#101A2C" stroke="#1E3350"/>
     <text x="184" y="477" text-anchor="middle" fill="{GOLD_B}">BASE MAINNET</text>
     <rect x="288" y="452" width="146" height="38" rx="19" fill="#101A2C" stroke="#1E3350"/>
-    <text x="361" y="477" text-anchor="middle" fill="{CYAN_A}">V2 · LIVE</text>
+    <text x="361" y="477" text-anchor="middle" fill="{CYAN_A}">V3 · LIVE</text>
     <rect x="450" y="452" width="196" height="38" rx="19" fill="#101A2C" stroke="#1E3350"/>
     <text x="548" y="477" text-anchor="middle" fill="{INK}">NON-CUSTODIAL</text>
   </g>
 
   <g>
     <rect x="96" y="524" width="640" height="46" rx="10" fill="#0A1220" stroke="#1A2A44"/>
-    <text x="118" y="553" font-family="Consolas, monospace" font-size="19" fill="#9FB2D0">0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93</text>
+    <text x="118" y="553" font-family="Consolas, monospace" font-size="19" fill="#9FB2D0">{arena_address()}</text>
   </g>
 
   <path d="M96 604H1184" stroke="url(#hair)" stroke-width="1.5" opacity="0.55"/>
@@ -173,7 +194,7 @@ def social_svg() -> str:
     PREDICTION ARENA · PA-MARK-1.0
   </text>
   <text x="1184" y="628" text-anchor="end" font-family="Consolas, monospace" font-size="13" fill="#5C6C87">
-    USDC · ERC-20 · 8453
+    @Pred_Arena · @prediction_arena · USDC · 8453
   </text>
 </svg>'''
 

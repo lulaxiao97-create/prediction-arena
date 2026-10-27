@@ -10,6 +10,7 @@ import { PwaRegister } from "@/components/PwaRegister";
 import { Warmup } from "@/components/Warmup";
 import { DomainTrustNote } from "@/components/DomainTrustNote";
 import { SITE_URL } from "@/lib/site";
+import { SOCIAL, X_HANDLE } from "@/lib/social";
 
 // Absolute origin for OG/canonical URLs and the WalletConnect appUrl. One build-time
 // constant (src/lib/site.ts) shared with the wallet provider and the share helpers, so the
@@ -39,7 +40,7 @@ export const metadata: Metadata = {
   },
   formatDetection: { telephone: false },
   // Next emits the modern `mobile-web-app-capable`; older iOS Safari still reads the apple- one.
-  other: { "apple-mobile-web-app-capable": "yes" },
+  other: { "apple-mobile-web-app-capable": "yes", "twitter:site": `@${X_HANDLE}` },
   openGraph: {
     title: "Prediction Arena — Powered by Real-Time Data & AI",
     description:
@@ -58,12 +59,25 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
+    // Attribution matters here: x.com/PredictionArena is an unrelated sports-news account, so the
+    // metadata must name the real one.
+    site: `@${X_HANDLE}`,
+    creator: `@${X_HANDLE}`,
     title: "Prediction Arena — Powered by Real-Time Data & AI",
     description:
       "Real-time feeds price every strike. Two AI agents argue both sides. USDC settles on Base.",
     images: ["/og.png"],
   },
   alternates: { canonical: "/" },
+};
+
+/** Ties the site to its official profiles for crawlers and social previews. */
+const ORGANIZATION_LD = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Prediction Arena",
+  url: siteUrlBase,
+  sameAs: [SOCIAL.x.url, SOCIAL.telegram.url, SOCIAL.github.url],
 };
 
 export const viewport: Viewport = {
@@ -89,6 +103,11 @@ export default function RootLayout({
         <div className="bg-mesh" aria-hidden />
         <div className="bg-grid" aria-hidden />
         <div className="bg-stars" aria-hidden />
+        <script
+          type="application/ld+json"
+          // Static, server-rendered, no user input — safe to inline.
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANIZATION_LD) }}
+        />
         {/* React 19 hoists these into <head>: the two RPC hosts the wallet reads through,
             so the first eth_call does not pay a TLS handshake on top of the cold start. */}
         <link rel="preconnect" href="https://base-rpc.publicnode.com" crossOrigin="anonymous" />

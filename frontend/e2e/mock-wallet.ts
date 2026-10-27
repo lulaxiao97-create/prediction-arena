@@ -207,7 +207,6 @@ export async function mockBaseRpc(page: Page): Promise<RpcStats> {
 
   await page.route("**/*", async (route) => {
     const req = route.request();
-    const url = req.url();
     if (req.method() !== "POST") return route.fallback();
 
     // Match on the payload, not the host: the app's transport has moved between public Base RPCs

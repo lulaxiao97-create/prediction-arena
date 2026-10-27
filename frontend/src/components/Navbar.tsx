@@ -17,6 +17,7 @@ import { useI18n } from "@/components/LocaleProvider";
 import { LocaleSwitcher } from "@/components/LocaleProvider";
 import { LogoLockup } from "@/components/Logo";
 import { GitHubNavLink } from "@/components/GitHubLink";
+import { SocialLinks } from "@/components/SocialLinks";
 // Imported directly, not via `dynamic(..., { ssr: false })`: that left the header stuck on a
 // loading skeleton whenever the lazily-loaded chunk did not resolve, and a connect button that
 // sometimes never appears is worse than one render more of markup. RainbowKit's
@@ -105,6 +106,7 @@ export function Navbar({
             <Briefcase className="size-3.5" />
             <span className="hidden xl:inline">{t("portfolio.title")}</span>
           </button>
+          <SocialLinks className="hidden md:flex" />
           <GitHubNavLink />
           <LocaleSwitcher />
           <WalletButton />

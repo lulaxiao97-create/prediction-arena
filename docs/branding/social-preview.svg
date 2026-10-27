@@ -92,14 +92,14 @@
     <rect x="96" y="452" width="176" height="38" rx="19" fill="#101A2C" stroke="#1E3350"/>
     <text x="184" y="477" text-anchor="middle" fill="#FBBF24">BASE MAINNET</text>
     <rect x="288" y="452" width="146" height="38" rx="19" fill="#101A2C" stroke="#1E3350"/>
-    <text x="361" y="477" text-anchor="middle" fill="#22D3EE">V2 · LIVE</text>
+    <text x="361" y="477" text-anchor="middle" fill="#22D3EE">V3 · LIVE</text>
     <rect x="450" y="452" width="196" height="38" rx="19" fill="#101A2C" stroke="#1E3350"/>
     <text x="548" y="477" text-anchor="middle" fill="#E8EEF9">NON-CUSTODIAL</text>
   </g>
 
   <g>
     <rect x="96" y="524" width="640" height="46" rx="10" fill="#0A1220" stroke="#1A2A44"/>
-    <text x="118" y="553" font-family="Consolas, monospace" font-size="19" fill="#9FB2D0">0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93</text>
+    <text x="118" y="553" font-family="Consolas, monospace" font-size="19" fill="#9FB2D0">0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5</text>
   </g>
 
   <path d="M96 604H1184" stroke="url(#hair)" stroke-width="1.5" opacity="0.55"/>
@@ -107,6 +107,6 @@
     PREDICTION ARENA · PA-MARK-1.0
   </text>
   <text x="1184" y="628" text-anchor="end" font-family="Consolas, monospace" font-size="13" fill="#5C6C87">
-    USDC · ERC-20 · 8453
+    @Pred_Arena · @prediction_arena · USDC · 8453
   </text>
 </svg>

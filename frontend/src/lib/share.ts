@@ -4,6 +4,9 @@
  * drift apart.
  */
 
+import { X_HANDLE } from "@/lib/social";
+
+const X_HANDLE_TAG = `@${X_HANDLE}`;
 import { SITE_URL } from "@/lib/site";
 
 /**
@@ -85,10 +88,12 @@ export function tweetIntent({
       : `"${short}" — ${market.asset} ${market.direction === "above" ? "above" : "below"} ${strikeText}, spot ${compactMoney(market.spotUsd)}.`
     : `"${short}"`;
   const odds = `${yes}% YES · pays ${payoutMultiple(yes).toFixed(1)}×`;
-  const tail = market ? `Verified ${market.source} feed. @PredictionArena` : "@PredictionArena";
+  const tail = market ? `Verified ${market.source} feed. ${X_HANDLE_TAG}` : X_HANDLE_TAG;
   const text = `${head} ${odds} · ${no}% NO. ${tail}`;
 
   const params = new URLSearchParams({ text, url });
+  // `via` credits the official account; the handle is read from lib/social so a rename is one edit.
+  params.set("via", X_HANDLE);
   return `https://x.com/intent/tweet?${params.toString()}`;
 }
 
