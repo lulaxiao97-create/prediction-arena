@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ArenaPool } from "@/lib/types";
 import { DEMO_ANCHOR } from "@/lib/mock-data";
 import { demoPoolToArena, type Manifest } from "@/lib/markets";
+import { insightsFor } from "@/lib/insights";
 import { displayLiquidityUsdc, displayVolumeUsdc } from "@/lib/display-stats";
 import { SEED_MANIFEST } from "@/lib/manifest";
 import { useChainPoolIds, usePools } from "@/hooks/usePredictionArena";
@@ -117,6 +118,19 @@ export function useMarkets() {
         tags: meta?.tags ?? [],
         optionLabels: ["Yes", "No"] as [string, string],
         marketData: meta?.marketData,
+        // Chain rows get the same contextual commentary as demo rows: the subject, strike and odds
+        // are known from the manifest + the pool itself, so an empty pool still reads like a market
+        // rather than a blank card.
+        aiStances: insightsFor({
+          id: pool.id,
+          title: pool.title,
+          category,
+          tags: meta?.tags ?? [],
+          endTime: pool.endTime,
+          option0Pool: pool.option0Pool,
+          option1Pool: pool.option1Pool,
+          marketData: meta?.marketData,
+        }),
         searchText: [pool.title, category, ...(meta?.tags ?? []), meta?.description ?? "", meta?.resolution ?? ""]
           .join(" ")
           .toLowerCase(),

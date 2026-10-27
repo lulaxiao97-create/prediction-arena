@@ -9,7 +9,7 @@
  * prerendered HTML and the hydrated client agree.
  */
 import type { AiStances, ArenaPool } from "@/lib/types";
-import { defaultStancesFor } from "@/lib/mock-data";
+import { insightsFor } from "@/lib/insights";
 import { AGENTS } from "@/lib/mock-data";
 
 export type ManifestPool = {
@@ -137,8 +137,24 @@ export function activityFor(id: string, count = 8): ActivityRow[] {
   return rows;
 }
 
-function stancesFor(pool: ManifestPool): AiStances {
-  return defaultStancesFor(pool.category);
+function stancesFor(pool: ManifestPool, nowSeconds: number): AiStances {
+  const endTime = pool.endTimeUtc
+    ? Math.floor(Date.parse(pool.endTimeUtc) / 1_000)
+    : nowSeconds + Math.round((pool.endTimeOffsetHours ?? 24) * 3_600);
+  const liquidity = Number(pool.liquidityUsdc ?? 0);
+  const share = pool.yesShare ?? 0.5;
+  // Context-aware: the take is built from this listing's own subject, strike, expiry and odds
+  // (lib/insights), never from a paragraph shared by the whole category.
+  return insightsFor({
+    id: pool.id,
+    title: pool.title,
+    category: pool.category,
+    tags: pool.tags,
+    endTime,
+    option0Pool: BigInt(Math.round(liquidity * share)),
+    option1Pool: BigInt(Math.round(liquidity * (1 - share))),
+    marketData: pool.marketData,
+  });
 }
 
 /** Build the card model for a demo market. `nowSeconds` keeps countdowns honest. */
@@ -164,7 +180,7 @@ export function demoPoolToArena(pool: ManifestPool, nowSeconds: number): ArenaPo
     option1Pool: option1,
     settlementHash: pool.settlementHash ?? "",
     optionLabels: ["Yes", "No"],
-    aiStances: stancesFor(pool),
+    aiStances: stancesFor(pool, nowSeconds),
     source: "demo",
     traders: pool.traders ?? 0,
     volume24h: u(Number(pool.volume24hUsdc ?? "0")),
