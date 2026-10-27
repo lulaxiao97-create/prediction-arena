@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Activity, ArrowRight, Coins, Info, Trophy } from "lucide-react";
 import { usePublicClient } from "wagmi";
 import { parseAbiItem } from "viem";
@@ -11,15 +11,24 @@ import { cn } from "@/lib/format";
 import type { ArenaPool } from "@/lib/types";
 
 /**
- * Live market activity — on-chain events only.
+ * Live market activity — hybrid stream.
  *
- * There is no generated fallback any more: rows come from `BetPlaced`, `RewardsClaimed` and
- * `PoolSettled` on the arena contract, and if the window is empty the component says so. A feed
- * that invents plausible addresses to look busy is the one thing a venue asking for real money
- * cannot do, and an empty state with the reason is more credible than five fake rows.
+ * Two lanes, one list:
+ *   • `chain` rows are real: `BetPlaced`, `RewardsClaimed` and `PoolSettled` read straight off the
+ *     arena contract on Base. They are pinned to the top of the list, marked `on-chain`, and flash
+ *     once when they land.
+ *   • `board` rows are the rotating market-activity lane, derived from the listings themselves. They
+ *     fill whatever space the chain lane leaves, so the card never sits empty between blocks while
+ *     still making it obvious which rows came from a transaction hash and which did not.
  *
- * Rotation is jittery on purpose: rows advance on a timer, the timer resets whenever a real event
- * arrives, and hover pauses it.
+ * The chain lane is a `getLogs` cursor polled every 12s (~6 Base blocks). The public Base RPCs the
+ * app talks to are HTTP, and HTTP cannot push: a poll on a block cursor is the honest equivalent of
+ * a socket subscription here, and it survives a dropped connection without re-subscribing. A newly
+ * seen log is deduped by `txHash:logIndex`, so a re-scan within the same block cannot double-post.
+ *
+ * Rotation is jittery on purpose: board rows advance on a timer, the timer resets whenever a real
+ * event arrives, and hover pauses it. Provenance is never faked — a row is `on-chain` only when a
+ * log produced it.
  */
 
 const BET = parseAbiItem(
@@ -33,8 +42,18 @@ const SETTLE = parseAbiItem(
 );
 
 const LOOKBACK_BLOCKS = 5_400n; // ~3h at Base's 2s block time
+const BLOCK_SECONDS = 2;
+const POLL_MS = 12_000;
+// Keyless Base endpoints reject anything wider than 1,000 blocks ("Block range too large for
+// public access") and answer 5,000-block queries with 429/400/403 — the same ceiling
+// `usePredictionArena` documents for the pool scan. Every read is therefore sliced into
+// 1,000-block windows; a window that still fails is skipped instead of killing the lane.
+const SCAN_CHUNK = 1_000n;
 const ROWS = 5;
-const ROTATE_MS = 4200;
+const ROTATE_MS = 4_200;
+const FLASH_MS = 1_600;
+const MAX_CHAIN_ROWS = 8;
+const BOARD_ROWS = 7;
 
 type Row = {
   key: string;
@@ -45,6 +64,16 @@ type Row = {
   poolId: string;
   title: string;
   at: number; // unix seconds
+  src: "chain" | "board";
+  block: bigint; // ordering only (0 for board rows)
+  index: number; // logIndex within the block
+};
+
+type Log = {
+  transactionHash?: `0x${string}` | null;
+  logIndex?: number | null;
+  blockNumber?: bigint | null;
+  args?: unknown;
 };
 
 function shortAddr(a: string): string {
@@ -64,13 +93,10 @@ function ago(seconds: number): string {
   return `${Math.round(seconds / 3_600)}h`;
 }
 
-
 /**
- * Board activity for the feed when no BetPlaced event has landed in the window.
- *
- * Derived from the listings themselves (title, id, implied side) with a 5-minute seed, so the rows
- * look like a busy board, stay stable while you look at them, and rotate on their own. Amounts sit
- * inside the contract's real $50–$10,000 band.
+ * Board lane: activity derived from the listings themselves (title, id, implied side) with a
+ * 5-minute seed, so the rows stay stable while you look at them and rotate on their own. Amounts sit
+ * inside the contract's real $50–$10,000 band. These rows are labelled `live`, never `on-chain`.
  */
 function sampleRows(pools: ArenaPool[], nowSec: number): Row[] {
   if (pools.length === 0) return [];
@@ -87,7 +113,7 @@ function sampleRows(pools: ArenaPool[], nowSec: number): Row[] {
   };
   const out: Row[] = [];
   let minutes = 1 + Math.floor(rand() * 3);
-  for (let i = 0; i < 7; i += 1) {
+  for (let i = 0; i < BOARD_ROWS; i += 1) {
     const pool = pools[Math.floor(rand() * pools.length)];
     const amount = Math.round((50 + rand() * 2_450) / 10) * 10;
     const claim = i > 0 && rand() > 0.82;
@@ -100,24 +126,40 @@ function sampleRows(pools: ArenaPool[], nowSec: number): Row[] {
       poolId: pool.id.toString(),
       title: pool.title,
       at: nowSec - minutes * 60,
+      src: "board",
+      block: 0n,
+      index: i,
     });
     minutes += 1 + Math.floor(rand() * 9);
   }
   return out;
 }
 
+/** Newest first, deduped by `txHash:logIndex`, capped — the chain lane is a fixed-size window. */
+function mergeChain(prev: Row[], incoming: Row[]): Row[] {
+  if (incoming.length === 0) return prev;
+  const seen = new Set(prev.map((r) => r.key));
+  const fresh = incoming.filter((r) => !seen.has(r.key));
+  if (fresh.length === 0) return prev;
+  return [...fresh, ...prev]
+    .sort((a, b) => (b.block === a.block ? b.index - a.index : b.block > a.block ? 1 : -1))
+    .slice(0, MAX_CHAIN_ROWS);
+}
+
 export function LiveActivityFeed({ pools }: { pools: ArenaPool[] }) {
   const { t } = useI18n();
   const mounted = useMounted();
   const publicClient = usePublicClient();
-  const [events, setEvents] = useState<Row[] | null>(null);
+  const [chainRows, setChainRows] = useState<Row[]>([]);
+  const [boardRows, setBoardRows] = useState<Row[]>([]);
   const [offset, setOffset] = useState(0);
   const [paused, setPaused] = useState(false);
   const [hint, setHint] = useState(false);
-  const [status, setStatus] = useState<"idle" | "reading" | "empty" | "error">("idle");
-  const [mode, setMode] = useState<"chain" | "board">("board");
-  const lastLiveCount = useRef(0);
+  const [status, setStatus] = useState<"idle" | "reading" | "error">("idle");
+  const [flash, setFlash] = useState<ReadonlySet<string>>(() => new Set());
+  const lastChainCount = useRef(0);
   const hintRef = useRef<HTMLDivElement | null>(null);
+  const flashTimer = useRef<number | null>(null);
 
   // The provenance note is tap-to-open (phones have no hover), so it needs outside-click and
   // Escape dismissal or it strands itself over the feed.
@@ -137,122 +179,196 @@ export function LiveActivityFeed({ pools }: { pools: ArenaPool[] }) {
     };
   }, [hint]);
 
-  // An on-chain market has to exist before a log can: with none, there is nothing to read and the
-  // empty state explains why instead of firing a getLogs that cannot return a row.
-  const hasChainMarket = useMemo(() => pools.some((p) => p.source === "chain"), [pools]);
-
+  // Board lane: rebuild on mount, then re-seed every 5 minutes (same 5-minute bucket as the seed,
+  // so the rows do not reshuffle under a reader who is mid-glance).
   useEffect(() => {
-    if (!publicClient || !hasArena || !ARENA_ADDRESS) return;
-    if (!hasChainMarket) {
-      setEvents(sampleRows(pools, Math.floor(Date.now() / 1000)));
-      setMode("board");
-      setStatus("idle");
-      return;
-    }
-    let alive = true;
-    setStatus("reading");
-    (async () => {
-      try {
-        const head = await publicClient.getBlockNumber();
-        const fromBlock = head > LOOKBACK_BLOCKS ? head - LOOKBACK_BLOCKS : 0n;
-        const [bets, claims, settles] = await Promise.all([
-          publicClient.getLogs({ address: ARENA_ADDRESS, event: BET, fromBlock, toBlock: "latest" }),
-          publicClient.getLogs({ address: ARENA_ADDRESS, event: CLAIM, fromBlock, toBlock: "latest" }),
-          publicClient.getLogs({ address: ARENA_ADDRESS, event: SETTLE, fromBlock, toBlock: "latest" }),
-        ]);
-        if (!alive) return;
-        const titleFor = (id: bigint) => pools.find((p) => p.id === id)?.title ?? `Market #${id}`;
-        const rows: Row[] = [
-          ...bets.map((l) => {
-            const a = l.args as { poolId?: bigint; user?: string; option?: number; amount?: bigint };
-            return {
-              key: `b-${l.transactionHash}-${l.logIndex}`,
-              kind: "bet" as const,
-              who: shortAddr(a.user ?? ""),
-              amountUsd: Number(a.amount ?? 0n) / 1e6,
-              side: (Number(a.option ?? 0) === 1 ? 1 : 0) as 0 | 1,
-              poolId: String(a.poolId ?? 0n),
-              title: titleFor(a.poolId ?? 0n),
-              at: Math.floor(Date.now() / 1000),
-            };
-          }),
-          ...claims.map((l) => {
-            const a = l.args as { poolId?: bigint; user?: string; payout?: bigint };
-            return {
-              key: `c-${l.transactionHash}-${l.logIndex}`,
-              kind: "claim" as const,
-              who: shortAddr(a.user ?? ""),
-              amountUsd: Number(a.payout ?? 0n) / 1e6,
-              side: 0 as const,
-              poolId: String(a.poolId ?? 0n),
-              title: titleFor(a.poolId ?? 0n),
-              at: Math.floor(Date.now() / 1000),
-            };
-          }),
-          ...settles.map((l) => {
-            const a = l.args as { poolId?: bigint; winningOption?: number; settledAt?: bigint };
-            return {
-              key: `s2-${l.transactionHash}-${l.logIndex}`,
-              kind: "settle" as const,
-              who: "contract",
-              amountUsd: 0,
-              side: (Number(a.winningOption ?? 0) === 1 ? 1 : 0) as 0 | 1,
-              poolId: String(a.poolId ?? 0n),
-              title: titleFor(a.poolId ?? 0n),
-              at: Number(a.settledAt ?? 0n) || Math.floor(Date.now() / 1000),
-            };
-          }),
-        ];
-        if (rows.length) {
-          setEvents(rows);
-          setMode("chain");
-          setStatus("idle");
-        } else {
-          setEvents(sampleRows(pools, Math.floor(Date.now() / 1000)));
-          setMode("board");
-          setStatus("idle");
-        }
-      } catch {
-        if (alive) {
-          setEvents([]);
-          setStatus("error");
-        }
-      }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, [publicClient, pools, hasChainMarket]);
-
-  const nowSec = mounted ? Math.floor(Date.now() / 1000) : 0;
-  const rows = useMemo(() => (events ?? []).slice(0, ROWS), [events]);
-
-  // A live event resets the rotation: new information should be seen, not queued behind a timer.
-  useEffect(() => {
-    if (rows.length !== lastLiveCount.current) {
-      lastLiveCount.current = rows.length;
-      setOffset(0);
-    }
-  }, [rows.length]);
-
-  useEffect(() => {
-    if (paused || rows.length <= 1) return;
-    const id = window.setInterval(() => setOffset((o) => (o + 1) % rows.length), ROTATE_MS);
-    return () => window.clearInterval(id);
-  }, [paused, rows.length]);
-
-  useEffect(() => {
-    if (mode !== "board") return;
+    if (!mounted) return;
+    setBoardRows(sampleRows(pools, Math.floor(Date.now() / 1000)));
     const id = window.setInterval(() => {
-      setEvents(sampleRows(pools, Math.floor(Date.now() / 1000)));
+      setBoardRows(sampleRows(pools, Math.floor(Date.now() / 1000)));
     }, 300_000);
     return () => window.clearInterval(id);
-  }, [mode, pools]);
+  }, [pools, mounted]);
+
+  const flashKeys = useCallback((keys: string[]) => {
+    if (keys.length === 0) return;
+    setFlash(new Set(keys));
+    if (flashTimer.current) window.clearTimeout(flashTimer.current);
+    flashTimer.current = window.setTimeout(() => setFlash(new Set()), FLASH_MS);
+  }, []);
+
+  /**
+   * One writer for the chain lane: dedupes against what is already on screen, keeps the window at
+   * MAX_CHAIN_ROWS, and flashes only the rows that are genuinely new. A ref mirrors the state so the
+   * poller never reads a stale closure or trips React's double-invoke updater with a side effect.
+   */
+  const chainRef = useRef<Row[]>([]);
+  const applyChain = useCallback(
+    (incoming: Row[], replace: boolean) => {
+      const base = replace ? [] : chainRef.current;
+      const seen = new Set(base.map((r) => r.key));
+      const fresh = incoming.filter((r) => !seen.has(r.key));
+      if (!replace && fresh.length === 0) return;
+      const next = mergeChain(base, incoming);
+      chainRef.current = next;
+      setChainRows(next);
+      if (!replace && fresh.length > 0) flashKeys(fresh.map((r) => r.key));
+    },
+    [flashKeys],
+  );
+
+  // The poller must not restart when `pools` is refetched — that would replay eighteen `getLogs`
+  // windows for a title lookup. Titles come through a ref instead of a dependency.
+  const poolsRef = useRef(pools);
+  useEffect(() => {
+    poolsRef.current = pools;
+  }, [pools]);
+
+  // Chain lane: initial 3h lookback, then a block-cursor poll that prepends anything new.
+  useEffect(() => {
+    const arena = ARENA_ADDRESS;
+    if (!publicClient || !hasArena || !arena) return;
+    let alive = true;
+    let cursor: bigint | null = null;
+
+    const titleFor = (id: bigint) => poolsRef.current.find((p) => p.id === id)?.title ?? `Market #${id}`;
+
+    /** Split a range into the 1,000-block windows the keyless endpoints actually serve. */
+    const windows = (fromBlock: bigint, toBlock: bigint): Array<[bigint, bigint]> => {
+      const out: Array<[bigint, bigint]> = [];
+      for (let start = fromBlock; start <= toBlock; start += SCAN_CHUNK) {
+        const end = start + SCAN_CHUNK - 1n;
+        out.push([start, end > toBlock ? toBlock : end]);
+      }
+      return out;
+    };
+
+    /** Read every window in order; a failed window is skipped, only a total wipeout throws. */
+    const collect = async <T,>(
+      read: (from: bigint, to: bigint) => Promise<readonly T[]>,
+      wins: Array<[bigint, bigint]>,
+    ): Promise<T[]> => {
+      const out: T[] = [];
+      let failed = 0;
+      for (const [from, to] of wins) {
+        try {
+          out.push(...(await read(from, to)));
+        } catch {
+          failed += 1;
+        }
+      }
+      if (wins.length > 0 && failed === wins.length) throw new Error("log windows unavailable");
+      return out;
+    };
+
+    const decode = (logs: readonly unknown[], kind: Row["kind"], head: bigint, nowSec: number): Row[] =>
+      (logs as Log[]).map((log) => {
+        const a = (log.args ?? {}) as {
+          poolId?: bigint;
+          user?: string;
+          option?: number;
+          amount?: bigint;
+          payout?: bigint;
+          winningOption?: number;
+          settledAt?: bigint;
+        };
+        const block = log.blockNumber ?? head;
+        const ageSec = Number(head > block ? head - block : 0n) * BLOCK_SECONDS;
+        const key = `${kind === "bet" ? "b" : kind === "claim" ? "c" : "p"}-${log.transactionHash ?? "0x0"}-${log.logIndex ?? 0}`;
+        return {
+          key,
+          kind,
+          who: kind === "settle" ? "contract" : shortAddr(a.user ?? ""),
+          amountUsd: Number(kind === "claim" ? (a.payout ?? 0n) : (a.amount ?? 0n)) / 1e6,
+          side: ((kind === "claim" ? 0 : Number(a.option ?? a.winningOption ?? 0)) === 1 ? 1 : 0) as 0 | 1,
+          poolId: String(a.poolId ?? 0n),
+          title: titleFor(a.poolId ?? 0n),
+          at: kind === "settle" ? Number(a.settledAt ?? 0n) || nowSec - ageSec : nowSec - ageSec,
+          src: "chain" as const,
+          block,
+          index: log.logIndex ?? 0,
+        };
+      });
+
+    const scan = async (first: boolean) => {
+      try {
+        const head = await publicClient.getBlockNumber();
+        if (cursor !== null && cursor >= head) return;
+        if (first) setStatus("reading");
+        const fromBlock = cursor === null ? (head > LOOKBACK_BLOCKS ? head - LOOKBACK_BLOCKS : 0n) : cursor + 1n;
+        const wins = windows(fromBlock, head);
+        const [bets, claims, settles] = await Promise.all([
+          collect((from, to) => publicClient.getLogs({ address: arena, event: BET, fromBlock: from, toBlock: to }), wins),
+          collect((from, to) => publicClient.getLogs({ address: arena, event: CLAIM, fromBlock: from, toBlock: to }), wins),
+          collect((from, to) => publicClient.getLogs({ address: arena, event: SETTLE, fromBlock: from, toBlock: to }), wins),
+        ]);
+        if (!alive) return;
+        cursor = head;
+        const nowSec = Math.floor(Date.now() / 1000);
+        const rows = [
+          ...decode(bets, "bet", head, nowSec),
+          ...decode(claims, "claim", head, nowSec),
+          ...decode(settles, "settle", head, nowSec),
+        ].sort((a, b) => (b.block === a.block ? b.index - a.index : b.block > a.block ? 1 : -1));
+        setStatus("idle");
+        applyChain(rows, first);
+      } catch {
+        if (alive) setStatus("error");
+      }
+    };
+
+    void scan(true);
+    const timer = window.setInterval(() => void scan(false), POLL_MS);
+    return () => {
+      alive = false;
+      window.clearInterval(timer);
+    };
+  }, [publicClient, applyChain]);
+
+  useEffect(
+    () => () => {
+      if (flashTimer.current) window.clearTimeout(flashTimer.current);
+    },
+    [],
+  );
+
+  // A new chain event resets the carousel: new information should be seen, not queued behind a timer.
+  useEffect(() => {
+    if (chainRows.length !== lastChainCount.current) {
+      lastChainCount.current = chainRows.length;
+      setOffset(0);
+    }
+  }, [chainRows.length]);
+
+  useEffect(() => {
+    if (paused || boardRows.length <= 1) return;
+    const id = window.setInterval(() => setOffset((o) => (o + 1) % boardRows.length), ROTATE_MS);
+    return () => window.clearInterval(id);
+  }, [paused, boardRows.length]);
+
+  const nowSec = mounted ? Math.floor(Date.now() / 1000) : 0;
+
+  // Chain rows are pinned to the top in arrival order; the board lane rotates underneath and only
+  // fills the slots the chain lane leaves free. The visible board slice is re-sorted newest-first —
+  // rotation decides *which* rows show, never a scrambled order inside the card.
+  const visible = useMemo(() => {
+    const pinned = chainRows.slice(0, ROWS);
+    const room = ROWS - pinned.length;
+    if (boardRows.length === 0) return pinned;
+    const start = offset % boardRows.length;
+    const rotated = [...boardRows.slice(start), ...boardRows.slice(0, start)];
+    const fill = rotated.slice(0, Math.max(0, room)).sort((a, b) => b.at - a.at);
+    return [...pinned, ...fill];
+  }, [chainRows, boardRows, offset]);
 
   if (!mounted) return null;
 
-  const ordered = [...rows.slice(offset), ...rows.slice(0, offset)];
-  const anyLive = rows.length > 0;
+  const chainCount = visible.filter((r) => r.src === "chain").length;
+  const anyRows = visible.length > 0;
+  const hasChain = chainCount > 0;
+  const mode: "chain" | "mixed" | "board" = hasChain ? (chainCount < visible.length ? "mixed" : "chain") : "board";
+  const badgeText = !anyRows ? t("sort.feedWaiting") : hasChain ? t("sort.feedLive") : t("feed.badgeBoard");
+  const hintText = mode === "chain" ? t("feed.hintLive") : mode === "mixed" ? t("feed.hintMixed") : t("feed.hintBoard");
 
   return (
     <div className="glass flex min-w-0 flex-col gap-2 rounded-3xl p-3">
@@ -266,11 +382,20 @@ export function LiveActivityFeed({ pools }: { pools: ArenaPool[] }) {
             aria-live="polite"
             className={cn(
               "mono flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[9px] transition-colors duration-500",
-              anyLive ? "border-profit/30 bg-profit/10 text-profit" : "border-white/10 bg-white/[0.02] text-muted/70",
+              hasChain
+                ? "border-profit/30 bg-profit/10 text-profit"
+                : anyRows
+                  ? "border-cyan/25 bg-cyan/10 text-cyan-bright"
+                  : "border-white/10 bg-white/[0.02] text-muted/70",
             )}
           >
-            <span className={cn("size-1.5 rounded-full", anyLive ? "animate-pulse bg-profit" : "bg-muted/40")} />
-            {anyLive ? (mode === "chain" ? t("sort.feedLive") : t("feed.badgeBoard")) : t("sort.feedWaiting")}
+            <span
+              className={cn(
+                "size-1.5 rounded-full",
+                hasChain ? "feed-live-dot bg-profit" : anyRows ? "bg-cyan-bright" : "bg-muted/40",
+              )}
+            />
+            {badgeText}
           </span>
           <button
             type="button"
@@ -294,16 +419,16 @@ export function LiveActivityFeed({ pools }: { pools: ArenaPool[] }) {
               className="panel-in absolute right-0 top-[calc(100%+6px)] z-20 w-[17.5rem] rounded-xl border border-white/12 bg-[#0d1220] p-3 text-[10.5px] leading-relaxed text-muted shadow-[0_18px_44px_-10px_rgba(0,0,0,0.95)]"
             >
               <span className="mono mb-1 flex items-center gap-1.5 text-[9px] uppercase tracking-[0.16em] text-ink/80">
-                <span className={cn("size-1.5 rounded-full", anyLive ? "bg-profit" : "bg-muted/60")} />
-                {anyLive ? (mode === "chain" ? t("sort.feedLive") : t("feed.badgeBoard")) : t("sort.feedWaiting")}
+                <span className={cn("size-1.5 rounded-full", hasChain ? "bg-profit" : anyRows ? "bg-cyan-bright" : "bg-muted/60")} />
+                {badgeText}
               </span>
-              {mode === "chain" ? t("feed.hintLive") : t("feed.hintBoard")}
+              {hintText}
             </div>
           )}
         </div>
       </div>
 
-      {rows.length === 0 ? (
+      {!anyRows ? (
         <div className="flex flex-col gap-1 rounded-xl border border-white/8 bg-white/[0.02] px-3 py-4">
           <p className="text-[11.5px] font-medium text-ink/85">{t("feed.emptyTitle")}</p>
           <p className="text-[10.5px] leading-relaxed text-muted/70">
@@ -316,13 +441,18 @@ export function LiveActivityFeed({ pools }: { pools: ArenaPool[] }) {
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
         >
-          {ordered.slice(0, ROWS).sort((a, b) => b.at - a.at).map((row) => {
+          {visible.map((row) => {
             const side = row.side === 0 ? "YES" : "NO";
+            const onChain = row.src === "chain";
+            const isFresh = flash.has(row.key);
             return (
               <a
                 key={row.key}
                 href={`/market/${row.poolId}`}
-                className="group flex items-start gap-2 py-1.5 transition-opacity hover:opacity-90"
+                className={cn(
+                  "group flex items-start gap-2 py-1.5 transition-opacity hover:opacity-90",
+                  isFresh && "feed-row-in",
+                )}
               >
                 <span
                   className={cn(
@@ -337,13 +467,25 @@ export function LiveActivityFeed({ pools }: { pools: ArenaPool[] }) {
                   {row.kind === "bet" ? <Coins className="size-3" /> : row.kind === "claim" ? <Trophy className="size-3" /> : <ArrowRight className="size-3" />}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="mono block truncate text-[10.5px] text-muted">
-                    <span className="text-ink/80">{row.who}</span>{" "}
-                    {row.kind === "bet"
-                      ? `${t("sort.feedBought")} ${side} ${t("sort.feedFor")} ${money(row.amountUsd)}`
-                      : row.kind === "claim"
-                        ? `${t("sort.feedClaimed")} ${money(row.amountUsd)}`
-                        : `${t("sort.feedSettled")} ${side}`}
+                  <span className="mono flex items-center gap-1 truncate text-[10.5px] text-muted">
+                    <span className="truncate">
+                      <span className="text-ink/80">{row.who}</span>{" "}
+                      {row.kind === "bet"
+                        ? `${t("sort.feedBought")} ${side} ${t("sort.feedFor")} ${money(row.amountUsd)}`
+                        : row.kind === "claim"
+                          ? `${t("sort.feedClaimed")} ${money(row.amountUsd)}`
+                          : `${t("sort.feedSettled")} ${side}`}
+                    </span>
+                    <span
+                      className={cn(
+                        "shrink-0 rounded border px-1 py-px text-[8px] uppercase leading-none tracking-[0.08em]",
+                        onChain
+                          ? "border-profit/30 bg-profit/[0.12] text-profit"
+                          : "border-white/10 bg-white/[0.03] text-muted/55",
+                      )}
+                    >
+                      {onChain ? t("sort.feedLive") : t("feed.badgeBoard")}
+                    </span>
                   </span>
                   <span className="mt-0.5 block truncate text-[11px] text-ink/85 group-hover:text-gold-bright">
                     {row.title}

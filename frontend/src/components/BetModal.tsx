@@ -26,6 +26,7 @@ import { categoryI18nKey } from "@/lib/categories";
 import { useI18n } from "@/components/LocaleProvider";
 import { useToast } from "@/components/Toast";
 import { AmountSlider } from "@/components/AmountSlider";
+import { TxProgress } from "@/components/TxProgress";
 import { quickAmountsFor, resolveTradeGuard } from "@/lib/trade-guard";
 import { recordTrade } from "@/hooks/useTradeHistory";
 import {
@@ -198,9 +199,12 @@ export function BetModal({
         </div>
 
         {done ? (
-          <div className="flex flex-col items-center gap-3 py-6 text-center">
-            <CheckCircle2 className="size-10 text-profit" />
-            <p className="text-sm text-ink">{t("trade.opened")}</p>
+          <div className="flex flex-col items-center gap-3 py-5 text-center">
+            <span className="grid size-12 place-items-center rounded-full border border-profit/40 bg-profit/12 shadow-[0_0_46px_-10px_rgba(16,185,129,0.85)]">
+              <CheckCircle2 className="size-7 text-profit" />
+            </span>
+            <p className="text-sm font-medium text-ink">{t("trade.stageConfirmed")}</p>
+            <TxProgress step={step} hash={hash} className="w-full text-left" />
             {hash && (
               <a
                 href={explorerTx(hash)}
@@ -362,11 +366,12 @@ export function BetModal({
             )}
             {noBalance && !error && <p className="text-[11.5px] text-loss">{t("trade.insufficient")}</p>}
 
-            <Stepper step={step} labels={[t("trade.approving"), t("trade.confirm"), t("trade.opened")]} />
+            <TxProgress step={step} hash={hash} />
 
             <button
               onClick={handleSubmit}
               disabled={!tradable || !address || invalid || pending}
+              aria-busy={pending}
               className="btn-gold w-full text-sm"
             >
               {pending ? (
@@ -452,30 +457,4 @@ export function BetModalHost({
 }) {
   if (!pool) return null;
   return <BetModal key={`${pool.id}-${option}`} pool={pool} initialOption={option} onClose={onClose} />;
-}
-
-/** Three-dot progress rail: approve → confirm → done. */
-function Stepper({ step, labels }: { step: string; labels: string[] }) {
-  const active = step === "approving" ? 0 : step === "betting" || step === "confirming" ? 1 : step === "done" ? 2 : -1;
-  if (active < 0) return null;
-  return (
-    <div className="flex items-center gap-1.5">
-      {labels.map((label, i) => (
-        <div key={label} className="flex flex-1 items-center gap-1.5">
-          <span
-            className={
-              "grid size-4 shrink-0 place-items-center rounded-full border text-[8px] font-bold transition-colors " +
-              (i <= active ? "border-gold/60 bg-gold/20 text-gold-bright" : "border-white/12 text-muted/50")
-            }
-          >
-            {i < active ? "✓" : i + 1}
-          </span>
-          <span className={"truncate text-[9.5px] " + (i <= active ? "text-gold-bright/90" : "text-muted/50")}>
-            {label}
-          </span>
-          {i < labels.length - 1 && <span className="h-px flex-1 bg-white/10" />}
-        </div>
-      ))}
-    </div>
-  );
 }

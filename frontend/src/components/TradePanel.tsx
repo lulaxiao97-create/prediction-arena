@@ -9,6 +9,7 @@ import type { ArenaPool } from "@/lib/types";
 import { cn, explorerTx, formatProbability, formatUsdc, impliedMultiplier } from "@/lib/format";
 import { quickAmountsFor, resolveTradeGuard } from "@/lib/trade-guard";
 import { AmountSlider } from "@/components/AmountSlider";
+import { TxProgress } from "@/components/TxProgress";
 import { DemoBadge } from "@/components/DemoBadge";
 import { ShareActions } from "@/components/ShareActions";
 import { select as hapticSelect } from "@/lib/haptics";
@@ -470,6 +471,8 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
           </a>
         </div>
       )}
+
+      {!ticketMode && step !== "idle" && <TxProgress step={step} hash={hash} />}
 
       {done && hash ? (
         <div className="space-y-2">

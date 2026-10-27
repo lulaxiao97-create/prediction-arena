@@ -254,22 +254,54 @@ export function AdModal({ open, onClose }: { open: boolean; onClose: () => void 
             </div>
           ) : phase === "nofill" ? (
             <div className="flex flex-col gap-2.5">
-              <p className="rounded-lg border border-gold/25 bg-gold/[0.06] px-2.5 py-2 text-[10.5px] leading-relaxed text-gold-bright/90">
-                {t("rewards.adNoFill")}
-              </p>
+              <div className="flex items-start gap-2 rounded-xl border border-gold/25 bg-gold/[0.06] px-3 py-2.5">
+                <ShieldAlert className="mt-0.5 size-4 shrink-0 text-gold-bright" />
+                <div className="min-w-0 flex-1">
+                  <p className="flex flex-wrap items-center gap-1.5">
+                    <span className="mono rounded border border-white/12 bg-white/[0.04] px-1.5 py-px text-[8.5px] uppercase tracking-[0.14em] text-muted/80">
+                      HTTP 204 · no bid
+                    </span>
+                    <span className="mono rounded border border-white/12 bg-white/[0.04] px-1.5 py-px text-[8.5px] uppercase tracking-[0.14em] text-muted/80 tabular-nums">
+                      auction #{attempts + 1}
+                    </span>
+                  </p>
+                  <p className="mt-1.5 text-[10.5px] leading-relaxed text-gold-bright/90">{t("rewards.adNoFill")}</p>
+                </div>
+              </div>
+
               {autoLeft !== null ? (
-                <p className="flex items-center gap-1.5 text-[10.5px] text-muted">
-                  <Loader2 className="size-3 animate-spin" />
-                  {t("rewards.autoRetryIn", { n: autoLeft, i: attempts + 1, max: MAX_AUTO_RETRIES })}
-                </p>
+                <div className="rounded-xl border border-white/8 bg-white/[0.02] px-2.5 py-2 transition-colors">
+                  <p className="flex items-center gap-1.5 text-[10.5px] text-muted">
+                    <Loader2 className="size-3 shrink-0 animate-spin text-cyan-bright" />
+                    <span className="min-w-0 flex-1 truncate">
+                      {t("rewards.autoRetryIn", { n: autoLeft, i: attempts + 1, max: MAX_AUTO_RETRIES })}
+                    </span>
+                  </p>
+                  <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-white/8">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-cyan to-cyan-bright shadow-[0_0_10px_rgba(34,211,238,0.5)] transition-[width] duration-1000 ease-linear"
+                      style={{ width: `${Math.max(4, Math.min(100, (autoLeft / (RETRY_EVERY_MS / 1000)) * 100))}%` }}
+                    />
+                  </div>
+                </div>
               ) : attempts >= MAX_AUTO_RETRIES ? (
-                <p className="text-[10.5px] text-muted/70">{t("rewards.autoRetryDone", { max: MAX_AUTO_RETRIES })}</p>
+                <p className="rounded-xl border border-white/8 bg-white/[0.02] px-2.5 py-2 text-[10.5px] text-muted/70">
+                  {t("rewards.autoRetryDone", { max: MAX_AUTO_RETRIES })}
+                </p>
               ) : null}
+
               <div className="flex items-center gap-2">
-                <button onClick={() => void run()} disabled={adsLeft <= 0} className="btn-gold flex-1 py-2 text-[12.5px] disabled:opacity-50">
+                <button
+                  onClick={() => void run()}
+                  disabled={adsLeft <= 0}
+                  className="btn-gold flex-1 py-2.5 text-[12.5px] disabled:cursor-not-allowed disabled:opacity-50"
+                >
                   <RefreshCw className="size-3.5" /> {t("rewards.retryAuction")}
                 </button>
-                <button onClick={onClose} className="btn-ghost flex-1 py-2 text-[12.5px]">
+                <button
+                  onClick={onClose}
+                  className="btn-ghost flex-1 py-2.5 text-[12.5px]"
+                >
                   {t("rewards.done")}
                 </button>
               </div>

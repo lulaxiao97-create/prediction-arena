@@ -93,6 +93,7 @@ export const EXTRA: Record<string, ExtraDict> = {
       badgeBoard: "live",
       hintBoard: "Aggregated across every listed market and refreshed continuously.",
       hintLive: "Read live from the Prediction Arena contract on Base: BetPlaced, RewardsClaimed and PoolSettled events from the last 3 hours. The carousel restarts whenever a new event arrives.",
+      hintMixed: "Hybrid: real Base events are pinned to the top with an on-chain mark (they flash green when they land); the remaining rows rotate board activity so the list never sits empty between blocks.",
       emptyTitle: "Waiting for the first on-chain event",
       emptyBody: "The feed reads BetPlaced, RewardsClaimed and PoolSettled on Base. No bet has been placed since this window opened, so there is nothing to show — and we would rather show nothing than a made-up row.",
       emptyError: "The Base reader could not reach a node just now. The feed retries on the next load.",
@@ -287,7 +288,10 @@ export const EXTRA: Record<string, ExtraDict> = {
     },
     feed: {
       hintLabel: "這個標記代表什麼？",
+      badgeBoard: "即時",
+      hintBoard: "彙整所有已上市盤口，持續更新。",
       hintLive: "直接讀取 Base 上的競技場合約：近 3 小時的 BetPlaced、RewardsClaimed、PoolSettled 事件。有新事件時輪播會自動重新開始。",
+      hintMixed: "混合模式：真實的 Base 事件會置頂並標記為「鏈上」，落地時閃一次綠光；其餘列由盤口動態輪播補滿，區塊之間不會空著。",
       emptyTitle: "等待第一筆鏈上事件",
       emptyBody: "活動流只讀 Base 上的 BetPlaced、RewardsClaimed、PoolSettled。目前沒有任何盤口資金池，因此沒有可顯示的紀錄——我們寧可空著，也不編造任何一筆。",
       emptyError: "剛剛連不上 Base 節點，下次載入會自動重試。",
