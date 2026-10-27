@@ -84,13 +84,19 @@ ok("fallback share stays inside 18–82%");
 // 8) Real liquidity precedence: the moment the contract holds stake, the card prints the chain's
 //    number — and stops inventing traders/turnover next to real money.
 {
-  const demoPool = { id: 700001n, totalNetPool: 0n };
+  const demoPool = { id: 700001n, totalNetPool: 0n, source: "demo" as const };
   const demoStats = poolStats(demoPool);
   assert.equal(demoStats.source, "demo", "empty pool must use the demo depth");
   assert.ok(demoStats.liquidityUsdc > 0n, "demo depth must never be zero");
   assert.ok(demoStats.traders !== null, "demo depth carries a trader estimate");
 
-  const livePool = { id: 700001n, totalNetPool: 4_250_000_000n }; // 4,250 USDC
+  // A manifest row keeps its demo liquidity in totalNetPool for the odds maths — that alone must
+  // not promote it to an on-chain card.
+  const demoRowWithLiquidity = { id: 700002n, totalNetPool: 41_000_000_000n, source: "demo" as const };
+  assert.equal(poolStats(demoRowWithLiquidity).source, "demo", "a demo row stays demo even with presentation liquidity");
+  assert.equal(poolStats(demoRowWithLiquidity).traders !== null, true, "demo rows keep their trader estimate");
+
+  const livePool = { id: 700001n, totalNetPool: 4_250_000_000n, source: "chain" as const }; // 4,250 USDC
   const liveStats = poolStats(livePool);
   assert.equal(liveStats.source, "chain", "funded pool must report chain liquidity");
   assert.equal(liveStats.liquidityUsdc, 4_250_000_000n, "chain liquidity must be the contract's number");

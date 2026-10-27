@@ -82,9 +82,17 @@ export type PoolStats = {
   source: "chain" | "demo";
 };
 
-export function poolStats(pool: { id: bigint | string | number; totalNetPool?: bigint }): PoolStats {
+export function poolStats(pool: {
+  id: bigint | string | number;
+  totalNetPool?: bigint;
+  source?: "chain" | "demo";
+}): PoolStats {
   const onchain = pool.totalNetPool ?? 0n;
-  if (onchain > 0n) {
+  // A manifest row carries its own demo liquidity in `totalNetPool` for the odds maths, so "stake >
+  // 0" alone would promote every demo listing to an on-chain card. The row has to *be* a chain row
+  // (the merge in useMarkets only sets `source: "chain"` when the contract actually holds money).
+  const live = pool.source === "chain" && onchain > 0n;
+  if (live) {
     return { liquidityUsdc: onchain, traders: null, volume24hUsdc: 0n, source: "chain" };
   }
   const demo = displayStatsFor(pool.id);

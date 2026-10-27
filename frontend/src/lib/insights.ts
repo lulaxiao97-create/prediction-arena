@@ -39,6 +39,8 @@ export type InsightPool = {
   endTime?: number;
   option0Pool?: bigint;
   option1Pool?: bigint;
+  /** Row provenance: only `chain` rows may report on-chain depth. */
+  source?: "chain" | "demo";
   /** Real net stake when the pool is live on-chain — drives the liquidity figure in the copy. */
   totalNetPool?: bigint;
   marketData?: {
