@@ -467,31 +467,33 @@ export function LiveActivityFeed({ pools }: { pools: ArenaPool[] }) {
                   {row.kind === "bet" ? <Coins className="size-3" /> : row.kind === "claim" ? <Trophy className="size-3" /> : <ArrowRight className="size-3" />}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="mono flex items-center gap-1 truncate text-[10.5px] text-muted">
-                    <span className="truncate">
-                      <span className="text-ink/80">{row.who}</span>{" "}
-                      {row.kind === "bet"
-                        ? `${t("sort.feedBought")} ${side} ${t("sort.feedFor")} ${money(row.amountUsd)}`
-                        : row.kind === "claim"
-                          ? `${t("sort.feedClaimed")} ${money(row.amountUsd)}`
-                          : `${t("sort.feedSettled")} ${side}`}
-                    </span>
-                    <span
-                      className={cn(
-                        "shrink-0 rounded border px-1 py-px text-[8px] uppercase leading-none tracking-[0.08em]",
-                        onChain
-                          ? "border-profit/30 bg-profit/[0.12] text-profit"
-                          : "border-white/10 bg-white/[0.03] text-muted/55",
-                      )}
-                    >
-                      {onChain ? t("sort.feedLive") : t("feed.badgeBoard")}
-                    </span>
+                  <span className="mono block truncate text-[10.5px] text-muted">
+                    <span className="text-ink/80">{row.who}</span>{" "}
+                    {row.kind === "bet"
+                      ? `${t("sort.feedBought")} ${side} ${t("sort.feedFor")} ${money(row.amountUsd)}`
+                      : row.kind === "claim"
+                        ? `${t("sort.feedClaimed")} ${money(row.amountUsd)}`
+                        : `${t("sort.feedSettled")} ${side}`}
                   </span>
                   <span className="mt-0.5 block truncate text-[11px] text-ink/85 group-hover:text-gold-bright">
                     {row.title}
                   </span>
                 </span>
-                <span className="mono mt-0.5 shrink-0 text-[9.5px] text-muted/50">{ago(Math.max(1, nowSec - row.at))}</span>
+                {/* Provenance sits in the gutter, not inline: the badge is a label on the row, and
+                    inlining it cost the title a third of its width on a phone. */}
+                <span className="flex shrink-0 flex-col items-end gap-1">
+                  <span
+                    className={cn(
+                      "mono rounded border px-1 py-px text-[8px] uppercase leading-none tracking-[0.08em]",
+                      onChain
+                        ? "border-profit/30 bg-profit/[0.12] text-profit"
+                        : "border-white/10 bg-white/[0.03] text-muted/55",
+                    )}
+                  >
+                    {onChain ? t("sort.feedLive") : t("feed.badgeBoard")}
+                  </span>
+                  <span className="mono text-[9.5px] text-muted/50">{ago(Math.max(1, nowSec - row.at))}</span>
+                </span>
               </a>
             );
           })}
