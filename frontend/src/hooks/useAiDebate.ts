@@ -1,23 +1,21 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { generateLocalizedDebate, type DebateLang, type DebateLine } from "@/lib/auto-gen";
-import { SEED_DEBATES } from "@/lib/manifest";
-import { driftOf, pickDebate, type DebateCache } from "@/lib/debate-cache";
 import { useI18n } from "@/components/LocaleProvider";
 
-/** The daemon rewrites this file; a long-lived tab picks changes up without a reload. */
-const POLL_MS = 5 * 60 * 1000;
-
 /**
- * Debate for a market — read-only.
+ * Debate for a market — generated in the browser, from the market's own facts.
  *
- * Three sources, in order: the build-time cache (instant, zero network), the runtime cache file
- * (picks up markets the daemon added since the build), then the deterministic kernel as a floor so
- * a brand-new market is never blank.
+ * There is no model call and no pre-baked corpus: `lib/debate` builds six rounds per market from
+ * the subject, the strike/expiry in the title, the live YES/NO split and the fee-net multiples, in
+ * the language the page is being read in. The id hashes the deck, so the same market prints the
+ * same argument on every render — server and client agree, and a reload does not reshuffle.
  *
- * **No request is ever made to a model from this hook.** Generation lives in
- * `scripts/gen-debates.ts`, driven by the ops tick. Opening a market costs nothing.
+ * A cached `public/debates.json` used to take precedence here. It was English-only and written per
+ * *category*, which is exactly the "same paragraph on every market" failure this replaces, so the
+ * hook no longer reads it. The file and its generator stay for the ops daemon, but the UI's text is
+ * always the context engine's.
  */
 export function useAiDebate(input: {
   poolId: string;
@@ -25,73 +23,38 @@ export function useAiDebate(input: {
   title: string;
   yesPct: number;
   netPoolUsdc?: number;
+  marketData?: {
+    asset?: string;
+    spotUsd?: number;
+    strikeUsd?: number;
+    direction?: string;
+    windowDays?: number;
+  };
+  endTime?: number;
+  depthUsdc?: number;
+  /** Kept for call-site compatibility; generation is local and instant, so nothing is disabled. */
   enabled?: boolean;
 }) {
-  const { poolId, category, title, yesPct, netPoolUsdc, enabled = true } = input;
   const { locale } = useI18n();
+  const { poolId, category, title, yesPct, netPoolUsdc, marketData, endTime, depthUsdc } = input;
 
-  const kernel = useMemo(
-    () => generateLocalizedDebate({ poolId, category, title, yesPct, netPoolUsdc }, locale as DebateLang),
-    [poolId, category, title, yesPct, netPoolUsdc, locale]
+  const lines: DebateLine[] = useMemo(
+    () =>
+      generateLocalizedDebate(
+        { poolId, category, title, yesPct, netPoolUsdc, marketData, endTime, depthUsdc },
+        locale as DebateLang,
+      ),
+    [poolId, category, title, yesPct, netPoolUsdc, marketData, endTime, depthUsdc, locale],
   );
-
-  // build-time snapshot → synchronous, identical on server and client (and language-matched)
-  const seeded = useMemo(
-    () => pickDebate(SEED_DEBATES as unknown as DebateCache, poolId, yesPct, locale),
-    [poolId, yesPct, locale]
-  );
-
-  const [cache, setCache] = useState<DebateCache | null>(null);
-
-  useEffect(() => {
-    if (!enabled) return;
-    let cancelled = false;
-
-    const load = async () => {
-      try {
-        const res = await fetch(`/debates.json?t=${Date.now()}`, { cache: "no-store" });
-        if (!res.ok) return;
-        const json = (await res.json()) as DebateCache;
-        if (!cancelled) setCache(json);
-      } catch {
-        /* the seed and the kernel below are already on screen */
-      }
-    };
-
-    void load();
-    const timer = window.setInterval(() => {
-      if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
-      void load();
-    }, POLL_MS);
-
-    return () => {
-      cancelled = true;
-      window.clearInterval(timer);
-    };
-  }, [enabled]);
-
-  const runtime = useMemo(
-    () => (cache ? pickDebate(cache, poolId, yesPct, locale) : null),
-    [cache, poolId, yesPct, locale]
-  );
-
-  const entry = runtime ?? seeded;
-  const lines: DebateLine[] = entry?.lines?.length ? (entry.lines as DebateLine[]) : kernel;
-
-  // `stale` is true whenever what is on screen is not the model's current reading of the book:
-  // either there is no cached debate yet, or the market moved away from the band it was written for.
-  // The UI uses this to show a quiet "recomputing" note instead of silently swapping text.
-  const drift = entry ? driftOf(entry, yesPct) : Number.POSITIVE_INFINITY;
 
   return {
     lines,
-    source: entry ? entry.source : ("kernel" as const),
-    generatedAt: entry?.at ?? null,
-    /** no fresh model argument set for this market + language + probability band */
-    stale: !entry || drift > 10,
-    /** cached band vs current, so the UI can say "written at 60%, now 81%" */
-    staleReason: !entry ? ("missing" as const) : drift > 10 ? ("drift" as const) : null,
-    cachedBand: entry?.band ?? null,
+    source: "kernel" as const,
+    generatedAt: null,
+    /** Always current: the text is derived, not cached against a probability band. */
+    stale: false,
+    staleReason: null as null | "missing" | "drift",
+    cachedBand: null as number | null,
     pending: false,
   };
 }

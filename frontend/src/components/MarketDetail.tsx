@@ -58,7 +58,7 @@ export function MarketDetail({ id }: { id: string }) {
   const seedSeries = useMemo(() => probabilitySeries(id, share0, 30), [id, share0]);
   const { series, live, dir } = useLiveSeries(seedSeries, id);
   const activity = useMemo(() => activityFor(id, 10), [id]);
-  // Rendered instantly from the deterministic kernel, then upgraded by the server-side model.
+  // Built from the pool itself: subject, strike, expiry, live split — no category templates.
   const debateInput = useMemo(
     () => ({
       poolId: String(pool?.id ?? id),
@@ -66,8 +66,22 @@ export function MarketDetail({ id }: { id: string }) {
       title: (pool?.title ?? meta.title ?? "") as string,
       yesPct: (share0 ?? 0) * 100,
       netPoolUsdc: Number(pool?.totalNetPool ?? 0n) / 1_000_000,
+      marketData: pool?.marketData ?? meta.marketData,
+      endTime: pool?.endTime,
+      depthUsdc: pool ? Number(displayLiquidityUsdc(pool.id)) / 1_000_000 : undefined,
     }),
-    [pool?.id, pool?.category, pool?.title, pool?.totalNetPool, meta.category, meta.title, share0]
+    [
+      pool?.id,
+      pool?.category,
+      pool?.title,
+      pool?.totalNetPool,
+      pool?.marketData,
+      pool?.endTime,
+      meta.category,
+      meta.title,
+      meta.marketData,
+      share0,
+    ],
   );
   const { lines: debate, source: debateSource, stale: debateStale, staleReason, cachedBand } = useAiDebate(debateInput);
   // Countdown and "ends at" are the two values that can differ between the server render

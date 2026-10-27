@@ -114,7 +114,9 @@ function scaleOf(suffix?: string): number {
 
 /** "$6.30B" out of the title, "$5.70B" out of a `now $5.70B` tag. */
 function parseThresholds(pool: InsightPool): { strike: number | null; spot: number | null } {
-  const m = (pool.title ?? "").match(/(?:above|below|reclaim|reach|hold above|fall below)\s+\$([\d,.]+)\s*([TBMK])?/i);
+  // The suffix must be a standalone magnitude letter: `\s*([TBMK])?` also eats the "b" of
+  // "before" and turns $0.00108 into $1.1M.
+  const m = (pool.title ?? "").match(/(?:above|below|reclaim|reach|hold above|fall below)\s+\$([\d,.]+)(?:\s*([TBMK])(?![A-Za-z]))?/i);
   const strike = m ? Number(m[1].replace(/,/g, "")) * scaleOf(m[2]) : null;
   const nowTag = (pool.tags ?? []).map((t) => t.match(/^now\s+\$([\d,.]+)\s*([TBMK])?$/i)).find(Boolean);
   const spot = nowTag ? Number(nowTag[1].replace(/,/g, "")) * scaleOf(nowTag[2]) : null;

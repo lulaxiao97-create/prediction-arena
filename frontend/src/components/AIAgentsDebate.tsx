@@ -18,22 +18,36 @@ export function AIAgentsDebate({
   title,
   yesPct = 50,
   netPoolUsdc,
+  marketData,
+  endTime,
+  depthUsdc,
 }: {
   category: string;
   poolId?: string;
   title?: string;
   yesPct?: number;
   netPoolUsdc?: number;
+  marketData?: {
+    asset?: string;
+    spotUsd?: number;
+    strikeUsd?: number;
+    direction?: string;
+    windowDays?: number;
+  };
+  endTime?: number;
+  depthUsdc?: number;
 }) {
   const { t } = useI18n();
-  // Generated from the market at hand; `category` alone still yields a coherent debate so the
-  // component stays usable before a pool is selected.
+  // Generated from the market at hand: subject, strike, expiry and the live split.
   const { lines, source } = useAiDebate({
     poolId: poolId ?? `category:${category}`,
     category,
     title: title ?? category,
     yesPct,
     netPoolUsdc,
+    marketData,
+    endTime,
+    depthUsdc,
   });
   const [index, setIndex] = useState(0);
   const [typed, setTyped] = useState("");

@@ -32,6 +32,7 @@ import { useMounted } from "@/hooks/useMounted";
 import { CATEGORY_TABS, matchesTab, type MarketCategory } from "@/lib/categories";
 import { hasArena } from "@/hooks/usePredictionArena";
 import { formatCompactUsdc } from "@/lib/format";
+import { displayLiquidityUsdc, poolSideShare } from "@/lib/display-stats";
 import type { ArenaPool } from "@/lib/types";
 
 export default function Home() {
@@ -252,12 +253,11 @@ export default function Home() {
               category={category}
               poolId={featured ? String(featured.id) : undefined}
               title={featured?.title}
-              yesPct={
-                featured && featured.totalNetPool > 0n
-                  ? (Number(featured.option0Pool) / Number(featured.totalNetPool)) * 100
-                  : 50
-              }
+              yesPct={featured ? poolSideShare(featured, 0) * 100 : 50}
               netPoolUsdc={featured ? Number(featured.totalNetPool) / 1_000_000 : undefined}
+              marketData={featured?.marketData}
+              endTime={featured?.endTime}
+              depthUsdc={featured ? Number(displayLiquidityUsdc(featured.id)) / 1_000_000 : undefined}
             />
           </div>
         </section>
