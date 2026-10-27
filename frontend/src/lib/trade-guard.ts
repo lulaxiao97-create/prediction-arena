@@ -2,9 +2,17 @@
  * Trade CTA resolution.
  *
  * Pulled out of the component so the ordering of blockers is testable without a browser or a
- * wallet. Order matters: "connect a wallet" outranks "no USDC" (we cannot read a balance without
- * an address), and "no USDC at all" outranks "insufficient for this amount" because the remedies
- * differ — one is a deposit, the other is a smaller size.
+ * wallet.
+ *
+ * **Balance and gas are deliberately not checked here.** A wallet with no USDC on Base can still
+ * press the button: the transaction goes to the user's wallet, the wallet (or the node) is what
+ * refuses an unaffordable `bet()`, and the user sees that prompt in the place that can actually fix
+ * it. Gating the CTA on a client-side `balanceOf` made an empty wallet look like a broken venue and
+ * blocked the one action — sending the transaction — that produces the real answer.
+ *
+ * What is left is what the front end genuinely knows before a signature: is there a wallet, is it
+ * on the right chain, does this build hold a contract, and is the typed amount inside the
+ * contract's own window.
  */
 export type TradeGuardReason =
   | "ok"
@@ -12,38 +20,23 @@ export type TradeGuardReason =
   | "wrong-chain"
   | "demo"
   | "empty-amount"
-  | "no-usdc"
-  | "insufficient-usdc"
-  | "no-gas"
   | "above-cap"
   | "below-min";
-
-/** 0.00002 ETH — ~13 bet() calls at 0.01 gwei. Below this a wallet cannot transact reliably. */
-export const GAS_FLOOR = 20_000_000_000_000n;
 
 export function resolveTradeGuard(input: {
   address?: string | null;
   wrongChain?: boolean;
   live?: boolean;
-  usdcBalance?: bigint;
-  ethBalance?: bigint;
   amount: bigint;
   cap: bigint;
   minBet: bigint;
-  gasFloor?: bigint;
 }): TradeGuardReason {
-  const { address, wrongChain, live, usdcBalance, ethBalance, amount, cap, minBet } = input;
-  const gasFloor = input.gasFloor ?? GAS_FLOOR;
+  const { address, wrongChain, live, amount, cap, minBet } = input;
 
   if (!address) return "no-wallet";
   if (wrongChain) return "wrong-chain";
   if (!live) return "demo";
   if (amount === 0n) return "empty-amount";
-
-  // Only assert what we actually know: an unread balance must not block a trade.
-  if (usdcBalance !== undefined && usdcBalance === 0n) return "no-usdc";
-  if (usdcBalance !== undefined && amount > usdcBalance) return "insufficient-usdc";
-  if (ethBalance !== undefined && ethBalance < gasFloor) return "no-gas";
 
   if (amount > cap) return "above-cap";
   if (amount < minBet) return "below-min";

@@ -85,8 +85,9 @@ export function BetModal({
 
   const tooSmall = amount > 0n && amount < MIN_BET_USDC;
   const tooBig = amount > cap;
-  const noBalance = balanceValue !== undefined && amount > balanceValue;
-  const invalid = amount === 0n || tooSmall || tooBig || noBalance;
+  // No balance term here: an empty wallet still gets a live button, and the wallet itself is what
+  // reports an unaffordable `bet()`. Blocking on `balanceOf` only ever hid the real error.
+  const invalid = amount === 0n || tooSmall || tooBig;
   // Every listed id is opened on chain by the ops daemon, so the bet is sent for demo-priced
   // cards too; the contract is the source of truth for whether it lands.
   const tradable = hasArena;
@@ -364,7 +365,6 @@ export function BetModal({
                 {t("trade.aboveCap", { cap: formatUsdc(cap) })}
               </p>
             )}
-            {noBalance && !error && <p className="text-[11.5px] text-loss">{t("trade.insufficient")}</p>}
 
             <TxProgress step={step} hash={hash} />
 
@@ -392,6 +392,9 @@ export function BetModal({
               )}
             </button>
 
+            <p className="text-center text-[10.5px] leading-relaxed text-muted/70">
+              {t("trade.walletChecks")}
+            </p>
             <p className="text-center text-[10.5px] leading-relaxed text-muted/70">
               {t("trade.oneClick")}
             </p>

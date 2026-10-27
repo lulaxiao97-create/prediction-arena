@@ -28,6 +28,7 @@ import { fileURLToPath } from "node:url";
 import { ASSETS, readSnapshot, snapshotAgeMs } from "./fetch-prices.ts";
 import type { PriceSnapshot } from "./fetch-prices.ts";
 import { coverFor } from "../frontend/src/lib/covers.ts";
+import { displayStatsFor } from "../frontend/src/lib/display-stats.ts";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const POOLS = join(ROOT, "frontend", "public", "pools.json");
@@ -632,19 +633,20 @@ function main() {
     }
   }
   const chainRows = (previous.pools ?? []).filter((p) => p.source === "chain");
-  const prevDemo = new Map((previous.pools ?? []).filter((p) => p.source !== "chain").map((p) => [p.title, p]));
 
   const usedDemoIds = new Set<string>();
   const generated: Pool[] = drafts.map((d, i) => {
-    // Keep the previous share/volume for an unchanged title so a re-run does not look like a jump.
-    const prev = prevDemo.get(d.title);
-
     // Ids are positional, so keep the historical assignment: the opener creates pools for exactly
     // these ids, which is what lets the demo cards place real bets.
     let demoId = String(ID_BASE + i + 1);
     void openedIds;
     while (usedDemoIds.has(demoId)) demoId = String(Number(demoId) + 1);
     usedDemoIds.add(demoId);
+    // Presentation numbers come from the id alone (lib/display-stats), the same function the card
+    // calls at render time: liquidity $12.5k–$88.5k, 85–320 traders, turnover 16–66% of liquidity.
+    // Derived from the id rather than from the model's probability, so a card never reads $0.00 and
+    // never changes on a rebuild that only moved spot.
+    const stats = displayStatsFor(demoId);
     return {
       id: demoId,
       title: d.title,
@@ -653,10 +655,10 @@ function main() {
       source: "demo",
       status: 1,
       endTimeUtc: d.deadline.toISOString(),
-      liquidityUsdc: d.liquidityUsdc,
+      liquidityUsdc: String(stats.liquidityUsdc),
       yesShare: d.yesShare,
-      volume24hUsdc: prev?.volume24hUsdc && prev.volume24hUsdc !== "0" ? prev.volume24hUsdc : d.volume24hUsdc,
-      traders: d.traders,
+      volume24hUsdc: String(stats.volume24hUsdc),
+      traders: stats.traders,
       description: d.description,
       resolution: d.resolution,
       dataSource: d.dataSource,

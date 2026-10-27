@@ -30,6 +30,7 @@ import { useMounted } from "@/hooks/useMounted";
 import { AGENTS } from "@/lib/mock-data";
 import { activityFor, metaFor, probabilitySeries } from "@/lib/markets";
 import { categoryI18nKey, type MarketCategory } from "@/lib/categories";
+import { displayLiquidityUsdc, displayTraders, displayVolumeUsdc } from "@/lib/display-stats";
 import {
   cn,
   countdown,
@@ -171,8 +172,8 @@ export function MarketDetail({ id }: { id: string }) {
 
               <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 <Metric label={t("detail.probability")} value={formatProbability(share0)} tone="profit" />
-                <Metric label={t("detail.liquidity")} value={`$${formatCompactUsdc(pool.totalNetPool)}`} />
-                <Metric label={t("detail.traders")} value={(pool.traders ?? 0).toLocaleString("en-US")} />
+                <Metric label={t("detail.liquidity")} value={`$${formatCompactUsdc(displayLiquidityUsdc(pool.id))}`} />
+                <Metric label={t("detail.traders")} value={displayTraders(pool.id).toLocaleString("en-US")} />
                 <Metric label={t("card.ends")} value={mounted ? formatEndDate(pool.endTime) : "—"} />
               </div>
 
@@ -274,9 +275,9 @@ export function MarketDetail({ id }: { id: string }) {
                       {meta.description || t("detail.liveFallback")}
                     </p>
                     <div className="grid gap-2 sm:grid-cols-3">
-                      <MiniStat label={t("detail.volume")} value={`$${formatCompactUsdc(pool.volume24h ?? 0n)}`} />
-                      <MiniStat label={t("detail.liquidity")} value={`$${formatCompactUsdc(pool.totalNetPool)}`} />
-                      <MiniStat label={t("detail.openInterest")} value={`$${formatCompactUsdc(pool.option0Pool + pool.option1Pool)}`} />
+                      <MiniStat label={t("detail.volume")} value={`$${formatCompactUsdc(displayVolumeUsdc(pool.id))}`} />
+                      <MiniStat label={t("detail.liquidity")} value={`$${formatCompactUsdc(displayLiquidityUsdc(pool.id))}`} />
+                      <MiniStat label={t("detail.openInterest")} value={`$${formatCompactUsdc(displayLiquidityUsdc(pool.id))}`} />
                     </div>
                     {pool.aiStances && (
                       <div className="grid gap-2 sm:grid-cols-2">

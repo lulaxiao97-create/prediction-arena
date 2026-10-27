@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useAccount, useBalance } from "wagmi";
-import { AlertTriangle, ArrowRight, CheckCircle2, ChevronDown, Coins, ExternalLink, Fuel, Info, Loader2, ShieldAlert, Ticket, Wallet } from "lucide-react";
+import { ArrowRight, CheckCircle2, ChevronDown, Coins, ExternalLink, Fuel, Info, Loader2, ShieldAlert, Ticket, Wallet } from "lucide-react";
 import type { ArenaPool } from "@/lib/types";
 import { cn, explorerTx, formatProbability, formatUsdc, impliedMultiplier } from "@/lib/format";
 import { quickAmountsFor, resolveTradeGuard } from "@/lib/trade-guard";
@@ -86,18 +86,17 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
 
   const tooSmall = amount > 0n && amount < MIN_BET_USDC;
   const tooBig = amount > cap;
-  const noBalance = balanceValue !== undefined && amount > balanceValue;
   const ethValue = ethBalance?.value;
-  const GAS_FLOOR = 20_000_000_000_000n; // 0.00002 ETH — ~13 bets at 0.01 gwei
-  const noGas = Boolean(address) && ethValue !== undefined && ethValue < GAS_FLOOR;
-  const emptyUsdc = Boolean(address) && balanceValue !== undefined && balanceValue === 0n;
   const isYes = option === 0;
+  // Balance and gas are NOT part of this guard: the button stays live so the wallet — not a
+  // client-side `balanceOf` — is what answers an unaffordable bet. See lib/trade-guard.
   const guard = resolveTradeGuard({
     address,
     wrongChain,
-    live,
-    usdcBalance: balanceValue,
-    ethBalance: ethValue,
+    // The USDC rail is open on every listed market (the ops daemon opens each id on the
+    // contract), so a demo-priced card is not a reason to disable the CTA — `live` above stays a
+    // provenance badge only.
+    live: hasArena,
     amount,
     cap,
     minBet: MIN_BET_USDC,
@@ -111,12 +110,6 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
         return { Icon: Wallet, text: t("trade.switchChain") };
       case "demo":
         return { Icon: Info, text: t("trade.demoMode") };
-      case "no-usdc":
-        return { Icon: AlertTriangle, text: t("trade.depositFirst") };
-      case "insufficient-usdc":
-        return { Icon: AlertTriangle, text: t("trade.insufficientUsdcBtn") };
-      case "no-gas":
-        return { Icon: Fuel, text: t("trade.insufficientGas") };
       case "above-cap":
         return { Icon: ShieldAlert, text: t("trade.aboveCap", { cap: formatUsdc(cap, 0) }) };
       case "below-min":
@@ -296,7 +289,7 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
               {t("trade.balance")} {balanceValue !== undefined ? `$${formatUsdc(balanceValue)}` : "—"}
             </span>
             {ethValue !== undefined && (
-              <span className={cn("inline-flex items-center gap-0.5", noGas ? "text-loss" : "text-muted/60")}>
+              <span className="inline-flex items-center gap-0.5 text-muted/60">
                 <Fuel className="size-2.5" />
                 {(Number(ethValue) / 1e18).toFixed(4)}
               </span>
@@ -454,24 +447,6 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
       {!ticketMode && tooBig && !error && guard !== "above-cap" && (
         <p className="text-[11px] text-loss">{t("trade.aboveCap", { cap: formatUsdc(cap, 0) })}</p>
       )}
-      {!ticketMode && noBalance && !error && <p className="text-[11px] text-loss">{t("trade.insufficient")}</p>}
-      {!ticketMode && (emptyUsdc || noBalance || noGas) && !error && (
-        <div className="rounded-lg border border-loss/25 bg-loss/[0.06] px-2.5 py-2 text-[10.5px] leading-relaxed">
-          <p className="flex items-start gap-1.5 text-loss/90">
-            <AlertTriangle className="mt-0.5 size-3 shrink-0" />
-            {t("trade.gasHint")}
-          </p>
-          <a
-            href="https://bridge.base.org/deposit"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-1 inline-flex items-center gap-1 text-gold-bright transition-colors hover:underline"
-          >
-            {t("trade.getUsdc")} <ExternalLink className="size-2.5" />
-          </a>
-        </div>
-      )}
-
       {!ticketMode && step !== "idle" && <TxProgress step={step} hash={hash} />}
 
       {done && hash ? (
@@ -532,6 +507,7 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
       )}
 
       <p className="text-[10px] leading-relaxed text-muted/60">{ticketMode ? t("rewards.ticketNote") : t("trade.oneClick")}</p>
+      {!ticketMode && <p className="text-[10px] leading-relaxed text-muted/45">{t("trade.walletChecks")}</p>}
     </div>
   );
 }

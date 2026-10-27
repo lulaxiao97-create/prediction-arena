@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ArenaPool } from "@/lib/types";
 import { DEMO_ANCHOR } from "@/lib/mock-data";
 import { demoPoolToArena, type Manifest } from "@/lib/markets";
+import { displayLiquidityUsdc, displayVolumeUsdc } from "@/lib/display-stats";
 import { SEED_MANIFEST } from "@/lib/manifest";
 import { useChainPoolIds, usePools } from "@/hooks/usePredictionArena";
 
@@ -131,8 +132,10 @@ export function useMarkets() {
   }, [chainPools, demoPools, manifestMeta]);
 
   const stats = useMemo(() => {
-    const tvl = pools.reduce((sum, p) => sum + p.totalNetPool, 0n);
-    const volume24h = pools.reduce((sum, p) => sum + (p.volume24h ?? 0n), 0n);
+    // Presentation totals, summed from the same per-card figures the grid renders — a header that
+    // added up real pool balances would read $0 next to cards showing $40k.
+    const tvl = pools.reduce((sum, p) => sum + displayLiquidityUsdc(p.id), 0n);
+    const volume24h = pools.reduce((sum, p) => sum + displayVolumeUsdc(p.id), 0n);
     return {
       tvl,
       volume24h,

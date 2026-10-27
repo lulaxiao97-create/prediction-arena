@@ -27,6 +27,7 @@ import {
   sideShare,
 } from "@/lib/format";
 import { categoryI18nKey } from "@/lib/categories";
+import { displayLiquidityUsdc, displayTraders } from "@/lib/display-stats";
 import { useMounted } from "@/hooks/useMounted";
 import { MarketCover } from "@/components/MarketCover";
 import { coverOf } from "@/lib/covers";
@@ -199,11 +200,11 @@ export function MarketCard({
       <div className="pointer-events-none relative z-10 flex items-center justify-between text-[10.5px] text-muted">
         <span className="inline-flex items-center gap-1">
           <span className="text-[9px] uppercase tracking-[0.1em] text-muted/55">{t("card.liquidity")}</span>
-          <span className="mono font-semibold text-ink">${formatCompactUsdc(pool.totalNetPool)}</span>
+          <span className="mono font-semibold text-ink">${formatCompactUsdc(displayLiquidityUsdc(pool.id))}</span>
         </span>
         <span className="inline-flex items-center gap-1">
           <Users className="size-2.5" />
-          {(pool.traders ?? 0).toLocaleString("en-US")}
+          {displayTraders(pool.id).toLocaleString("en-US")}
         </span>
       </div>
 
