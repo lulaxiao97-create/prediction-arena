@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { ArrowRight, Clock3, Flame, ShieldCheck, Users } from "lucide-react";
 import type { ArenaPool } from "@/lib/types";
-import { countdown, formatCompactUsdc, formatCountdown, formatProbability, sideShare } from "@/lib/format";
+import { countdown, formatCompactUsdc, formatCountdown, formatProbability } from "@/lib/format";
+import { displayLiquidityUsdc, displayTraders, poolSideMultiplier, poolSideShare } from "@/lib/display-stats";
 import { categoryI18nKey } from "@/lib/categories";
 import { MarketCover } from "@/components/MarketCover";
 import { coverOf } from "@/lib/covers";
@@ -28,7 +29,11 @@ export function FeaturedBanner({
   // `countdown()` reads the wall clock, so it may only run after hydration — otherwise the
   // server's "2d 04h 12m" and the client's "2d 04h 11m" disagree and React throws #418.
   const mounted = useMounted();
-  const share0 = sideShare(pool.option0Pool, pool.option1Pool);
+  const share0 = poolSideShare(pool, 0);
+  const multiplier0 = poolSideMultiplier(pool, 0);
+  const multiplier1 = poolSideMultiplier(pool, 1);
+  const liquidity = displayLiquidityUsdc(pool.id);
+  const traders = displayTraders(pool.id);
   const cd = mounted ? countdown(pool.endTime) : null;
   const href = `/market/${pool.id.toString()}`;
   const cover = coverOf(pool);
@@ -62,11 +67,11 @@ export function FeaturedBanner({
           <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11.5px] text-muted">
             <span className="inline-flex items-center gap-1.5">
               <span className="text-[9.5px] uppercase tracking-[0.12em] text-muted/60">{t("featured.liquidity")}</span>
-              <span className="mono text-[13px] font-semibold text-ink">${formatCompactUsdc(pool.totalNetPool)}</span>
+              <span className="mono text-[13px] font-semibold text-ink">${formatCompactUsdc(liquidity)}</span>
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Users className="size-3" />
-              {(pool.traders ?? 0).toLocaleString("en-US")}
+              {traders.toLocaleString("en-US")}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Clock3 className="size-3" />
@@ -82,7 +87,7 @@ export function FeaturedBanner({
               }}
               className="rounded-xl border border-profit/40 bg-profit/12 px-4 py-2 text-[12.5px] font-semibold text-profit transition-colors hover:bg-profit/20"
             >
-              {t("card.yes")} {formatProbability(share0)}
+              {t("card.yes")} {multiplier0.toFixed(2)}x
             </button>
             <button
               onClick={(e) => {
@@ -91,7 +96,7 @@ export function FeaturedBanner({
               }}
               className="rounded-xl border border-loss/40 bg-loss/12 px-4 py-2 text-[12.5px] font-semibold text-loss transition-colors hover:bg-loss/20"
             >
-              {t("card.no")} {formatProbability(1 - share0)}
+              {t("card.no")} {multiplier1.toFixed(2)}x
             </button>
             <a
               href={href}
@@ -120,7 +125,7 @@ export function FeaturedBanner({
             <div className="h-full flex-1 rounded-r-full bg-gradient-to-r from-loss to-loss/70" />
           </div>
           <p className="text-[10.5px] leading-relaxed text-muted/80">
-            ${formatCompactUsdc(pool.totalNetPool)} {t("featured.liquidity")}
+            ${formatCompactUsdc(liquidity)} {t("featured.liquidity")}
           </p>
         </div>
       </div>

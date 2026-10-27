@@ -10,6 +10,7 @@ import { cn, explorerTx, formatProbability, formatUsdc, impliedMultiplier } from
 import { quickAmountsFor, resolveTradeGuard } from "@/lib/trade-guard";
 import { AmountSlider } from "@/components/AmountSlider";
 import { TxProgress } from "@/components/TxProgress";
+import { poolSideMultiplier, feeNetOdds } from "@/lib/display-stats";
 import { DemoBadge } from "@/components/DemoBadge";
 import { ShareActions } from "@/components/ShareActions";
 import { select as hapticSelect } from "@/lib/haptics";
@@ -81,7 +82,7 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
   const probability = sideAfter > 0n ? Number(sideAfter) / Number(totalAfter) : 0.5;
   const payout = sideAfter > 0n ? (netStake * totalAfter) / sideAfter : 0n;
   const shares = payout; // pari-mutuel shares are $1-settled, so shares == expected payout
-  const multiplier = impliedMultiplier(totalAfter, sideAfter);
+  const multiplier = impliedMultiplier(totalAfter, sideAfter) || feeNetOdds(probability);
   const roi = amount > 0n ? (Number(payout) - Number(amount)) / Number(amount) : 0;
 
   const tooSmall = amount > 0n && amount < MIN_BET_USDC;
@@ -246,8 +247,7 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
         {([0, 1] as const).map((value) => {
           const active = option === value;
           const yes = value === 0;
-          const sidePool = yes ? pool.option0Pool : pool.option1Pool;
-          const mult = impliedMultiplier(pool.totalNetPool, sidePool);
+          const mult = poolSideMultiplier(pool, value);
           return (
             <button
               key={value}

@@ -19,7 +19,6 @@ import {
   explorerTx,
   formatProbability,
   formatUsdc,
-  impliedMultiplier,
   shortAddr,
 } from "@/lib/format";
 import { categoryI18nKey } from "@/lib/categories";
@@ -27,6 +26,7 @@ import { useI18n } from "@/components/LocaleProvider";
 import { useToast } from "@/components/Toast";
 import { AmountSlider } from "@/components/AmountSlider";
 import { TxProgress } from "@/components/TxProgress";
+import { poolSideMultiplier } from "@/lib/display-stats";
 import { quickAmountsFor, resolveTradeGuard } from "@/lib/trade-guard";
 import { recordTrade } from "@/hooks/useTradeHistory";
 import {
@@ -79,7 +79,6 @@ export function BetModal({
   const side = option === 0 ? pool.option0Pool : pool.option1Pool;
   const totalAfter = pool.totalNetPool + netStake;
   const sideAfter = side + netStake;
-  const multiplier = impliedMultiplier(totalAfter, sideAfter);
   const probability = sideAfter > 0n ? Number(sideAfter) / Number(totalAfter) : 0.5;
   const payout = sideAfter > 0n ? (netStake * totalAfter) / sideAfter : 0n;
 
@@ -232,8 +231,7 @@ export function BetModal({
               {([0, 1] as const).map((value) => {
                 const active = option === value;
                 const isYes = value === 0;
-                const sidePool = isYes ? pool.option0Pool : pool.option1Pool;
-                const mult = impliedMultiplier(pool.totalNetPool, sidePool);
+                const mult = poolSideMultiplier(pool, value);
                 return (
                   <button
                     key={value}

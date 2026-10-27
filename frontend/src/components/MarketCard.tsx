@@ -23,11 +23,9 @@ import {
   formatCountdown,
   formatProbability,
   formatUsdc,
-  impliedMultiplier,
-  sideShare,
 } from "@/lib/format";
 import { categoryI18nKey } from "@/lib/categories";
-import { displayLiquidityUsdc, displayTraders } from "@/lib/display-stats";
+import { displayLiquidityUsdc, displayTraders, poolSideMultiplier, poolSideShare } from "@/lib/display-stats";
 import { useMounted } from "@/hooks/useMounted";
 import { MarketCover } from "@/components/MarketCover";
 import { coverOf } from "@/lib/covers";
@@ -54,10 +52,11 @@ export function MarketCard({
   const { t } = useI18n();
   const mounted = useMounted();
 
-  const share0 = useMemo(() => sideShare(pool.option0Pool, pool.option1Pool), [pool]);
+  const share0 = useMemo(() => poolSideShare(pool, 0), [pool]);
   const share1 = 1 - share0;
-  const multiplier0 = useMemo(() => impliedMultiplier(pool.totalNetPool, pool.option0Pool), [pool]);
-  const multiplier1 = useMemo(() => impliedMultiplier(pool.totalNetPool, pool.option1Pool), [pool]);
+  // Never blank: pari-mutuel when the pool holds stake, fee-net implied odds when it does not.
+  const multiplier0 = useMemo(() => poolSideMultiplier(pool, 0), [pool]);
+  const multiplier1 = useMemo(() => poolSideMultiplier(pool, 1), [pool]);
 
   const cd = mounted ? countdown(pool.endTime) : null;
   const open = pool.status === 1 && !cd?.ended;
@@ -227,7 +226,7 @@ export function MarketCard({
           <span className="flex flex-col items-start leading-none">
             <span className="text-[9.5px] uppercase tracking-[0.08em] text-muted">{t("card.yes")}</span>
             <span className="mono mt-0.5 text-[14px] font-semibold text-profit">
-              {multiplier0 > 0 ? `${multiplier0.toFixed(2)}x` : "—"}
+              {multiplier0.toFixed(2)}x
             </span>
           </span>
           <ArrowUpRight className="size-3.5 text-profit/70 transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
@@ -249,7 +248,7 @@ export function MarketCard({
           <span className="flex flex-col items-start leading-none">
             <span className="text-[9.5px] uppercase tracking-[0.08em] text-muted">{t("card.no")}</span>
             <span className="mono mt-0.5 text-[14px] font-semibold text-loss">
-              {multiplier1 > 0 ? `${multiplier1.toFixed(2)}x` : "—"}
+              {multiplier1.toFixed(2)}x
             </span>
           </span>
           <ArrowUpRight className="size-3.5 text-loss/70 transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />

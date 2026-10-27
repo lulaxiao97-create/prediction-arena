@@ -30,7 +30,7 @@ import { useMounted } from "@/hooks/useMounted";
 import { AGENTS } from "@/lib/mock-data";
 import { activityFor, metaFor, probabilitySeries } from "@/lib/markets";
 import { categoryI18nKey, type MarketCategory } from "@/lib/categories";
-import { displayLiquidityUsdc, displayTraders, displayVolumeUsdc } from "@/lib/display-stats";
+import { displayLiquidityUsdc, displayTraders, displayVolumeUsdc, poolSideShare } from "@/lib/display-stats";
 import {
   cn,
   countdown,
@@ -39,7 +39,6 @@ import {
   formatCountdown,
   formatEndDate,
   formatProbability,
-  sideShare,
 } from "@/lib/format";
 import type { ArenaPool } from "@/lib/types";
 
@@ -55,7 +54,7 @@ export function MarketDetail({ id }: { id: string }) {
   const pool = pools.find((p) => p.id.toString() === id);
   const meta = metaFor(manifest, id);
 
-  const share0 = pool ? sideShare(pool.option0Pool, pool.option1Pool) : 0.5;
+  const share0 = pool ? poolSideShare(pool, 0) : 0.5;
   const seedSeries = useMemo(() => probabilitySeries(id, share0, 30), [id, share0]);
   const { series, live, dir } = useLiveSeries(seedSeries, id);
   const activity = useMemo(() => activityFor(id, 10), [id]);

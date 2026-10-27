@@ -87,3 +87,55 @@ export function displayVolumeUsdc(marketId: string | number | bigint): bigint {
 export function displayTraders(marketId: string | number | bigint): number {
   return displayStatsFor(marketId).traders;
 }
+
+/** Platform fee on every stake — mirrors the contract's `FEE_BPS = 400`. */
+export const PLATFORM_FEE_RATE = 0.04;
+
+/** A side's implied probability never goes past this band, so odds stay finite and sane. */
+const ODDS_SHARE_FLOOR = 0.05;
+
+/**
+ * Deterministic implied share for a pool that holds no stake at all (0.18–0.82).
+ *
+ * An empty pool has no price of its own. Rather than render `—` or a flat 50/50 on every fresh
+ * market, the share comes from the id, so the two buttons on a card are a plausible, stable pair
+ * and — crucially — the percentage printed on the card and the multiple printed in its buttons are
+ * derived from the same number.
+ */
+export function fallbackShareFor(marketId: string | number | bigint): number {
+  const h = mix32(hash32(`share:${String(marketId)}`));
+  return Math.round((0.18 + unit(h) * 0.64) * 1000) / 1000;
+}
+
+/** Rounded side pools for a market: the real split when funded, the id-derived split when not. */
+export function poolSideShare(
+  pool: { id: string | number | bigint; option0Pool: bigint; option1Pool: bigint },
+  side: 0 | 1,
+): number {
+  const total = pool.option0Pool + pool.option1Pool;
+  const share0 = total === 0n ? fallbackShareFor(pool.id) : Number(pool.option0Pool) / Number(total);
+  return side === 0 ? share0 : 1 - share0;
+}
+
+/** Fair odds from an implied probability, net of the platform fee: p = 0.5 → 1.92x. */
+export function feeNetOdds(prob: number): number {
+  const p = Math.min(1 - ODDS_SHARE_FLOOR, Math.max(ODDS_SHARE_FLOOR, prob));
+  return (1 / p) * (1 - PLATFORM_FEE_RATE);
+}
+
+/**
+ * The multiple printed on a YES/NO button.
+ *
+ * Pari-mutuel when the pool actually holds stake (that is the number a bet would really pay); the
+ * fee-net implied odds otherwise. It never returns 0, NaN or Infinity — a button without a number
+ * is the one thing a market card cannot show.
+ */
+export function poolSideMultiplier(
+  pool: { id: string | number | bigint; totalNetPool: bigint; option0Pool: bigint; option1Pool: bigint },
+  side: 0 | 1,
+): number {
+  const sidePool = side === 0 ? pool.option0Pool : pool.option1Pool;
+  const ratio = sidePool > 0n ? Number(pool.totalNetPool) / Number(sidePool) : 0;
+  if (Number.isFinite(ratio) && ratio > 0) return ratio;
+  return feeNetOdds(poolSideShare(pool, side));
+}
