@@ -226,3 +226,33 @@ AI split: {BULL_ONE_LINE} vs {BEAR_ONE_LINE}
 
 The site's `Organization` JSON-LD (`sameAs`) and `twitter:site` metadata follow `social.ts`
 automatically, so search engines and link previews pick the change up with the next deploy.
+
+---
+
+## 6. Live state (handover)
+
+What is actually on the accounts right now, so a later session does not have to re-derive it.
+
+| Surface | State | Notes |
+|---|---|---|
+| X `@Dina32036948` (display name **Prediction Arena**) | Branded | Name, bio, `Base`, website `predictionarena.online` set; launch tweet published and **pinned**. |
+| X `@Pred_Arena` (177 followers, joined Jun 2025) | **Not branded** | Still carries the Discord-era bio and the 2025-06 pinned post. This is the handle the site links to. |
+| Telegram personal account (display name **Prediction Arena**) | Branded | Bio: `Official community for Prediction Arena — predictionarena.online` (63 chars, the 70-char limit). |
+| Telegram channel `@prediction_arena` | Not ours | Already exists (2 subscribers, brand-style description). No channel was created on purpose: two "Prediction Arena" channels is worse than one, and the username is taken. |
+
+### Open decisions
+
+1. **Which X handle is official.** Either log into `@Pred_Arena` once and brand it (site link then stays correct), or point
+   `frontend/src/lib/social.ts` at `@Dina32036948`. Recommendation: brand `@Pred_Arena` — a real handle beats a numeric one.
+2. **Telegram channel.** Recover admin on `@prediction_arena` if it is ours, otherwise create one under a free username
+   (e.g. `@predictionarena_hq`) and update `SOCIAL.telegram.url` in the same commit.
+3. **X avatar.** `@Dina32036948` still uses a personal photo. `docs/branding/avatar-1024.png` is ready to upload.
+4. **`#Crypto`** was dropped from the launch tweet to fit the 280-character limit; it can go in the first reply.
+
+### Gotchas found while doing it
+
+- The bio field on X counts a URL as 23 characters, and its counter runs ~3 characters ahead of a naive `len()` —
+  budget 275, not 280, or the Post button stays disabled.
+- `x.com/settings/username` is gone (Page not found); the handle change now lives behind
+  Settings → Your account → Account information → Username.
+- Telegram personal bio is capped at 70 characters; the channel description is the place for the longer copy.
