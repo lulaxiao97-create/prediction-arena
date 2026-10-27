@@ -56,7 +56,7 @@ committed.
 
 | Variable | Purpose |
 |---|---|
-| `DEEPSEEK_API_KEY` | Used by `scripts/gen-debates.ts` / `scripts/gen-market.ts` **on the ops box**, not on Vercel. Do not add it to the hosting dashboard unless you plan to run generation there — the site does not need it. |
+| `DEEPSEEK_API_KEY` | Used by `scripts/gen-market.ts` **on the ops box**, not on Vercel. Do not add it to the hosting dashboard unless you plan to run generation there — the site does not need it. |
 | `BASESCAN_API_KEY` | Contract verification only. |
 
 > Anything prefixed `NEXT_PUBLIC_` is inlined into the client bundle. Never put a private key, an
@@ -117,7 +117,6 @@ curl -s  https://<domain>/manifest.json | head -20        # PWA manifest must be
 curl -sI https://<domain>/sw.js                           # 200, application/javascript
 curl -sI https://<domain>/icon-512.png                    # 200 image/png
 curl -s  https://<domain>/pools.json  | head -5           # market manifest
-curl -s  https://<domain>/debates.json | head -5          # pre-generated debates
 ```
 
 Then, in a real browser:
@@ -145,10 +144,10 @@ Then, in a real browser:
   hosting platform. A separate small VPS plus `crontab` entry:
   `0 * * * * cd /path/to/repo && bash scripts/ops-daemon.sh >> logs/cron.log 2>&1`
 - If you want the site to update automatically when the daemon opens a market, the public
-  `pools.json` / `debates.json` must be rewritten on the host that serves them. On Vercel the app is
+  `pools.json` must be rewritten on the host that serves them. On Vercel the app is
   immutable, so either:
   - run the daemon against the same repo and redeploy (`vercel --prod`) after a new market, or
-  - host `pools.json` / `debates.json` in object storage and point the fetches there, or
+  - host `pools.json` in object storage and point the fetch there, or
   - keep the built-in 60s polling and accept that new markets appear after the next deploy.
 
 ---
@@ -157,11 +156,11 @@ Then, in a real browser:
 
 ```bash
 DOMAIN=https://app.yourdomain.com
-for p in / /docs /docs/security /manifest.json /sw.js /pools.json /debates.json /icon-512.png /covers/crypto.jpg; do
+for p in / /docs /docs/security /manifest.json /sw.js /pools.json /icon-512.png /covers/crypto.jpg; do
   printf "%-24s %s\n" "$p" "$(curl -s -o /dev/null -w '%{http_code}' -m 15 "$DOMAIN$p")"
 done
 ```
 
-Every line must read `200`. A `404` on `pools.json`/`debates.json` means `public/` was not copied —
+Every line must read `200`. A `404` on `pools.json` means `public/` was not copied —
 check the output directory setting. A `404` on `sw.js` means the service worker will never register
 and the app will not be installable.

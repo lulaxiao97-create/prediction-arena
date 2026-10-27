@@ -3,18 +3,17 @@ import { generateContextDebate } from "./debate.ts";
 /**
  * Autonomous content kernel.
  *
- * One deterministic generator shared by the frontend (debates, community threads) and the backend
- * (market creation). It is intentionally dependency-free and pure: given the same pool and the same
+ * One deterministic generator shared by the frontend (community threads) and the backend (market
+ * creation). It is intentionally dependency-free and pure: given the same pool and the same
  * clock bucket it returns the same content, which keeps SSR and the client in agreement and lets
  * the cron daemon pre-compute the exact text the UI will later show.
  *
- * An LLM is an *optional* enhancer, never a requirement: `scripts/gen-market.ts` and
- * `scripts/gen-debates.ts` call the kernel first and only overwrite it when an API key is configured
- * and the call succeeds. With no key the platform still produces fresh, market-specific copy.
+ * An LLM is an *optional* enhancer, never a requirement: `scripts/gen-market.ts` calls the kernel
+ * first and only overwrites it when an API key is configured and the call succeeds.
  *
- * The browser never reaches a model: debates arrive pre-generated in `public/debates.json`
- * (see `lib/debate-cache.ts`), and this kernel is only the floor for a market the daemon has not
- * covered yet.
+ * Market debates are **not** generated here. They come from `lib/debate.ts`, which builds six
+ * context-driven rounds per market in the reader's language — no model call, no pre-baked corpus.
+ * The last of the old per-category corpora was deleted with `scripts/gen-debates.ts`.
  */
 
 /* ───────────────────────────── shared primitives ───────────────────────────── */
@@ -404,7 +403,7 @@ export function generateMarket(input: {
   };
 }
 
-/* ───────────────────────────── debate generation ──────────────────────────── */
+/* ───────────────────────────── debate surface ─────────────────────────────── */
 
 export type DebateLine = {
   agent: "hawk" | "detective" | "meme";
@@ -413,187 +412,7 @@ export type DebateLine = {
   evidenceCid?: string;
 };
 
-const BULL_OPENERS = [
-  "The flow is one-sided and it is not retail.",
-  "Positioning has been reset while the narrative survived.",
-  "The cheapest side of this book has quietly become the informed side.",
-  "Three weeks of distribution ended this morning.",
-];
-
-const BEAR_OPENERS = [
-  "This is a crowded trade wearing a thesis.",
-  "The number being priced is the optimistic one.",
-  "Nothing in the order book justifies this probability.",
-  "Every input here is lagging.",
-];
-
-function band(yesPct: number): "low" | "mid" | "high" {
-  if (yesPct < 35) return "low";
-  if (yesPct > 65) return "high";
-  return "mid";
-}
-
-const ARGUMENTS: Record<string, { bull: string[]; bear: string[] }> = {
-  Crypto: {
-    bull: [
-      "Exchange balances are at a multi-year low while spot volume holds — coins are leaving venues, not rotating inside them.",
-      "Funding is positive but not parabolic, which is exactly the regime where spot leads instead of perps.",
-      "The 25-delta skew flipped for the first time since March; desks are buying upside, not selling it.",
-      "Realised vol is printing below implied for six sessions — the market is charging you for a move that already happened.",
-    ],
-    bear: [
-      "Most of the inflow is basis, not directional. When the spread compresses, that bid evaporates with it.",
-      "Open interest is up faster than spot volume — leverage is carrying this, and leverage unwinds violently.",
-      "Whale wallets have been net sellers into every green candle this week.",
-      "The options market is pricing 51% implied against 28% realised. Someone is overpaying for a thesis.",
-    ],
-  },
-  "AI & Tech": {
-    bull: [
-      "Capex guidance went up again and transformer lead times are at 40 weeks — the physical build-out is not a narrative.",
-      "Metered inference volume tripled quarter over quarter. Somebody is paying per call, not piloting.",
-      "Developer mindshare is the leading indicator that never lies: SDK imports are up triple digits month over month.",
-      "Price cuts expanded volume 4x; margin percent fell but gross profit did not.",
-    ],
-    bear: [
-      "Capex is not revenue. Eight of ten enterprise pilots are still in evaluation fourteen months in.",
-      "Inference gross margin compressed from 62% to 48% as prices were cut. Volume can double and profit still falls.",
-      "Every capability claim in this cycle has been benchmarked on tasks the customer never runs.",
-      "The revenue curve and the spend curve are diverging, and only one of them is priced here.",
-    ],
-  },
-  "Macro & Economy": {
-    bull: [
-      "Three of four CPI buckets are decelerating; the lagging one is OER, which lags spot rents by construction.",
-      "Quits at 1.9% precedes services disinflation by roughly two quarters. The data is ahead of the narrative.",
-      "Front-end vol is at a three-year low while the outcome distribution has never been wider — that gap is the trade.",
-      "Real yields are restrictive in every deflator, not just the headline one.",
-    ],
-    bear: [
-      "Core services ex-housing is running at 4.1% annualised. That is three times target in the stickiest component.",
-      "The dots show two cuts and the market prices four. Historically the market is the one that reprices.",
-      "Consensus this one-sided has nobody left to buy the announcement.",
-      "Labour cooling has been six quarters away for six quarters.",
-    ],
-  },
-  "Politics & Global": {
-    bull: [
-      "Liquidity on this question now exceeds the polling average's margin of error, and it has been early twice.",
-      "The resolution criteria are mechanical: the trigger event, not the interpretation, decides this.",
-      "The arbiter has published the same reading twice before. Precedent is the missing variable in the bear case.",
-      "Committee calendars are public and the remaining window is wider than the headline suggests.",
-    ],
-    bear: [
-      "Sixty-two percent of the flow came from three wallets in the final 48 hours. That is a position, not a forecast.",
-      "The wording leaves discretion, and discretionary settlement is a coin flip dressed as a market.",
-      "Deadline extensions have resolved NO in this venue three times out of four.",
-      "Sentiment is at an extreme and the calendar favours the other side.",
-    ],
-  },
-  "Science & Space": {
-    bull: [
-      "Two independent labs reproduced it inside six weeks — unusually fast, and the strongest signal available.",
-      "Three national programmes renewed grants in the same quarter. They do not renew results they doubt.",
-      "The interim dataset already released covers the settlement question directly.",
-      "Bench-to-production gaps have closed in this specific subfield, unlike the last cycle.",
-    ],
-    bear: [
-      "Reproduced at bench scale, not production scale. Every previous claim in this class died in that gap.",
-      "The press cycle is running nine months ahead of the papers.",
-      "Settlement is 30 days out and the next validation run is day 45 — the calendar is the risk, not the science.",
-      "Base rates for this class of result are unkind, and the market is pricing the exception.",
-    ],
-  },
-  "Culture & Pop": {
-    bull: [
-      "Engagement is up 24% week over week on the channels the studios actually get paid on.",
-      "Holder count is up 8,400 with a median position under one unit — distribution to real accounts, not wash trading.",
-      "The wallets that sold last cycle are back on the bid, and the last two times that happened the floor held for 11 weeks.",
-      "Paid acquisition cost fell while retention held; that combination precedes a beat.",
-    ],
-    bear: [
-      "Attention half-life in this category is six days and settlement is thirty. The crowd that resolves this YES will be gone.",
-      "Net new members have been negative four days running while the timeline posts confidence.",
-      "Team wallets stage 1.5% into one market maker's collection address every six hours.",
-      "Every comparable release overshot on opening weekend and undershot on week three.",
-    ],
-  },
-};
-
-const CLOSERS: Record<Stance, string[]> = {
-  bull: [
-    "At this price the asymmetry is on the YES side.",
-    "I am long here and adding on any dip that holds the recent range.",
-    "The market is charging a discount for a risk I can measure.",
-  ],
-  bear: [
-    "At this price you are paying for perfection.",
-    "I am on the other side and sizing up if this prints higher.",
-    "The probability is a story; the ledger is the evidence.",
-  ],
-};
-
-/**
- * 3–4 round bull/bear exchange, targeted at the actual market text. Deterministic for a given
- * (poolId, yesPct) pair so SSR and client never disagree, and so cached backend output stays valid.
- */
-export function generateDebate(input: {
-  poolId: string;
-  category: string;
-  title: string;
-  yesPct: number;
-  netPoolUsdc?: number;
-}): DebateLine[] {
-  const key = resolveCategory(input.category, input.title);
-  const args = ARGUMENTS[key] ?? ARGUMENTS.Crypto;
-  const r = prng(`debate:${input.poolId}:${Math.round(input.yesPct)}`);
-  const b = band(input.yesPct);
-  const side = input.yesPct >= 50 ? "YES" : "NO";
-  const lead = input.yesPct >= 50 ? "the favourite" : "the counter-side";
-
-  const bullPick = [...args.bull].sort(() => r() - 0.5);
-  const bearPick = [...args.bear].sort(() => r() - 0.5);
-
-  const rounds = 2 + (r() > 0.45 ? 1 : 0) + (r() > 0.8 ? 1 : 0); // 3..4 exchanges
-  const lines: DebateLine[] = [];
-
-  for (let i = 0; i < rounds; i++) {
-    const bull = bullPick[i % bullPick.length];
-    const bear = bearPick[i % bearPick.length];
-    const probNote =
-      i === 0
-        ? ` At ${input.yesPct.toFixed(0)}% implied, the book is calling ${lead} ${side}.`
-        : i === rounds - 1
-          ? ` With ${input.netPoolUsdc && input.netPoolUsdc > 0 ? `$${Math.round(input.netPoolUsdc).toLocaleString()} on the table` : "this depth"}, the cost of being wrong is priced now, not later.`
-          : "";
-
-    lines.push({
-      agent: i % 2 === 0 ? "detective" : "hawk",
-      stance: "bull",
-      text: `${i === 0 ? pick(r, BULL_OPENERS) + " " : ""}${bull}${probNote}`,
-      ...(i === 0 ? { evidenceCid: `bafybei${Math.abs(hash32(`${input.poolId}:b${i}`)).toString(36)}` } : {}),
-    });
-
-    lines.push({
-      agent: i % 2 === 0 ? "hawk" : "meme",
-      stance: "bear",
-      text: `${i === 0 ? pick(r, BEAR_OPENERS) + " " : ""}${bear}${
-        i === rounds - 1 ? ` ${b === "high" ? "The crowded side never gets paid." : b === "low" ? "Being early is indistinguishable from being wrong until it isn't." : ""}` : ""
-      }`,
-      ...(i === 1 ? { evidenceCid: `bafybei${Math.abs(hash32(`${input.poolId}:s${i}`)).toString(36)}` } : {}),
-    });
-  }
-
-  lines.push({
-    agent: "detective",
-    stance: input.yesPct >= 50 ? "bull" : "bear",
-    text: `${pick(r, CLOSERS[input.yesPct >= 50 ? "bull" : "bear"])} Settlement is ${input.yesPct >= 50 ? "YES" : "NO"} at these odds or there is no trade here.`,
-  });
-
-  return lines;
-}
-
-/* ──────────────────── localized debate (non-English fallback) ─────────────── */
+/* ──────────────────────────── localized debate ────────────────────────────── */
 
 export type DebateLang = "en" | "zh-TW" | "de" | "fr" | "ja" | "ko";
 

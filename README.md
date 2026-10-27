@@ -86,16 +86,19 @@ glass panels, hairline borders, and a mobile-first trading drawer.
 
 ### AI debates that hold a position
 
-Markets ship with three independent voices — **the Advocate**, **the Skeptic**, and **the Quant** —
-each with a distinct mandate and tone, plus a closing call. Arguments are generated server-side by
-DeepSeek (`scripts/gen-debates.ts`) into `frontend/public/debates.json` and cached per market *and
-per language*, so a German reader never receives English copy. When cached copy drifts from live
-market probability, the UI says so ("arguments were written at 60% — now 81%") instead of silently
-swapping text.
+Every market carries a six-round debate between **Onchain Detective**, **Macro Hawk** and
+**Meme Master**: the bull opens with the market's own numbers, the bear answers with the live odds,
+each rebuts, the third desk calls the price, and the higher-conviction side closes with the multiple
+it is paying.
 
-A deterministic kernel (`frontend/src/lib/auto-gen.ts`) is the floor, not the fallback: with no API
-key the platform still produces market-specific, reproducible copy. An LLM is an enhancer, never a
-runtime dependency.
+The text is generated from the market itself (`frontend/src/lib/debate.ts`) — subject, strike,
+expiry, current YES/NO split and fee-net multiples — in all six locales, each with its own natively
+written copy deck rather than a translation of the English one. Selection is hashed from the pool
+id, so the same market prints the same argument on every render, on the server and in the browser.
+
+No model is called at runtime and no debate text is shipped as a static file: the engine is pure,
+deterministic and free per view. An LLM is an enhancer for *market copy*, never a dependency of the
+debate.
 
 ### Mobile-first trading drawer
 
@@ -146,7 +149,7 @@ flowchart LR
   end
 
   subgraph Ops["Ops daemon · cron"]
-    G["gen-market / gen-debates<br/>DeepSeek"]
+    G["gen-market<br/>DeepSeek"]
     A["auto-create-pool<br/>create + seed both sides"]
     R["ops-refresh<br/>probabilities · TVL · 24h vol"]
   end
@@ -176,7 +179,6 @@ prediction-arena/
 │   ├── auto-create-pool.ts        # atomic listing: create → approve → seed ×2, rollback on failure
 │   ├── settle-pool.ts             # settlement with sha256 → bytes32 evidence hash
 │   ├── gen-market.ts              # listing generator (kernel, LLM when a key exists)
-│   ├── gen-debates.ts             # three-voice debate generator, per market per language
 │   ├── ops-refresh.ts             # on-chain state → public/pools.json
 │   ├── fetch-prices.ts            # Binance + CoinGecko + DefiLlama → public/prices.json
 │   ├── gen-board.ts               # live snapshot → 30+ markets across the seven lanes

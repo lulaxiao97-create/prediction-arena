@@ -3,13 +3,13 @@
  * Deliberately conservative:
  *   · only same-origin GET requests are touched (chain RPC and any future API stay live-only)
  *   · immutable build assets and cover art: cache-first (they are content-hashed / never change)
- *   · pools.json / debates.json: stale-while-revalidate (the daemon rewrites them; serve instantly,
- *     refresh in the background)
+ *   · pools.json: stale-while-revalidate (the daemon rewrites it; serve instantly, refresh in the
+ *     background)
  *   · navigations: network-first with an offline fallback to the cached shell
  *
  * Bump VERSION to invalidate everything.
  */
-const VERSION = "pa-shell-v1";
+const VERSION = "pa-shell-v2";
 const SHELL = ["/", "/manifest.json", "/icon-192.png", "/icon-512.png", "/covers/crypto.jpg"];
 
 self.addEventListener("install", (event) => {
@@ -80,7 +80,7 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return; // chain RPC / explorer stay untouched
 
-  if (url.pathname === "/pools.json" || url.pathname === "/debates.json") {
+  if (url.pathname === "/pools.json") {
     event.respondWith(staleWhileRevalidate(request));
     return;
   }
