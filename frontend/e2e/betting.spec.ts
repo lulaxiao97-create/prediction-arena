@@ -9,9 +9,13 @@ import { TEST_ACCOUNT, installMockWallet, mockBaseRpc } from "./mock-wallet";
  * Both are asserted on the real production build, so a regression fails CI instead of reaching the
  * board.
  */
+let rpc: import("./mock-wallet").RpcStats;
+
 test.beforeEach(async ({ page }) => {
   await installMockWallet(page);
-  await mockBaseRpc(page);
+  // If any of these requests escape to the real network the flow stalls on a receipt that will
+  // never exist, so the stats are asserted after the walk.
+  rpc = await mockBaseRpc(page);
 });
 
 /**
@@ -69,14 +73,19 @@ test("board renders every market with a multiplier on both buttons", async ({ pa
 });
 
 test("a zero-balance wallet can open the drawer and walk the three stages", async ({ page }) => {
+  test.setTimeout(180_000);
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await connect(page);
 
-  // first market's YES button
+  // First market's YES button. A cold runner can paint the grid before hydration, so a click that
+  // lands early does nothing — click until the drawer is actually on screen.
   const yes = page.locator("button").filter({ hasText: /yes.*\d+\.\d+x/i }).first();
-  await yes.click();
-
   const dialog = page.getByRole("dialog");
+  let opened = false;
+  for (let attempt = 0; attempt < 3 && !opened; attempt += 1) {
+    await yes.click({ timeout: 10_000 }).catch(() => {});
+    opened = await dialog.isVisible({ timeout: 6_000 }).catch(() => false);
+  }
   await expect(dialog).toBeVisible();
 
   const submit = dialog.getByRole("button", { name: /place prediction|place bet|confirm/i }).last();
@@ -99,8 +108,18 @@ test("a zero-balance wallet can open the drawer and walk the three stages", asyn
 
   // Stage 1 → 2 → 3 of TxProgress, in order.
   await expect(dialog.getByText(/approving usdc/i).first()).toBeVisible({ timeout: 30_000 });
-  await expect(dialog.getByText(/signing bet transaction|signing/i).first()).toBeVisible({ timeout: 30_000 });
-  await expect(dialog.getByText(/confirmed/i).first()).toBeVisible({ timeout: 45_000 });
+
+  // Everything below rides on the stubbed receipt; assert the stub was actually used so a transport
+  // that escapes to the real chain fails with a readable histogram instead of a bare timeout.
+  await expect
+    .poll(() => rpc.byMethod.eth_getTransactionReceipt ?? 0, {
+      timeout: 60_000,
+      message: `receipt polling never hit the stub — got ${JSON.stringify(rpc.byMethod)}`,
+    })
+    .toBeGreaterThan(0);
+
+  await expect(dialog.getByText(/signing bet transaction|signing/i).first()).toBeVisible({ timeout: 60_000 });
+  await expect(dialog.getByText(/confirmed/i).first()).toBeVisible({ timeout: 60_000 });
 });
 
 test("admin console is gated: foreign wallet sees the allowlist notice, API rejects unsigned calls", async ({
