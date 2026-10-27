@@ -156,6 +156,8 @@ function domainFor(pool: InsightPool, isTvl: boolean): Domain {
   const hay = `${pool.category ?? ""} ${pool.title}`.toLowerCase();
   if (isTvl) return "tvl";
   if (pool.marketData?.asset) return "token";
+  // Rates markets sit in the "Politics & Policy" lane on the board but argue like a macro desk.
+  if (/fomc|treasury|yield|inflation|cpi|rate cut|federal reserve/.test(hay)) return "macro";
   if (/senate|congress|bill|legislat|policy|regulat|sec\b|election/.test(hay)) return "politics";
   if (/premier|league|match|nba|nfl|sport|esport|cup|series|race/.test(hay)) return "sports";
   if (/model|\bai\b|context|agent|llm|inference|compute/.test(hay)) return "ai";
@@ -391,14 +393,15 @@ const ANGLES: Angle[] = [
     ["macro"],
     (c) => `Net exchange outflows have diverged from price for three weeks — supply is leaving venues while ${c.theme} trades flat. ${c.yesMult}x is the accumulation print.`,
     (c) => `Outflows are cold-storage rotation by three desks, not new demand. ${c.p}% on ${c.theme} is a ${c.yesMult}x ticket to a market with no catalyst before ${c.deadline || "expiry"}.`,
-    (c) => !/throughput|transaction|sequencer|address/i.test(c.hay)
+    (c) => !/throughput|transaction|sequencer|address|treasury|yield|fomc|inflation/i.test(c.hay)
   ),
   A(
     "dominance",
     "Macro Hawk",
     ["macro"],
     (c) => `BTC dominance is grinding higher on falling alt volume; a rotation that narrows the field usually resolves ${c.theme} to the upside, and ${c.p}% has room to run.`,
-    (c) => `Dominance always mean-reverts after a ${c.p}% implied print. ${c.noMult}x on the other side of ${c.theme} is where the asymmetry sits.`
+    (c) => `Dominance always mean-reverts after a ${c.p}% implied print. ${c.noMult}x on the other side of ${c.theme} is where the asymmetry sits.`,
+    (c) => /dominance|market cap|altcoin|alt-season/i.test(c.hay)
   ),
 
   /* ── AI / tech editorial ──────────────────────────────────────────────── */
@@ -525,7 +528,16 @@ const ANGLES: Angle[] = [
     "Meme Master",
     ["token", "macro", "ai"],
     (c) => `${c.p}% on the YES side is not euphoric yet — call density on ${c.theme} is 1.2x normal, which historically marks the middle of a move, not the top.`,
-    (c) => `Call density on ${c.theme} is 3.1x normal and every account is posting the same ${c.strike ?? "target"}. That is the top, and it prints at ${c.noMult}x.`
+    (c) => `Call density on ${c.theme} is 3.1x normal and every account is posting the same ${c.strike ?? "target"}. That is the top, and it prints at ${c.noMult}x.`,
+    (c) => !/treasury|yield|fomc|inflation|senate|bill|league|match/i.test(c.hay)
+  ),
+  A(
+    "rates",
+    "Macro Hawk",
+    ["macro"],
+    (c) => `The 2s10s has steepened 18bp this month and the front end is anchored — a move through ${c.strike ?? "the level"} needs the long end to lead, which a soft CPI print hands over.`,
+    (c) => `Term premium is doing the work, not policy expectations: the belly has cheapened at every auction for six weeks. ${c.p}% on ${c.theme} is a rate-cut bet in disguise.`,
+    (c) => /treasury|yield|fomc|rate cut|inflation|cpi/i.test(c.hay)
   ),
   A(
     "decay",
@@ -539,7 +551,8 @@ const ANGLES: Angle[] = [
     "Macro Hawk",
     ["token", "tvl", "macro"],
     (c) => `Real yields slipped 14bp this week and ${c.theme} is the highest-beta expression on this board — liquidity does the work before ${c.deadline || "expiry"}.`,
-    (c) => `Real yields are still 180bp above the 2024 average. A ${c.p}% market pricing an easing cycle before ${c.deadline || "expiry"} is early, not cheap.`
+    (c) => `Real yields are still 180bp above the 2024 average. A ${c.p}% market pricing an easing cycle before ${c.deadline || "expiry"} is early, not cheap.`,
+    (c) => !/treasury|yield|dominance|market cap|senate|bill|league/i.test(c.hay)
   ),
 ];
 
