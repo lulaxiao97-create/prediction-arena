@@ -61,6 +61,11 @@ export function adsConfig(): AdsConfig {
 
 /** Last HTTP status seen on HypeLab's auction endpoint (200 fill / 204 no bid / 400 unknown). */
 let lastAuctionStatus: number | null = null;
+
+/** HTTP status of the most recent HypeLab auction (200 = filled, 204 = no bid, null = none yet). */
+export function adsAuctionStatus(): number | null {
+  return lastAuctionStatus;
+}
 let fetchPatched = false;
 
 function observeAuctions() {

@@ -13,6 +13,7 @@ import {
   feeNetOdds,
   poolSideMultiplier,
   poolSideShare,
+  poolStats,
 } from "./display-stats.ts";
 
 const U = (n: number) => BigInt(Math.round(n)) * 1_000_000n;
@@ -79,5 +80,23 @@ for (const id of ["700001", "700019", "1759000001"]) {
   assert.ok(s >= 0.18 && s <= 0.82, `fallback share ${s} outside 0.18–0.82`);
 }
 ok("fallback share stays inside 18–82%");
+
+// 8) Real liquidity precedence: the moment the contract holds stake, the card prints the chain's
+//    number — and stops inventing traders/turnover next to real money.
+{
+  const demoPool = { id: 700001n, totalNetPool: 0n };
+  const demoStats = poolStats(demoPool);
+  assert.equal(demoStats.source, "demo", "empty pool must use the demo depth");
+  assert.ok(demoStats.liquidityUsdc > 0n, "demo depth must never be zero");
+  assert.ok(demoStats.traders !== null, "demo depth carries a trader estimate");
+
+  const livePool = { id: 700001n, totalNetPool: 4_250_000_000n }; // 4,250 USDC
+  const liveStats = poolStats(livePool);
+  assert.equal(liveStats.source, "chain", "funded pool must report chain liquidity");
+  assert.equal(liveStats.liquidityUsdc, 4_250_000_000n, "chain liquidity must be the contract's number");
+  assert.equal(liveStats.traders, null, "traders are not indexed on-chain — must be null, not invented");
+  assert.equal(liveStats.volume24hUsdc, 0n, "turnover is not indexed on-chain — must be zero, not invented");
+}
+ok("real stake outranks the demo generator on every card figure");
 
 console.log(`\n${pass} assertions passed`);

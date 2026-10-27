@@ -32,7 +32,7 @@ export type Doc = {
  *  the docs pointing at a retired contract. */
 export const ARENA_ADDRESS =
   (process.env.NEXT_PUBLIC_ARENA_ADDRESS as `0x${string}` | undefined) ??
-  "0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93";
+  "0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5";
 export const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 
 export const DOC_SECTIONS: { id: DocSection; emoji: string; labelKey: string }[] = [

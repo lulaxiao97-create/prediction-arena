@@ -84,7 +84,29 @@ function normalizePool(id: bigint, raw: any, labels?: [string, string]): ArenaPo
 
 // ─────────────────────────────────────────────────────────────── reads
 
+/**
+ * Reads many pools at once.
+ *
+ * Preferred path is the contract's `getPools(ids)` — one eth_call for the entire board instead of one
+ * per market. A deployment that predates the batch view reverts on that selector, so the hook falls
+ * back to the multicall-per-id path automatically: the UI never needs to know which contract it is
+ * talking to.
+ */
 export function usePools(poolIds: bigint[], labels?: Record<string, [string, string]>) {
+  const batch = useReadContract({
+    address: ARENA_ADDRESS,
+    abi: ARENA_ABI,
+    functionName: "getPools",
+    args: [poolIds],
+    query: {
+      enabled: hasArena && poolIds.length > 0,
+      refetchInterval: 12_000,
+      staleTime: 6_000,
+      retry: false,
+    },
+  });
+
+  const batchFailed = Boolean(batch.isError);
   const contracts = useMemo(
     () =>
       poolIds.map((id) => ({
@@ -96,17 +118,27 @@ export function usePools(poolIds: bigint[], labels?: Record<string, [string, str
     [poolIds]
   );
 
-  const query = useReadContracts({
+  const fallback = useReadContracts({
     contracts: contracts as any,
     query: {
-      enabled: hasArena && poolIds.length > 0,
+      enabled: hasArena && poolIds.length > 0 && batchFailed,
       refetchInterval: 12_000,
       staleTime: 6_000,
     },
   });
 
   const pools = useMemo(() => {
-    const rows = query.data as any[] | undefined;
+    if (!batchFailed) {
+      const rows = batch.data as unknown[] | undefined;
+      if (!rows) return [] as ArenaPool[];
+      return rows
+        .map((row, index) =>
+          row ? normalizePool(poolIds[index], row as never, labels?.[String(poolIds[index])]) : null
+        )
+        .filter((p): p is ArenaPool => Boolean(p));
+    }
+
+    const rows = fallback.data as any[] | undefined;
     if (!rows) return [] as ArenaPool[];
     return rows
       .map((row, index) => {
@@ -114,9 +146,9 @@ export function usePools(poolIds: bigint[], labels?: Record<string, [string, str
         return normalizePool(poolIds[index], row.result, labels?.[String(poolIds[index])]);
       })
       .filter((p): p is ArenaPool => Boolean(p));
-  }, [query.data, poolIds, labels]);
+  }, [batch.data, batchFailed, fallback.data, poolIds, labels]);
 
-  return { ...query, pools };
+  return { ...(batchFailed ? fallback : batch), pools, batched: !batchFailed };
 }
 
 export function usePool(poolId: bigint) {

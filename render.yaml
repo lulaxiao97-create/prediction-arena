@@ -27,7 +27,7 @@ services:
       - key: NEXT_TELEMETRY_DISABLED
         value: "1"
       - key: NEXT_PUBLIC_ARENA_ADDRESS
-        value: 0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93
+        value: 0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5
       - key: NEXT_PUBLIC_CHAIN_ID
         value: "8453"
       - key: NEXT_PUBLIC_BASE_RPC_URL
@@ -35,7 +35,7 @@ services:
       - key: NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
         value: 41ec5b26b8200a989dcb0da5a1fc33d9
       - key: NEXT_PUBLIC_ARENA_DEPLOY_BLOCK
-        value: "52935381"
+        value: "53150166"
       - key: NEXT_PUBLIC_AI_DEBATE
         value: "1"
       # WalletConnect / Reown domain verification. Leave unset to serve the committed
@@ -45,6 +45,16 @@ services:
       #   value: <token from dashboard.reown.com>
       - key: NEXT_PUBLIC_SITE_URL
         value: https://predictionarena.online
+      # Ops console (/admin). Public half gates the UI, server half gates the metrics API; neither
+      # is a secret, and neither can move funds — settlement is a contract call from this wallet.
+      - key: NEXT_PUBLIC_ADMIN_ADDRESSES
+        value: 0x436b9d5e6fBd40eC93E881263bE53e59F8755Ba1
+      - key: ADMIN_ADDRESSES
+        value: 0x436b9d5e6fBd40eC93E881263bE53e59F8755Ba1
+      # Board data is read at runtime from the branch the ops daemon commits to, so a market refresh
+      # no longer needs a rebuild. Unset = the same default baked into /api/board.
+      - key: BOARD_SOURCE_URL
+        value: https://raw.githubusercontent.com/lulaxiao97-create/prediction-arena/main/frontend/public/pools.json
       # Rewarded ads (Watch-to-Earn). Publisher credentials come from the HypeLab dashboard;
       # until they are set the unit is disabled and no points can be earned.
       # - key: NEXT_PUBLIC_ADS_PROVIDER

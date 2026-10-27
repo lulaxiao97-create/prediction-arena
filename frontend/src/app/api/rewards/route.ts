@@ -10,6 +10,7 @@ import {
   toView,
   type Ledger,
 } from "@/lib/rewards";
+import { recordCashout, recordGrant } from "@/lib/ops-metrics";
 import {
   REWARDS_COOKIE as COOKIE,
   REWARDS_MAX_AGE as MAX_AGE,
@@ -97,6 +98,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ ok: false, error: "already-credited" }, { status: 409 });
       }
       const awarded = credited.points - ledger.points;
+      recordGrant({ ts: now, kind: "ad", points: awarded, note: "watch-to-earn" });
       const next = pushEvent(credited, { at: now, kind: "ad", points: awarded });
       return respond(next, { awarded });
     }
@@ -115,6 +117,7 @@ export async function POST(req: NextRequest) {
         },
         { at: now, kind: "redeem", points: -(count * POINTS_PER_TICKET), tickets: count, cents: count * TICKET_CENTS },
       );
+      recordGrant({ ts: now, kind: "redeem", points: -(count * POINTS_PER_TICKET), note: `${count} ticket(s)` });
       return respond(next, { redeemed: count });
     }
 
@@ -180,8 +183,17 @@ export async function POST(req: NextRequest) {
         },
         { at: now, kind: "cashout", cents: view.settledProfitCents, to },
       );
+      const ref = crypto.randomUUID().slice(0, 8);
+      recordCashout({
+        ts: now,
+        address: to ?? "—",
+        amountCents: view.settledProfitCents,
+        status: "pending",
+        ref,
+      });
       return respond(next, {
         requestedCents: view.settledProfitCents,
+        ref,
         // what ops has to execute; network + asset are fixed, the amount is the realised profit
         transfer: { network: "base", chainId: 8453, asset: "USDC", amountCents: view.settledProfitCents, to },
       });

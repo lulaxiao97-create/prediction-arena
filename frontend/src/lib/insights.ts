@@ -25,7 +25,7 @@
  * prints the same two sentences.
  */
 
-import { displayLiquidityUsdc } from "./display-stats.ts";
+import { poolStats } from "./display-stats.ts";
 
 export type Stance = { agent: string; take: string };
 export type Insights = { yes: Stance; no: Stance };
@@ -39,6 +39,8 @@ export type InsightPool = {
   endTime?: number;
   option0Pool?: bigint;
   option1Pool?: bigint;
+  /** Real net stake when the pool is live on-chain — drives the liquidity figure in the copy. */
+  totalNetPool?: bigint;
   marketData?: {
     asset?: string;
     spotUsd?: number;
@@ -210,7 +212,7 @@ function contextFor(pool: InsightPool): Ctx {
     p,
     yesMult: feeNet(p / 100),
     noMult: feeNet(1 - p / 100),
-    liq: fmtCompact(Number(displayLiquidityUsdc(pool.id)) / 1_000_000),
+    liq: fmtCompact(Number(poolStats(pool).liquidityUsdc) / 1_000_000),
     days,
     dist,
     isMeme: MEMES.some((m) => hay.includes(m)),

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Clock3, Flame, ShieldCheck, Users } from "lucide-react";
 import type { ArenaPool } from "@/lib/types";
 import { countdown, formatCompactUsdc, formatCountdown, formatProbability } from "@/lib/format";
-import { displayLiquidityUsdc, displayTraders, poolSideMultiplier, poolSideShare } from "@/lib/display-stats";
+import { poolSideMultiplier, poolSideShare, poolStats } from "@/lib/display-stats";
 import { categoryI18nKey } from "@/lib/categories";
 import { MarketCover } from "@/components/MarketCover";
 import { coverOf } from "@/lib/covers";
@@ -32,8 +32,9 @@ export function FeaturedBanner({
   const share0 = poolSideShare(pool, 0);
   const multiplier0 = poolSideMultiplier(pool, 0);
   const multiplier1 = poolSideMultiplier(pool, 1);
-  const liquidity = displayLiquidityUsdc(pool.id);
-  const traders = displayTraders(pool.id);
+  const stats = poolStats(pool);
+  const liquidity = stats.liquidityUsdc;
+  const traders = stats.traders;
   const cd = mounted ? countdown(pool.endTime) : null;
   const href = `/market/${pool.id.toString()}`;
   const cover = coverOf(pool);
@@ -71,7 +72,7 @@ export function FeaturedBanner({
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Users className="size-3" />
-              {traders.toLocaleString("en-US")}
+              {traders === null ? "—" : traders.toLocaleString("en-US")}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Clock3 className="size-3" />

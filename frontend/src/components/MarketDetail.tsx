@@ -1,5 +1,7 @@
 "use client";
 
+import dynamic from "next/dynamic";
+
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
@@ -12,9 +14,16 @@ import {
   Users,
 } from "lucide-react";
 import { useI18n } from "@/components/LocaleProvider";
+
+// Both sit below the fold and carry the whole write path; neither is needed to render the market.
+const BetModalHost = dynamic(() => import("@/components/BetModal").then((m) => m.BetModalHost), {
+  ssr: false,
+});
+const TradePanel = dynamic(() => import("@/components/TradePanel").then((m) => m.TradePanel), {
+  ssr: false,
+  loading: () => <div className="h-72 animate-pulse rounded-2xl border border-white/8 bg-white/[0.02]" />,
+});
 import { Navbar } from "@/components/Navbar";
-import { BetModalHost } from "@/components/BetModal";
-import { TradePanel } from "@/components/TradePanel";
 import { ProbabilityChart } from "@/components/ProbabilityChart";
 import { useLiveSeries } from "@/hooks/useLiveSeries";
 import { CommunityDiscussion } from "@/components/CommunityDiscussion";
@@ -30,7 +39,7 @@ import { useMounted } from "@/hooks/useMounted";
 import { AGENTS } from "@/lib/mock-data";
 import { activityFor, metaFor, probabilitySeries } from "@/lib/markets";
 import { categoryI18nKey, type MarketCategory } from "@/lib/categories";
-import { displayLiquidityUsdc, displayTraders, displayVolumeUsdc, poolSideShare } from "@/lib/display-stats";
+import { poolSideShare, poolStats } from "@/lib/display-stats";
 import {
   cn,
   countdown,
@@ -68,7 +77,7 @@ export function MarketDetail({ id }: { id: string }) {
       netPoolUsdc: Number(pool?.totalNetPool ?? 0n) / 1_000_000,
       marketData: pool?.marketData ?? meta.marketData,
       endTime: pool?.endTime,
-      depthUsdc: pool ? Number(displayLiquidityUsdc(pool.id)) / 1_000_000 : undefined,
+      depthUsdc: pool ? Number(poolStats(pool).liquidityUsdc) / 1_000_000 : undefined,
     }),
     [
       pool?.id,
@@ -185,8 +194,8 @@ export function MarketDetail({ id }: { id: string }) {
 
               <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 <Metric label={t("detail.probability")} value={formatProbability(share0)} tone="profit" />
-                <Metric label={t("detail.liquidity")} value={`$${formatCompactUsdc(displayLiquidityUsdc(pool.id))}`} />
-                <Metric label={t("detail.traders")} value={displayTraders(pool.id).toLocaleString("en-US")} />
+                <Metric label={t("detail.liquidity")} value={`$${formatCompactUsdc(poolStats(pool).liquidityUsdc)}`} />
+                <Metric label={t("detail.traders")} value={poolStats(pool).traders === null ? "—" : poolStats(pool).traders!.toLocaleString("en-US")} />
                 <Metric label={t("card.ends")} value={mounted ? formatEndDate(pool.endTime) : "—"} />
               </div>
 
@@ -288,9 +297,9 @@ export function MarketDetail({ id }: { id: string }) {
                       {meta.description || t("detail.liveFallback")}
                     </p>
                     <div className="grid gap-2 sm:grid-cols-3">
-                      <MiniStat label={t("detail.volume")} value={`$${formatCompactUsdc(displayVolumeUsdc(pool.id))}`} />
-                      <MiniStat label={t("detail.liquidity")} value={`$${formatCompactUsdc(displayLiquidityUsdc(pool.id))}`} />
-                      <MiniStat label={t("detail.openInterest")} value={`$${formatCompactUsdc(displayLiquidityUsdc(pool.id))}`} />
+                      <MiniStat label={t("detail.volume")} value={poolStats(pool).volume24hUsdc > 0n ? `$${formatCompactUsdc(poolStats(pool).volume24hUsdc)}` : "—"} />
+                      <MiniStat label={t("detail.liquidity")} value={`$${formatCompactUsdc(poolStats(pool).liquidityUsdc)}`} />
+                      <MiniStat label={t("detail.openInterest")} value={`$${formatCompactUsdc(poolStats(pool).liquidityUsdc)}`} />
                     </div>
                     {pool.aiStances && (
                       <div className="grid gap-2 sm:grid-cols-2">

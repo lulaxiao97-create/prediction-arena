@@ -44,14 +44,27 @@ jobs:
         run: bun run lint
       - name: Build
         run: bun run build
-        env:
-          NEXT_PUBLIC_ARENA_ADDRESS: "0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93"
+        env: &frontend-env
+          NEXT_PUBLIC_ARENA_ADDRESS: "0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5"
           NEXT_PUBLIC_CHAIN_ID: "8453"
           NEXT_PUBLIC_BASE_RPC_URL: "https://mainnet.base.org"
-          NEXT_PUBLIC_ARENA_DEPLOY_BLOCK: "52935381"
+          NEXT_PUBLIC_ARENA_DEPLOY_BLOCK: "53150166"
           NEXT_PUBLIC_SITE_URL: "https://predictionarena.online"
           NEXT_PUBLIC_AI_DEBATE: "1"
+          NEXT_PUBLIC_ADMIN_ADDRESSES: "0x436b9d5e6fBd40eC93E881263bE53e59F8755Ba1"
           NEXT_TELEMETRY_DISABLED: "1"
+
+      # The money path, end to end: mocked wallet + mocked Base RPC against the real production
+      # build. Catches the class of bug that reached the board twice (blank multiplier, disabled
+      # submit) before it can ship.
+      - name: Install Playwright browser
+        run: bunx playwright install --with-deps chromium
+
+      - name: E2E smoke (wallet → market → bet → three stages)
+        run: bun run test:e2e
+        env:
+          <<: *frontend-env
+          ADMIN_ADDRESSES: "0x436b9d5e6fBd40eC93E881263bE53e59F8755Ba1"
 
   deploy:
     name: Deploy · Render

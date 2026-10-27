@@ -25,7 +25,7 @@ import {
   formatUsdc,
 } from "@/lib/format";
 import { categoryI18nKey } from "@/lib/categories";
-import { displayLiquidityUsdc, displayTraders, poolSideMultiplier, poolSideShare } from "@/lib/display-stats";
+import { poolSideMultiplier, poolSideShare, poolStats } from "@/lib/display-stats";
 import { useMounted } from "@/hooks/useMounted";
 import { MarketCover } from "@/components/MarketCover";
 import { coverOf } from "@/lib/covers";
@@ -60,6 +60,8 @@ export function MarketCard({
 
   const cd = mounted ? countdown(pool.endTime) : null;
   const open = pool.status === 1 && !cd?.ended;
+  // Real stake wins over the demo generator: see poolStats().
+  const stats = poolStats(pool);
   const ended = pool.status === 1 && Boolean(cd?.ended);
 
   const { address } = useAccount();
@@ -138,6 +140,15 @@ export function MarketCard({
         {pool.status === 3 && (
           <span className="chip border-loss/25 bg-loss/8 text-[10px] text-loss">{t("card.voided")}</span>
         )}
+        <span
+          className={
+            stats.source === "chain"
+              ? "chip border-profit/25 bg-profit/8 text-[9px] uppercase tracking-[0.08em] text-profit/85"
+              : "chip border-white/8 bg-white/[0.02] text-[9px] uppercase tracking-[0.08em] text-muted/45"
+          }
+        >
+          {stats.source === "chain" ? t("card.livePool") : t("card.demoDepth")}
+        </span>
         <span className="ml-auto inline-flex items-center gap-1 rounded-full border border-white/8 bg-white/[0.03] px-2 py-0.5 text-[10px] text-muted">
           <Clock3 className="size-2.5" />
           <span className="mono tabular-nums">{cd ? (cd.ended ? "Ended" : formatCountdown(cd)) : "—"}</span>
@@ -199,11 +210,11 @@ export function MarketCard({
       <div className="pointer-events-none relative z-10 flex items-center justify-between text-[10.5px] text-muted">
         <span className="inline-flex items-center gap-1">
           <span className="text-[9px] uppercase tracking-[0.1em] text-muted/55">{t("card.liquidity")}</span>
-          <span className="mono font-semibold text-ink">${formatCompactUsdc(displayLiquidityUsdc(pool.id))}</span>
+          <span className="mono font-semibold text-ink">${formatCompactUsdc(stats.liquidityUsdc)}</span>
         </span>
         <span className="inline-flex items-center gap-1">
           <Users className="size-2.5" />
-          {displayTraders(pool.id).toLocaleString("en-US")}
+          {stats.traders === null ? "—" : stats.traders.toLocaleString("en-US")}
         </span>
       </div>
 

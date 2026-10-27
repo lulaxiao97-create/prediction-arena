@@ -17,7 +17,7 @@
   "optionCount": 2,
   "maxPoolDurationDays": 365,
   "emergencyRefundDelayDays": 30,
-  "status": "live",
+  "status": "superseded-by-v3",
   "verified": true,
   "explorer": "https://basescan.org/address/0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93",
   "supersedes": [

@@ -68,6 +68,35 @@ export function displayStatsFor(marketId: string | number | bigint): DisplayStat
 const USDC = 1_000_000n;
 
 /**
+ * Card-facing stats with real-liquidity precedence.
+ *
+ * A pool that holds stake on the contract shows what the contract holds — the demo generator may
+ * never print a number next to real money. Traders and 24h turnover are *not indexed* for live
+ * pools (the contract keeps stakes, not a bettor ledger and not a rolling turnover), so those come
+ * back `null`/`0n` and the UI renders an em dash instead of inventing traffic.
+ */
+export type PoolStats = {
+  liquidityUsdc: bigint;
+  traders: number | null;
+  volume24hUsdc: bigint;
+  source: "chain" | "demo";
+};
+
+export function poolStats(pool: { id: bigint | string | number; totalNetPool?: bigint }): PoolStats {
+  const onchain = pool.totalNetPool ?? 0n;
+  if (onchain > 0n) {
+    return { liquidityUsdc: onchain, traders: null, volume24hUsdc: 0n, source: "chain" };
+  }
+  const demo = displayStatsFor(pool.id);
+  return {
+    liquidityUsdc: BigInt(demo.liquidityUsdc) * USDC,
+    traders: demo.traders,
+    volume24hUsdc: BigInt(demo.volume24hUsdc) * USDC,
+    source: "demo",
+  };
+}
+
+/**
  * Card-facing TOTAL LIQUIDITY in USDC base units (6dp).
  *
  * Always populated — a listing with no stake on the contract still shows the venue's presentation

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { CheckCircle2, Loader2, Play, RefreshCw, ShieldAlert, X, Zap } from "lucide-react";
 import { useI18n } from "@/components/LocaleProvider";
 import { useRewards } from "@/components/RewardsProvider";
-import { adsConfig, mountPlacement } from "@/lib/ads";
+import { adsAuctionStatus, adsConfig, mountPlacement } from "@/lib/ads";
 import { AD_SECONDS } from "@/lib/rewards";
 
 /**
@@ -55,6 +55,17 @@ export function AdModal({ open, onClose }: { open: boolean; onClose: () => void 
     if (hostRef.current) hostRef.current.innerHTML = "";
   }, [clearTimers]);
 
+  /** Fire-and-forget auction telemetry: the admin dashboard's fill-rate panel reads this. */
+  const reportAuction = useCallback((filled: boolean, surface: "modal" | "probe") => {
+    const status = adsAuctionStatus() ?? (filled ? 200 : 204);
+    void fetch("/api/metrics/ad", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ filled, status, surface }),
+      keepalive: true,
+    }).catch(() => {});
+  }, []);
+
   const failWith = useCallback((reason: string) => {
     const message =
       reason === "invalid-placement"
@@ -79,6 +90,7 @@ export function AdModal({ open, onClose }: { open: boolean; onClose: () => void 
       }
       setPhase("mounting");
       const res = await mountPlacement(hostRef.current, { retries: 1 });
+      reportAuction(res.ok, "modal");
       if (!res.ok) {
         if (res.reason === "no-fill" || res.reason === "timeout") {
           setPhase("nofill");
@@ -107,7 +119,7 @@ export function AdModal({ open, onClose }: { open: boolean; onClose: () => void 
         }
       }, 500);
     },
-    [completeAd, failWith],
+    [completeAd, failWith, reportAuction],
   );
 
   /** one full attempt: receipt → auction → (dwell) */
@@ -149,6 +161,7 @@ export function AdModal({ open, onClose }: { open: boolean; onClose: () => void 
         setAutoLeft(null);
         const host = hostRef.current ?? document.createElement("div");
         const probe = await mountPlacement(host, { probe: true });
+        reportAuction(probe.ok, "probe");
         if (cancelled.current) return;
         if (probe.ok) {
           probing.current = false;
@@ -160,7 +173,7 @@ export function AdModal({ open, onClose }: { open: boolean; onClose: () => void 
       }
       probing.current = false;
     },
-    [run],
+    [run, reportAuction],
   );
 
   // kick off the probe chain the first time we land in "no fill"

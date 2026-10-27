@@ -678,9 +678,9 @@ function main() {
 
   const manifest = {
     version: 2,
-    address: previous.address ?? "0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93",
+    address: (process.env.ARENA_ADDRESS ?? "").trim() || previous.address || "0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5",
     chainId: previous.chainId ?? 8453,
-    deployBlock: previous.deployBlock ?? 52935381,
+    deployBlock: Number((process.env.ARENA_DEPLOY_BLOCK ?? "").trim()) || previous.deployBlock || 53150166,
     updatedAt: now.toISOString(),
     featured: generated.find((p) => p.source === "chain")?.id ?? chainRows[0]?.id ?? generated[0]?.id,
     dataSources: {

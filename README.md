@@ -9,8 +9,8 @@
 *Binary markets · On-chain escrow · IPFS-referenced resolution · No custodian*
 
 [![Live](https://img.shields.io/badge/Live-app-16C784?style=for-the-badge&logo=cloudflare&logoColor=white)](https://predictionarena.online)
-[![Base Mainnet](https://img.shields.io/badge/Base-Mainnet%20%C2%B7%208453-0052FF?style=for-the-badge&logo=coinbase&logoColor=white)](https://basescan.org/address/0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93)
-[![Contract V2](https://img.shields.io/badge/Contract-V2%20%C2%B7%20Live-16C784?style=for-the-badge)](https://basescan.org/address/0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93)
+[![Base Mainnet](https://img.shields.io/badge/Base-Mainnet%20%C2%B7%208453-0052FF?style=for-the-badge&logo=coinbase&logoColor=white)](https://basescan.org/address/0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5)
+[![Contract V2](https://img.shields.io/badge/Contract-V2%20%C2%B7%20Live-16C784?style=for-the-badge)](https://basescan.org/address/0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5)
 [![Settled in USDC](https://img.shields.io/badge/Settled%20in-USDC-2775CA?style=for-the-badge&logo=usd-coin&logoColor=white)](#smart-contract-v2)
 [![Next.js 16](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](#architecture)
 [![Solidity](https://img.shields.io/badge/Solidity-0.8.20-363636?style=for-the-badge&logo=solidity&logoColor=white)](#smart-contract-v2)
@@ -24,7 +24,7 @@
 
 <br />
 
-**[Launch the app](https://predictionarena.online)** · **[Read the docs](https://predictionarena.online/docs)** · **[View the contract](https://basescan.org/address/0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93)** · **[Report a vulnerability](SECURITY.md)**
+**[Launch the app](https://predictionarena.online)** · **[Read the docs](https://predictionarena.online/docs)** · **[View the contract](https://basescan.org/address/0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5)** · **[Report a vulnerability](SECURITY.md)**
 
 </div>
 
@@ -68,7 +68,7 @@ glass panels, hairline borders, and a mobile-first trading drawer.
 | **Web app** | https://predictionarena.online (custom domain) |
 | **Render origin** | https://prediction-arena-81d9.onrender.com |
 | **Network** | Base Mainnet — chain id `8453` |
-| **Contract (V2)** | [`0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93`](https://basescan.org/address/0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93) |
+| **Contract (V2)** | [`0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5`](https://basescan.org/address/0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5) |
 | **Source** | Verified on Basescan · solc `0.8.20` · optimizer `200` · `paris` |
 | **Deploy block** | `52935381` (event scan start: `NEXT_PUBLIC_ARENA_DEPLOY_BLOCK`) |
 | **Collateral** | USDC `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` (6 decimals, native on Base) |
@@ -119,6 +119,25 @@ browser chrome.
 `en` · `zh-TW` · `de` · `fr` · `ja` · `ko`. Locale lives in React context plus `localStorage` — no
 `/en/` path prefixes, no duplicated routes, no layout shift. Every visible string, including
 generated debate copy and documentation, goes through the same `t()` surface.
+
+### Operator console
+
+`/admin` is an internal console for the desk, not a user surface: monetisation counters (HypeLab
+auctions, 200 vs 204 fill rate, estimated revenue at a configurable eCPM), the USDC payout queue with
+one-click copy of the transfer payload, a settlement form that builds `settle(poolId, outcome, digest)`
+from a pasted evidence bundle, and the ledger audit trail of ad credits, ticket redemptions and cashout
+requests.
+
+Access is an allowlisted address **plus** an EIP-191 signature over a timestamped message that the
+metrics API re-verifies server-side. The console deliberately cannot move money on its own: settlement
+and pausing are wallet transactions, and the contract's `onlyOwner` is the real check.
+
+### Real liquidity beats demo numbers
+
+A card only shows the deterministic demo depth while the pool is empty on the contract. As soon as
+`totalNetPool > 0` the card, the hero banner, the detail page and the AI copy all switch to the real
+stake, and the depth chip flips from `DEMO DEPTH` to `ON-CHAIN POOL`. Traders and 24h turnover are not
+indexed on-chain, so live pools render `—` there rather than inventing traffic next to real money.
 
 ### Transparent fee and liquidity model
 
@@ -254,7 +273,7 @@ Anything prefixed `NEXT_PUBLIC_` is inlined into the client bundle — never put
 
 | Variable | Required | Value / purpose |
 |---|---|---|
-| `NEXT_PUBLIC_ARENA_ADDRESS` | ✅ | `0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93` |
+| `NEXT_PUBLIC_ARENA_ADDRESS` | ✅ | `0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5` |
 | `NEXT_PUBLIC_CHAIN_ID` | ✅ | `8453` (Base mainnet) |
 | `NEXT_PUBLIC_BASE_RPC_URL` | ✅ | `https://mainnet.base.org` — public endpoints rate-limit `eth_getLogs`; use a dedicated provider under load |
 | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | ✅ | from [cloud.reown.com](https://cloud.reown.com) — without it QR/deep-link wallets stay disabled |
@@ -277,6 +296,9 @@ function cancelPool(uint256 poolId) external onlyOwner;
 function emergencyRefund(uint256 poolId) external;          // permissionless after 30 days
 function claimRewards(uint256 poolId) external nonReentrant returns (uint256 payout);
 function claimRefund(uint256 poolId) external nonReentrant returns (uint256 refund);
+function pause() external onlyOwner;                         // gates bet() only
+function unpause() external onlyOwner;
+function getPools(uint256[] calldata ids) external view returns (PoolView[] memory);  // one eth_call
 ```
 
 | Constant | Value | Meaning |
@@ -292,6 +314,9 @@ function claimRefund(uint256 poolId) external nonReentrant returns (uint256 refu
 on every value transfer; per-market state machine (`Open → Settled | Cancelled`); settlement requires
 a non-zero evidence hash; `cancelPool()` refunds 100%; fee buckets are isolated from player collateral;
 `emergencyRefund()` is permissionless after the delay so a dormant operator cannot trap funds.
+The pause switch gates **betting only** — `claimRewards()` and `claimRefund()` are never pausable, so a
+paused arena can stop taking new risk but can never stop a user from leaving with money that is
+already theirs.
 
 Read [`SECURITY.md`](SECURITY.md) before reporting anything.
 
@@ -343,14 +368,21 @@ complete its verification step; nothing in the app is Render-specific.
 ## Testing
 
 ```bash
-npx hardhat test          # 29 contract cases — accounting invariants, refund paths, access control
+npx hardhat test          # 35 contract cases — invariants, refund paths, access control, pause, batch read
 npx hardhat coverage      # solidity-coverage report in coverage/
 cd frontend && bun run lint && bun run build
+cd frontend && bun run test:e2e   # Playwright: wallet → market → bet → three-stage rail
 ```
 
 The suite asserts the three-book invariant after every value-moving path, that a cancelled market
-returns exactly 100% of stake, that settlement without evidence reverts, and that non-owners cannot
-create, seed, settle or cancel.
+returns exactly 100% of stake, that settlement without evidence reverts, that non-owners cannot
+create, seed, settle or cancel, that a paused arena still pays winners and refunds, and that
+`getPools()` returns exactly what N `getPool()` calls would.
+
+The Playwright smoke runs against the production build with a mocked EIP-1193 wallet and a stubbed
+Base RPC: a **zero-balance** wallet connects, opens a market, presses submit, and the three-stage
+progress rail has to walk Approve → Sign → Confirmed. It also asserts that no YES/NO button renders
+without its multiple — the two regressions that reached production once already.
 
 ---
 

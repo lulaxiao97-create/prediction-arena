@@ -1,0 +1,29 @@
+{
+  "project": "PredictionArena",
+  "network": "base",
+  "chainId": 8453,
+  "contract": "PredictionArena",
+  "version": "v3",
+  "address": "0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5",
+  "deployBlock": 53150166,
+  "usdc": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  "solc": "0.8.20",
+  "optimizerRuns": 200,
+  "evmVersion": "paris",
+  "feeBps": 400,
+  "referralShareBps": 3000,
+  "minBetUsdc": 50,
+  "maxBetUsdc": 10000,
+  "optionCount": 2,
+  "maxPoolDurationDays": 365,
+  "emergencyRefundDelayDays": 30,
+  "status": "live",
+  "verified": true,
+  "explorer": "https://basescan.org/address/0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5",
+  "supersedes": "0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93",
+  "notes": "Current production arena. Flat $50-$10,000 per-ticket ceiling (v1 proportional clamp removed). Source verified on Basescan. The operator holds no user funds: claims are paid by the contract.",
+  "features": [
+    "pausable-betting",
+    "getPools-batch-read"
+  ]
+}

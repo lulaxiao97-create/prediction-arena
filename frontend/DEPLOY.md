@@ -37,7 +37,11 @@ committed.
 
 | Variable | Example | Notes |
 |---|---|---|
-| `NEXT_PUBLIC_ARENA_ADDRESS` | `0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93` | Deployed v2 contract on Base. If unset the app falls back to the build-time ABI address and, failing that, demo mode. |
+| `NEXT_PUBLIC_ARENA_ADDRESS` | `0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5` | Deployed v3 contract (pausable + batch read) on Base. If unset the app falls back to the build-time ABI address and, failing that, demo mode. |
+
+| `NEXT_PUBLIC_ADMIN_ADDRESSES` | — | Comma-separated operator wallets allowed to open `/admin`. Public half of the console gate. |
+| `ADMIN_ADDRESSES` | — | Same list, read by `/api/admin/metrics`. Without it the endpoint answers `503` and the console cannot load counters. |
+| `BOARD_SOURCE_URL` | raw.githubusercontent…/pools.json | Where `/api/board` reads the live manifest from. Unset = the default constant in `src/app/api/board/route.ts`. |
 | `NEXT_PUBLIC_CHAIN_ID` | `8453` | Base mainnet. |
 | `NEXT_PUBLIC_BASE_RPC_URL` | `https://base-rpc.publicnode.com` | Public RPC. `mainnet.base.org` rate-limits `eth_getLogs`; publicnode works. Use a paid endpoint (Alchemy/QuickNode) if you expect volume. |
 | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | `41ec…33d9` | From cloud.reown.com. **Without it the QR/deep-link flow stays disabled** and only injected + Coinbase Wallet work. |

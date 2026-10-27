@@ -5,6 +5,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 
 /**
  * @title  PredictionArena
@@ -42,8 +43,11 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
  *     still the only complete fix and remains on the Phase-3 roadmap.
  *   - Permissionless fallback: if the owner never settles, ANYONE can call emergencyRefund()
  *     once `endTime + EMERGENCY_REFUND_DELAY` has passed (F-03 patch).
+ *   - The pause switch gates BETTING ONLY. claimRewards() and claimRefund() are never pausable:
+ *     a paused arena can stop taking new risk, but it can never stop a user from exiting with
+ *     money that is already theirs.
  */
-contract PredictionArena is Ownable, ReentrancyGuard {
+contract PredictionArena is Ownable, ReentrancyGuard, Pausable {
     using SafeERC20 for IERC20;
 
     // ---------------------------------------------------------------------
@@ -155,6 +159,8 @@ contract PredictionArena is Ownable, ReentrancyGuard {
     event ReferralFeesWithdrawn(uint256 indexed poolId, address indexed referrer, uint256 amount);
     event RakeReleased(uint256 indexed poolId, uint256 adminCut);
     event FeeVaultUpdated(address indexed previousVault, address indexed newVault);
+    event ArenaPaused(address indexed by, uint256 at);
+    event ArenaUnpaused(address indexed by, uint256 at);
 
     // ---------------------------------------------------------------------
     // Errors
@@ -323,7 +329,11 @@ contract PredictionArena is Ownable, ReentrancyGuard {
      * @dev F-01 patch: the owner address may not bet. It is the oracle, so letting it take
      *      positions against users is a guaranteed-profit conflict of interest.
      */
-    function bet(uint256 poolId, uint8 option, uint256 amount, address referrer) external nonReentrant {
+    function bet(uint256 poolId, uint8 option, uint256 amount, address referrer)
+        external
+        nonReentrant
+        whenNotPaused
+    {
         if (msg.sender == owner()) revert OwnerCannotBet();
 
         Pool storage pool = _openPool(poolId);
@@ -461,6 +471,26 @@ contract PredictionArena is Ownable, ReentrancyGuard {
     }
 
     // ---------------------------------------------------------------------
+    // Circuit breaker
+    // ---------------------------------------------------------------------
+
+    /**
+     * @notice Stops new bets. Claims stay open by design — pausing must never trap user funds.
+     */
+    function pause() external onlyOwner {
+        _pause();
+        emit ArenaPaused(msg.sender, block.timestamp);
+    }
+
+    /**
+     * @notice Re-opens betting.
+     */
+    function unpause() external onlyOwner {
+        _unpause();
+        emit ArenaUnpaused(msg.sender, block.timestamp);
+    }
+
+    // ---------------------------------------------------------------------
     // Views
     // ---------------------------------------------------------------------
 
@@ -477,6 +507,23 @@ contract PredictionArena is Ownable, ReentrancyGuard {
     }
 
     function getPool(uint256 poolId) external view returns (PoolView memory view_) {
+        return _viewPool(poolId);
+    }
+
+    /**
+     * @notice Batched read for a whole board in one eth_call.
+     * @dev Reverts like getPool() if any id is unknown, so a partial board can never be read as a
+     *      full one. Callers that want tolerance pass only ids they know exist.
+     */
+    function getPools(uint256[] calldata poolIds) external view returns (PoolView[] memory views_) {
+        uint256 n = poolIds.length;
+        views_ = new PoolView[](n);
+        for (uint256 i = 0; i < n; ++i) {
+            views_[i] = _viewPool(poolIds[i]);
+        }
+    }
+
+    function _viewPool(uint256 poolId) internal view returns (PoolView memory view_) {
         Pool storage pool = _pools[poolId];
         if (pool.status == PoolStatus.None) revert PoolNotFound(poolId);
 

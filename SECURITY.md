@@ -18,7 +18,7 @@ must be in).
 
 | Target | Detail |
 |---|---|
-| `contracts/PredictionArena.sol` | deployed at [`0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93`](https://basescan.org/address/0x108D5CDC23123Fa97929Cf197151fb9dc29A5D93) on Base mainnet (chain id 8453) |
+| `contracts/PredictionArena.sol` | deployed at [`0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5`](https://basescan.org/address/0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5) on Base mainnet (chain id 8453) |
 | `frontend/` | transaction construction, approval targets, signature and RPC handling |
 | `scripts/` | deploy, seed, settle and ops automation |
 

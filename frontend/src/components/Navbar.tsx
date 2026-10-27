@@ -1,5 +1,12 @@
 "use client";
 
+import dynamic from "next/dynamic";
+
+const PortfolioDrawer = dynamic(
+  () => import("@/components/PortfolioDrawer").then((m) => m.PortfolioDrawer),
+  { ssr: false },
+);
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -8,7 +15,6 @@ import { cn } from "@/lib/format";
 import { CATEGORY_TABS, type MarketCategory } from "@/lib/categories";
 import { useI18n } from "@/components/LocaleProvider";
 import { LocaleSwitcher } from "@/components/LocaleProvider";
-import { PortfolioDrawer } from "@/components/PortfolioDrawer";
 import { LogoLockup } from "@/components/Logo";
 import { GitHubNavLink } from "@/components/GitHubLink";
 // Imported directly, not via `dynamic(..., { ssr: false })`: that left the header stuck on a

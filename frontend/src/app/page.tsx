@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 import {
   ArrowRight,
@@ -23,17 +24,24 @@ import { FeaturedBanner } from "@/components/FeaturedBanner";
 import { SearchSortBar, type SortKey } from "@/components/SearchSortBar";
 import { PartnersStrip } from "@/components/PartnersStrip";
 import { SiteFooter } from "@/components/SiteFooter";
-import { BetModalHost } from "@/components/BetModal";
+
 import { useI18n } from "@/components/LocaleProvider";
 import { useMarkets } from "@/hooks/useMarkets";
 import { useRewards } from "@/components/RewardsProvider";
 import { adsConfig } from "@/lib/ads";
 import { useMounted } from "@/hooks/useMounted";
 import { CATEGORY_TABS, matchesTab, type MarketCategory } from "@/lib/categories";
-import { hasArena } from "@/hooks/usePredictionArena";
 import { formatCompactUsdc } from "@/lib/format";
-import { displayLiquidityUsdc, poolSideShare } from "@/lib/display-stats";
+import { poolSideShare, poolStats } from "@/lib/display-stats";
 import type { ArenaPool } from "@/lib/types";
+
+/**
+ * The bet host carries the whole wagmi write path and its own dialog — none of it is needed for the
+ * landing page, so it ships as a separate chunk fetched on the first click.
+ */
+const BetModalHost = dynamic(() => import("@/components/BetModal").then((m) => m.BetModalHost), {
+  ssr: false,
+});
 
 export default function Home() {
   const { t } = useI18n();
@@ -257,7 +265,7 @@ export default function Home() {
               netPoolUsdc={featured ? Number(featured.totalNetPool) / 1_000_000 : undefined}
               marketData={featured?.marketData}
               endTime={featured?.endTime}
-              depthUsdc={featured ? Number(displayLiquidityUsdc(featured.id)) / 1_000_000 : undefined}
+              depthUsdc={featured ? Number(poolStats(featured).liquidityUsdc) / 1_000_000 : undefined}
             />
           </div>
         </section>

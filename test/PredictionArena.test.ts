@@ -393,4 +393,95 @@ describe("PredictionArena (post-P0 hardening)", function () {
       ).to.be.revertedWithCustomError(arena, "CannotRescueBetToken");
     });
   });
+
+  describe("P0: circuit breaker", () => {
+    it("starts unpaused and only the owner can flip it", async () => {
+      expect(await arena.paused()).to.equal(false);
+
+      await expect(arena.connect(other).pause()).to.be.revertedWithCustomError(
+        arena,
+        "OwnableUnauthorizedAccount"
+      );
+      await expect(arena.connect(alice).unpause()).to.be.revertedWithCustomError(
+        arena,
+        "OwnableUnauthorizedAccount"
+      );
+    });
+
+    it("blocks new bets while paused and lets them through again after unpause", async () => {
+      await arena.pause();
+      expect(await arena.paused()).to.equal(true);
+
+      await expect(
+        arena.connect(alice).bet(POOL, 0, usdcUnits("100"), ethers.ZeroAddress)
+      ).to.be.revertedWithCustomError(arena, "EnforcedPause");
+
+      await arena.unpause();
+      await expect(
+        arena.connect(alice).bet(POOL, 0, usdcUnits("100"), ethers.ZeroAddress)
+      ).to.emit(arena, "BetPlaced");
+    });
+
+    it("emits the pause/unpause audit events", async () => {
+      await expect(arena.pause()).to.emit(arena, "ArenaPaused").withArgs(owner.address, anyValue);
+      await expect(arena.unpause()).to.emit(arena, "ArenaUnpaused").withArgs(owner.address, anyValue);
+    });
+
+    it("NEVER blocks claims: winners collect while the arena is paused", async () => {
+      await arena.connect(alice).bet(POOL, 0, usdcUnits("100"), ethers.ZeroAddress);
+      await arena.connect(bob).bet(POOL, 1, usdcUnits("100"), ethers.ZeroAddress);
+
+      await advanceTime(DAY + 1);
+      await arena.settle(POOL, 0, EVIDENCE_HASH);
+      await arena.pause();
+
+      const before = await usdc.balanceOf(alice.address);
+      await arena.connect(alice).claimRewards(POOL);
+      expect((await usdc.balanceOf(alice.address)) - before).to.be.greaterThan(0n);
+    });
+
+    it("NEVER blocks refunds: canceled pools pay out while paused", async () => {
+      await arena.connect(alice).bet(POOL, 0, usdcUnits("100"), ethers.ZeroAddress);
+      await arena.cancelPool(POOL);
+      await arena.pause();
+
+      const before = await usdc.balanceOf(alice.address);
+      await arena.connect(alice).claimRefund(POOL);
+      expect((await usdc.balanceOf(alice.address)) - before).to.equal(usdcUnits("100"));
+    });
+  });
+
+  describe("P0: getPools batch read", () => {
+    it("returns the same payload as N getPool calls, in order", async () => {
+      await arena.createPool(2n, "second", "sports", (await ethers.provider.getBlock("latest"))!.timestamp + DAY);
+      await arena.seedPool(2n, 0, usdcUnits("75"));
+      await arena.connect(alice).bet(POOL, 1, usdcUnits("60"), ethers.ZeroAddress);
+
+      const ids = [POOL, 2n];
+      const batch = await arena.getPools(ids);
+      expect(batch.length).to.equal(2);
+
+      for (let i = 0; i < ids.length; i++) {
+        const single = await arena.getPool(ids[i]);
+        expect(batch[i].title).to.equal(single.title);
+        expect(batch[i].status).to.equal(single.status);
+        expect(batch[i].endTime).to.equal(single.endTime);
+        expect(batch[i].totalNetPool).to.equal(single.totalNetPool);
+        expect(batch[i].option0Pool).to.equal(single.option0Pool);
+        expect(batch[i].option1Pool).to.equal(single.option1Pool);
+        expect(batch[i].settlementHash).to.equal(single.settlementHash);
+      }
+
+      // real stake is visible through the batch path (the UI's real-liquidity rule depends on it)
+      expect(batch[0].totalNetPool).to.equal(usdcUnits("45") + BigInt(Math.floor(60_000_000 * 0.96)));
+    });
+
+    it("reverts on an unknown id instead of returning a hollow row", async () => {
+      await expect(arena.getPools([POOL, 999n])).to.be.revertedWithCustomError(arena, "PoolNotFound");
+    });
+
+    it("handles an empty id list", async () => {
+      expect((await arena.getPools([])).length).to.equal(0);
+    });
+  });
 });

@@ -5,7 +5,7 @@ import type { ArenaPool } from "@/lib/types";
 import { DEMO_ANCHOR } from "@/lib/mock-data";
 import { demoPoolToArena, type Manifest } from "@/lib/markets";
 import { insightsFor } from "@/lib/insights";
-import { displayLiquidityUsdc, displayVolumeUsdc } from "@/lib/display-stats";
+import { poolStats } from "@/lib/display-stats";
 import { SEED_MANIFEST } from "@/lib/manifest";
 import { useChainPoolIds, usePools } from "@/hooks/usePredictionArena";
 
@@ -41,7 +41,7 @@ export function useMarkets() {
 
     async function load() {
       try {
-        const res = await fetch(`/pools.json?t=${Date.now()}`, { cache: "no-store" });
+        const res = await fetch(`/api/board?t=${Date.now()}`, { cache: "no-store" });
         if (!res.ok) throw new Error(`manifest HTTP ${res.status}`);
         const json = (await res.json()) as Manifest;
         if (cancelled) return;
@@ -141,15 +141,34 @@ export function useMarkets() {
     // what the visitor sees, and the id behind it is the same pool the bet goes to.
     const byId = new Map<string, ArenaPool>();
     for (const row of enrichedChain) byId.set(row.id.toString(), row);
-    for (const row of demoPools) byId.set(row.id.toString(), row);
+    for (const row of demoPools) {
+      const onchain = byId.get(row.id.toString());
+      // Real liquidity takes precedence: the moment the contract holds stake for this id, the card
+      // shows the contract's number and stops advertising a demo depth. A manifest snapshot may be
+      // hours old, so its presentation figures must never outrank what the chain says.
+      if (onchain && onchain.totalNetPool > 0n) {
+        byId.set(row.id.toString(), {
+          ...row,
+          status: onchain.status,
+          winningOption: onchain.winningOption,
+          totalNetPool: onchain.totalNetPool,
+          option0Pool: onchain.option0Pool,
+          option1Pool: onchain.option1Pool,
+          settlementHash: onchain.settlementHash,
+          source: "chain",
+        });
+      } else {
+        byId.set(row.id.toString(), row);
+      }
+    }
     return [...byId.values()];
   }, [chainPools, demoPools, manifestMeta]);
 
   const stats = useMemo(() => {
     // Presentation totals, summed from the same per-card figures the grid renders — a header that
     // added up real pool balances would read $0 next to cards showing $40k.
-    const tvl = pools.reduce((sum, p) => sum + displayLiquidityUsdc(p.id), 0n);
-    const volume24h = pools.reduce((sum, p) => sum + displayVolumeUsdc(p.id), 0n);
+    const tvl = pools.reduce((sum, p) => sum + poolStats(p).liquidityUsdc, 0n);
+    const volume24h = pools.reduce((sum, p) => sum + poolStats(p).volume24hUsdc, 0n);
     return {
       tvl,
       volume24h,
