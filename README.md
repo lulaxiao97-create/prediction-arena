@@ -156,7 +156,7 @@ flowchart LR
 
   subgraph Web["Next.js 16 · Node host"]
     UI["Markets · Market detail<br/>AI debate · Docs"]
-    M["public/pools.json<br/>public/debates.json"]
+    M["public/pools.json"]
     W["wagmi v2 + RainbowKit"]
   end
 
@@ -197,8 +197,9 @@ prediction-arena/
 
 ### Design decisions worth knowing
 
-- **Manifest over database.** The frontend reads `public/pools.json` and `public/debates.json`. A
-  refresh is a file write, not a migration — and the site stays up when the ops box is asleep.
+- **Manifest over database.** The frontend reads `public/pools.json`. A refresh is a file write, not
+  a migration — and the site stays up when the ops box is asleep. Debates are not stored at all:
+  `lib/debate.ts` derives them from the pool, so there is no cache to invalidate.
 - **Settlement is a claim about the world.** Nothing in the daemon settles a market; `settle()`
   requires a human authorization plus a non-zero evidence hash.
 - **Seed liquidity is atomic.** `auto-create-pool.ts` seeds both sides in one transaction path and
