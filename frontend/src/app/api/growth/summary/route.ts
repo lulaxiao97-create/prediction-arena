@@ -52,14 +52,24 @@ export async function GET(request: Request) {
 
   try {
     const latest = await client.getBlockNumber();
-    const rows: Row[] = [];
 
-    for (let i = 0; i < chunks; i += 1) {
+    // Windows are scanned in parallel: a sequential loop made six chunks feel like six timeouts,
+    // and one slow window held up the whole panel. allSettled keeps a throttled window from
+    // failing the rest.
+    const windows = Array.from({ length: chunks }, (_, i) => {
       const to = latest - BigInt(i) * CHUNK;
-      const from = to - CHUNK + 1n;
-      if (from < 0n) break;
-      try {
-        const logs = await client.getLogs({ address: ARENA, event: BET, fromBlock: from, toBlock: to });
+      return { from: to - CHUNK + 1n, to };
+    }).filter((w) => w.from >= 0n);
+
+    const settled = await Promise.allSettled(
+      windows.map((w) => client.getLogs({ address: ARENA, event: BET, fromBlock: w.from, toBlock: w.to })),
+    );
+
+    const rows: Row[] = [];
+    for (const result of settled) {
+      if (result.status !== "fulfilled") continue;
+      const logs = result.value;
+      {
         for (const log of logs) {
           const a = log.args as unknown as {
             poolId?: bigint;
@@ -81,8 +91,6 @@ export async function GET(request: Request) {
             block: String(log.blockNumber ?? 0n),
           });
         }
-      } catch {
-        // a throttled window is skipped rather than failing the whole dashboard
       }
     }
 
