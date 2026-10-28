@@ -288,29 +288,74 @@ function archive(posts: Post[]): string[] {
   return written;
 }
 
+/**
+ * One POST with retries. A cron job is not a person: if a 429 or a 502 kills the run, the day's
+ * post is simply missing, and nobody notices until the channel has been quiet for a week.
+ */
+async function postJson(url: string, headers: Record<string, string>, body: unknown): Promise<{ ok: boolean; status: number; text: string }> {
+  let last = { ok: false, status: 0, text: "no attempt" };
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json", ...headers }, body: JSON.stringify(body) });
+      const text = await res.text();
+      last = { ok: res.ok, status: res.status, text };
+      if (res.ok || (res.status !== 429 && res.status < 500)) return last;
+    } catch (err) {
+      last = { ok: false, status: 0, text: (err as Error).message };
+    }
+    await new Promise((r) => setTimeout(r, 1_500 * (attempt + 1)));
+  }
+  return last;
+}
+
+/**
+ * X needs a *user-context* credential. An app-only bearer can read but not post — the API answers
+ * 403 "Unsupported Authentication" — so the failure is reported as a configuration problem with
+ * the exact fix, instead of a generic 403. The other channels still go out.
+ */
 async function sendX(text: string): Promise<string> {
-  const token = process.env.X_OAUTH2_BEARER;
-  if (!token) return "skipped: X_OAUTH2_BEARER unset";
-  const res = await fetch("https://api.x.com/2/tweets", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ text }),
-  });
-  const body = await res.text();
-  return res.ok ? `sent: ${body.slice(0, 120)}` : `failed ${res.status}: ${body.slice(0, 200)}`;
+  const token = process.env.X_BEARER_TOKEN ?? process.env.X_OAUTH2_BEARER;
+  if (!token) return "skipped: X_BEARER_TOKEN unset";
+
+  const res = await postJson("https://api.x.com/2/tweets", { Authorization: `Bearer ${token}` }, { text });
+
+  if (res.ok) {
+    const id = (() => {
+      try {
+        return (JSON.parse(res.text) as { data?: { id?: string } }).data?.id ?? "";
+      } catch {
+        return "";
+      }
+    })();
+    return `sent${id ? `: ${id}` : ""}`;
+  }
+
+  if (res.status === 403 && /unsupported authentication|application-only/i.test(res.text)) {
+    return "skipped: X_BEARER_TOKEN is an app-only bearer (read-only). Posting needs OAuth 1.0a user context or an OAuth 2.0 user token — see docs/GROWTH_MILESTONE_1K_30.md §6.";
+  }
+  if (res.status === 401) return "failed 401: token invalid or expired";
+  if (res.status === 429) return "failed 429: rate limited after 3 attempts";
+  return `failed ${res.status}: ${res.text.slice(0, 200)}`;
 }
 
 async function sendTelegram(text: string): Promise<string> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chat = process.env.TELEGRAM_CHAT_ID ?? "@predictionarena_hq";
   if (!token) return "skipped: TELEGRAM_BOT_TOKEN unset";
-  const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: chat, text, disable_web_page_preview: false }),
+
+  const res = await postJson(`https://api.telegram.org/bot${token}/sendMessage`, {}, {
+    chat_id: chat,
+    text,
+    // No parse_mode: market titles are user-facing text and a stray & or < would make Telegram
+    // reject the whole message with "can't parse entities".
+    disable_web_page_preview: false,
   });
-  const body = await res.text();
-  return res.ok ? "sent" : `failed ${res.status}: ${body.slice(0, 200)}`;
+
+  if (res.ok) return "sent";
+  if (res.status === 403) {
+    return "failed 403: the bot is not an admin of the channel — add it under Channel → Administrators (docs/GROWTH_MILESTONE_1K_30.md §6).";
+  }
+  return `failed ${res.status}: ${res.text.slice(0, 200)}`;
 }
 
 async function main() {
@@ -357,6 +402,16 @@ async function main() {
   });
   if (files.length > 0) console.log(`\narchived ${files.length} files under docs/campaigns/`);
   if (!args.send) console.log("\n(dry run — pass --send with credentials to publish, --write to archive)");
+
+  // A cron run must not fail the workflow because one channel is unconfigured: the next tick is
+  // hours away and the post is lost either way. --strict flips this for local use.
+  if (args.send) {
+    const xStatus = results.map((r) => String(r.x ?? ""));
+    const tgStatus = results.map((r) => String(r.telegramSend ?? ""));
+    console.log(`\nsummary: x=${xStatus.join("|")} telegram=${tgStatus.join("|")}`);
+    const hardFail = [...xStatus, ...tgStatus].some((s) => s.startsWith("failed"));
+    if (hardFail && process.argv.includes("--strict")) process.exit(1);
+  }
 }
 
 main().catch((err) => {

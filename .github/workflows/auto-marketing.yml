@@ -1,0 +1,105 @@
+name: Auto marketing
+
+# Cloud-side content factory. Two slots a day, and the pick differs by slot so the channel is not
+# posting the same "widest odds" market twice:
+#   09:10 UTC → movers (longest payout on the board)
+#   17:10 UTC → expiry (what closes next)
+#
+# The run is designed to be boring: if a channel is misconfigured the step still exits 0, prints the
+# reason, and the next slot picks up. A red workflow every day trains everyone to ignore it, and
+# then a real outage goes unnoticed for a week.
+
+on:
+  schedule:
+    - cron: "10 9 * * *"
+    - cron: "10 17 * * *"
+  workflow_dispatch:
+    inputs:
+      pick:
+        description: "Which market to feature"
+        type: choice
+        options: [movers, expiry, tvl]
+        default: movers
+      limit:
+        description: "How many markets"
+        default: "1"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: auto-marketing
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Resolve slot
+        id: slot
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            PICK="${{ inputs.pick }}"
+            LIMIT="${{ inputs.limit }}"
+          elif [ "$(date -u +%H)" -lt "13" ]; then
+            PICK="movers"; LIMIT="1"
+          else
+            PICK="expiry"; LIMIT="1"
+          fi
+          echo "pick=$PICK" >> "$GITHUB_OUTPUT"
+          echo "limit=$LIMIT" >> "$GITHUB_OUTPUT"
+          echo "running pick=$PICK limit=$LIMIT"
+
+      - name: Generate and publish
+        env:
+          X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          NEXT_PUBLIC_SITE_URL: https://predictionarena.online
+        run: |
+          bun scripts/auto-market.ts \
+            --pick=${{ steps.slot.outputs.pick }} \
+            --limit=${{ steps.slot.outputs.limit }} \
+            --write \
+            --send | tee /tmp/run.log
+
+      - name: Publish summary
+        if: always()
+        run: |
+          {
+            echo "### Auto marketing — $(date -u +'%Y-%m-%d %H:%M UTC')"
+            echo ""
+            echo '```'
+            tail -n 40 /tmp/run.log || echo "no log"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit the archive
+        run: |
+          if [ -z "$(git status --porcelain docs/campaigns)" ]; then
+            echo "no new copy to archive"
+            exit 0
+          fi
+          git config user.name "auto-marketing[bot]"
+          git config user.email "auto-marketing@users.noreply.github.com"
+          git add docs/campaigns
+          git commit -m "chore(campaigns): daily copy archive $(date -u +%Y-%m-%d)"
+          git push
+
+      - name: Upload copy for review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: campaigns-${{ github.run_id }}
+          path: docs/campaigns
+          retention-days: 14
+          if-no-files-found: ignore
