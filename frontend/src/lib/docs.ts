@@ -316,8 +316,8 @@ if your side wins:
         {
           kind: "list",
           items: [
-            "X: @Pred_Arena — x.com/Pred_Arena is the only account. x.com/PredictionArena belongs to an unrelated sports-news account.",
-            "Telegram: @prediction_arena — t.me/prediction_arena is the only channel.",
+            "X: @Predict065 — x.com/Predict065 is the only account. x.com/PredictionArena belongs to an unrelated sports-news account, and the retired @Pred_Arena is no longer ours.",
+            "Telegram: @predictionarena_hq — t.me/predictionarena_hq is the only channel.",
             "GitHub: github.com/lulaxiao97-create/prediction-arena — the only source of truth for the deployed code.",
             "No admin, moderator or support agent will ever DM you first, ask for your seed phrase, or offer a private sale, airdrop claim or 'rescue' service.",
             "The contract address is 0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5 on Base. Anything else is not this protocol.",
@@ -370,8 +370,8 @@ if your side wins:
         {
           kind: "list",
           items: [
-            "X：@Pred_Arena —— 唯一帳號是 x.com/Pred_Arena。x.com/PredictionArena 屬於一個無關的體育新聞帳號。",
-            "Telegram：@prediction_arena —— 唯一頻道是 t.me/prediction_arena。",
+            "X：@Predict065 —— 唯一帳號是 x.com/Predict065。x.com/PredictionArena 屬於一個無關的體育新聞帳號，舊的 @Pred_Arena 已停用。",
+            "Telegram：@predictionarena_hq —— 唯一頻道是 t.me/predictionarena_hq。",
             "GitHub：github.com/lulaxiao97-create/prediction-arena —— 部署程式碼的唯一來源。",
             "任何管理員、版主或客服都不會主動私訊你、不會索要助記詞，也不會提供私募、空投領取或「救援」服務。",
             "合約地址是 Base 上的 0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5，其餘皆非本協議。",

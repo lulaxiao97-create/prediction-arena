@@ -7,8 +7,8 @@ import { expect, test } from "@playwright/test";
  * drifts back to a guessable handle sends our visitors to a stranger. These assertions pin the exact
  * URLs, the new-tab behaviour, and the absence of the bare `x.com` / `telegram.org` placeholders.
  */
-const X_URL = "https://x.com/Pred_Arena";
-const TG_URL = "https://t.me/prediction_arena";
+const X_URL = "https://x.com/Predict065";
+const TG_URL = "https://t.me/predictionarena_hq";
 
 test("footer and header link to the official accounts, safely", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
@@ -32,16 +32,16 @@ test("footer and header link to the official accounts, safely", async ({ page })
   expect(await page.locator('a[href*="x.com/PredictionArena"]').count()).toBe(0);
 
   // the footer prints the handles, not just an icon
-  await expect(page.locator("footer").getByText("@Pred_Arena", { exact: false }).first()).toBeVisible();
-  await expect(page.locator("footer").getByText("@prediction_arena", { exact: false }).first()).toBeVisible();
+  await expect(page.locator("footer").getByText("@Predict065", { exact: false }).first()).toBeVisible();
+  await expect(page.locator("footer").getByText("@predictionarena_hq", { exact: false }).first()).toBeVisible();
 });
 
 test("docs page names the official channels and the v3 contract", async ({ page }) => {
   await page.goto("/docs/security", { waitUntil: "domcontentloaded" });
 
   const body = await page.locator("body").innerText();
-  expect(body).toContain("@Pred_Arena");
-  expect(body).toContain("@prediction_arena");
+  expect(body).toContain("@Predict065");
+  expect(body).toContain("@predictionarena_hq");
   expect(body.toLowerCase()).toContain("0x961872d75ea6e7a2859b9b04c6c7b1c73cf510b5");
   expect(body.toLowerCase()).not.toContain("0x108d5cdc23123fa97929cf197151fb9dc29a5d93");
   expect(body.toLowerCase()).toContain("impostor");
@@ -51,8 +51,8 @@ test("page metadata credits the official handle", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
   const html = await page.content();
   expect(html).toContain('twitter:site');
-  expect(html).toContain("@Pred_Arena");
+  expect(html).toContain("@Predict065");
   // structured data links the site to both profiles
   expect(html).toContain('"@type":"Organization"');
-  expect(html).toContain("t.me/prediction_arena");
+  expect(html).toContain("t.me/predictionarena_hq");
 });

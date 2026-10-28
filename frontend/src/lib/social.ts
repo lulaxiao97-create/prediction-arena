@@ -3,21 +3,21 @@
  *
  * Every link in the product (footer, header, docs, admin console, share intents, metadata) reads
  * from here, so a handle change is a one-line edit instead of a hunt through components. Handles
- * were verified against the accounts themselves: the Telegram channel description points at
- * x.com/Pred_Arena, and x.com/PredictionArena belongs to an unrelated sports-news account — which is
- * exactly why nothing in the app may hardcode a guessable handle.
+ * are verified against the accounts themselves: @Predict065 is the account we own and post from,
+ * while x.com/PredictionArena belongs to an unrelated sports-news account — which is exactly why
+ * nothing in the app may hardcode a guessable handle.
  */
 
 export const SOCIAL = {
   x: {
     label: "X / Twitter",
-    handle: "@Pred_Arena",
-    url: "https://x.com/Pred_Arena",
+    handle: "@Predict065",
+    url: "https://x.com/Predict065",
   },
   telegram: {
     label: "Telegram",
-    handle: "@prediction_arena",
-    url: "https://t.me/prediction_arena",
+    handle: "@predictionarena_hq",
+    url: "https://t.me/predictionarena_hq",
   },
   github: {
     label: "GitHub",

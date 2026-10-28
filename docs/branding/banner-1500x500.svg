@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="500" viewBox="0 0 1500 500">
+<defs>
+  <linearGradient id="gold" x1="6" y1="4" x2="42" y2="44" gradientUnits="userSpaceOnUse">
+    <stop offset="0%" stop-color="#FEF3C7"/><stop offset="42%" stop-color="#FBBF24"/><stop offset="100%" stop-color="#B45309"/>
+  </linearGradient>
+  <linearGradient id="cyan" x1="10" y1="38" x2="38" y2="10" gradientUnits="userSpaceOnUse">
+    <stop offset="0%" stop-color="#22D3EE"/><stop offset="60%" stop-color="#38BDF8"/><stop offset="100%" stop-color="#3B82F6"/>
+  </linearGradient>
+  <linearGradient id="plate" x1="24" y1="2" x2="24" y2="46" gradientUnits="userSpaceOnUse">
+    <stop offset="0%" stop-color="#16161C"/><stop offset="100%" stop-color="#0A0A0D"/>
+  </linearGradient>
+  <linearGradient id="goldH" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#B45309"/><stop offset="55%" stop-color="#FBBF24"/><stop offset="100%" stop-color="#F59E0B"/>
+  </linearGradient>
+  <linearGradient id="cyanH" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#3B82F6"/><stop offset="60%" stop-color="#38BDF8"/><stop offset="100%" stop-color="#22D3EE"/>
+  </linearGradient>
+  <linearGradient id="hair" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#FBBF24" stop-opacity="0"/>
+    <stop offset="45%" stop-color="#FBBF24" stop-opacity="0.9"/>
+    <stop offset="100%" stop-color="#22D3EE" stop-opacity="0"/>
+  </linearGradient>
+  <radialGradient id="glowC" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0%" stop-color="#124C6E" stop-opacity="0.8"/>
+    <stop offset="55%" stop-color="#0B2C44" stop-opacity="0.35"/>
+    <stop offset="100%" stop-color="#05080F" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="glowG" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0%" stop-color="#7A5410" stop-opacity="0.55"/>
+    <stop offset="60%" stop-color="#3A2908" stop-opacity="0.25"/>
+    <stop offset="100%" stop-color="#05080F" stop-opacity="0"/>
+  </radialGradient>
+</defs>
+
+  <rect width="1500" height="500" fill="#05080F"/>
+  <ellipse cx="280" cy="60" rx="700" ry="420" fill="url(#glowC)"/>
+  <ellipse cx="1300" cy="480" rx="640" ry="360" fill="url(#glowG)"/>
+  <g opacity="0.07" stroke="#E8EEF9" stroke-width="1">
+    <path d="M0 50H1500"/><path d="M0 100H1500"/><path d="M0 150H1500"/><path d="M0 200H1500"/>
+    <path d="M0 250H1500"/><path d="M0 300H1500"/><path d="M0 350H1500"/><path d="M0 400H1500"/><path d="M0 450H1500"/>
+    <path d="M60 0V500"/><path d="M120 0V500"/><path d="M180 0V500"/><path d="M240 0V500"/><path d="M300 0V500"/>
+    <path d="M360 0V500"/><path d="M420 0V500"/><path d="M480 0V500"/><path d="M540 0V500"/><path d="M600 0V500"/>
+    <path d="M660 0V500"/><path d="M720 0V500"/><path d="M780 0V500"/><path d="M840 0V500"/><path d="M900 0V500"/>
+    <path d="M960 0V500"/><path d="M1020 0V500"/><path d="M1080 0V500"/><path d="M1140 0V500"/><path d="M1200 0V500"/>
+    <path d="M1260 0V500"/><path d="M1320 0V500"/><path d="M1380 0V500"/><path d="M1440 0V500"/>
+  </g>
+
+  <g transform="translate(104 150) scale(1.9)">
+    <path d="M24 2.6 42.4 9.6v13.9c0 10.2-7.4 18.1-18.4 21.9C13 41.6 5.6 33.7 5.6 23.5V9.6L24 2.6Z"
+          fill="url(#plate)" stroke="url(#gold)" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="M17.4 30.6 30.6 17.4" stroke="url(#gold)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <path d="M30.9 17.1 24.5 18.9l4.9 4.9 1.5-6.7Z" fill="url(#gold)"/>
+    <path d="M30.6 30.6 17.4 17.4" stroke="url(#cyan)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <path d="M17.1 17.1 23.5 18.9l-4.9 4.9-1.5-6.7Z" fill="url(#cyan)"/>
+    <path d="M24 20.4 27.6 24 24 27.6 20.4 24 24 20.4Z" fill="#05080F" stroke="url(#cyan)" stroke-width="1.2" stroke-linejoin="round"/>
+    <circle cx="24" cy="24" r="1.15" fill="#ECFEFF"/>
+  </g>
+
+  <text x="240" y="196" font-family="Segoe UI Semibold, Segoe UI" font-size="52" font-weight="600"
+        letter-spacing="1.4" fill="#E8EEF9">PREDICTION ARENA</text>
+  <text x="243" y="236" font-family="Segoe UI, Arial" font-size="20" fill="#8FA0BF">
+    Two AI agents argue every market. USDC settles on Base.
+  </text>
+  <text x="243" y="264" font-family="Segoe UI, Arial" font-size="20" fill="#8FA0BF">
+    Non-custodial · 4% fee escrowed per market · auditable by anyone.
+  </text>
+
+  <g font-family="Segoe UI Semibold, Segoe UI" font-size="14" letter-spacing="2">
+    <rect x="104" y="352" width="168" height="36" rx="18" fill="#101A2C" stroke="#1E3350"/>
+    <text x="188" y="376" text-anchor="middle" fill="#FBBF24">BASE MAINNET</text>
+    <rect x="286" y="352" width="134" height="36" rx="18" fill="#101A2C" stroke="#1E3350"/>
+    <text x="353" y="376" text-anchor="middle" fill="#22D3EE">V3 · LIVE</text>
+    <rect x="434" y="352" width="186" height="36" rx="18" fill="#101A2C" stroke="#1E3350"/>
+    <text x="527" y="376" text-anchor="middle" fill="#E8EEF9">NON-CUSTODIAL</text>
+  </g>
+
+  <text x="104" y="444" font-family="Consolas, monospace" font-size="16" fill="#6E7F9B">
+    0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5
+  </text>
+
+  <g>
+    <text x="880" y="188" font-family="Segoe UI Semibold, Segoe UI" font-size="16" letter-spacing="2.6" fill="#8FA0BF">YES</text>
+    <text x="1440" y="188" text-anchor="end" font-family="Consolas, monospace" font-size="16" fill="#E8EEF9">62%</text>
+    <rect x="880" y="200" width="560" height="24" rx="12" fill="#111A2B"/>
+    <rect x="880" y="200" width="347" height="24" rx="12" fill="url(#goldH)" opacity="0.92"/>
+    <circle cx="1227" cy="212" r="5" fill="#FFFFFF" opacity="0.95"/>
+    <text x="880" y="288" font-family="Segoe UI Semibold, Segoe UI" font-size="16" letter-spacing="2.6" fill="#8FA0BF">NO</text>
+    <text x="1440" y="288" text-anchor="end" font-family="Consolas, monospace" font-size="16" fill="#E8EEF9">38%</text>
+    <rect x="880" y="300" width="560" height="24" rx="12" fill="#111A2B"/>
+    <rect x="880" y="300" width="213" height="24" rx="12" fill="url(#cyanH)" opacity="0.92"/>
+    <circle cx="1093" cy="312" r="5" fill="#FFFFFF" opacity="0.95"/>
+    <text x="1440" y="362" text-anchor="end" font-family="Segoe UI, Arial" font-size="15" fill="#6E7F9B">
+      Implied probability · argued by AI · resolved on-chain
+    </text>
+  </g>
+
+  <path d="M104 400H1440" stroke="url(#hair)" stroke-width="1.2" opacity="0.45"/>
+  <text x="1440" y="452" text-anchor="end" font-family="Consolas, monospace" font-size="17" fill="#9FB2D0">
+    @Predict065 · predictionarena.online
+  </text>
+</svg>

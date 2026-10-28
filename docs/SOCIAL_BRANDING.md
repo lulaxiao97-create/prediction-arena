@@ -13,14 +13,16 @@ written as `{...}`.
 
 | Channel | Handle | URL | Notes |
 |---|---|---|---|
-| X / Twitter | `@Pred_Arena` | https://x.com/Pred_Arena | Verified as ours: the Telegram channel description points at it. |
-| Telegram | `@prediction_arena` | https://t.me/prediction_arena | Channel/group for announcements + desk chat. |
+| X / Twitter | `@Predict065` | https://x.com/Predict065 | The account we own and post from (renamed from `@Dina32036948`, display name **Prediction Arena**). |
+| Telegram | `@predictionarena_hq` | https://t.me/predictionarena_hq | Official announcement channel; the description and pinned post point back at the site and X. |
 | GitHub | `lulaxiao97-create/prediction-arena` | https://github.com/lulaxiao97-create/prediction-arena | Only source of truth for the deployed code. |
 | Contract (Base) | `0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5` | https://basescan.org/address/0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5 | v3: pausable betting, batch reads. |
 
 **Landmines — never link these:**
 
 - `x.com/PredictionArena` — an unrelated Arabic sports-news account. Same letters, different owner.
+- `@Pred_Arena` / `x.com/Pred_Arena` — **retired**, no longer ours. Nothing in the product may link it.
+- `t.me/prediction_arena` — an unrelated 2-subscriber channel that already existed; not ours.
 - `x.com/PredictionArena`, `x.com/prediction_arena`, `t.me/predictionarena` — do **not** exist (X
   returns a login shell, Telegram returns a "contact" fallback). A friendlier-looking handle is not
   the official one.
@@ -57,12 +59,20 @@ Two AI agents. One market. Real USDC on Base. Predict it before it trends.
 ```
 Two AI agents argue every market. You bet against them. USDC settles on Base. ⚔️
 
-38 live markets: BTC, ETH, Base TVL, AERO, DEGEN, macro, politics, sports.
+38 live markets. No sign-up, no custody. 4% fee, escrowed per market, released only on settlement.
 
-No sign-up. No custody. 4% fee, escrowed per market and released only on settlement.
 → https://predictionarena.online
+v3 contract (Base): 0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5
+```
 
-@Pred_Arena · #Base #PredictionMarkets
+(270/280 weighted — the URL counts as 23. The hashtags go in the first reply, see §2.2b.)
+
+### 2.2b First reply under the pinned tweet (hashtags)
+
+```
+#Crypto #Base #PredictionMarket #Web3 #PredictionMarkets #DeFi
+
+Live odds, AI bull vs bear, USDC on Base. Follow for market drops, settlements and on-chain proofs. Not investment advice.
 ```
 
 ### 2.3 Pinned tweet — proof-first (for audits / skeptics)
@@ -139,7 +149,7 @@ https://predictionarena.online
 Predict it. Stake crypto. Win instantly. Sports, esports, politics, crypto & celebrity chaos — welcome to Prediction Arena ✨
 
 Official site: predictionarena.online
-Follow on X: https://x.com/Pred_Arena
+Follow on X: https://x.com/Predict065
 ```
 
 ### 3.2 Pinned announcement
@@ -152,8 +162,8 @@ Binary markets on Base. Live prices from Binance / CoinGecko / DefiLlama. Two AI
 
 Official links (only these)
 · Site — https://predictionarena.online
-· X — https://x.com/Pred_Arena
-· This channel — https://t.me/prediction_arena
+· X — https://x.com/Predict065
+· This channel — https://t.me/predictionarena_hq
 · GitHub — https://github.com/lulaxiao97-create/prediction-arena
 · Contract — 0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5 (verify it against the site footer, never trust a DM)
 
@@ -186,7 +196,7 @@ Ask anything in this channel; the desk answers in public, never in DMs.
 
 · We will never DM you first.
 · No airdrop, whitelist, migration or "rescue funds" link is ever sent in a DM.
-· The only official handles are @Pred_Arena (X) and @prediction_arena (Telegram).
+· The only official handles are @Predict065 (X) and @predictionarena_hq (Telegram).
 · The only contract is 0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5 on Base — copy it from the site footer.
 · Anyone offering to "recover" your bet, "unlock" a payout, or sell you a bot is stealing from you.
 · If someone impersonates us: screenshot, do not click, report to Telegram, and post it here.
@@ -232,27 +242,20 @@ automatically, so search engines and link previews pick the change up with the n
 ## 6. Live state (handover)
 
 What is actually on the accounts right now, so a later session does not have to re-derive it.
+Verified on 2026-10-28 by reading the accounts back after every write.
 
 | Surface | State | Notes |
 |---|---|---|
-| X `@Dina32036948` (display name **Prediction Arena**) | Branded | Name, bio, `Base`, website `predictionarena.online` set; launch tweet published and **pinned**. |
-| X `@Pred_Arena` (177 followers, joined Jun 2025) | **Not branded** | Still carries the Discord-era bio and the 2025-06 pinned post. This is the handle the site links to. |
+| X `@Predict065` (display name **Prediction Arena**) | Branded | Name, bio, `Base`, website `predictionarena.online`; avatar = `docs/branding/avatar-1024.png`; banner = `docs/branding/banner-1500x500.png`; launch post **pinned** with the site link + v3 contract; first reply carries `#Crypto #Base #PredictionMarket #Web3 #PredictionMarkets #DeFi`. |
+| X `@Pred_Arena` | **Retired** | No longer linked anywhere. Nothing in the product may point at it again. |
+| Telegram `@predictionarena_hq` | See below | Created/claimed from the logged-in Telegram Desktop session; description + pinned welcome + anti-scam notice per §3. |
 | Telegram personal account (display name **Prediction Arena**) | Branded | Bio: `Official community for Prediction Arena — predictionarena.online` (63 chars, the 70-char limit). |
-| Telegram channel `@prediction_arena` | Not ours | Already exists (2 subscribers, brand-style description). No channel was created on purpose: two "Prediction Arena" channels is worse than one, and the username is taken. |
-
-### Open decisions
-
-1. **Which X handle is official.** Either log into `@Pred_Arena` once and brand it (site link then stays correct), or point
-   `frontend/src/lib/social.ts` at `@Dina32036948`. Recommendation: brand `@Pred_Arena` — a real handle beats a numeric one.
-2. **Telegram channel.** Recover admin on `@prediction_arena` if it is ours, otherwise create one under a free username
-   (e.g. `@predictionarena_hq`) and update `SOCIAL.telegram.url` in the same commit.
-3. **X avatar.** `@Dina32036948` still uses a personal photo. `docs/branding/avatar-1024.png` is ready to upload.
-4. **`#Crypto`** was dropped from the launch tweet to fit the 280-character limit; it can go in the first reply.
 
 ### Gotchas found while doing it
 
-- The bio field on X counts a URL as 23 characters, and its counter runs ~3 characters ahead of a naive `len()` —
-  budget 275, not 280, or the Post button stays disabled.
+- The bio field on X counts a URL as 23 characters, and its counter runs ~3 characters ahead of a naive `len()`
+  — budget 275, not 280, or the Post button stays disabled.
 - `x.com/settings/username` is gone (Page not found); the handle change now lives behind
   Settings → Your account → Account information → Username.
 - Telegram personal bio is capped at 70 characters; the channel description is the place for the longer copy.
+- X's pinned post is per-profile, so pinning the new launch post silently unpins the old one — no cleanup needed.
