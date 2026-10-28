@@ -111,6 +111,14 @@ function htmlResponse(body: string, status = 200): NextResponse {
   });
 }
 
+/**
+ * Frame HTML is recomputed per request otherwise, and a Warpcast feed opens several frames at once.
+ * The board refreshes every few minutes, so a 30-second memo is invisible to users and turns a
+ * ~700ms render into a single memory read for everything after the first hit.
+ */
+const FRAME_CACHE = new Map<string, { at: number; html: string }>();
+const FRAME_TTL_MS = 30_000;
+
 export async function GET(request: Request) {
   const id = new URL(request.url).searchParams.get("id");
   if (!id) {
@@ -119,11 +127,18 @@ export async function GET(request: Request) {
       { status: 400 },
     );
   }
+  const cached = FRAME_CACHE.get(id);
+  if (cached && Date.now() - cached.at < FRAME_TTL_MS) {
+    return htmlResponse(cached.html);
+  }
+
   const pool = await readPool(id);
   if (!pool) return NextResponse.json({ ok: false, error: "market not found" }, { status: 404 });
-  return htmlResponse(
-    frameHtml({ id, title: pool.title, yes: Math.round(impliedYes(pool) * 100) }),
-  );
+
+  const html = frameHtml({ id, title: pool.title, yes: Math.round(impliedYes(pool) * 100) });
+  FRAME_CACHE.set(id, { at: Date.now(), html });
+  if (FRAME_CACHE.size > 64) FRAME_CACHE.clear();
+  return htmlResponse(html);
 }
 
 export async function POST(request: Request) {
