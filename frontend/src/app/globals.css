@@ -632,3 +632,26 @@ a:active {
     animation: none !important;
   }
 }
+
+/* ── growth / marketing ─────────────────────────────────────────── */
+@keyframes pa-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+.pa-marquee {
+  animation: pa-marquee 42s linear infinite;
+  will-change: transform;
+}
+.pa-marquee:hover,
+.pa-marquee:focus-within {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pa-marquee {
+    animation: none;
+  }
+}

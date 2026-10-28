@@ -22,6 +22,30 @@ export function marketUrl(id: string | number | bigint, origin?: string): string
   return `${base}/market/${id}`;
 }
 
+export type ShareChannel = "x" | "telegram" | "copy";
+
+/**
+ * The market URL with attribution attached.
+ *
+ * Every place a human can hand our link to someone else gets a channel marker: `utm_*` for any
+ * analytics that reads the landing page, plus a short `ref` that survives copy-paste into a chat
+ * that strips query strings from the preview. It changes nothing about how the page resolves —
+ * `/market/12?ref=x` renders the same market — so the link is safe to paste anywhere.
+ */
+export function trackedMarketUrl(
+  id: string | number | bigint,
+  channel: ShareChannel = "x",
+  origin?: string,
+): string {
+  const url = new URL(marketUrl(id, origin));
+  url.searchParams.set("utm_source", channel);
+  url.searchParams.set("utm_medium", "social");
+  url.searchParams.set("utm_campaign", "market_share");
+  url.searchParams.set("utm_content", String(id));
+  url.searchParams.set("ref", channel);
+  return url.toString();
+}
+
 /**
  * Numbers behind a data-driven market. Mirrors `MarketData` in lib/types; declared structurally
  * here so the share helpers stay usable from a route handler that only has the manifest row.
@@ -37,6 +61,29 @@ export type ShareMarketData = {
 };
 
 const MAX_TITLE = 92;
+
+/** X truncates a post at 280; every URL counts as 23 no matter how long it really is. */
+const MAX_WEIGHT = 272;
+
+const HOOKS = [
+  "Two AI agents argued this one. Here is where the crowd landed:",
+  "This market is closer than the headline sounds:",
+  "Odds just moved — the crowd is leaning one way:",
+  "One side is paying better than 2× right now:",
+];
+
+function weight(text: string): number {
+  const urls = text.match(/https?:\/\/\S+/g) ?? [];
+  return urls.reduce((n, u) => n + 23 - u.length, text.length);
+}
+
+/** Stable 0..3 from the id string — same market, same hook, no randomness between renders. */
+function hookIndex(id: string | number | bigint): number {
+  const s = String(id);
+  let h = 0;
+  for (let i = 0; i < s.length; i += 1) h = (h * 31 + s.charCodeAt(i)) % 9973;
+  return h % HOOKS.length;
+}
 
 function compactMoney(v: number): string {
   if (v >= 1e12) return `$${(v / 1e12).toFixed(2)}T`;
@@ -69,12 +116,15 @@ export function tweetIntent({
   no,
   url,
   market,
+  id,
 }: {
   title: string;
   yes: number;
   no: number;
   url: string;
   market?: ShareMarketData | null;
+  /** Market id — only used to pick which preset hook the tweet opens with. */
+  id?: string | number | bigint;
 }): string {
   const short = title.length > MAX_TITLE ? `${title.slice(0, MAX_TITLE - 1).trimEnd()}…` : title;
 
@@ -89,7 +139,15 @@ export function tweetIntent({
     : `"${short}"`;
   const odds = `${yes}% YES · pays ${payoutMultiple(yes).toFixed(1)}×`;
   const tail = market ? `Verified ${market.source} feed. ${X_HANDLE_TAG}` : X_HANDLE_TAG;
-  const text = `${head} ${odds} · ${no}% NO. ${tail}`;
+
+  // A preset first line is what turns a link into a post: it gives the reader a reason to open the
+  // market instead of scrolling past a bare odds string. Four variants, picked deterministically
+  // from the market id so two people sharing the same market say the same thing and the feed does
+  // not read like a bot repeating itself.
+  const body = `${head} ${odds} · ${no}% NO. ${tail}`;
+  const hook = id === undefined ? "" : HOOKS[hookIndex(id)];
+  const withHook = hook ? `${hook}\n\n${body}` : body;
+  const text = weight(withHook) <= MAX_WEIGHT ? withHook : body;
 
   const params = new URLSearchParams({ text, url });
   // `via` credits the official account; the handle is read from lib/social so a rename is one edit.

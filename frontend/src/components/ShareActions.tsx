@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { Check, Link2 } from "lucide-react";
 import { cn } from "@/lib/format";
-import { copyText, marketUrl, payoutMultiple, tweetIntent, type ShareMarketData } from "@/lib/share";
+import { copyText, marketUrl, payoutMultiple, trackedMarketUrl, tweetIntent, type ShareMarketData } from "@/lib/share";
 import { select, success } from "@/lib/haptics";
 import { useI18n } from "@/components/LocaleProvider";
 import { useToast } from "@/components/Toast";
@@ -43,7 +43,12 @@ export function ShareActions({
   const no = 100 - yes;
 
   const url = useMemo(() => marketUrl(marketId), [marketId]);
-  const intent = useMemo(() => tweetIntent({ title, yes, no, url, market }), [title, yes, no, url, market]);
+  // The tweet carries attribution (`utm_*` + `ref`) so a shared market can be traced back to the
+  // post that sent the visitor; the copied link stays clean for anywhere else it gets pasted.
+  const intent = useMemo(
+    () => tweetIntent({ title, yes, no, url: trackedMarketUrl(marketId, "x"), market, id: marketId }),
+    [title, yes, no, marketId, market],
+  );
   // The tweet text embeds the live probability, and the market's pools are refreshed on the
   // client right after mount — so the server's href and the browser's would differ in the
   // percentages. Until mount, the anchor points at the market itself; from the first effect
@@ -101,6 +106,8 @@ export function ShareActions({
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => select()}
+        aria-label={t("marketing.shareX")}
+        title={t("marketing.shareX")}
         className="group inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-white/12 bg-white/[0.04] px-3 py-2 text-[11.5px] font-medium text-ink transition-all hover:border-white/30 hover:bg-white/[0.08] active:scale-[0.97]"
       >
         <XIcon className="size-3 transition-transform group-hover:-rotate-6" />

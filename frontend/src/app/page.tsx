@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { HeroMasthead } from "@/components/HeroMasthead";
+import { GrowthStrip } from "@/components/GrowthStrip";
+import { TrendTicker } from "@/components/TrendTicker";
 import { LiveTicker } from "@/components/LiveTicker";
 import { LiveActivityFeed } from "@/components/LiveActivityFeed";
 import { AIAgentsDebate } from "@/components/AIAgentsDebate";
@@ -129,8 +131,11 @@ export default function Home() {
       <Navbar active={category} onChange={setCategory} />
       <LiveTicker />
 
+      <TrendTicker pools={pools} />
+
       <main className="mx-auto w-full max-w-[1400px] px-4 pb-10 pt-5 sm:px-6">
         <HeroMasthead />
+        <GrowthStrip />
 
         {/* ── featured + dashboard ───────────────────────────────── */}
         <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[1.6fr_1fr]">
