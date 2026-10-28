@@ -985,3 +985,57 @@ const GROWTH: Record<string, Record<string, string>> = {
 for (const [locale, dict] of Object.entries(GROWTH)) {
   EXTRA[locale] = { ...(EXTRA[locale] ?? {}), growth: dict };
 }
+
+
+/** Invite-and-earn copy, merged the same way as `GROWTH` so the drawer stays multilingual. */
+const INVITE: Record<string, Record<string, string>> = {
+  en: {
+    inviteTitle: "Invite & earn",
+    inviteBody:
+      "Share your link. Every bet placed through it credits you a share of the 4% fee — paid by the contract, not by us.",
+    inviteCta: "Copy link",
+    inviteCopied: "Copied",
+  },
+  "zh-TW": {
+    inviteTitle: "邀請賺取",
+    inviteBody:
+      "分享你的連結。透過它下注的每一筆，合約都會把 4% 手續費的一部分分給你——由合約支付，不是我們。",
+    inviteCta: "複製連結",
+    inviteCopied: "已複製",
+  },
+  de: {
+    inviteTitle: "Einladen & verdienen",
+    inviteBody:
+      "Teile deinen Link. Jede Wette darüber bringt dir einen Anteil der 4% Gebühr – ausgezahlt vom Vertrag, nicht von uns.",
+    inviteCta: "Link kopieren",
+    inviteCopied: "Kopiert",
+  },
+  fr: {
+    inviteTitle: "Inviter & gagner",
+    inviteBody:
+      "Partagez votre lien. Chaque pari passé par celui-ci vous reverse une part des 4% de frais — payée par le contrat, pas par nous.",
+    inviteCta: "Copier le lien",
+    inviteCopied: "Copié",
+  },
+  ja: {
+    inviteTitle: "招待して稼ぐ",
+    inviteBody:
+      "リンクを共有すると、そこから入ったベットの 4% 手数料の一部がコントラクトから支払われます。",
+    inviteCta: "リンクをコピー",
+    inviteCopied: "コピーしました",
+  },
+  ko: {
+    inviteTitle: "초대하고 적립",
+    inviteBody:
+      "링크를 공유하세요. 그 링크로 들어온 베팅의 4% 수수료 일부가 컨트랙트에서 지급됩니다.",
+    inviteCta: "링크 복사",
+    inviteCopied: "복사됨",
+  },
+};
+
+for (const [locale, dict] of Object.entries(INVITE)) {
+  EXTRA[locale] = {
+    ...(EXTRA[locale] ?? {}),
+    growth: { ...(EXTRA[locale]?.growth ?? {}), ...dict },
+  };
+}

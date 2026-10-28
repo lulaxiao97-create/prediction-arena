@@ -18,6 +18,7 @@ import {
 import type { Address } from "viem";
 import { useI18n } from "@/components/LocaleProvider";
 import { RewardsPanel } from "@/components/RewardsPanel";
+import { InviteEarn } from "@/components/InviteEarn";
 import { Logo } from "@/components/Logo";
 import { useToast } from "@/components/Toast";
 import { useMarkets } from "@/hooks/useMarkets";
@@ -175,6 +176,9 @@ export function PortfolioDrawer({ open, onClose }: { open: boolean; onClose: () 
           {/* rewards ledger — points, tickets and the $1 practice book. Works without a wallet,
               because watching an ad has nothing to do with signing anything. */}
           <RewardsPanel />
+
+          {/* Zero-budget viral loop: the contract already pays the referrer out of the fee. */}
+          <InviteEarn address={address} />
 
           {!address && (
             <div className="rounded-xl border border-gold/25 bg-gold/[0.06] px-3 py-6 text-center">

@@ -14,6 +14,7 @@ import {
   useWriteContract,
 } from "wagmi";
 import { createPublicClient, erc20Abi, http, isAddress, zeroAddress, type Abi, type Address } from "viem";
+import { referrerAddress } from "@/lib/referral";
 import { base, baseSepolia } from "wagmi/chains";
 import arenaArtifact from "@/lib/contracts/PredictionArena.json";
 import type { ArenaPool, BetStep } from "@/lib/types";
@@ -531,12 +532,9 @@ export function useChainGuard() {
 export function useReferrer(): Address | undefined {
   const [referrer, setReferrer] = useState<Address | undefined>();
   useEffect(() => {
-    try {
-      const ref = new URLSearchParams(window.location.search).get("ref");
-      if (ref && isAddress(ref)) setReferrer(ref as Address);
-    } catch {
-      /* no window */
-    }
+    // Persisted in lib/referral: the address bar only carries ?ref for one view, and a visitor who
+    // lands from a Farcaster Frame usually browses a few markets before placing the first bet.
+    setReferrer(referrerAddress() as Address | undefined);
   }, []);
   return referrer;
 }

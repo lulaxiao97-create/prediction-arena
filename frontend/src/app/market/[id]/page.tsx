@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { MarketDetail } from "@/components/MarketDetail";
+import { SITE_URL } from "@/lib/site";
 import { impliedYes, readPool } from "@/lib/market-manifest";
 
 /**
@@ -29,7 +30,34 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       title,
       description,
     },
+    // Farcaster Frame. Warpcast reads these tags and renders the market as an interactive card in
+    // the feed: the live probability as the image, two tap targets for YES/NO, and every target
+    // carrying `ref=fc` so a frame-driven visit is attributable to the channel it came from.
+    //
+    // The buttons are `link` actions on purpose — a bet needs a wallet signature and a USDC
+    // approval on Base, and a frame cannot do that better than the app can.
+    other: {
+      "fc:frame": "vNext",
+      "fc:frame:image": `${SITE_URL}/market/${id}/opengraph-image`,
+      "fc:frame:image:aspect_ratio": "1.91:1",
+      "fc:frame:button:1": "🟢 Predict YES",
+      "fc:frame:button:1:action": "link",
+      "fc:frame:button:1:target": frameTarget(id, "yes"),
+      "fc:frame:button:2": "🔴 Predict NO",
+      "fc:frame:button:2:action": "link",
+      "fc:frame:button:2:target": frameTarget(id, "no"),
+      "fc:frame:button:3": "📊 Open market",
+      "fc:frame:button:3:action": "link",
+      "fc:frame:button:3:target": `${SITE_URL}/market/${id}?ref=fc&utm_source=farcaster&utm_medium=frame&utm_campaign=market_frame`,
+      "fc:frame:post_url": `${SITE_URL}/api/frame`,
+      "fc:frame:state": JSON.stringify({ id }),
+    },
   };
+}
+
+/** Frame button target: the market page with side + attribution, so the CTA is pre-selected. */
+function frameTarget(id: string, side: "yes" | "no"): string {
+  return `${SITE_URL}/market/${id}?side=${side}&ref=fc&utm_source=farcaster&utm_medium=frame&utm_campaign=market_frame`;
 }
 
 export default async function MarketPage({ params }: { params: Promise<{ id: string }> }) {

@@ -8,6 +8,7 @@ import { RewardsProvider } from "@/components/RewardsProvider";
 import { ChunkReloadGuard } from "@/components/ChunkReloadGuard";
 import { PwaRegister } from "@/components/PwaRegister";
 import { Warmup } from "@/components/Warmup";
+import { ReferralCapture } from "@/components/ReferralCapture";
 import { DomainTrustNote } from "@/components/DomainTrustNote";
 import { SITE_URL } from "@/lib/site";
 import { SOCIAL, X_HANDLE } from "@/lib/social";
@@ -114,6 +115,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://mainnet.base.org" />
         <PwaRegister />
         <Warmup />
+      <ReferralCapture />
         {/* Explains the shared-host warning a wallet scanner may raise, with the facts a user
             can check for themselves. Mounts client-side only — see the component. */}
         <DomainTrustNote />
