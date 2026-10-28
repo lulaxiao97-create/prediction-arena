@@ -86,6 +86,16 @@ type TrendPool = {
   option1Pool?: bigint;
 };
 
+/**
+ * USDC arrives in two shapes: the manifest stores human units ("18500"), while a pool hydrated
+ * from the contract carries 6-decimal base units (18_500_000_000). Anything with more than a
+ * million units is base units, and reading it as dollars is how the rail printed "$18500.0M".
+ */
+function usdc(v: string | number | bigint): number {
+  const n = Number(v);
+  return n > 1_000_000 ? n / 1e6 : n;
+}
+
 function money(v: number): string {
   if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
   if (v >= 1_000) return `$${(v / 1_000).toFixed(1)}K`;
@@ -114,7 +124,7 @@ export function trendLines(pools: TrendPool[], limit = 6): TrendLine[] {
     .filter((p) => (p.status ?? 1) === 1)
     .map((p) => {
       const traders = p.traders ?? displayTraders(p.id);
-      const liquidity = Number(p.liquidityUsdc ?? 0) || Number(displayLiquidityUsdc(p.id));
+      const liquidity = usdc(p.liquidityUsdc ?? 0) || usdc(displayLiquidityUsdc(p.id));
       return { pool: p, traders, liquidity, score: traders * 1_000 + Math.min(liquidity, 99_999) / 100 };
     })
     .sort((a, b) => b.score - a.score)
