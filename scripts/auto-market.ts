@@ -24,6 +24,7 @@
  *  - length budgets are enforced per platform (X: 280 with URLs counted as 23; Farcaster: 320).
  */
 
+import { createHmac, randomBytes } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -288,6 +289,68 @@ function archive(posts: Post[]): string[] {
   return written;
 }
 
+
+/**
+ * OAuth 1.0a (HMAC-SHA1) for X API v2.
+ *
+ * X still requires a *user context* to post, and the only user-context credential a solo operator
+ * can mint without a browser round-trip is the four-part OAuth 1.0a key set. The app-only bearer we
+ * were given first can only read, which is why `sendX` tries OAuth 1.0a first and only falls back
+ * to the bearer for a clearly-worded error.
+ *
+ * Signing rules that bite if you get them wrong:
+ *  - the base string is `METHOD & percentEncode(url) & percentEncode(sorted param string)`;
+ *  - a JSON body contributes **no** parameters — only `oauth_*` values and the query string do;
+ *  - percent encoding is RFC 3986 (encodeURIComponent plus `!'()*`), not encodeURIComponent alone;
+ *  - the signing key is `percentEncode(consumerSecret) & percentEncode(tokenSecret)`.
+ */
+function pct(s: string): string {
+  return encodeURIComponent(s).replace(/[!'()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);
+}
+
+function oauthHeader(method: string, url: string, creds: {
+  key: string;
+  secret: string;
+  token: string;
+  tokenSecret: string;
+}): string {
+  const params: Record<string, string> = {
+    oauth_consumer_key: creds.key,
+    oauth_nonce: randomBytes(16).toString("hex"),
+    oauth_signature_method: "HMAC-SHA1",
+    oauth_timestamp: String(Math.floor(Date.now() / 1000)),
+    oauth_token: creds.token,
+    oauth_version: "1.0",
+  };
+
+  const paramString = Object.keys(params)
+    .sort()
+    .map((k) => `${pct(k)}=${pct(params[k])}`)
+    .join("&");
+  const base = `${method.toUpperCase()}&${pct(url)}&${pct(paramString)}`;
+  const signingKey = `${pct(creds.secret)}&${pct(creds.tokenSecret)}`;
+  const signature = createHmac("sha1", signingKey).update(base).digest("base64");
+
+  const header = { ...params, oauth_signature: signature };
+  return (
+    "OAuth " +
+    Object.keys(header)
+      .sort()
+      .map((k) => `${pct(k)}="${pct(header[k])}"`)
+      .join(", ")
+  );
+}
+
+/** The four-part key set, or null when the environment only carries a bearer. */
+function xOauthCreds(): { key: string; secret: string; token: string; tokenSecret: string } | null {
+  const key = process.env.X_CONSUMER_KEY;
+  const secret = process.env.X_CONSUMER_SECRET;
+  const token = process.env.X_ACCESS_TOKEN;
+  const tokenSecret = process.env.X_ACCESS_SECRET;
+  if (!key || !secret || !token || !tokenSecret) return null;
+  return { key, secret, token, tokenSecret };
+}
+
 /**
  * One POST with retries. A cron job is not a person: if a 429 or a 502 kills the run, the day's
  * post is simply missing, and nobody notices until the channel has been quiet for a week.
@@ -314,10 +377,17 @@ async function postJson(url: string, headers: Record<string, string>, body: unkn
  * the exact fix, instead of a generic 403. The other channels still go out.
  */
 async function sendX(text: string): Promise<string> {
+  const url = "https://api.x.com/2/tweets";
+  const oauth = xOauthCreds();
   const token = process.env.X_BEARER_TOKEN ?? process.env.X_OAUTH2_BEARER;
-  if (!token) return "skipped: X_BEARER_TOKEN unset";
+  if (!oauth && !token) return "skipped: no X credential (need the 4 OAuth 1.0a keys or a user bearer)";
 
-  const res = await postJson("https://api.x.com/2/tweets", { Authorization: `Bearer ${token}` }, { text });
+  // OAuth 1.0a first: it is the only credential here that can actually publish.
+  const res = await postJson(
+    url,
+    oauth ? { Authorization: oauthHeader("POST", url, oauth) } : { Authorization: `Bearer ${token}` },
+    { text },
+  );
 
   if (res.ok) {
     const id = (() => {
@@ -331,7 +401,7 @@ async function sendX(text: string): Promise<string> {
   }
 
   if (res.status === 403 && /unsupported authentication|application-only/i.test(res.text)) {
-    return "skipped: X_BEARER_TOKEN is an app-only bearer (read-only). Posting needs OAuth 1.0a user context or an OAuth 2.0 user token — see docs/GROWTH_MILESTONE_1K_30.md §6.";
+    return "skipped: the configured X credential is an app-only bearer (read-only). Set X_CONSUMER_KEY/X_CONSUMER_SECRET/X_ACCESS_TOKEN/X_ACCESS_SECRET for OAuth 1.0a — see docs/GROWTH_MILESTONE_1K_30.md §6.";
   }
   if (res.status === 401) return "failed 401: token invalid or expired";
   if (res.status === 429) return "failed 429: rate limited after 3 attempts";
