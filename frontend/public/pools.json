@@ -3,13 +3,13 @@
   "address": "0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5",
   "chainId": 8453,
   "deployBlock": 53150166,
-  "updatedAt": "2026-10-28T05:05:04.522Z",
+  "updatedAt": "2026-10-28T06:05:09.431Z",
   "featured": "700001",
   "dataSources": {
     "prices": "Binance /api/v3/ticker/24hr (majors) + CoinGecko /simple/price (Base tokens)",
     "global": "CoinGecko /global",
     "tvl": "DefiLlama /v2/chains",
-    "asOf": "2026-10-28T05:05:04.251Z"
+    "asOf": "2026-10-28T06:05:09.147Z"
   },
   "stats": {
     "tvlUsdc": "0.0",
@@ -24,28 +24,28 @@
       "category": "Crypto & Macro",
       "tags": [
         "BTC",
-        "spot $80,936",
+        "spot $80,905",
         "+5% strike"
       ],
       "source": "demo",
       "status": 1,
       "endTimeUtc": "2026-10-31T23:59:59.000Z",
       "liquidityUsdc": "27000",
-      "yesShare": 0.246,
+      "yesShare": 0.244,
       "volume24hUsdc": "11300",
       "traders": 310,
-      "description": "The month-end close is the only Bitcoin print that survives the noise of the last week of the month, which is when funding and options expiry do their damage. Spot is $80,936 (1.33% in 24h); the strike is 5% above it.",
+      "description": "The month-end close is the only Bitcoin print that survives the noise of the last week of the month, which is when funding and options expiry do their damage. Spot is $80,905 (1.23% in 24h); the strike is 5% above it.",
       "resolution": "YES if the BTC/USDT daily candle on Binance closes at or above $85,000 on any day up to and including 2026-10-31 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
       "dataSource": "Binance BTCUSDT",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "marketData": {
         "asset": "BTC",
-        "spotUsd": 80936,
+        "spotUsd": 80905.04,
         "strikeUsd": 85000,
         "direction": "above",
         "windowDays": 4,
         "source": "Binance",
-        "asOf": "2026-10-28T05:05:04.251Z"
+        "asOf": "2026-10-28T06:05:09.147Z"
       },
       "visual": {
         "kind": "token",
@@ -53,7 +53,7 @@
         "accent": "#F7931A",
         "entity": "BTC",
         "kicker": "BINANCE",
-        "metric": "$80,936",
+        "metric": "$80,905",
         "mark": "₿"
       }
     },
@@ -63,28 +63,28 @@
       "category": "Crypto & Macro",
       "tags": [
         "BTC",
-        "spot $80,936",
+        "spot $80,905",
         "+12% strike"
       ],
       "source": "demo",
       "status": 1,
       "endTimeUtc": "2026-11-18T23:59:59.000Z",
       "liquidityUsdc": "46300",
-      "yesShare": 0.242,
+      "yesShare": 0.241,
       "volume24hUsdc": "28000",
       "traders": 85,
-      "description": "A 12% move inside three weeks is a trend confirmation, not a wick: this market asks whether the bid is still there after the retracement. Spot is $80,936 (1.33% in 24h); the strike is 12% above it.",
+      "description": "A 12% move inside three weeks is a trend confirmation, not a wick: this market asks whether the bid is still there after the retracement. Spot is $80,905 (1.23% in 24h); the strike is 12% above it.",
       "resolution": "YES if the BTC/USDT daily candle on Binance closes at or above $91,000 on any day up to and including 2026-11-18 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
       "dataSource": "Binance BTCUSDT",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "marketData": {
         "asset": "BTC",
-        "spotUsd": 80936,
+        "spotUsd": 80905.04,
         "strikeUsd": 91000,
         "direction": "above",
         "windowDays": 22,
         "source": "Binance",
-        "asOf": "2026-10-28T05:05:04.251Z"
+        "asOf": "2026-10-28T06:05:09.147Z"
       },
       "visual": {
         "kind": "token",
@@ -92,7 +92,7 @@
         "accent": "#F7931A",
         "entity": "BTC",
         "kicker": "BINANCE",
-        "metric": "$80,936",
+        "metric": "$80,905",
         "mark": "₿"
       }
     },
@@ -102,29 +102,29 @@
       "category": "Crypto & Macro",
       "tags": [
         "ETH",
-        "spot $2,353",
-        "+10% strike",
+        "spot $2,352",
+        "+11% strike",
         "Ethereum"
       ],
       "source": "demo",
       "status": 1,
       "endTimeUtc": "2026-10-31T23:59:59.000Z",
       "liquidityUsdc": "83200",
-      "yesShare": 0.13,
+      "yesShare": 0.129,
       "volume24hUsdc": "50200",
       "traders": 285,
-      "description": "ETH has been trading as a beta on BTC with a heavier tape; a strike this far above spot only prints if the rotation is real. Spot is $2,353 (1.48% in 24h); the strike is 10% above it.",
+      "description": "ETH has been trading as a beta on BTC with a heavier tape; a strike this far above spot only prints if the rotation is real. Spot is $2,352 (1.65% in 24h); the strike is 11% above it.",
       "resolution": "YES if the ETH/USDT daily candle on Binance closes at or above $2,600 on any day up to and including 2026-10-31 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
       "dataSource": "Binance ETHUSDT",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "marketData": {
         "asset": "ETH",
-        "spotUsd": 2353.33,
+        "spotUsd": 2352.11,
         "strikeUsd": 2600,
         "direction": "above",
         "windowDays": 4,
         "source": "Binance",
-        "asOf": "2026-10-28T05:05:04.251Z"
+        "asOf": "2026-10-28T06:05:09.147Z"
       },
       "visual": {
         "kind": "token",
@@ -132,7 +132,7 @@
         "accent": "#8A9BFF",
         "entity": "ETH",
         "kicker": "BINANCE",
-        "metric": "$2,353",
+        "metric": "$2,352",
         "mark": "Ξ"
       }
     },
@@ -142,7 +142,7 @@
       "category": "Crypto & Macro",
       "tags": [
         "SOL",
-        "spot $101.91",
+        "spot $101.86",
         "+13% strike",
         "Solana"
       ],
@@ -150,21 +150,21 @@
       "status": 1,
       "endTimeUtc": "2026-10-31T23:59:59.000Z",
       "liquidityUsdc": "56000",
-      "yesShare": 0.147,
+      "yesShare": 0.146,
       "volume24hUsdc": "33000",
       "traders": 303,
-      "description": "SOL's month-end close is the cleanest read on whether high-beta L1 demand has survived the last two weeks of outflows. Spot is $101.91 (1.55% in 24h); the strike is 13% above it.",
+      "description": "SOL's month-end close is the cleanest read on whether high-beta L1 demand has survived the last two weeks of outflows. Spot is $101.86 (1.74% in 24h); the strike is 13% above it.",
       "resolution": "YES if the SOL/USDT daily candle on Binance closes at or above $115.00 on any day up to and including 2026-10-31 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
       "dataSource": "Binance SOLUSDT",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "marketData": {
         "asset": "SOL",
-        "spotUsd": 101.91,
+        "spotUsd": 101.86,
         "strikeUsd": 115,
         "direction": "above",
         "windowDays": 4,
         "source": "Binance",
-        "asOf": "2026-10-28T05:05:04.251Z"
+        "asOf": "2026-10-28T06:05:09.147Z"
       },
       "visual": {
         "kind": "token",
@@ -172,7 +172,7 @@
         "accent": "#14F195",
         "entity": "SOL",
         "kicker": "BINANCE",
-        "metric": "$101.91",
+        "metric": "$101.86",
         "mark": "◎"
       }
     },
@@ -192,10 +192,10 @@
       "yesShare": 0.322,
       "volume24hUsdc": "19700",
       "traders": 245,
-      "description": "Dominance is 59.41% right now and the whole market is -1.13% over 24h. A rising dominance while total cap falls is the classic risk-off rotation; this contract prices exactly that.",
+      "description": "Dominance is 59.41% right now and the whole market is -1.44% over 24h. A rising dominance while total cap falls is the classic risk-off rotation; this contract prices exactly that.",
       "resolution": "YES if CoinGecko's BTC market-cap dominance prints above 60.4% on any UTC day before 2026-10-31 23:59 UTC.",
       "dataSource": "CoinGecko /global",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "token",
         "photo": "macro",
@@ -219,13 +219,13 @@
       "status": 1,
       "endTimeUtc": "2026-10-31T23:59:59.000Z",
       "liquidityUsdc": "42400",
-      "yesShare": 0.332,
+      "yesShare": 0.33,
       "volume24hUsdc": "9800",
       "traders": 231,
-      "description": "Aggregate cap sits at $2.73T, -1.13% lower over 24h. Reclaiming $2.90T requires new inflow, not rotation.",
+      "description": "Aggregate cap sits at $2.73T, -1.44% lower over 24h. Reclaiming $2.90T requires new inflow, not rotation.",
       "resolution": "YES if CoinGecko's total crypto market cap prints at or above $2.90T on any day before 2026-10-31 23:59 UTC.",
       "dataSource": "CoinGecko /global",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "chain",
         "photo": "chain",
@@ -254,7 +254,7 @@
       "description": "Long-end yields set the discount rate for every risk asset in this protocol's universe. A monthly close under 4% would be the first since the last easing cycle.",
       "resolution": "YES if the on-the-run US 10-year Treasury yield closes below 4.00% on any trading day before 2026-10-31 23:59 UTC, per the US Treasury's daily yield curve.",
       "dataSource": "US Treasury daily yield curve",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "macro",
         "photo": "gold",
@@ -277,13 +277,13 @@
       "status": 1,
       "endTimeUtc": "2026-10-31T23:59:59.000Z",
       "liquidityUsdc": "61900",
-      "yesShare": 0.419,
+      "yesShare": 0.418,
       "volume24hUsdc": "19600",
       "traders": 282,
       "description": "Base holds $6.16B of deposits today. A 5% expansion inside the window needs net new capital, and TVL is the least gameable number in the category.",
       "resolution": "YES if DefiLlama's Base chain TVL prints at or above $6.50B on any UTC day before 2026-10-31 23:59 UTC.",
       "dataSource": "DefiLlama /v2/chains",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "chain",
         "photo": "chain",
@@ -300,27 +300,27 @@
       "tags": [
         "Ethereum",
         "TVL",
-        "now $46.46B",
+        "now $46.44B",
         "DefiLlama"
       ],
       "source": "demo",
       "status": 1,
       "endTimeUtc": "2026-10-31T23:59:59.000Z",
       "liquidityUsdc": "50500",
-      "yesShare": 0.29,
+      "yesShare": 0.291,
       "volume24hUsdc": "11100",
       "traders": 261,
       "description": "A 4% drawdown in Ethereum TVL usually tracks the price leg, not a loss of confidence. The distinction matters and the number is public.",
       "resolution": "YES if DefiLlama's Ethereum chain TVL prints below $44.60B on any UTC day before 2026-10-31 23:59 UTC.",
       "dataSource": "DefiLlama /v2/chains",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "chain",
         "photo": "chain",
         "accent": "#38BDF8",
         "entity": "ETHEREUM",
         "kicker": "DEFI · L2",
-        "metric": "now $46.46B"
+        "metric": "now $46.44B"
       }
     },
     {
@@ -330,7 +330,7 @@
       "tags": [
         "Base",
         "Solana",
-        "gap $-4.14e+8",
+        "gap $-4.10e+8",
         "DefiLlama"
       ],
       "source": "demo",
@@ -340,10 +340,10 @@
       "yesShare": 0.4,
       "volume24hUsdc": "16800",
       "traders": 270,
-      "description": "Base carries $6.16B against Solana's $5.75B — a gap of $-4.14e+8 that has to close without Base gaining anything from price.",
+      "description": "Base carries $6.16B against Solana's $5.75B — a gap of $-4.10e+8 that has to close without Base gaining anything from price.",
       "resolution": "YES if DefiLlama's Base chain TVL exceeds its Solana chain TVL on any UTC day before 2026-10-31 23:59 UTC.",
       "dataSource": "DefiLlama /v2/chains",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "chain",
         "photo": "chain",
@@ -354,11 +354,11 @@
     },
     {
       "id": "700011",
-      "title": "Will AERO close above $0.8025 before October 31, 2026?",
+      "title": "Will AERO close above $0.7975 before October 31, 2026?",
       "category": "DeFi & L2",
       "tags": [
         "AERO",
-        "spot $0.6957",
+        "spot $0.6920",
         "+15% strike",
         "Aerodrome"
       ],
@@ -366,21 +366,21 @@
       "status": 1,
       "endTimeUtc": "2026-10-31T23:59:59.000Z",
       "liquidityUsdc": "58100",
-      "yesShare": 0.179,
+      "yesShare": 0.18,
       "volume24hUsdc": "12100",
       "traders": 311,
-      "description": "Aerodrome is Base's largest venue; its token price is the closest thing the chain has to a beta on its own DEX volume. Spot is $0.6957 (3.87% in 24h); the strike is 15% above it.",
-      "resolution": "YES if the AERO/USDT daily candle on Binance closes at or above $0.8025 on any day up to and including 2026-10-31 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
+      "description": "Aerodrome is Base's largest venue; its token price is the closest thing the chain has to a beta on its own DEX volume. Spot is $0.6920 (3.70% in 24h); the strike is 15% above it.",
+      "resolution": "YES if the AERO/USDT daily candle on Binance closes at or above $0.7975 on any day up to and including 2026-10-31 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
       "dataSource": "Binance AEROUSDT",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "marketData": {
         "asset": "AERO",
-        "spotUsd": 0.6957,
-        "strikeUsd": 0.8025,
+        "spotUsd": 0.691957,
+        "strikeUsd": 0.7975,
         "direction": "above",
         "windowDays": 4,
         "source": "Binance",
-        "asOf": "2026-10-28T05:05:04.251Z"
+        "asOf": "2026-10-28T06:05:09.147Z"
       },
       "visual": {
         "kind": "token",
@@ -388,7 +388,7 @@
         "accent": "#3DA5FF",
         "entity": "AERO",
         "kicker": "BINANCE",
-        "metric": "$0.6957",
+        "metric": "$0.6920",
         "mark": "A"
       }
     },
@@ -411,7 +411,7 @@
       "description": "Throughput is the one L2 metric that cannot be faked with incentives: either the blocks are full or they are not.",
       "resolution": "YES if the combined daily transaction count of the five largest L2s by TVL exceeds 100,000,000 on any UTC day before 2026-10-31 23:59 UTC, per L2Beat activity data.",
       "dataSource": "L2Beat activity",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "chain",
         "photo": "chain",
@@ -439,7 +439,7 @@
       "description": "Context length stopped being a marketing number the moment agent frameworks started depending on it. A public 2M window changes what can be built, not just what can be demoed.",
       "resolution": "YES if a frontier lab makes a 2M-token (or larger) context window generally available through a documented API before the deadline. Waitlists and private previews resolve NO.",
       "dataSource": "Provider API documentation",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "ai",
         "photo": "ai-lab",
@@ -467,7 +467,7 @@
       "description": "Agent payments moved from demo to protocol in the last year. What is still missing is evidence of a job priced, delivered and accepted with no human in the loop.",
       "resolution": "YES if an autonomous agent is paid in stablecoins on Base for a task that a buyer accepts without human edit, with the settlement visible on-chain, before the deadline.",
       "dataSource": "On-chain settlement + public writeup",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "neural",
         "photo": "neural",
@@ -494,7 +494,7 @@
       "description": "Per-token prices have fallen faster than any comparable software metric. The question is whether margin compression finally flattens the curve.",
       "resolution": "YES if the published list price, per million output tokens, of any frontier-class model falls 30% or more versus its price on the first day of the window.",
       "dataSource": "Provider pricing pages",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "ai",
         "photo": "ai-lab",
@@ -522,7 +522,7 @@
       "description": "Verifiable inference is the missing primitive for on-chain agents: without it, an agent's work is an assertion rather than a proof.",
       "resolution": "YES if a proof covering a full LLM inference step is verified by a deployed verifier contract on any public chain before the deadline, with the transaction publicly inspectable.",
       "dataSource": "Block explorer + verifier contract",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "neural",
         "photo": "neural",
@@ -549,7 +549,7 @@
       "description": "Developer counts are the leading indicator that survives a funding cycle. 100k monthly actives separates a framework from a demo.",
       "resolution": "YES if a public package registry or the maintainer publishes a figure of 100,000+ monthly active developers for an agent framework before the deadline.",
       "dataSource": "Package registry download/usage stats",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "neural",
         "photo": "neural",
@@ -576,18 +576,18 @@
       "yesShare": 0.178,
       "volume24hUsdc": "18100",
       "traders": 116,
-      "description": "DEGEN is Base's most liquid culture token; its price is the cleanest read on whether on-chain tipping still has a bid. Spot is $0.000925 (2.64% in 24h); the strike is 21% above it.",
+      "description": "DEGEN is Base's most liquid culture token; its price is the cleanest read on whether on-chain tipping still has a bid. Spot is $0.000925 (2.68% in 24h); the strike is 21% above it.",
       "resolution": "YES if the DEGEN/USDT daily candle on Binance closes at or above $0.00112 on any day up to and including 2026-10-31 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
       "dataSource": "Binance DEGENUSDT",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "marketData": {
         "asset": "DEGEN",
-        "spotUsd": 0.00092496,
+        "spotUsd": 0.00092469,
         "strikeUsd": 0.0011200000000000001,
         "direction": "above",
         "windowDays": 4,
         "source": "Binance",
-        "asOf": "2026-10-28T05:05:04.251Z"
+        "asOf": "2026-10-28T06:05:09.147Z"
       },
       "visual": {
         "kind": "token",
@@ -601,11 +601,11 @@
     },
     {
       "id": "700019",
-      "title": "Will BRETT close above $0.00558 before October 31, 2026?",
+      "title": "Will BRETT close above $0.00554 before October 31, 2026?",
       "category": "Memes & Culture",
       "tags": [
         "BRETT",
-        "spot $0.00473",
+        "spot $0.00469",
         "+18% strike",
         "Base",
         "Meme"
@@ -614,21 +614,21 @@
       "status": 1,
       "endTimeUtc": "2026-10-31T23:59:59.000Z",
       "liquidityUsdc": "33800",
-      "yesShare": 0.198,
+      "yesShare": 0.196,
       "volume24hUsdc": "12400",
       "traders": 87,
-      "description": "Meme liquidity on Base rotates faster than anywhere else; an 18% month-end strike filters rotation from real accumulation. Spot is $0.00473 (2.10% in 24h); the strike is 18% above it.",
-      "resolution": "YES if the BRETT/USDT daily candle on Binance closes at or above $0.00558 on any day up to and including 2026-10-31 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
+      "description": "Meme liquidity on Base rotates faster than anywhere else; an 18% month-end strike filters rotation from real accumulation. Spot is $0.00469 (1.56% in 24h); the strike is 18% above it.",
+      "resolution": "YES if the BRETT/USDT daily candle on Binance closes at or above $0.00554 on any day up to and including 2026-10-31 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
       "dataSource": "Binance BRETTUSDT",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "marketData": {
         "asset": "BRETT",
-        "spotUsd": 0.00472633,
-        "strikeUsd": 0.005580000000000001,
+        "spotUsd": 0.00468606,
+        "strikeUsd": 0.005540000000000001,
         "direction": "above",
         "windowDays": 4,
         "source": "Binance",
-        "asOf": "2026-10-28T05:05:04.251Z"
+        "asOf": "2026-10-28T06:05:09.147Z"
       },
       "visual": {
         "kind": "token",
@@ -636,7 +636,7 @@
         "accent": "#3B82F6",
         "entity": "BRETT",
         "kicker": "BINANCE",
-        "metric": "$0.00473",
+        "metric": "$0.00469",
         "mark": "B"
       }
     },
@@ -655,21 +655,21 @@
       "status": 1,
       "endTimeUtc": "2026-10-31T23:59:59.000Z",
       "liquidityUsdc": "43700",
-      "yesShare": 0.141,
+      "yesShare": 0.138,
       "volume24hUsdc": "8000",
       "traders": 172,
-      "description": "The long tail of Base memes lives or dies on a single week of attention; this strike is deliberately far out because the distribution is fat-tailed. Spot is $0.000110 (-2.01% in 24h); the strike is 27% above it.",
+      "description": "The long tail of Base memes lives or dies on a single week of attention; this strike is deliberately far out because the distribution is fat-tailed. Spot is $0.000110 (-2.29% in 24h); the strike is 27% above it.",
       "resolution": "YES if the TOSHI/USDT daily candle on Binance closes at or above $0.000140 on any day up to and including 2026-10-31 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
       "dataSource": "Binance TOSHIUSDT",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "marketData": {
         "asset": "TOSHI",
-        "spotUsd": 0.00011049,
+        "spotUsd": 0.0001101,
         "strikeUsd": 0.00014000000000000001,
         "direction": "above",
         "windowDays": 4,
         "source": "Binance",
-        "asOf": "2026-10-28T05:05:04.251Z"
+        "asOf": "2026-10-28T06:05:09.147Z"
       },
       "visual": {
         "kind": "token",
@@ -700,7 +700,7 @@
       "description": "Base has produced culture tokens with real volume but no sustained top-200 entrant. The threshold is the difference between a rotation and a narrative.",
       "resolution": "YES if any token launched on Base appears in CoinGecko's top 200 by market capitalisation on any day before the deadline.",
       "dataSource": "CoinGecko market cap ranking",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "meme",
         "photo": "meme",
@@ -728,7 +728,7 @@
       "description": "Attention is now cheaper to acquire than shelf space. This market asks whether that shows up in actual fee revenue rather than cultural chatter.",
       "resolution": "YES if a creator-issued token reports higher 30-day protocol fees than the 20th-ranked protocol by fees on DefiLlama for the same window.",
       "dataSource": "DefiLlama fees",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "meme",
         "photo": "meme",
@@ -756,7 +756,7 @@
       "description": "Goal totals are the least narrative-driven number in football: either the round was open or it was not.",
       "resolution": "YES if the ten matches scheduled in the Premier League round ending 2026-11-01 produce 30 or more goals in total, per the league's official results.",
       "dataSource": "Premier League official results",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "football",
         "photo": "football",
@@ -785,7 +785,7 @@
       "description": "Comebacks are the tail event that keeps the competition priced: rare enough to be a genuine surprise, common enough to be mispriced.",
       "resolution": "YES if any team wins a Champions League match after trailing by two or more goals, within the next two matchdays.",
       "dataSource": "UEFA official match reports",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "football",
         "photo": "football",
@@ -813,7 +813,7 @@
       "description": "Best-of-five finals resolve to a decider more often than the market usually prices, because seeding and patch changes compress the skill gap.",
       "resolution": "YES if any Tier-1 esports grand final (CS2, LoL, Dota 2, Valorant) played before the deadline reaches its final map.",
       "dataSource": "Tournament organiser results",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "esports",
         "photo": "esports",
@@ -841,7 +841,7 @@
       "description": "Winning margins are the physical measure of how close the field actually is, independent of the championship narrative.",
       "resolution": "YES if any Formula 1 race held before the deadline has an official winning margin below 1.000 seconds.",
       "dataSource": "FIA official classification",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "motorsport",
         "photo": "motorsport",
@@ -869,7 +869,7 @@
       "description": "Pace and spacing have pushed scoring distributions up for a decade; 150 in regulation is still the edge of the tail.",
       "resolution": "YES if any NBA team scores 150 or more points in regulation (overtime excluded) before the deadline.",
       "dataSource": "NBA official box scores",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "basketball",
         "photo": "basketball",
@@ -897,7 +897,7 @@
       "description": "Market-structure legislation has cleared one chamber and stalled in the other twice. The question is procedural: floor time, not intent.",
       "resolution": "YES if the US Senate passes a comprehensive digital-asset market-structure bill before the deadline, per congress.gov. Committee approval alone resolves NO.",
       "dataSource": "congress.gov",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "politics",
         "photo": "capitol",
@@ -925,7 +925,7 @@
       "description": "Reserve composition is the clause that decides whether a stablecoin is a payment rail or a shadow fund. Drafts without it do not count.",
       "resolution": "YES if a G20 member's financial regulator publishes final (not draft) stablecoin rules that specify permitted reserve assets before the deadline.",
       "dataSource": "Regulator official publications",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "eu",
         "photo": "eu",
@@ -953,7 +953,7 @@
       "description": "MiCA's deadlines have passed and national transposition is uneven; enforcement is where that unevenness becomes visible.",
       "resolution": "YES if the European Commission opens a formal infringement procedure citing MiCA transposition before the deadline, per an official Commission decision.",
       "dataSource": "European Commission infringement register",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "eu",
         "photo": "eu",
@@ -981,7 +981,7 @@
       "description": "Statement language moves markets before the rate decision does. The phrase has survived multiple cuts; its removal is the signal.",
       "resolution": "YES if the FOMC statement released within the window no longer characterises inflation as elevated. Parsing is literal.",
       "dataSource": "Federal Reserve statement",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "macro",
         "photo": "gold",
@@ -1009,7 +1009,7 @@
       "description": "Approval is a process: consultation, delegated act, listing. This market prices whether the last step lands inside the window.",
       "resolution": "YES if a national securities regulator in the EU, UK, Japan or Korea grants an effective listing approval for a spot crypto ETF before the deadline. Consultation papers resolve NO.",
       "dataSource": "Regulator approval notices",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "eu",
         "photo": "eu",
@@ -1032,13 +1032,13 @@
       "status": 1,
       "endTimeUtc": "2026-10-31T23:59:59.000Z",
       "liquidityUsdc": "59400",
-      "yesShare": 0.526,
+      "yesShare": 0.527,
       "volume24hUsdc": "15800",
       "traders": 213,
       "description": "A 5% drawdown is one bad week in a risk-off tape. Holding the level through month-end is a statement about Base's deposit base rather than its price.",
       "resolution": "YES if DefiLlama's Base chain TVL stays at or above $5.90B on every UTC day through 2026-10-31 23:59 UTC.",
       "dataSource": "DefiLlama /v2/chains",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "chain",
         "photo": "chain",
@@ -1050,32 +1050,32 @@
     },
     {
       "id": "700034",
-      "title": "Will AERO close above $0.7525 before October 31, 2026?",
+      "title": "Will AERO close above $0.7475 before October 31, 2026?",
       "category": "Base Ecosystem",
       "tags": [
         "AERO",
-        "spot $0.6957",
+        "spot $0.6920",
         "+8% strike"
       ],
       "source": "demo",
       "status": 1,
       "endTimeUtc": "2026-10-31T23:59:59.000Z",
       "liquidityUsdc": "41200",
-      "yesShare": 0.302,
+      "yesShare": 0.305,
       "volume24hUsdc": "17400",
       "traders": 299,
-      "description": "AERO is the closest thing Base has to an index on its own activity: veAERO locks, DEX volume and emissions all settle through it. Spot is $0.6957 (3.87% in 24h); the strike is 8% above it.",
-      "resolution": "YES if the AERO/USDT daily candle on Binance closes at or above $0.7525 on any day up to and including 2026-10-31 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
+      "description": "AERO is the closest thing Base has to an index on its own activity: veAERO locks, DEX volume and emissions all settle through it. Spot is $0.6920 (3.70% in 24h); the strike is 8% above it.",
+      "resolution": "YES if the AERO/USDT daily candle on Binance closes at or above $0.7475 on any day up to and including 2026-10-31 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
       "dataSource": "Binance AEROUSDT",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "marketData": {
         "asset": "AERO",
-        "spotUsd": 0.6957,
-        "strikeUsd": 0.7525000000000001,
+        "spotUsd": 0.691957,
+        "strikeUsd": 0.7475,
         "direction": "above",
         "windowDays": 4,
         "source": "Binance",
-        "asOf": "2026-10-28T05:05:04.251Z"
+        "asOf": "2026-10-28T06:05:09.147Z"
       },
       "visual": {
         "kind": "token",
@@ -1083,7 +1083,7 @@
         "accent": "#3DA5FF",
         "entity": "AERO",
         "kicker": "BINANCE",
-        "metric": "$0.6957",
+        "metric": "$0.6920",
         "mark": "A"
       }
     },
@@ -1103,18 +1103,18 @@
       "yesShare": 0.281,
       "volume24hUsdc": "48300",
       "traders": 183,
-      "description": "Base's culture layer has a price, and it front-runs retail flow into the chain by roughly a week. Spot is $0.000925 (2.64% in 24h); the strike is 12% above it.",
+      "description": "Base's culture layer has a price, and it front-runs retail flow into the chain by roughly a week. Spot is $0.000925 (2.68% in 24h); the strike is 12% above it.",
       "resolution": "YES if the DEGEN/USDT daily candle on Binance closes at or above $0.00104 on any day up to and including 2026-10-31 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
       "dataSource": "Binance DEGENUSDT",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "marketData": {
         "asset": "DEGEN",
-        "spotUsd": 0.00092496,
+        "spotUsd": 0.00092469,
         "strikeUsd": 0.0010400000000000001,
         "direction": "above",
         "windowDays": 4,
         "source": "Binance",
-        "asOf": "2026-10-28T05:05:04.251Z"
+        "asOf": "2026-10-28T06:05:09.147Z"
       },
       "visual": {
         "kind": "token",
@@ -1145,7 +1145,7 @@
       "description": "Base already runs an order of magnitude more transactions than L1 Ethereum on most days. The interesting question is whether it holds through a quiet week.",
       "resolution": "YES if Base's daily transaction count exceeds Ethereum L1's on every day of the final week before 2026-10-31, per L2Beat and Etherscan.",
       "dataSource": "L2Beat + Etherscan",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "chain",
         "photo": "chain",
@@ -1173,7 +1173,7 @@
       "description": "Daily actives are the metric that survives incentive programs ending. One app at a million addresses would be a first for the chain.",
       "resolution": "YES if any app deployed on Base reports 1,000,000+ daily active addresses on a single day before the deadline, corroborated by on-chain unique senders.",
       "dataSource": "On-chain unique senders",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "chain",
         "photo": "chain",
@@ -1201,7 +1201,7 @@
       "description": "Sequencer revenue is the only number that says an L2 is a business rather than a subsidy. A million-dollar week is the threshold.",
       "resolution": "YES if Base's published sequencer revenue exceeds $1,000,000 in any seven-day window ending before the deadline.",
       "dataSource": "Base / L2Beat revenue dashboard",
-      "dataAsOf": "2026-10-28T05:05:04.251Z",
+      "dataAsOf": "2026-10-28T06:05:09.147Z",
       "visual": {
         "kind": "chain",
         "photo": "chain",
