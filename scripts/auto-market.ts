@@ -46,7 +46,7 @@ type Pool = {
 };
 
 type Args = {
-  pick: "movers" | "expiry" | "tvl";
+  pick: "movers" | "expiry" | "tvl" | "tribal";
   limit: number;
   send: boolean;
   json: boolean;
@@ -54,16 +54,16 @@ type Args = {
 };
 
 function parseArgs(argv: string[]): Args {
-  const args: Args = { pick: "movers", limit: 1, send: false, json: false, write: false };
+  const args: Args = { pick: "tribal", limit: 1, send: false, json: false, write: false };
   for (const raw of argv.slice(2)) {
     const [key, value] = raw.replace(/^--/, "").split("=");
-    if (key === "pick" && ["movers", "expiry", "tvl"].includes(value)) args.pick = value as Args["pick"];
+    if (key === "pick" && ["movers", "expiry", "tvl", "tribal"].includes(value)) args.pick = value as Args["pick"];
     else if (key === "limit") args.limit = Math.max(1, Math.min(12, Number(value) || 1));
     else if (key === "send") args.send = true;
     else if (key === "json") args.json = true;
     else if (key === "write") args.write = true;
     else if (key === "help" || key === "-h") {
-      console.log("usage: bun scripts/auto-market.ts [--pick=movers|expiry|tvl] [--limit=N] [--write] [--send] [--json]");
+      console.log("usage: bun scripts/auto-market.ts [--pick=tribal|movers|expiry|tvl] [--limit=N] [--write] [--send] [--json]");
       process.exit(0);
     }
   }
@@ -130,8 +130,70 @@ function trackedUrl(id: string | number, source: "x" | "telegram" | "farcaster")
   return url.toString();
 }
 
+
+/**
+ * "Tribal" score — how much of a fight a market is.
+ *
+ * The board is full of macro questions ("will CPI print above 3.2%"). They are fine products and
+ * terrible social content: nobody roots for a statistic. A market where one community can beat
+ * another — a token flipping a rival, a chain overtaking a chain, a whale getting liquidated —
+ * gets shared because taking a side is a statement about who you are.
+ *
+ * Signals, weighted by what actually moved traffic on Farcaster:
+ *   +4  head-to-head framing (vs / flip / overtake / surpass / higher than)
+ *   +3  a token whose tribe exists (DEGEN, TOSHI, BRETT, AERO, MOG…) — matched against the title
+ *   +2  price/市值 style binary with a tight strike (a coin flip is a fight)
+ *   +1  deep trailing liquidity per trader (a crowded room)
+ *   -3  macro/politics framing (nobody tribes up over a CPI print)
+ */
+const TRIBE_TOKENS = ["degen", "toshi", "brett", "mog", "aero", "aerdrome", "zora", "higher", "onchain", "base"];
+const BATTLE_RE = /\b(vs\.?|versus|flip|flips|overtake|overtakes|surpass|surpasses|beat|beats|higher than|below|above)\b/i;
+const MACRO_RE = /\b(cpi|fomc|fed|inflation|unemployment|gdp|election|senate|powell)\b/i;
+
+function tribalScore(pool: Pool): number {
+  const title = pool.title.toLowerCase();
+  let score = 0;
+  if (BATTLE_RE.test(pool.title)) score += 4;
+  if (TRIBE_TOKENS.some((t) => title.includes(t))) score += 3;
+  if (pool.marketData?.asset && pool.marketData.strikeUsd) {
+    const spot = pool.marketData.spotUsd ?? 0;
+    const dist = spot > 0 ? Math.abs((pool.marketData.strikeUsd - spot) / spot) : 1;
+    if (dist < 0.08) score += 2; // strike within 8% of spot: a real coin flip
+  }
+  const traders = pool.traders ?? 0;
+  const liquidity = Number(pool.liquidityUsdc ?? 0);
+  if (traders > 0 && liquidity / traders > 120) score += 1;
+  if (MACRO_RE.test(title)) score -= 3;
+  return score;
+}
+
+/** Battle-call copy: the version that reads like a side to pick, not a report to read. */
+function battleTweet(pool: Pool): string | null {
+  const yes = Math.round(yesShare(pool) * 100);
+  const mult = (1 / Math.max(0.02, yes / 100)).toFixed(1);
+  const url = trackedUrl(pool.id, "x");
+  const traders = pool.traders ?? 0;
+
+  const drafts = [
+    `🏴 ${clipped(pool.title, 68)}\n\n${yes}% YES pays ${mult}×. ${traders} have already picked a side — ${closeIn(pool)} left.\n\n${url}`,
+    `Pick a side or watch it settle:\n\n${clipped(pool.title, 66)}\n\n${yes}% YES · ${mult}× · ${traders} in.\n\n${url}`,
+    `${mult}× on ${yes}% of the crowd. ${traders} traders are already in this one.\n\n${clipped(pool.title, 62)}\n\n${url}`,
+  ];
+  for (const d of drafts) {
+    const text = `${d}\n${X_HANDLE}`;
+    if (weight(text) <= 275) return text;
+  }
+  return null;
+}
+
 function rank(pools: Pool[], pick: Args["pick"]): Pool[] {
   const alive = pools.filter((p) => !poolClosed(p));
+  if (pick === "tribal") {
+    return [...alive].sort((a, b) => {
+      const d = tribalScore(b) - tribalScore(a);
+      return d !== 0 ? d : (b.traders ?? 0) - (a.traders ?? 0);
+    });
+  }
   if (pick === "expiry") {
     return [...alive].sort(
       (a, b) => new Date(a.endTimeUtc ?? 8.64e15).getTime() - new Date(b.endTimeUtc ?? 8.64e15).getTime(),
@@ -150,6 +212,11 @@ function rank(pools: Pool[], pick: Args["pick"]): Pool[] {
 }
 
 function tweetFor(pool: Pool): string {
+  // A fight gets the battle copy; a macro print keeps the analytical one. Same numbers either way.
+  if (tribalScore(pool) >= 4) {
+    const battle = battleTweet(pool);
+    if (battle) return battle;
+  }
   const yes = Math.round(yesShare(pool) * 100);
   const no = 100 - yes;
   const mult = (1 / Math.max(0.02, yes / 100)).toFixed(1);

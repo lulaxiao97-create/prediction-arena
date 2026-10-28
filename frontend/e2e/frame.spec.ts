@@ -13,8 +13,8 @@ test("market page exposes Farcaster Frame tags with attributed buttons", async (
 
   expect(html).toContain('name="fc:frame" content="vNext"');
   expect(html).toContain('name="fc:frame:image"');
-  expect(html).toContain("Predict YES");
-  expect(html).toContain("Predict NO");
+  expect(html).toContain("Bet YES");
+  expect(html).toContain("Bet NO");
   expect(html).toContain('name="fc:frame:post_url"');
 
   // every frame button has to carry attribution back to the channel

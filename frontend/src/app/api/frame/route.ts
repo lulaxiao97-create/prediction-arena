@@ -67,10 +67,10 @@ function frameHtml(params: {
 <meta name="fc:frame" content="vNext" />
 <meta name="fc:frame:image" content="__ATTR_IMAGE__" />
 <meta name="fc:frame:image:aspect_ratio" content="1.91:1" />
-<meta name="fc:frame:button:1" content="🟢 Predict YES" />
+<meta name="fc:frame:button:1" content="🟢 Bet YES" />
 <meta name="fc:frame:button:1:action" content="link" />
 <meta name="fc:frame:button:1:target" content="__ATTR_YES__" />
-<meta name="fc:frame:button:2" content="🔴 Predict NO" />
+<meta name="fc:frame:button:2" content="🔴 Bet NO" />
 <meta name="fc:frame:button:2:action" content="link" />
 <meta name="fc:frame:button:2:target" content="__ATTR_NO__" />
 <meta name="fc:frame:button:3" content="📊 Open market" />
@@ -84,7 +84,7 @@ function frameHtml(params: {
 <h1 style="font-size:20px;margin:0 0 8px">${esc(title)}</h1>
 <p style="margin:0 0 4px;color:#FBBF24">${esc(headline)}</p>
 <p style="margin:0;color:#8FA0BF;font-size:13px">Prediction Arena — binary markets on Base, settled in USDC.</p>
-<p style="margin-top:16px"><a style="color:#22D3EE" href="${esc(target("yes"))}">Predict YES</a> · <a style="color:#F87171" href="${esc(target("no"))}">Predict NO</a></p>
+<p style="margin-top:16px"><a style="color:#22D3EE" href="${esc(target("yes"))}">Bet YES</a> · <a style="color:#F87171" href="${esc(target("no"))}">Bet NO</a></p>
 </main>
 </body>
 </html>`;
