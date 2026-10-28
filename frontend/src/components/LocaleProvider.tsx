@@ -92,7 +92,9 @@ export function LocaleSwitcher({ compact = false }: { compact?: boolean }) {
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={t("nav.language")}
-        className="inline-flex items-center gap-1.5 rounded-xl border border-white/8 bg-white/[0.03] px-2.5 py-2 text-[12px] text-muted transition-colors hover:border-white/20 hover:text-ink"
+        // 44px touch target on phones: the default 34px pill sits under the sticky header's
+        // shadow and a 390px screen leaves barely a thumb-width of margin either side.
+        className="inline-flex min-h-11 min-w-11 touch-manipulation items-center justify-center gap-1.5 rounded-xl border border-white/8 bg-white/[0.03] px-2.5 py-2 text-[12px] text-muted transition-colors hover:border-white/20 hover:text-ink sm:min-h-9 sm:min-w-0 sm:justify-start"
       >
         <Languages className="size-3.5" />
         <span className="text-[13px] leading-none">{active.flag}</span>
@@ -103,7 +105,7 @@ export function LocaleSwitcher({ compact = false }: { compact?: boolean }) {
       {open && (
         <ul
           role="listbox"
-          className="glass absolute right-0 top-[calc(100%+6px)] z-50 w-44 overflow-hidden rounded-xl border border-white/10 p-1 shadow-2xl"
+          className="absolute right-0 top-[calc(100%+8px)] z-[70] max-h-[70vh] w-[min(20rem,88vw)] overflow-y-auto rounded-xl border border-white/10 bg-[#0B1020]/97 p-1 shadow-2xl backdrop-blur-xl"
         >
           {LOCALES.map((item) => (
             <li key={item.id}>
@@ -115,7 +117,7 @@ export function LocaleSwitcher({ compact = false }: { compact?: boolean }) {
                   setOpen(false);
                 }}
                 className={cn(
-                  "flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12.5px] transition-colors",
+                  "flex min-h-11 w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-[13px] transition-colors sm:min-h-0 sm:px-2.5 sm:py-1.5 sm:text-[12.5px]",
                   item.id === locale ? "bg-gold/12 text-gold-bright" : "text-muted hover:bg-white/5 hover:text-ink"
                 )}
               >

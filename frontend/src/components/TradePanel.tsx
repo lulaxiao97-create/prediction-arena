@@ -281,7 +281,7 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
 
       {!ticketMode && (<>
       {/* amount */}
-      <div className="rounded-xl border border-white/8 bg-white/[0.02] p-3">
+      <div className="rounded-xl border border-white/8 bg-white/[0.02] p-2.5 sm:p-3">
         <div className="flex items-center justify-between text-[11px] text-muted">
           <span>{t("trade.amount")}</span>
           <span className="mono flex items-center gap-2">
@@ -358,7 +358,7 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
       </div>
 
       {/* live calculation: shares / payout / ROI / fee */}
-      <div className="space-y-1.5 rounded-xl border border-white/6 bg-panel/60 p-2.5 text-[11.5px]">
+      <div className="space-y-1 rounded-xl border border-white/6 bg-panel/60 p-2 text-[11px] sm:space-y-1.5 sm:p-2.5 sm:text-[11.5px]">
         <div className="grid grid-cols-2 gap-2">
           <Metric label={t("trade.shares")} value={`${formatUsdc(shares)}`} tone={isYes ? "profit" : "loss"} />
           <Metric label={t("trade.roi")} value={`${roi >= 0 ? "+" : ""}${(roi * 100).toFixed(1)}%`} tone={roi >= 0 ? "profit" : "loss"} />

@@ -1,40 +1,43 @@
 /**
- * Growth & conversion copy — one module for the promo surface, the trust hooks and the
- * "what's hot" ticker.
+ * Growth & conversion data — the promo surface, the trust hooks and the "what's hot" rail.
  *
- * Rule that shapes every string here: a promotional claim must be something a visitor can check
- * on-chain or in the app in under a minute. The contract takes a 4% fee into escrow at bet time
- * (`PLATFORM_FEE_RATE` in lib/display-stats), so no banner may say "0% fee"; what it can say, and
- * what these offers do say, is that the fee is escrowed per market and refunded in full when a
- * market is cancelled. A promo that a skeptic can disprove in one click costs more trust than it
- * buys clicks.
+ * Copy lives in the i18n table (`growth.*`), not here: the same campaign has to read correctly in
+ * six languages, and a component that hard-codes English is the reason a German visitor suddenly
+ * sees a banner in English halfway down the page.
+ *
+ * Rule that shapes what the copy may claim: a promotional promise must be checkable on-chain in
+ * under a minute. The contract takes its fee into per-market escrow at bet time, so no banner may
+ * say "0% fee"; it can say — and does say — that the fee is escrowed and refunded in full when a
+ * market is cancelled.
  */
 
 import { displayLiquidityUsdc, displayTraders, fallbackShareFor, PLATFORM_FEE_RATE } from "@/lib/display-stats";
 
+export const FEE_PCT = Math.round(PLATFORM_FEE_RATE * 100);
+
 export type TrustChipId = "audited" | "nonCustodial" | "instant";
 
 /** The three objections a first-time visitor raises, answered in four words each. */
-export const TRUST_CHIPS: { id: TrustChipId; label: string; detail: string }[] = [
+export const TRUST_CHIPS: { id: TrustChipId; i18n: string; detail: string }[] = [
   {
     id: "audited",
-    label: "Audited v3 contract",
+    i18n: "growth.trustAudited",
     detail: "Internal audit closed with three P0 fixes; bytecode matches the published source.",
   },
   {
     id: "nonCustodial",
-    label: "Non-custodial",
+    i18n: "growth.trustNonCustodial",
     detail: "Stake stays in the contract, never in our wallet. We cannot withdraw your position.",
   },
   {
     id: "instant",
-    label: "Instant USDC settlement",
+    i18n: "growth.trustInstant",
     detail: "Settlement is one on-chain call on Base; claims are never pausable.",
   },
 ];
 
 export type GrowthOffer = {
-  id: string;
+  id: "launch" | "watch";
   emoji: string;
   kicker: string;
   title: string;
@@ -44,36 +47,38 @@ export type GrowthOffer = {
   tone: "gold" | "cyan";
 };
 
-const feePct = Math.round(PLATFORM_FEE_RATE * 100);
-
-/**
- * Two live offers. Both are mechanics the product already ships: per-market fee escrow with a
- * full refund on cancel, and the Watch-to-Earn ledger (100 points → one $1 trial ticket).
- */
+/** Two live offers. Both are mechanics the product already ships. */
 export const GROWTH_OFFERS: GrowthOffer[] = [
   {
     id: "launch",
     emoji: "🔥",
-    kicker: "BASE MAINNET · LIVE",
-    title: "Launch special: your fee is escrowed, not spent",
-    body: `The ${feePct}% platform fee leaves your stake at bet time and sits in the market's escrow until settlement. If a market is cancelled you get 100% back — fee included.`,
-    cta: "Take a position",
+    kicker: "growth.launchKicker",
+    title: "growth.launchTitle",
+    body: "growth.launchBody",
+    cta: "growth.launchCta",
     href: "#markets",
     tone: "gold",
   },
   {
     id: "watch",
     emoji: "🎁",
-    kicker: "WATCH-TO-EARN",
-    title: "100 points = a $1 trial ticket",
-    body: "Every sponsored placement that stays on screen credits 10 points, 12 times a day. Trade the ticket, keep the profit — no deposit needed to start.",
-    cta: "Start earning",
+    kicker: "growth.watchKicker",
+    title: "growth.watchTitle",
+    body: "growth.watchBody",
+    cta: "growth.watchCta",
     href: "#markets",
     tone: "cyan",
   },
 ];
 
-export type TrendLine = { href: string; text: string };
+export type TrendPoint = {
+  href: string;
+  title: string;
+  traders: number;
+  liquidityUsdc: number;
+  yesPct: number;
+  mult: number;
+};
 
 type TrendPool = {
   id: string | number | bigint;
@@ -88,21 +93,21 @@ type TrendPool = {
 
 /**
  * USDC arrives in two shapes: the manifest stores human units ("18500"), while a pool hydrated
- * from the contract carries 6-decimal base units (18_500_000_000). Anything with more than a
- * million units is base units, and reading it as dollars is how the rail printed "$18500.0M".
+ * from the contract carries 6-decimal base units (18_500_000_000). Anything above a million units
+ * is base units; reading it as dollars is how the rail once printed "$18500.0M".
  */
-function usdc(v: string | number | bigint): number {
+export function usdc(v: string | number | bigint): number {
   const n = Number(v);
   return n > 1_000_000 ? n / 1e6 : n;
 }
 
-function money(v: number): string {
+export function money(v: number): string {
   if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
   if (v >= 1_000) return `$${(v / 1_000).toFixed(1)}K`;
   return `$${Math.round(v)}`;
 }
 
-function clip(s: string, n: number): string {
+export function clip(s: string, n: number): string {
   return s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s;
 }
 
@@ -115,11 +120,11 @@ function sideShare(pool: TrendPool): number {
 }
 
 /**
- * The ticker reads the same manifest the cards do, so the numbers on the rail and the numbers in
- * the grid never disagree. Sorted by who is actually busy: traders first, turnover as tie-break —
- * a market with 300 people in it is a better FOMO hook than a bigger pool nobody is trading.
+ * The rail reads the same manifest the cards do, so the numbers on the rail and the numbers in the
+ * grid never disagree. Sorted by who is actually busy: traders first, turnover as tie-break — a
+ * market with 300 people in it is a better hook than a bigger pool nobody is trading.
  */
-export function trendLines(pools: TrendPool[], limit = 6): TrendLine[] {
+export function trendPoints(pools: TrendPool[], limit = 6): TrendPoint[] {
   return pools
     .filter((p) => (p.status ?? 1) === 1)
     .map((p) => {
@@ -131,10 +136,13 @@ export function trendLines(pools: TrendPool[], limit = 6): TrendLine[] {
     .slice(0, limit)
     .map(({ pool, traders, liquidity }) => {
       const yes = Math.max(2, Math.min(98, Math.round(sideShare(pool) * 100)));
-      const mult = (1 / (yes / 100)).toFixed(1);
       return {
         href: `/market/${pool.id}`,
-        text: `🔥 ${clip(pool.title, 64)} — ${traders} traders · ${money(liquidity)} liquidity · ${mult}× on YES`,
+        title: clip(pool.title, 64),
+        traders,
+        liquidityUsdc: liquidity,
+        yesPct: yes,
+        mult: Number((1 / (yes / 100)).toFixed(1)),
       };
     });
 }

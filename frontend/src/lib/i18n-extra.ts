@@ -850,3 +850,138 @@ export const EXTRA: Record<string, ExtraDict> = {
     },
   },
 };
+
+
+/**
+ * Growth copy — the promo strip, the hot-trends rail and the social-proof toast.
+ *
+ * Kept in its own table and merged into `EXTRA` below rather than pasted into six locale literals:
+ * a campaign is edited weekly, and a weekly edit should not have to touch the footer's string tree
+ * in five languages.
+ */
+const GROWTH: Record<string, Record<string, string>> = {
+  en: {
+    hotLabel: "Hot",
+    trendLine: "🔥 {title} — {traders} traders · {liquidity} liquidity · {mult}× on YES",
+    launchKicker: "BASE MAINNET · LIVE",
+    launchTitle: "Launch special: your fee is escrowed, not spent",
+    launchBody:
+      "The {fee}% platform fee leaves your stake at bet time and sits in the market's escrow until settlement. If a market is cancelled you get 100% back — fee included.",
+    launchCta: "Take a position",
+    watchKicker: "WATCH-TO-EARN",
+    watchTitle: "100 points = a $1 trial ticket",
+    watchBody:
+      "Every sponsored placement that stays on screen credits 10 points, 12 times a day. Trade the ticket, keep the profit — no deposit needed to start.",
+    watchCta: "Start earning",
+    trustAudited: "Audited v3 contract",
+    trustNonCustodial: "Non-custodial",
+    trustInstant: "Instant USDC settlement",
+    proofLabel: "Live board",
+    proofLine: "🔥 {title} — {traders} traders are in. YES pays {mult}×.",
+    proofDismiss: "Dismiss",
+  },
+  "zh-TW": {
+    hotLabel: "熱門",
+    trendLine: "🔥 {title} —— {traders} 人下注 · {liquidity} 流動性 · YES 賠 {mult}×",
+    launchKicker: "BASE 主網 · 已上線",
+    launchTitle: "上線特惠：手續費是託管，不是花掉",
+    launchBody:
+      "{fee}% 平台費在你下注時從本金中劃出，留在該盤口的託管裡直到結算。盤口若取消，全額退還（含手續費）。",
+    launchCta: "立即下注",
+    watchKicker: "邊看邊賺",
+    watchTitle: "100 點 = 一張 $1 體驗券",
+    watchBody:
+      "贊助版位留在畫面上即累積 10 點，每天最多 12 次。用體驗券下注，利潤歸你，不需要先入金。",
+    watchCta: "開始累積",
+    trustAudited: "v3 合約已審計",
+    trustNonCustodial: "非託管",
+    trustInstant: "USDC 即時結算",
+    proofLabel: "即時盤面",
+    proofLine: "🔥 {title} —— 已有 {traders} 人下注，YES 賠 {mult}×。",
+    proofDismiss: "關閉",
+  },
+  de: {
+    hotLabel: "Heiß",
+    trendLine: "🔥 {title} — {traders} Trader · {liquidity} Liquidität · {mult}× auf YES",
+    launchKicker: "BASE MAINNET · LIVE",
+    launchTitle: "Launch-Angebot: Die Gebühr wird treuhänderisch gehalten, nicht ausgegeben",
+    launchBody:
+      "Die {fee}% Plattformgebühr verlässt deinen Einsatz beim Wetten und bleibt bis zur Abrechnung im Treuhandpool des Marktes. Wird ein Markt abgesagt, bekommst du 100% zurück – inklusive Gebühr.",
+    launchCta: "Position eröffnen",
+    watchKicker: "WATCH-TO-EARN",
+    watchTitle: "100 Punkte = ein 1-$-Testticket",
+    watchBody:
+      "Jede Sponsoring-Anzeige, die auf dem Bildschirm bleibt, bringt 10 Punkte, bis zu 12-mal am Tag. Handle mit dem Ticket und behalte den Gewinn – ohne Einzahlung.",
+    watchCta: "Punkte sammeln",
+    trustAudited: "Geprüfter v3-Vertrag",
+    trustNonCustodial: "Nicht-verwahrend",
+    trustInstant: "Sofortige USDC-Abrechnung",
+    proofLabel: "Live-Board",
+    proofLine: "🔥 {title} — {traders} Trader sind dabei. YES zahlt {mult}×.",
+    proofDismiss: "Schließen",
+  },
+  fr: {
+    hotLabel: "Tendance",
+    trendLine: "🔥 {title} — {traders} traders · {liquidity} de liquidité · {mult}× sur YES",
+    launchKicker: "BASE MAINNET · EN LIGNE",
+    launchTitle: "Offre de lancement : vos frais sont sous séquestre, pas dépensés",
+    launchBody:
+      "Les {fee}% de frais quittent votre mise au moment du pari et restent dans le séquestre du marché jusqu'au règlement. Marché annulé = 100% remboursé, frais inclus.",
+    launchCta: "Prendre position",
+    watchKicker: "REGARDER POUR GAGNER",
+    watchTitle: "100 points = un ticket d'essai de 1 $",
+    watchBody:
+      "Chaque encart sponsorisé qui reste à l'écran crédite 10 points, jusqu'à 12 fois par jour. Utilisez le ticket, gardez le profit — sans dépôt.",
+    watchCta: "Commencer",
+    trustAudited: "Contrat v3 audité",
+    trustNonCustodial: "Non dépositaire",
+    trustInstant: "Règlement USDC instantané",
+    proofLabel: "Tableau live",
+    proofLine: "🔥 {title} — {traders} traders sont entrés. YES paie {mult}×.",
+    proofDismiss: "Fermer",
+  },
+  ja: {
+    hotLabel: "急上昇",
+    trendLine: "🔥 {title} — {traders} 人が参加 · 流動性 {liquidity} · YES {mult}×",
+    launchKicker: "BASE メインネット · 公開中",
+    launchTitle: "ローンチ特典：手数料は「使われる」のではなくエスクローされます",
+    launchBody:
+      "{fee}% のプラットフォーム手数料はベット時点でステークから分離され、決済までマーケットのエスクローに留まります。マーケットが中止された場合は手数料込みで 100% 返還されます。",
+    launchCta: "ポジションを取る",
+    watchKicker: "視聴で稼ぐ",
+    watchTitle: "100 ポイント = 1ドル体験チケット",
+    watchBody:
+      "スポンサー枠を画面に表示したままにすると 10 ポイント、1日12回まで貯まります。チケットで取引し、利益はあなたのもの。入金は不要です。",
+    watchCta: "貯め始める",
+    trustAudited: "監査済み v3 コントラクト",
+    trustNonCustodial: "ノンカストディアル",
+    trustInstant: "USDC 即時決済",
+    proofLabel: "ライブ盤面",
+    proofLine: "🔥 {title} — すでに {traders} 人が参加。YES は {mult}×。",
+    proofDismiss: "閉じる",
+  },
+  ko: {
+    hotLabel: "급상승",
+    trendLine: "🔥 {title} — {traders}명 참여 · 유동성 {liquidity} · YES {mult}×",
+    launchKicker: "베이스 메인넷 · 라이브",
+    launchTitle: "런치 특가: 수수료는 쓰이는 게 아니라 예치됩니다",
+    launchBody:
+      "{fee}% 플랫폼 수수료는 베팅 시점에 스테이크에서 빠져 시장 정산 때까지 에스크로에 보관됩니다. 시장이 취소되면 수수료 포함 100% 환불됩니다.",
+    launchCta: "포지션 잡기",
+    watchKicker: "보고 버는 리워드",
+    watchTitle: "100 포인트 = 1달러 체험권",
+    watchBody:
+      "스폰서 광고를 화면에 유지하면 10포인트, 하루 12회까지 적립됩니다. 체험권으로 거래하고 수익은 그대로 가져가세요. 입금은 필요 없습니다.",
+    watchCta: "적립 시작",
+    trustAudited: "감사 완료 v3 컨트랙트",
+    trustNonCustodial: "논커스터디얼",
+    trustInstant: "USDC 즉시 정산",
+    proofLabel: "실시간 보드",
+    proofLine: "🔥 {title} — 이미 {traders}명이 참여했습니다. YES {mult}×.",
+    proofDismiss: "닫기",
+  },
+};
+
+for (const [locale, dict] of Object.entries(GROWTH)) {
+  EXTRA[locale] = { ...(EXTRA[locale] ?? {}), growth: dict };
+}

@@ -100,11 +100,11 @@ export function MarketCard({
   return (
     <article
       style={{ animationDelay: `${Math.min(index * 0.04, 0.2)}s` }}
-      className="glass glass-hover card-edge rise-in group relative flex flex-col overflow-hidden rounded-2xl"
+      className="glass glass-hover card-edge rise-in market-card group relative flex flex-col overflow-hidden rounded-2xl"
     >
       {/* Subject band: the photograph + motif + the entity this market is actually about.
           It replaces the old full-card wash, which read as "every card is the same grey tile". */}
-      <div className="relative h-[112px] w-full shrink-0 overflow-hidden border-b border-white/[0.07]">
+      <div className="relative h-[96px] w-full shrink-0 overflow-hidden border-b border-white/[0.07] sm:h-[112px]">
         <MarketCover spec={cover} variant="card" />
         {cover.metric && (
           <span className="mono absolute right-2.5 top-2.5 rounded-md border border-white/12 bg-void/60 px-1.5 py-0.5 text-[10px] text-ink/90 backdrop-blur-sm">
@@ -122,7 +122,7 @@ export function MarketCard({
         </div>
       </div>
 
-      <div className="relative flex flex-1 flex-col gap-3 p-4">
+      <div className="relative flex flex-1 flex-col gap-2.5 p-3 sm:gap-3 sm:p-4">
       {/* clickable surface → detail page */}
       <Link href={href} className="absolute inset-0 z-0" aria-label={t("card.view")} />
 
@@ -156,7 +156,7 @@ export function MarketCard({
       </div>
 
       {/* question */}
-      <h3 className="pointer-events-none relative z-10 line-clamp-2 text-[15px] font-semibold leading-snug text-ink transition-colors group-hover:text-gold-bright/95">
+      <h3 className="pointer-events-none relative z-10 line-clamp-2 text-[14px] font-semibold leading-snug text-ink transition-colors group-hover:text-gold-bright/95 sm:text-[15px]">
         {pool.title}
       </h3>
 

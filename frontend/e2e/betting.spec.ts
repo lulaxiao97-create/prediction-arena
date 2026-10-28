@@ -63,7 +63,11 @@ test("board renders every market with a multiplier on both buttons", async ({ pa
   expect(await prices.count()).toBeGreaterThanOrEqual(60);
 
   // every quick-trade button carries a multiple, none renders a bare "—"
-  const labels = await prices.allInnerTexts();
+  //
+  // textContent, not innerText: the cards use `content-visibility: auto`, so a card below the fold
+  // has no layout box and innerText returns "" for it. The assertion is about the rendered string,
+  // not about whether Chromium has painted that card yet.
+  const labels = await prices.allTextContents();
   for (const label of labels) {
     expect(label).toMatch(/\d+\.\d{2}x/i);
   }

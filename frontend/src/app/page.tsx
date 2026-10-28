@@ -17,6 +17,7 @@ import {
 import { Navbar } from "@/components/Navbar";
 import { HeroMasthead } from "@/components/HeroMasthead";
 import { GrowthStrip } from "@/components/GrowthStrip";
+import { LiveProofToast } from "@/components/LiveProofToast";
 import { TrendTicker } from "@/components/TrendTicker";
 import { LiveTicker } from "@/components/LiveTicker";
 import { LiveActivityFeed } from "@/components/LiveActivityFeed";
@@ -294,6 +295,9 @@ export default function Home() {
       <SiteFooter />
 
       <BetModalHost pool={selected?.pool ?? null} option={selected?.option ?? 0} onClose={() => setSelected(null)} />
+
+      {/* Social proof, bottom-right: real board numbers, never an invented wallet. */}
+      <LiveProofToast pools={pools} />
     </div>
   );
 }

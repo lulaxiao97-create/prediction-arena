@@ -110,7 +110,7 @@ export function MobileTradeSheet({ pool, yesPct }: { pool: ArenaPool; yesPct: nu
           aria-label={t("trade.panel")}
           tabIndex={-1}
           className={cn(
-            "absolute inset-x-0 bottom-0 flex max-h-[88vh] flex-col rounded-t-3xl border-t border-white/12 bg-void/97 shadow-[0_-24px_60px_-20px_rgba(0,0,0,0.8)] backdrop-blur-2xl transition-transform duration-300 ease-out will-change-transform outline-none",
+            "absolute inset-x-0 bottom-0 flex max-h-[92vh] flex-col rounded-t-3xl border-t border-white/12 bg-void/97 shadow-[0_-24px_60px_-20px_rgba(0,0,0,0.8)] backdrop-blur-2xl transition-transform duration-300 ease-out will-change-transform outline-none",
             "max-h-[88dvh]",
             open ? "translate-y-0" : "translate-y-full"
           )}
@@ -126,7 +126,7 @@ export function MobileTradeSheet({ pool, yesPct }: { pool: ArenaPool; yesPct: nu
             <span className="h-1 w-10 rounded-full bg-white/25" />
           </div>
 
-          <div className="flex shrink-0 items-center gap-2 px-4 pb-1">
+          <div className="flex shrink-0 items-center gap-2 px-3 pb-1 sm:px-4">
             <p className="truncate text-[13px] font-semibold text-ink">{pool.title}</p>
             <button
               ref={closeRef}

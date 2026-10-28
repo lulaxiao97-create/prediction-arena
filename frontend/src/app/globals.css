@@ -655,3 +655,47 @@ a:active {
     animation: none;
   }
 }
+
+
+/* ── mobile performance & density ───────────────────────────────── */
+/*
+ * The board renders 38 cards. On a mid-range phone the three costs that actually show up as
+ * jank are (1) a backdrop-blur layer per card, (2) 38 hit-test/layout trees that are mostly
+ * offscreen, and (3) the drifting background orbs repainting under everything.
+ *
+ * `content-visibility: auto` lets the browser skip layout and paint for cards outside the
+ * viewport — the same list, a fraction of the work — with `contain-intrinsic-size` keeping the
+ * scrollbar honest so the page does not jump while scrolling.
+ */
+.market-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 320px;
+}
+
+@media (max-width: 767px) {
+  .market-card {
+    /* a hair taller than the desktop card: the cover is shorter but the copy wraps more */
+    contain-intrinsic-size: auto 300px;
+  }
+  /* Frosted glass is the most expensive paint on the page and the least visible at 390px,
+     where cards are full-width and the backdrop is mostly the page's own gradient. */
+  .glass,
+  .glass-soft {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: linear-gradient(158deg, rgba(17, 24, 39, 0.86), rgba(11, 15, 25, 0.8));
+  }
+  .animate-float-orb {
+    animation: none;
+  }
+  /* Touch devices never hover: the lift is pure cost, and it fires on tap-end. */
+  .glass-hover:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .market-card {
+    animation: none;
+  }
+}
