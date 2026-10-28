@@ -57,3 +57,26 @@ test("market share intent carries per-market attribution", async ({ page, reques
   expect(href).toContain("ref=x");
   expect(href).toContain("x.com/intent/tweet");
 });
+
+
+test("growth attribution endpoint answers with a JSON contract", async ({ request }) => {
+  const res = await request.get("/api/growth/summary?chunks=1");
+  // 200 when the public Base RPC allows the scan, 503 when it throttles. Both are the contract:
+  // never an HTML error page, never a crash — the admin panel renders the message.
+  expect([200, 503]).toContain(res.status());
+  expect(res.headers()["content-type"]).toContain("application/json");
+  const body = (await res.json()) as { ok: boolean; totals?: unknown; channels?: unknown; error?: string };
+  expect(typeof body.ok).toBe("boolean");
+  if (body.ok) {
+    expect(body.totals).toBeTruthy();
+    expect(body.channels).toBeTruthy();
+  } else {
+    expect(typeof body.error).toBe("string");
+  }
+});
+
+test("market share metadata leads with the payout multiple", async ({ page }) => {
+  await page.goto("/market/700001", { waitUntil: "domcontentloaded" });
+  const html = await page.content();
+  expect(html).toMatch(/\d+% YES · pays \d+\.\d× · \d+ traders/);
+});

@@ -1,36 +1,36 @@
 /**
- * Social auto-pilot — pick the loudest market on the board and draft the daily post for X and
- * Telegram.
+ * Content factory for the daily market cycle.
  *
- * Run it dry (default) to see exactly what would go out:
+ * It picks the loudest market on the board and writes the three posts the channels need — an X
+ * tweet, a Farcaster cast, a Telegram daily — then archives them under `docs/campaigns/`, one
+ * folder per day plus a weekly schedule file. Archiving matters: a campaign that only exists in a
+ * terminal scrollback cannot be reviewed, re-used or attributed later.
  *
- *   bun scripts/auto-market.ts                 # biggest payout on the board
- *   bun scripts/auto-market.ts --pick=expiry   # closest to closing
- *   bun scripts/auto-market.ts --limit=3       # three posts, one per market
- *   bun scripts/auto-market.ts --json          # machine-readable, for a cron wrapper
+ *   bun scripts/auto-market.ts                       # biggest payout, dry run
+ *   bun scripts/auto-market.ts --pick=expiry         # closest to closing
+ *   bun scripts/auto-market.ts --pick=tvl            # deepest liquidity
+ *   bun scripts/auto-market.ts --limit=3 --write     # three markets, archived to docs/campaigns
+ *   bun scripts/auto-market.ts --limit=2 --send      # publish (needs credentials below)
  *
- * Sending needs credentials; without them the script still prints the tweets, so the copy can be
- * reviewed (and pasted by hand) before anyone hands it a token:
- *
- *   X_OAUTH2_BEARER=...      # user-context token with tweet.write
- *   TELEGRAM_BOT_TOKEN=...   # bot that is an admin of @predictionarena_hq
+ * Credentials (optional; without them nothing is published):
+ *   X_OAUTH2_BEARER=...        user-context token with tweet.write
+ *   TELEGRAM_BOT_TOKEN=...     bot that is an admin of @predictionarena_hq
  *   TELEGRAM_CHAT_ID=@predictionarena_hq
  *
- * Design rules, learned the hard way:
- *  - It never invents a number. Probability, payout, traders and the close time all come from the
- *    manifest or from `/api/board`, and the tweet quotes the same figures the card shows.
- *  - It never says "paying X×" about a settled market, and it skips markets whose window has
- *    already closed — a post that sends people to a dead market burns the click forever.
- *  - Every link carries `utm_*` + `ref`, the same attribution the in-app share button uses, so a
- *    spike in traffic can be traced to the channel that produced it.
- *  - Dry run is the default. Publishing is opt-in via `--send` *and* credentials.
+ * Rules the copy follows:
+ *  - no invented numbers: probability, payout, traders and close time come from the manifest;
+ *  - no "0% fee" and no guaranteed returns — the contract takes 4% into per-market escrow;
+ *  - every link carries `utm_*` + `ref` so a spike can be traced to the channel that caused it;
+ *  - length budgets are enforced per platform (X: 280 with URLs counted as 23; Farcaster: 320).
  */
 
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ?? "https://predictionarena.online";
-const MANIFEST = join(import.meta.dir, "..", "frontend", "public", "pools.json");
+const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://predictionarena.online").replace(/\/+$/, "");
+const ROOT = join(import.meta.dir, "..");
+const MANIFEST = join(ROOT, "frontend", "public", "pools.json");
+const CAMPAIGNS = join(ROOT, "docs", "campaigns");
 const X_HANDLE = "@Predict065";
 
 type Pool = {
@@ -44,18 +44,25 @@ type Pool = {
   marketData?: { asset?: string; spotUsd?: number; strikeUsd?: number; source?: string };
 };
 
-type Args = { pick: "movers" | "expiry"; limit: number; send: boolean; json: boolean };
+type Args = {
+  pick: "movers" | "expiry" | "tvl";
+  limit: number;
+  send: boolean;
+  json: boolean;
+  write: boolean;
+};
 
 function parseArgs(argv: string[]): Args {
-  const args: Args = { pick: "movers", limit: 1, send: false, json: false };
+  const args: Args = { pick: "movers", limit: 1, send: false, json: false, write: false };
   for (const raw of argv.slice(2)) {
     const [key, value] = raw.replace(/^--/, "").split("=");
-    if (key === "pick" && (value === "movers" || value === "expiry")) args.pick = value;
-    else if (key === "limit") args.limit = Math.max(1, Math.min(10, Number(value) || 1));
+    if (key === "pick" && ["movers", "expiry", "tvl"].includes(value)) args.pick = value as Args["pick"];
+    else if (key === "limit") args.limit = Math.max(1, Math.min(12, Number(value) || 1));
     else if (key === "send") args.send = true;
     else if (key === "json") args.json = true;
+    else if (key === "write") args.write = true;
     else if (key === "help" || key === "-h") {
-      console.log("usage: bun scripts/auto-market.ts [--pick=movers|expiry] [--limit=N] [--send] [--json]");
+      console.log("usage: bun scripts/auto-market.ts [--pick=movers|expiry|tvl] [--limit=N] [--write] [--send] [--json]");
       process.exit(0);
     }
   }
@@ -67,14 +74,13 @@ function loadPools(): Pool[] {
   return (board.pools ?? []).filter((p) => (p.status ?? 1) === 1);
 }
 
-/** On-chain share when the manifest carries one, else the deterministic demo figure. */
 function yesShare(pool: Pool): number {
   const raw = Number(pool.yesShare ?? Number.NaN);
   if (Number.isFinite(raw) && raw > 0 && raw < 1) return raw;
   return 0.5;
 }
 
-/** X counts every URL as 23 characters, so length is measured with that substitution. */
+/** X counts every URL as 23 characters. */
 function weight(text: string): number {
   const urls = text.match(/https?:\/\/\S+/g) ?? [];
   return urls.reduce((n, u) => n + 23 - u.length, text.length);
@@ -99,15 +105,9 @@ function clipped(s: string, n: number): string {
   return s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s;
 }
 
-/** Attribution identical to the in-app share button, so both show up under one campaign. */
-function trackedUrl(id: string | number, channel: "x" | "telegram"): string {
-  const url = new URL(`${SITE}/market/${id}`);
-  url.searchParams.set("utm_source", channel);
-  url.searchParams.set("utm_medium", "social");
-  url.searchParams.set("utm_campaign", "auto_market");
-  url.searchParams.set("utm_content", String(id));
-  url.searchParams.set("ref", channel);
-  return url.toString();
+function poolClosed(pool: Pool): boolean {
+  if (!pool.endTimeUtc) return false;
+  return new Date(pool.endTimeUtc).getTime() <= Date.now();
 }
 
 function closeIn(pool: Pool): string {
@@ -119,6 +119,16 @@ function closeIn(pool: Pool): string {
   return `${Math.round(hours / 24)}d`;
 }
 
+function trackedUrl(id: string | number, source: "x" | "telegram" | "farcaster"): string {
+  const url = new URL(`${SITE}/market/${id}`);
+  url.searchParams.set("utm_source", source);
+  url.searchParams.set("utm_medium", source === "farcaster" ? "cast" : "social");
+  url.searchParams.set("utm_campaign", "auto_market");
+  url.searchParams.set("utm_content", String(id));
+  url.searchParams.set("ref", source === "farcaster" ? "fc" : source);
+  return url.toString();
+}
+
 function rank(pools: Pool[], pick: Args["pick"]): Pool[] {
   const alive = pools.filter((p) => !poolClosed(p));
   if (pick === "expiry") {
@@ -126,18 +136,16 @@ function rank(pools: Pool[], pick: Args["pick"]): Pool[] {
       (a, b) => new Date(a.endTimeUtc ?? 8.64e15).getTime() - new Date(b.endTimeUtc ?? 8.64e15).getTime(),
     );
   }
-  // "movers": the side that pays the most — longest odds first, traders as the tie-break.
+  if (pick === "tvl") {
+    return [...alive].sort((a, b) => Number(b.liquidityUsdc ?? 0) - Number(a.liquidityUsdc ?? 0));
+  }
+  // movers: the side that pays the most — longest odds first, traders as the tie-break.
   return [...alive].sort((a, b) => {
     const pa = 1 / Math.max(0.02, yesShare(a));
     const pb = 1 / Math.max(0.02, yesShare(b));
     if (Math.abs(pb - pa) > 0.05) return pb - pa;
     return (b.traders ?? 0) - (a.traders ?? 0);
   });
-}
-
-function poolClosed(pool: Pool): boolean {
-  if (!pool.endTimeUtc) return false;
-  return new Date(pool.endTimeUtc).getTime() <= Date.now();
 }
 
 function tweetFor(pool: Pool): string {
@@ -163,6 +171,20 @@ function tweetFor(pool: Pool): string {
   return `${clipped(pool.title, 60)}\n${yes}% YES pays ${mult}×.\n${url}\n${X_HANDLE}`;
 }
 
+/** Farcaster: 320 characters, links counted at full length, frame renders the card inline. */
+function castFor(pool: Pool): string {
+  const yes = Math.round(yesShare(pool) * 100);
+  const mult = (1 / Math.max(0.02, yes / 100)).toFixed(1);
+  const url = trackedUrl(pool.id, "farcaster");
+  const spot = pool.marketData?.asset
+    ? `${pool.marketData.asset} ${price(pool.marketData.spotUsd ?? 0)} now`
+    : `closes in ${closeIn(pool)}`;
+
+  const full = `📊 ${clipped(pool.title, 74)}\n\n${yes}% YES · pays ${mult}× · ${pool.traders ?? 0} traders\n${spot}\n\n${url}`;
+  if (full.length <= 320) return full;
+  return `📊 ${clipped(pool.title, 56)}\n\n${yes}% YES · ${mult}×\n${url}`;
+}
+
 function telegramFor(pool: Pool): string {
   const yes = Math.round(yesShare(pool) * 100);
   const mult = (1 / Math.max(0.02, yes / 100)).toFixed(1);
@@ -179,6 +201,91 @@ function telegramFor(pool: Pool): string {
     `Only official links: ${SITE} · x.com/Predict065 · t.me/predictionarena_hq`,
     `Contract: 0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5 (Base, v3)`,
   ].join("\n");
+}
+
+type Post = {
+  id: string | number;
+  title: string;
+  pick: Args["pick"];
+  tweet: string;
+  tweetWeight: number;
+  cast: string;
+  castChars: number;
+  telegram: string;
+  links: { x: string; farcaster: string; telegram: string };
+  generatedAt: string;
+};
+
+function build(pool: Pool, pick: Args["pick"]): Post {
+  const tweet = tweetFor(pool);
+  const cast = castFor(pool);
+  return {
+    id: pool.id,
+    title: pool.title,
+    pick,
+    tweet,
+    tweetWeight: weight(tweet),
+    cast,
+    castChars: cast.length,
+    telegram: telegramFor(pool),
+    links: {
+      x: trackedUrl(pool.id, "x"),
+      farcaster: trackedUrl(pool.id, "farcaster"),
+      telegram: trackedUrl(pool.id, "telegram"),
+    },
+    generatedAt: new Date().toISOString(),
+  };
+}
+
+/** ISO week key, e.g. 2026-W44 — matches how the schedule file is named. */
+function isoWeek(d: Date): string {
+  const t = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  const day = t.getUTCDay() || 7;
+  t.setUTCDate(t.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+  const week = Math.ceil(((t.getTime() - yearStart.getTime()) / 86_400_000 + 1) / 7);
+  return `${t.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
+}
+
+/**
+ * Archive the generated copy. One folder per day so a post can be traced to the bot run that
+ * produced it, plus a week file that is the schedule a human actually reads on Monday.
+ */
+function archive(posts: Post[]): string[] {
+  const now = new Date();
+  const day = now.toISOString().slice(0, 10);
+  const dir = join(CAMPAIGNS, day);
+  mkdirSync(dir, { recursive: true });
+
+  const written: string[] = [];
+  for (const post of posts) {
+    const base = join(dir, String(post.id));
+    writeFileSync(`${base}-x.txt`, `${post.tweet}\n`, "utf8");
+    writeFileSync(`${base}-cast.txt`, `${post.cast}\n`, "utf8");
+    writeFileSync(`${base}-telegram.txt`, `${post.telegram}\n`, "utf8");
+    written.push(`${base}-x.txt`, `${base}-cast.txt`, `${base}-telegram.txt`);
+  }
+
+  writeFileSync(join(dir, "index.json"), JSON.stringify({ day, posts }, null, 2), "utf8");
+  written.push(join(dir, "index.json"));
+
+  const week = isoWeek(now);
+  const weekFile = join(CAMPAIGNS, `${week}.md`);
+  let existing = "";
+  try {
+    existing = readFileSync(weekFile, "utf8");
+  } catch {
+    existing = `# Campaign week ${week}\n\nAuto-generated by scripts/auto-market.ts --write. One row per market; copy lives in the day folder.\n\n| Generated | Market | Pick | Tweet | Cast |\n|---|---|---|---|---|\n`;
+  }
+  const rows = posts
+    .map(
+      (p) =>
+        `| ${p.generatedAt.slice(0, 16).replace("T", " ")}Z | ${p.title.replace(/\\|/g, "\\\\|")} | ${p.pick} | ${p.tweetWeight}/280 | ${p.castChars}/320 |`,
+    )
+    .join("\n");
+  writeFileSync(weekFile, `${existing}${rows}\n`, "utf8");
+  written.push(weekFile);
+  return written;
 }
 
 async function sendX(text: string): Promise<string> {
@@ -215,38 +322,41 @@ async function main() {
   }
 
   const picked = rank(pools, args.pick).slice(0, args.limit);
-  const out: Record<string, unknown>[] = [];
+  const posts = picked.map((p) => build(p, args.pick));
 
-  for (const pool of picked) {
-    const tweet = tweetFor(pool);
-    const tg = telegramFor(pool);
-    const result: Record<string, unknown> = {
-      id: pool.id,
-      title: pool.title,
-      tweet,
-      tweetChars: weight(tweet),
-      telegram: tg,
-    };
+  const results: Record<string, unknown>[] = [];
+  for (const post of posts) {
+    const row: Record<string, unknown> = { ...post };
     if (args.send) {
-      result.x = await sendX(tweet);
-      result.telegramSend = await sendTelegram(tg);
+      row.x = await sendX(post.tweet);
+      row.telegramSend = await sendTelegram(post.telegram);
+      // Farcaster has no public post API for bots without a signer; the cast is archived for a human
+      // (or a Warpcast signer) to send, which is why it is written to disk rather than "posted".
     }
-    out.push(result);
+    results.push(row);
   }
 
-  if (args.json) console.log(JSON.stringify({ site: SITE, posts: out }, null, 2));
-  else {
-    out.forEach((r: Record<string, unknown>) => {
-      console.log(`\n=== market ${r.id} — ${r.title}`);
-      console.log(`--- X (${r.tweetChars}/280 weighted)`);
-      console.log(r.tweet);
-      console.log("--- Telegram");
-      console.log(r.telegram);
-      if (r.x) console.log(`--- x: ${r.x}`);
-      if (r.telegramSend) console.log(`--- telegram: ${r.telegramSend}`);
-    });
-    if (!args.send) console.log("\n(dry run — pass --send with credentials to publish)");
+  const files = args.write ? archive(posts) : [];
+
+  if (args.json) {
+    console.log(JSON.stringify({ site: SITE, posts: results, files }, null, 2));
+    return;
   }
+
+  results.forEach((r) => {
+    const p = r as unknown as Post & { x?: string; telegramSend?: string };
+    console.log(`\n=== market ${p.id} — ${p.title}`);
+    console.log(`--- X (${p.tweetWeight}/280 weighted)`);
+    console.log(p.tweet);
+    console.log(`--- Farcaster (${p.castChars}/320)`);
+    console.log(p.cast);
+    console.log("--- Telegram");
+    console.log(p.telegram);
+    if (p.x) console.log(`--- x: ${p.x}`);
+    if (p.telegramSend) console.log(`--- telegram: ${p.telegramSend}`);
+  });
+  if (files.length > 0) console.log(`\narchived ${files.length} files under docs/campaigns/`);
+  if (!args.send) console.log("\n(dry run — pass --send with credentials to publish, --write to archive)");
 }
 
 main().catch((err) => {

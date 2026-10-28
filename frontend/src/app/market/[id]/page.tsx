@@ -12,7 +12,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const pool = await readPool(id);
   const title = pool?.title ?? `Market #${id}`;
   const yes = Math.round(impliedYes(pool) * 100);
-  const description = `${yes}% YES / ${100 - yes}% NO · binary market on Base, settled in native USDC with on-chain evidence.`;
+  // Share previews are the ad unit: a title with no number gets scrolled past, so the description
+  // leads with the payout multiple and the crowd size — both read straight from the manifest.
+  const mult = (1 / Math.max(0.02, yes / 100)).toFixed(1);
+  const traders = pool?.traders ?? 0;
+  const description = `${yes}% YES · pays ${mult}× · ${traders} traders. Binary market on Base, settled in native USDC with on-chain evidence.`;
 
   return {
     title,

@@ -9,6 +9,7 @@ import { Check, Copy, ExternalLink, Loader2, Pause, Play, RefreshCw, ShieldCheck
 
 import { adminMessage } from "@/lib/admin-auth";
 import { SocialLinks } from "@/components/SocialLinks";
+import { GrowthAttribution } from "@/components/GrowthAttribution";
 import { SOCIAL } from "@/lib/social";
 import { ARENA_ABI, ARENA_ADDRESS, usePools } from "@/hooks/usePredictionArena";
 import { useMarkets } from "@/hooks/useMarkets";
@@ -234,6 +235,9 @@ export default function AdminPage() {
           {apiError && (
             <p className="mt-3 rounded-lg border border-loss/25 bg-loss/[0.05] px-3 py-2 text-[12px] text-loss">{apiError}</p>
           )}
+
+          {/* Chain-side attribution first: it is the only number here that nobody can fake. */}
+          <GrowthAttribution />
 
           {tab === "ads" && <AdsPanel snapshot={snapshot} />}
           {tab === "payouts" && <PayoutsPanel snapshot={snapshot} auth={auth} onChanged={load} />}
