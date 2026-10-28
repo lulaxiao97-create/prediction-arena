@@ -105,7 +105,7 @@ export function LocaleSwitcher({ compact = false }: { compact?: boolean }) {
       {open && (
         <ul
           role="listbox"
-          className="absolute right-0 top-[calc(100%+8px)] z-[70] max-h-[70vh] w-[min(20rem,88vw)] overflow-y-auto rounded-xl border border-white/10 bg-[rgba(11,16,32,0.98)] p-1 shadow-2xl backdrop-blur-xl"
+          className="absolute right-0 top-[calc(100%+8px)] z-[70] max-h-[70vh] w-[min(20rem,88vw)] overflow-y-auto rounded-xl border border-white/10 bg-panel p-1 shadow-2xl backdrop-blur-xl"
         >
           {LOCALES.map((item) => (
             <li key={item.id}>
