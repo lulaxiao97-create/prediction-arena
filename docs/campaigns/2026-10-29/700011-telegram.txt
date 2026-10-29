@@ -1,10 +1,15 @@
-📊 DAILY BOARD — 2026-10-29
+🏴 DAILY BOARD — 2026-10-29
 
-🔥 Will AERO close above $0.7675 before October 31, 2026?
-15% YES · pays 6.7× · 311 traders · $58.1K liquidity
-Closes in 3d
+🔥 Will AERO close above $0.7750 before October 31, 2026?
+YES █░░░░░░░ 15% · pays 6.7×
+NO  ███████░ 85% · pays 1.2×
+311 traders · $58.1K liquidity · 3d left
 
 Take a side → https://predictionarena.online/market/700011?utm_source=telegram&utm_medium=social&utm_campaign=auto_market&utm_content=700011&ref=telegram
+
+🧑‍💼 CAPTAIN PROGRAM — copy your referral link from the portfolio drawer (Portfolio → Invite & Earn),
+share this market, and automatically earn a cut of the 4% platform fee on-chain.
+Mechanically: the arena credits the referrer 30% of that 4% rake per referred position, paid by the contract at settlement — not by us, and not out of anyone's stake.
 
 Only official links: https://predictionarena.online · x.com/Predict065 · t.me/predictionarena_hq
 Contract: 0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5 (Base, v3)

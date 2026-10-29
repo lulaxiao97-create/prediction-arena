@@ -234,17 +234,40 @@ function tribalScore(pool: Pool, withAdaptive = true): number {
   return score;
 }
 
+/**
+ * ASCII share bar. Blocks, not emoji: an 8-cell bar of █/░ is one character per cell in JS length,
+ * survives every client's font stack, and reads as data instead of decoration. Emoji would cost two
+ * characters per cell and eat a fifth of the X budget.
+ */
+function bar(sharePct: number, cells = 8): string {
+  const filled = Math.max(0, Math.min(cells, Math.round((sharePct / 100) * cells)));
+  return "█".repeat(filled) + "░".repeat(cells - filled);
+}
+
+/** Both sides, always: one number is a stat, two numbers are a fight. */
+function bothOdds(yes: number): { y: string; n: string } {
+  return {
+    y: (1 / Math.max(0.02, yes / 100)).toFixed(1),
+    n: (1 / Math.max(0.02, (100 - yes) / 100)).toFixed(1),
+  };
+}
+
 /** Battle-call copy: the version that reads like a side to pick, not a report to read. */
 function battleTweet(pool: Pool): string | null {
   const yes = Math.round(yesShare(pool) * 100);
-  const mult = (1 / Math.max(0.02, yes / 100)).toFixed(1);
+  const no = 100 - yes;
+  const { y, n } = bothOdds(yes);
   const url = trackedUrl(pool.id, "x");
   const traders = pool.traders ?? 0;
+  const left = closeIn(pool);
 
+  // Longest first. The first draft that fits under 275 weighted characters wins, so a long market
+  // title degrades into the compact version instead of being truncated mid-word.
   const drafts = [
-    `🏴 ${clipped(pool.title, 68)}\n\n${yes}% YES pays ${mult}×. ${traders} have already picked a side — ${closeIn(pool)} left.\n\n${url}`,
-    `Pick a side or watch it settle:\n\n${clipped(pool.title, 66)}\n\n${yes}% YES · ${mult}× · ${traders} in.\n\n${url}`,
-    `${mult}× on ${yes}% of the crowd. ${traders} traders are already in this one.\n\n${clipped(pool.title, 62)}\n\n${url}`,
+    `🏴 ${clipped(pool.title, 64)}\n\nYES ${bar(yes)} ${yes}% → ${y}×\nNO\u00a0\u00a0${bar(no)} ${no}% → ${n}×\n\n${traders} already picked a side. ${left} left. The wrong side pays the right side.\n\n${url}`,
+    `🏴 ${clipped(pool.title, 62)}\n\nYES ${bar(yes)} ${yes}% pays ${y}×\nNO\u00a0\u00a0${bar(no)} ${no}% pays ${n}×\n\n${traders} in · ${left} left · no house, no bailout.\n\n${url}`,
+    `${yes}% YES · ${y}× — ${traders} already picked a side, ${left} left.\n\n${clipped(pool.title, 58)}\n\n${url}`,
+    `${y}× on ${yes}% of the crowd. ${traders} are in.\n\n${clipped(pool.title, 56)}\n\n${url}`,
   ];
   for (const d of drafts) {
     const text = `${d}\n${X_HANDLE}`;
@@ -294,9 +317,9 @@ function tweetFor(pool: Pool): string {
     : `Closes in ${closeIn(pool)}.`;
 
   const options = [
-    `The crowd is paying ${mult}× on one side of this market:\n\n"${clipped(pool.title, 70)}"\n\n${yes}% YES · ${no}% NO · ${traders} traders in. ${lead}`,
-    `Still ${closeIn(pool)} left to take a side:\n\n"${clipped(pool.title, 70)}"\n\n${yes}% YES pays ${mult}×. ${traders} traders are already in.`,
-    `Two AI agents argued this one and the crowd split ${yes}/${no}:\n\n"${clipped(pool.title, 70)}"\n\nYES pays ${mult}×. ${lead}`,
+    `The crowd is paying ${mult}× on one side of this market:\n\n"${clipped(pool.title, 70)}"\n\nYES ${bar(yes)} ${yes}% · ${no}% NO\n${traders} traders in · ${lead}`,
+    `Still ${closeIn(pool)} left to take a side:\n\n"${clipped(pool.title, 70)}"\n\nYES ${bar(yes)} ${yes}% pays ${mult}× · ${traders} in.`,
+    `Two AI agents argued this one and the crowd split ${yes}/${no}:\n\n"${clipped(pool.title, 66)}"\n\nYES pays ${mult}×. ${lead}`,
   ];
 
   for (const draft of options) {
@@ -309,29 +332,40 @@ function tweetFor(pool: Pool): string {
 /** Farcaster: 320 characters, links counted at full length, frame renders the card inline. */
 function castFor(pool: Pool): string {
   const yes = Math.round(yesShare(pool) * 100);
-  const mult = (1 / Math.max(0.02, yes / 100)).toFixed(1);
+  const no = 100 - yes;
+  const { y, n } = bothOdds(yes);
   const url = trackedUrl(pool.id, "farcaster");
   const spot = pool.marketData?.asset
     ? `${pool.marketData.asset} ${price(pool.marketData.spotUsd ?? 0)} now`
     : `closes in ${closeIn(pool)}`;
 
-  const full = `📊 ${clipped(pool.title, 74)}\n\n${yes}% YES · pays ${mult}× · ${pool.traders ?? 0} traders\n${spot}\n\n${url}`;
+  const full = `🏴 ${clipped(pool.title, 66)}\n\nYES ${bar(yes)} ${yes}% · ${y}×\nNO\u00a0\u00a0${bar(no)} ${no}% · ${n}×\n${pool.traders ?? 0} in · ${spot}\n\n${url}`;
   if (full.length <= 320) return full;
-  return `📊 ${clipped(pool.title, 56)}\n\n${yes}% YES · ${mult}×\n${url}`;
+  const mid = `🏴 ${clipped(pool.title, 54)}\n\nYES ${bar(yes)} ${yes}% · ${y}× · ${pool.traders ?? 0} in\n\n${url}`;
+  if (mid.length <= 320) return mid;
+  return `🏴 ${clipped(pool.title, 44)}\n\n${yes}% YES · ${y}×\n${url}`;
 }
 
 function telegramFor(pool: Pool): string {
   const yes = Math.round(yesShare(pool) * 100);
-  const mult = (1 / Math.max(0.02, yes / 100)).toFixed(1);
+  const no = 100 - yes;
+  const { y, n } = bothOdds(yes);
   const url = trackedUrl(pool.id, "telegram");
   return [
-    `📊 DAILY BOARD — ${new Date().toISOString().slice(0, 10)}`,
+    `🏴 DAILY BOARD — ${new Date().toISOString().slice(0, 10)}`,
     "",
     `🔥 ${pool.title}`,
-    `${yes}% YES · pays ${mult}× · ${pool.traders ?? 0} traders · ${money(Number(pool.liquidityUsdc ?? 0))} liquidity`,
-    `Closes in ${closeIn(pool)}`,
+    `YES ${bar(yes)} ${yes}% · pays ${y}×`,
+    `NO\u00a0\u00a0${bar(no)} ${no}% · pays ${n}×`,
+    `${pool.traders ?? 0} traders · ${money(Number(pool.liquidityUsdc ?? 0))} liquidity · ${closeIn(pool)} left`,
     "",
     `Take a side → ${url}`,
+    "",
+    // The affiliate flywheel. Wording is deliberately narrow: the contract pays the referrer a cut
+    // of the rake, it does not pay a commission rate we can promise, and nobody here can mint it.
+    "🧑‍💼 CAPTAIN PROGRAM — copy your referral link from the portfolio drawer (Portfolio → Invite & Earn),",
+    "share this market, and automatically earn a cut of the 4% platform fee on-chain.",
+    "Mechanically: the arena credits the referrer 30% of that 4% rake per referred position, paid by the contract at settlement — not by us, and not out of anyone's stake.",
     "",
     `Only official links: ${SITE} · x.com/Predict065 · t.me/predictionarena_hq`,
     `Contract: 0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5 (Base, v3)`,
