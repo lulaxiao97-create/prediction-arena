@@ -53,7 +53,7 @@ export function RakebackBanner() {
             {t("growth.rakeTitle")}
           </p>
           <p className="text-[11px] leading-snug text-muted sm:text-[11.5px]">{t("growth.rakeBody")}</p>
-          <p className="mono mt-0.5 truncate text-[9px] uppercase tracking-[0.1em] text-gold/80">
+          <p className="mono mt-0.5 text-[9px] leading-snug uppercase tracking-[0.1em] text-gold/80">
             {t("growth.rakeTag")}
           </p>
         </div>
