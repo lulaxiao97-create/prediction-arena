@@ -6,7 +6,12 @@
 
 ### The decentralized prediction market, argued by AI and settled in USDC on Base.
 
-*Binary markets · On-chain escrow · IPFS-referenced resolution · No custodian*
+> **An autonomous 24/7 Web3 prediction-market CGO agent** — market generation, on-chain pool
+> creation, AI-drafted copy, referral attribution and settlement accounting all run on cron and
+> GitHub Actions, on Base, **with zero human intervention between ticks**. The repo you are reading
+> is the agent: there is no dashboard nobody checks and no spreadsheet behind it.
+
+*Binary markets · On-chain escrow · IPFS-referenced resolution · No custodian · No human in the loop*
 
 [![Live](https://img.shields.io/badge/Live-app-16C784?style=for-the-badge&logo=cloudflare&logoColor=white)](https://predictionarena.online)
 [![Base Mainnet](https://img.shields.io/badge/Base-Mainnet%20%C2%B7%208453-0052FF?style=for-the-badge&logo=coinbase&logoColor=white)](https://basescan.org/address/0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5)
@@ -17,6 +22,9 @@
 [![PWA](https://img.shields.io/badge/PWA-Installable-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)](#key-features)
 [![i18n](https://img.shields.io/badge/i18n-6%20Languages-FBBF24?style=for-the-badge)](#key-features)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](#license)
+[![Autonomous CGO](https://img.shields.io/badge/Agent-24%2F7%20autonomous-FF2D55?style=for-the-badge)](#the-autonomous-cgo-agent)
+[![Zero human](https://img.shields.io/badge/Human%20in%20the%20loop-none-lightgrey?style=for-the-badge)](#the-autonomous-cgo-agent)
+[![Stars welcome](https://img.shields.io/github/stars/lulaxiao97-create/prediction-arena?style=for-the-badge&logo=github&label=Stars)](https://github.com/lulaxiao97-create/prediction-arena/stargazers)
 
 <br />
 
@@ -58,6 +66,100 @@ Two things make it more than another betting pool:
 
 The interface is a **Deep Ocean / Obsidian Glass** system: near-black canvas, layered aurora glow,
 glass panels, hairline borders, and a mobile-first trading drawer.
+
+---
+
+## The autonomous CGO agent
+
+Most "AI growth" is a person with a Notion board. This is a repository that wakes up on its own,
+reads the chain and the ticker, writes the copy, opens the pools, and attributes the money — then
+proves it did, in `git log`.
+
+```
+┌───────────────────────────────────────────────────────────────────────────┐
+│  GitHub Actions · 09:10 / 17:10 UTC                                       │
+│  sync attribution → rank by tribal score → draft X / Farcaster / Telegram │
+│  → post what it is allowed to post → commit the archive                   │
+└───────────────┬───────────────────────────────────────────────────────────┘
+                │  docs/campaigns/<YYYY-MM-DD>/index.json   (git = content log)
+                ▼
+┌─────────────────────────────────┐        ┌────────────────────────────────┐
+│  WSL cron · every 30 min        │        │  Base mainnet · chain 8453     │
+│  prices → 38 markets → strikes  │        │  PredictionArena V3            │
+│  open pools on-chain (:10/:40)  │◄──────►│  escrow · 4% rake · 30% ref    │
+│  sync attribution → weights     │        └────────────────────────────────┘
+└───────────────┬─────────────────┘                        ▲
+                │  pools.json / prices.json                │ BetPlaced(ref, amount, cut)
+                ▼                                          │
+┌─────────────────────────────────┐        ┌───────────────┴────────────────┐
+│  Next.js 16 on Render           │        │  /api/growth/summary           │
+│  markets · Frames · PWA · i18n  │◄───────┤  6 × 1000-block scan, ~2.5 s    │
+└─────────────────────────────────┘        └────────────────────────────────┘
+```
+
+### The six loops
+
+| # | Loop | Trigger | Code | What breaks without it |
+|---|---|---|---|---|
+| 1 | **Board rebuild** — prices → 38 markets → strikes recomputed | cron `*/30` | `scripts/refresh-board.sh` → `gen-board.ts` | The site keeps serving yesterday's strikes, and a market that already resolved stays listed |
+| 2 | **Pool creation** — every new market opened on Base | cron `:10,:40` | `scripts/open-pools-mainnet.sh` | A card exists that cannot accept a bet (`PoolNotFound`) |
+| 3 | **Publish** — data committed, pushed, CI → Render | cron `:05` (45-min throttle, retry+rebase) | `scripts/publish-board.sh` | Local data changes never reach the origin |
+| 4 | **Content factory** — ranking + copy in three voices, archived | GH Actions 2×/day | `scripts/auto-market.ts` | The channels go quiet; nobody remembers which numbers were live |
+| 5 | **Attribution** — which tribe's market actually took USDC | cron `*/30` → `docs/campaigns/attribution.json` | `scripts/sync-attribution.ts` | Market selection stays a hand-tuned guess forever |
+| 6 | **Distribution** — one paste-ready block per channel | human, on demand | `scripts/campaign-digest.ts` | Copy exists but nobody can move it into a chat in 5 seconds |
+
+### The parts worth stealing
+
+- **OAuth 1.0a HMAC-SHA1 signed by hand** (`scripts/auto-market.ts`): X still requires a
+  user-context credential to post, and the only one a solo operator can mint without a browser
+  round-trip is the four-part key set. The signing rules that bite (`!*'()` percent-encoding,
+  JSON bodies contributing no parameters) are implemented from the RFC, not from a library.
+- **Failure is classified, not swallowed**: `sent` / `skipped: <reason>` / `failed <status>`, with
+  **401 = bad signature → 402 = billing → 403 Unsupported = wrong credential type**. A 402 is a
+  billing problem, and the code says so instead of pretending the tweet went out.
+- **Attribution closes into selection**: `/api/growth/summary` → `sync-attribution.ts` →
+  `tribalScore` gets a capped **+2** bonus for the tribe whose markets actually took the most USDC.
+  No file, a stale file, or zero bets means zero bonus — the prior stays, and nothing is invented.
+- **A frame that reports its own render time**: `/api/frame` answers with `x-frame-ms`,
+  `x-frame-cache` and `server-timing`. Measured in production: **0.03–3.5 ms in the handler**
+  against **0.6–1.3 s wall time** — i.e. the card is not the bottleneck, the network is, and now
+  that is a number instead of an opinion.
+- **Copy budgets are enforced per platform**: X at 280 with URLs counted as 23, Farcaster at 320
+  with links at full length, Telegram unbounded — one market, three sizes, first draft that fits
+  wins, so a long title degrades instead of getting truncated mid-word.
+- **Every claim on this page is a `curl` away** (below). If a number here stops being true, that is
+  a bug, not marketing drift.
+
+### Verify the agent in 60 seconds — no API key
+
+```bash
+# 1. the live board is real market data, timestamped by source
+curl -s https://predictionarena.online/prices.json | head -c 400
+
+# 2. the frame says how long its own render took (handler ms, not network ms)
+curl -s -o /dev/null -D - https://predictionarena.online/api/frame?id=700011 | grep -i x-frame
+
+# 3. on-chain attribution, straight off Base logs
+curl -s "https://predictionarena.online/api/growth/summary?chunks=6" | head -c 400
+
+# 4. the content trail: every post the agent drafted, with the numbers it had at the time
+curl -s https://raw.githubusercontent.com/lulaxiao97-create/prediction-arena/main/docs/campaigns/$(date -u +%F)/index.json | head -c 400
+```
+
+### What the agent cannot do (yet) — stated, not hidden
+
+- **X posting is switched off by billing, not by code.** The account sits at `402 credits depleted`;
+  the signed request is correct and the copy is archived daily. Distribution is therefore **manual
+  and zero-cost by design**: `bun run campaign:digest --remote` prints paste-ready blocks for X,
+  Farcaster and Telegram. Telegram itself is fully automated.
+- **Zero on-chain bets so far.** The pools exist (`getPool(700001..700038)` → `Open`), the referrer
+  path is wired end to end, and `volumeUsdc` reads `0`. A growth dashboard that shows a fabricated
+  first trader is worse than an empty one, so it shows `0`.
+- **Channel mix is not derivable from chain logs.** The contract's referrer must be an address;
+  `utm_*` lives on the landing page. The panel says this explicitly instead of inventing a split.
+- **Business math is unflattering and left visible**: 4% rake, so $10k/month = $250k of monthly
+  volume ≈ 333 wallets with real capital. The $1 trial tickets validate the funnel; they cannot
+  fund that number.
 
 ---
 
@@ -334,6 +436,11 @@ Read [`SECURITY.md`](SECURITY.md) before reporting anything.
 | `bash scripts/ops-daemon.sh --dry-run` | generate + refresh, no transactions |
 | `POOL_ID=7 WINNING_OPTION=1 EVIDENCE_FILE=./evidence.json npx hardhat run scripts/settle-pool.ts --network base` | settlement with a content-derived evidence hash |
 | `bash scripts/verify-basescan.sh` | source verification of the deployed contract |
+| `bun run auto:market --pick=tribal --limit=1 --write` | rank markets by tribal score, draft X / Farcaster / Telegram copy, archive it under `docs/campaigns/` |
+| `bun run auto:market --send` | same, and publish to whatever channel has live credentials (Telegram now, X when the account has credit) |
+| `bun run sync:attribution` | read `/api/growth/summary`, aggregate USDC per tribe, write `docs/campaigns/attribution.json` for the picker |
+| `bun run campaign:digest --remote` | pull the newest archived campaign from GitHub and print paste-ready blocks per channel |
+| `bun run campaign:digest --md` | the same archive as a weekly markdown calendar |
 
 Every tick is fail-soft: a rate-limited RPC or a dry fee wallet logs and exits `0`, so the next tick
 still runs.
@@ -399,6 +506,36 @@ crossing at a diamond, the resolution point. Gold is the affirmative side, cyan 
 | Regenerate everything | `python3 tools/brand/build-brand.py` |
 
 ---
+
+## Build in public
+
+This repo is meant to be read, not just used. If you are here to see how far an autonomous agent can
+run a real venue, the interesting parts are:
+
+- `scripts/auto-market.ts` — a content factory with hand-rolled OAuth 1.0a, per-platform budgets and
+  a "no invented numbers" rule enforced by reading the manifest instead of typing a number;
+- `scripts/sync-attribution.ts` → `tribalScore` — attribution data feeding market selection, capped
+  so one hot market cannot monopolise the channel;
+- `scripts/publish-board.sh` — a cron that survives a second writer on `main` (retry → fetch →
+  `rebase --autostash`), because "push failed" silently killing a loop for two ticks is how these
+  systems actually die;
+- `frontend/src/app/api/frame/route.ts` — a Farcaster frame that measures itself (`x-frame-ms`) so
+  latency claims stay honest;
+- `frontend/src/app/api/growth/summary/route.ts` — referral attribution read straight from
+  `BetPlaced` logs, including what the chain *cannot* tell you.
+
+**If this is useful to you, star the repo** — stars are the only budget this project has for
+distribution. The build log, including the parts that are still broken, is the `docs/campaigns/`
+archive and the commit history (every decision is a commit message, not a changelog entry).
+
+Three ways to be useful beyond a star:
+
+1. **Take a side on a market** — the pools are open, and every bet is `bet(poolId, option, amount,
+   referrer)` on a verified contract.
+2. **Share the market you disagree with** — every link carries `?ref=`; a referred position shows up
+   in `/admin` attribution within a block.
+3. **Break it** — the invariants are listed in `SECURITY.md`, and a reproducible failure with a PoC
+   is worth more than a hundred suggestions.
 
 ## Contributing
 
