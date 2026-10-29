@@ -61,11 +61,37 @@ git -c user.name="$(git log -1 --format=%an)" -c user.email="$(git log -1 --form
   commit -q -m "chore(data): board refresh — ${TITLES}" -- frontend/public/pools.json frontend/public/prices.json || {
   say "commit produced no change"; exit 0; }
 
-if HTTPS_PROXY="$PROXY_VAL" git -c "url.https://x:${TOK}@github.com/.insteadOf=https://github.com/" \
-     -c "http.proxy=$PROXY_VAL" push "https://x:${TOK}@github.com/lulaxiao97-create/prediction-arena.git" main:main >> "$LOG" 2>&1; then
+# PUSH_REMOTE_URL exists so the retry/rebase path can be exercised against a scratch bare repo;
+# production never sets it.
+PUSH_URL="${PUSH_REMOTE_URL:-https://x:${TOK}@github.com/lulaxiao97-create/prediction-arena.git}"
+GITCFG=(-c "url.https://x:${TOK}@github.com/.insteadOf=https://github.com/" -c "http.proxy=$PROXY_VAL")
+
+# The cloud content factory (auto-marketing.yml) also commits to main, so a push here is routinely
+# rejected as non-fast-forward — that is exactly what killed this job on 2026-10-28 20:05 and left
+# the cron dead for two ticks. Rebase onto whatever landed, then push; retry a few times because the
+# other writer may commit again while we are rebasing.
+pushed=0
+for attempt in 1 2 3; do
+  if HTTPS_PROXY="$PROXY_VAL" git "${GITCFG[@]}" push "$PUSH_URL" main:main >> "$LOG" 2>&1; then
+    pushed=1
+    break
+  fi
+  say "push attempt ${attempt} rejected — syncing with the other writer"
+  if HTTPS_PROXY="$PROXY_VAL" git "${GITCFG[@]}" fetch "$PUSH_URL" main:refs/remotes/board-push/main >> "$LOG" 2>&1; then
+    if ! HTTPS_PROXY="$PROXY_VAL" git -c user.name="$(git log -1 --format=%an)" \
+         -c user.email="$(git log -1 --format=%ae)" rebase refs/remotes/board-push/main >> "$LOG" 2>&1; then
+      git rebase --abort >> "$LOG" 2>&1 || true
+      say "ERROR rebase conflict against the other writer — board stays local"
+      exit 1
+    fi
+  fi
+  sleep 5
+done
+
+if [[ "$pushed" == "1" ]]; then
   echo "$NOW" > "$STAMP_FILE"
   say "published: ${TITLES} (CI will rebuild and the deploy hook ships it)"
 else
-  say "ERROR push failed — see $LOG"
+  say "ERROR push failed after 3 attempts — see $LOG"
   exit 1
 fi
