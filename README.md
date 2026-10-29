@@ -441,6 +441,7 @@ Read [`SECURITY.md`](SECURITY.md) before reporting anything.
 | `bun run sync:attribution` | read `/api/growth/summary`, aggregate USDC per tribe, write `docs/campaigns/attribution.json` for the picker |
 | `bun run campaign:digest --remote` | pull the newest archived campaign from GitHub and print paste-ready blocks per channel |
 | `bun run campaign:digest --md` | the same archive as a weekly markdown calendar |
+| `bun run push:marketing` | write the day's paste-ready pack (tweet, reply deck, captain pitch) to the desktop |
 
 Every tick is fail-soft: a rate-limited RPC or a dry fee wallet logs and exits `0`, so the next tick
 still runs.
@@ -536,6 +537,44 @@ Three ways to be useful beyond a star:
    in `/admin` attribution within a block.
 3. **Break it** — the invariants are listed in `SECURITY.md`, and a reproducible failure with a PoC
    is worth more than a hundred suggestions.
+
+## For Hacker News / Product Hunt
+
+**Show HN: a 100% autonomous Web3 growth agent running a real prediction market on Base**
+
+Most "AI agent" repos are a prompt, a cron and a screenshot. This one moves money-shaped state:
+it rebuilds 38 markets from live feeds every 30 minutes, opens the corresponding pools on Base
+mainnet, writes the day's copy in three voices, posts what it is allowed to post, and reads the
+resulting referral volume straight off `BetPlaced` logs to decide what to feature next. Between
+ticks there is no human. The interesting part is not that it generates text — it is that the
+pipeline **refuses to emit a number it cannot read**, and that every claim is one `curl` away.
+
+Three things a hacker will actually enjoy here:
+
+1. **OAuth 1.0a written from the RFC**, because X only grants posting rights to a user-context
+   credential and a solo operator has no browser round-trip budget. The failure taxonomy is
+   explicit: `401` signature, `402` billing, `403 Unsupported` wrong credential type.
+2. **A market picker that learns from money.** Referral volume per tribe flows back into the
+   `tribalScore` used to choose the day's market — capped at +2, additive only, and zero when
+   there is no on-chain signal. Hand-tuned priors until the chain speaks.
+3. **Cron that survives a second writer.** The content bot and the board publisher both commit to
+   `main`; the publisher retries with `fetch → rebase --autostash → push` instead of dying
+   silently for two ticks (which is exactly what happened before it was fixed).
+
+**Honest state, as of this commit:** the X account is at `402 credits depleted`, so distribution is
+manual and zero-cost by design (`bun run push:marketing` writes a paste-ready pack to the desktop);
+on-chain bets are `0`, so the attribution loop is wired but unproven; the board's liquidity figures
+are demo-priced while the pools themselves are real and empty. The README says this out loud
+because a growth agent that lies about its own numbers is a liability, not a product.
+
+**Try it in 30 seconds** (no key, no wallet): `curl -s -o /dev/null -D - https://predictionarena.online/api/frame?id=700011 | grep -i x-frame`
+→ the frame reports its own render time (`0.03–3.5 ms` in the handler against `0.6–1.3 s` end to
+end, i.e. the card is not the bottleneck and now that is measurable).
+
+**What I would like from you:** tear apart the referral accounting
+(`contracts/`, `lib/rewards.ts`), tell me which part of the agent is theatre, and star the repo if
+the autopilot is worth watching. The build log — including the parts still broken — is the commit
+history.
 
 ## Contributing
 
