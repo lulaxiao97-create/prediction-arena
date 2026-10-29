@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createPublicClient, formatUnits, http, parseAbiItem } from "viem";
 import { base } from "viem/chains";
+import { readManifest } from "@/lib/market-manifest";
 
 /**
  * On-chain referral attribution.
@@ -127,6 +128,11 @@ export async function GET(request: Request) {
         earnedUsdc: Number(formatUnits(v.earned, 6)),
       }));
 
+    // Titles come from the same manifest the cards render from; a bare pool id in the ops panel
+    // tells nobody which tribe just paid.
+    const manifest = await readManifest();
+    const poolTitles = new Map((manifest?.pools ?? []).map((p) => [String(p.id), p.title]));
+
     return NextResponse.json(
       {
         ok: true,
@@ -141,11 +147,12 @@ export async function GET(request: Request) {
         },
         topReferrers,
         perMarket: [...perMarket.entries()]
-          .sort((a, b) => b[1].bets - a[1].bets)
+          .sort((a, b) => (b[1].volume > a[1].volume ? 1 : b[1].volume < a[1].volume ? -1 : b[1].bets - a[1].bets))
           .slice(0, 12)
           // `volumeUsdc` is gross stake, not revenue: the contract keeps a 4% fee and the rest is pool.
           .map(([poolId, v]) => ({
             poolId,
+            title: poolTitles.get(poolId) ?? null,
             bets: v.bets,
             referred: v.referred,
             volumeUsdc: Number(formatUnits(v.volume, 6)),

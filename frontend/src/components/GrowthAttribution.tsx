@@ -28,7 +28,7 @@ type Summary = {
     volumeUsdc: number;
   };
   topReferrers?: { address: string; bets: number; volumeUsdc: number; earnedUsdc: number }[];
-  perMarket?: { poolId: string; bets: number; referred: number }[];
+  perMarket?: { poolId: string; title?: string | null; bets: number; referred: number; volumeUsdc?: number }[];
   channels?: { note: string; taggedLinks: string[] };
   error?: string;
 };
@@ -104,7 +104,7 @@ export function GrowthAttribution() {
             ))}
           </div>
 
-          <div className="mt-3 grid gap-3 lg:grid-cols-2">
+          <div className="mt-3 grid gap-3 lg:grid-cols-3">
             <div>
               <p className="text-[10px] uppercase tracking-[0.12em] text-muted/60">Top referrers (on-chain)</p>
               <div className="mt-1.5 space-y-1">
@@ -123,6 +123,33 @@ export function GrowthAttribution() {
                   <p className="rounded-lg border border-white/6 bg-white/[0.015] px-2.5 py-2 text-[11px] text-muted">
                     No referred bets in this window. Every invite link carries <code className="mono">?ref=</code>, so
                     the first shared position will show up here.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.12em] text-muted/60">Tribal ledger (USDC per market)</p>
+              <div className="mt-1.5 space-y-1">
+                {data.perMarket && data.perMarket.length > 0 ? (
+                  data.perMarket.slice(0, 5).map((r) => (
+                    <div
+                      key={r.poolId}
+                      className="flex items-center gap-2 rounded-lg border border-white/6 bg-white/[0.015] px-2.5 py-1.5"
+                    >
+                      <span className="truncate text-[11px] text-ink">
+                        {r.title ? r.title.replace(/\?.*$/, "") : `#${r.poolId}`}
+                      </span>
+                      <span className="mono ml-auto shrink-0 text-[10.5px] text-muted">{r.bets} bets</span>
+                      <span className="mono shrink-0 text-[10.5px] text-cyan-bright">
+                        ${(r.volumeUsdc ?? 0).toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="rounded-lg border border-white/6 bg-white/[0.015] px-2.5 py-2 text-[11px] text-muted">
+                    No on-chain bets in this window. This ranking feeds the daily market pick, so it stays empty until
+                    the first <code className="mono">BetPlaced</code> lands.
                   </p>
                 )}
               </div>
