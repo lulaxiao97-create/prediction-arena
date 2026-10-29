@@ -77,11 +77,13 @@ for attempt in 1 2 3; do
     break
   fi
   say "push attempt ${attempt} rejected — syncing with the other writer"
-  if HTTPS_PROXY="$PROXY_VAL" git "${GITCFG[@]}" fetch "$PUSH_URL" main:refs/remotes/board-push/main >> "$LOG" 2>&1; then
+  if HTTPS_PROXY="$PROXY_VAL" git "${GITCFG[@]}" fetch "$PUSH_URL" '+main:refs/remotes/board-push/main' >> "$LOG" 2>&1; then
+    # --autostash: a dirty tree (a half-written snapshot, or an operator editing a script) must not
+    # be what stops the board from shipping; the stash is restored after the rebase either way.
     if ! HTTPS_PROXY="$PROXY_VAL" git -c user.name="$(git log -1 --format=%an)" \
-         -c user.email="$(git log -1 --format=%ae)" rebase refs/remotes/board-push/main >> "$LOG" 2>&1; then
+         -c user.email="$(git log -1 --format=%ae)" rebase --autostash refs/remotes/board-push/main >> "$LOG" 2>&1; then
       git rebase --abort >> "$LOG" 2>&1 || true
-      say "ERROR rebase conflict against the other writer — board stays local"
+      say "ERROR could not rebase onto the other writer (conflict or dirty tree) — board stays local"
       exit 1
     fi
   fi
