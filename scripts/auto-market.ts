@@ -146,7 +146,13 @@ function trackedUrl(id: string | number, source: "x" | "telegram" | "farcaster")
  *   +1  deep trailing liquidity per trader (a crowded room)
  *   -3  macro/politics framing (nobody tribes up over a CPI print)
  */
-const TRIBE_TOKENS = ["degen", "toshi", "brett", "mog", "aero", "aerdrome", "zora", "higher", "onchain", "base"];
+/**
+ * Tokens with an actual community behind them. `base`, `onchain` and `higher` used to be in this
+ * list and were a mistake: "Will Base TVL close above $6.4B" matched as a tribe and outranked real
+ * DEGEN/TOSHI fights, and `higher` matches the comparison word in "closes higher than". A false
+ * tribe is worse than a missed one — the picker's whole job is to find a side worth taking.
+ */
+const TRIBE_TOKENS = ["degen", "toshi", "brett", "mog", "aero", "aerodrome", "zora"];
 const BATTLE_RE = /\b(vs\.?|versus|flip|flips|overtake|overtakes|surpass|surpasses|beat|beats|higher than|below|above)\b/i;
 const MACRO_RE = /\b(cpi|fomc|fed|inflation|unemployment|gdp|election|senate|powell)\b/i;
 
