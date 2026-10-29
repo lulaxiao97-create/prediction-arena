@@ -17,6 +17,7 @@ import {
 import { Navbar } from "@/components/Navbar";
 import { HeroMasthead } from "@/components/HeroMasthead";
 import { GrowthStrip } from "@/components/GrowthStrip";
+import { RakebackBanner } from "@/components/RakebackBanner";
 import { LiveProofToast } from "@/components/LiveProofToast";
 import { TrendTicker } from "@/components/TrendTicker";
 import { LiveTicker } from "@/components/LiveTicker";
@@ -135,6 +136,7 @@ export default function Home() {
       <TrendTicker pools={pools} />
 
       <main className="mx-auto w-full max-w-[1400px] px-4 pb-10 pt-5 sm:px-6">
+        <RakebackBanner />
         <HeroMasthead />
         <GrowthStrip />
 

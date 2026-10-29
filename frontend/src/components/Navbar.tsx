@@ -46,6 +46,15 @@ export function Navbar({
     tabRefs.current[active]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
   }, [active, onMarkets]);
 
+  // The rakeback banner sits outside the header but its CTA is "Open Portfolio", which lives in
+  // this component's state. A window event keeps the banner from needing a context provider just
+  // to open a drawer.
+  useEffect(() => {
+    const open = () => setPortfolioOpen(true);
+    window.addEventListener("pa:open-portfolio", open);
+    return () => window.removeEventListener("pa:open-portfolio", open);
+  }, []);
+
   const navItems = [
     { href: "/", label: t("nav.markets"), Icon: BarChart3, active: onMarkets },
     { href: "/docs", label: t("nav.docs"), Icon: BookOpen, active: onDocs && !pathname?.startsWith("/docs/security") },

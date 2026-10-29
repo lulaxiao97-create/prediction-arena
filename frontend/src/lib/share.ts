@@ -22,7 +22,7 @@ export function marketUrl(id: string | number | bigint, origin?: string): string
   return `${base}/market/${id}`;
 }
 
-export type ShareChannel = "x" | "telegram" | "copy";
+export type ShareChannel = "x" | "farcaster" | "telegram" | "copy";
 
 /**
  * The market URL with attribution attached.
@@ -36,14 +36,27 @@ export function trackedMarketUrl(
   id: string | number | bigint,
   channel: ShareChannel = "x",
   origin?: string,
+  /**
+   * Who gets credit. A connected wallet passes its own address here so the link a user shares is
+   * their invite link, not a generic channel tag — the contract only pays an address, so "ref=x"
+   * earns nothing for the person who did the sharing.
+   */
+  ref?: string,
 ): string {
   const url = new URL(marketUrl(id, origin));
   url.searchParams.set("utm_source", channel);
   url.searchParams.set("utm_medium", "social");
   url.searchParams.set("utm_campaign", "market_share");
   url.searchParams.set("utm_content", String(id));
-  url.searchParams.set("ref", channel);
+  url.searchParams.set("ref", ref && ref.trim() ? ref.trim() : channel);
   return url.toString();
+}
+
+/** Warpcast composer — the Farcaster half of a share. `embeds[]` makes the frame card render. */
+export function warpcastIntent(text: string, url: string): string {
+  const params = new URLSearchParams({ text });
+  params.append("embeds[]", url);
+  return `https://warpcast.com/~/compose?${params.toString()}`;
 }
 
 /**
@@ -153,6 +166,51 @@ export function tweetIntent({
   // `via` credits the official account; the handle is read from lib/social so a rename is one edit.
   params.set("via", X_HANDLE);
   return `https://x.com/intent/tweet?${params.toString()}`;
+}
+
+/** X web intent for arbitrary copy (the flex post), vs `tweetIntent` which owns the market format. */
+export function xIntent(text: string, url: string): string {
+  const params = new URLSearchParams({ text, url });
+  params.set("via", X_HANDLE);
+  return `https://x.com/intent/tweet?${params.toString()}`;
+}
+
+/** 8-cell share bar; one character per cell so it never eats the tweet budget. */
+export function shareBar(pct: number, cells = 8): string {
+  const filled = Math.max(0, Math.min(cells, Math.round((pct / 100) * cells)));
+  return "█".repeat(filled) + "░".repeat(cells - filled);
+}
+
+/**
+ * The post a user sends immediately after their bet confirms — the "flex".
+ *
+ * It only states what the chain already knows: the side they took, the multiple that side pays at
+ * the current implied probability, and how many people are in. No profit is claimed, because
+ * nothing has settled yet: a position is a position, not a win. The link is passed separately so
+ * the market's own card renders under the post and the `ref` inside it credits the sharer.
+ */
+export function flexText({
+  title,
+  side,
+  yes,
+  traders,
+}: {
+  title: string;
+  side: "yes" | "no";
+  yes: number;
+  traders?: number;
+}): string {
+  const short = title.length > 78 ? `${title.slice(0, 77).trimEnd()}…` : title;
+  const no = 100 - yes;
+  const mult = payoutMultiple(yes, side).toFixed(1);
+  const crowd = side === "yes" ? yes : no;
+  return [
+    `🏴 I'm in on ${side.toUpperCase()} at ${mult}× — "${short}"`,
+    "",
+    `${crowd}% of the crowd is on this side${traders ? `, ${traders} positions placed` : ""}. Wrong side pays the right side.`,
+    "",
+    `YES ${shareBar(yes)} ${yes}% · NO ${shareBar(no)} ${no}%`,
+  ].join("\n");
 }
 
 /**

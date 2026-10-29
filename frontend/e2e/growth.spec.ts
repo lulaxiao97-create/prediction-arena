@@ -43,18 +43,24 @@ test("market share intent carries per-market attribution", async ({ page, reques
   test.skip(id === undefined, "board manifest unavailable");
 
   await page.goto(`/market/${id}`, { waitUntil: "domcontentloaded" });
-  // the anchor only becomes the intent after mount (see ShareActions); wait for the swap
+  // The anchor only becomes the intent after mount (see ShareActions). The pre-mount fallback is
+  // now a *tracked* market link (it carries utm_* and the sharer's ref), so polling for
+  // "utm_source" resolves too early — wait for the intent itself instead.
   const link = page.getByRole("link", { name: "Share to X" }).first();
   await expect(link).toBeVisible({ timeout: 20_000 });
 
   await expect
     .poll(async () => decodeURIComponent((await link.getAttribute("href")) ?? ""), { timeout: 15_000 })
-    .toContain("utm_source=x");
+    .toContain("x.com/intent/tweet");
 
   const href = decodeURIComponent((await link.getAttribute("href")) ?? "");
   expect(href).toContain("utm_campaign=market_share");
   expect(href).toContain(`utm_content=${id}`);
-  expect(href).toContain("ref=x");
+  // Who gets credited: a connected wallet shares its own address (the contract pays an address,
+  // so `ref=x` would earn the sharer nothing); an anonymous visitor keeps the channel tag. The
+  // suite injects a wallet in some runs, so both are correct here — what is not correct is a
+  // link with no ref at all.
+  expect(href).toMatch(/ref=(x|0x[0-9a-fA-F]{40})/);
   expect(href).toContain("x.com/intent/tweet");
 });
 
@@ -79,4 +85,25 @@ test("market share metadata leads with the payout multiple", async ({ page }) =>
   await page.goto("/market/700001", { waitUntil: "domcontentloaded" });
   const html = await page.content();
   expect(html).toMatch(/\d+% YES · pays \d+\.\d× · \d+ traders/);
+});
+
+/**
+ * The rakeback banner.
+ *
+ * It is the only permanent surface that promises a payout, so it is also the one most likely to
+ * rot: a copy edit can drop the "30% of the 4% rake" qualifier and leave a claim ("earn 30%")
+ * that reads like a return guarantee. These assertions pin both the promise and its scope.
+ */
+test("the rakeback banner is permanent, qualified, and opens the portfolio", async ({ page }) => {
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  const banner = page.getByRole("region", { name: "Rakeback" });
+  await expect(banner).toBeVisible();
+  await expect(banner.getByText("Earn 30% Rakeback")).toBeVisible();
+  await expect(banner.getByText("Share your referral link from Portfolio", { exact: false })).toBeVisible();
+  // the qualifier is what makes the claim honest — 30% *of the 4% rake*, paid by the contract
+  await expect(banner.getByText("30% of the 4% rake", { exact: false })).toBeVisible();
+
+  await banner.getByRole("button", { name: "Open Portfolio" }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
 });

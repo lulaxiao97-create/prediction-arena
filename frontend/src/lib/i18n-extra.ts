@@ -101,6 +101,7 @@ export const EXTRA: Record<string, ExtraDict> = {
     // share / demo surfaces (market header, trade panel, mobile sheet)
     marketing: {
       shareX: "Share to X",
+      shareCast: "Share to Farcaster",
       copyLink: "Copy link",
       copied: "Link copied to clipboard!",
       copiedShort: "Copied",
@@ -297,6 +298,7 @@ export const EXTRA: Record<string, ExtraDict> = {
     // share / demo surfaces (market header, trade panel, mobile sheet)
     marketing: {
       shareX: "分享到 X",
+      shareCast: "分享到 Farcaster",
       copyLink: "複製連結",
       copied: "連結已複製到剪貼簿！",
       copiedShort: "已複製",
@@ -416,6 +418,7 @@ export const EXTRA: Record<string, ExtraDict> = {
     // share / demo surfaces (market header, trade panel, mobile sheet)
     marketing: {
       shareX: "Auf X teilen",
+      shareCast: "Auf Farcaster teilen",
       copyLink: "Link kopieren",
       copied: "Link in die Zwischenablage kopiert!",
       copiedShort: "Kopiert",
@@ -530,6 +533,7 @@ export const EXTRA: Record<string, ExtraDict> = {
     // share / demo surfaces (market header, trade panel, mobile sheet)
     marketing: {
       shareX: "Partager sur X",
+      shareCast: "Partager sur Farcaster",
       copyLink: "Copier le lien",
       copied: "Lien copié dans le presse-papiers !",
       copiedShort: "Copié",
@@ -644,6 +648,7 @@ export const EXTRA: Record<string, ExtraDict> = {
     // share / demo surfaces (market header, trade panel, mobile sheet)
     marketing: {
       shareX: "Xでシェア",
+      shareCast: "Farcasterでシェア",
       copyLink: "リンクをコピー",
       copied: "リンクをクリップボードにコピーしました！",
       copiedShort: "コピー済み",
@@ -755,6 +760,7 @@ export const EXTRA: Record<string, ExtraDict> = {
     // share / demo surfaces (market header, trade panel, mobile sheet)
     marketing: {
       shareX: "X에 공유",
+      shareCast: "Farcaster에 공유",
       copyLink: "링크 복사",
       copied: "링크가 클립보드에 복사되었습니다!",
       copiedShort: "복사됨",
@@ -1034,6 +1040,90 @@ const INVITE: Record<string, Record<string, string>> = {
 };
 
 for (const [locale, dict] of Object.entries(INVITE)) {
+  EXTRA[locale] = {
+    ...(EXTRA[locale] ?? {}),
+    growth: { ...(EXTRA[locale]?.growth ?? {}), ...dict },
+  };
+}
+
+/**
+ * Rakeback banner + "flex" copy, merged into `growth` like the two tables above.
+ *
+ * The banner is permanent on the landing page, so it has to be true every day: the 30% is the
+ * contract's referral cut of the 4% rake (`bet(..., referrer)` pays it at settlement), not a
+ * promo we can switch off. The copy never says "earn $X" — the amount depends on volume the user
+ * brings, which nobody can promise.
+ */
+const RAKEBACK: Record<string, Record<string, string>> = {
+  en: {
+    rakeTitle: "Earn 30% Rakeback",
+    rakeBody: "Share your referral link from Portfolio, earn automatic USDC fees on-chain.",
+    rakeTag: "30% of the 4% rake · paid by the contract at settlement",
+    rakeCta: "Open Portfolio",
+    rakeCopy: "Copy my link",
+    rakeCopied: "Link copied",
+    flexTitle: "Position confirmed — flex it",
+    flexBody: "Your post carries your own ref link. Anyone who takes the other side pays you at settlement.",
+    flexCopy: "Copy my ref link",
+  },
+  "zh-TW": {
+    rakeTitle: "赚取 30% 手续费返还",
+    rakeBody: "在 Portfolio 里复制你的推荐链接，链上自动获取 USDC 手续费分成。",
+    rakeTag: "4% 手续费的 30% · 结算时由合约支付",
+    rakeCta: "打开 Portfolio",
+    rakeCopy: "复制我的链接",
+    rakeCopied: "已复制链接",
+    flexTitle: "仓位已确认 — 秀出去",
+    flexBody: "你的贴文自带推荐链接。跟你反着押的人，结算时会付你分成。",
+    flexCopy: "复制我的推荐链接",
+  },
+  de: {
+    rakeTitle: "30% Rakeback verdienen",
+    rakeBody: "Teile deinen Empfehlungslink aus dem Portfolio und erhalte automatisch USDC-Gebühren on-chain.",
+    rakeTag: "30% der 4% Gebühr · vom Vertrag bei der Abrechnung gezahlt",
+    rakeCta: "Portfolio öffnen",
+    rakeCopy: "Meinen Link kopieren",
+    rakeCopied: "Link kopiert",
+    flexTitle: "Position bestätigt — zeig sie",
+    flexBody: "Dein Post trägt deinen eigenen Empfehlungslink. Wer dagegen hält, zahlt dir bei der Abrechnung.",
+    flexCopy: "Meinen Ref-Link kopieren",
+  },
+  fr: {
+    rakeTitle: "Gagnez 30% de rakeback",
+    rakeBody: "Partagez votre lien de parrainage depuis le Portfolio et touchez automatiquement des frais en USDC on-chain.",
+    rakeTag: "30% des 4% de frais · payés par le contrat au règlement",
+    rakeCta: "Ouvrir le Portfolio",
+    rakeCopy: "Copier mon lien",
+    rakeCopied: "Lien copié",
+    flexTitle: "Position confirmée — affichez-la",
+    flexBody: "Votre post porte votre propre lien de parrainage. Ceux qui prennent l'autre camp vous paient au règlement.",
+    flexCopy: "Copier mon lien de parrainage",
+  },
+  ja: {
+    rakeTitle: "30% レーキバックを獲得",
+    rakeBody: "Portfolio から紹介リンクを共有すると、USDC の手数料がオンチェーンで自動的に入ります。",
+    rakeTag: "4% 手数料の 30% · 精算時にコントラクトが支払います",
+    rakeCta: "Portfolio を開く",
+    rakeCopy: "自分のリンクをコピー",
+    rakeCopied: "リンクをコピーしました",
+    flexTitle: "ポジション確定 — シェアしよう",
+    flexBody: "投稿にはあなた自身の紹介リンクが入ります。逆側を取った人が精算時にあなたに支払います。",
+    flexCopy: "紹介リンクをコピー",
+  },
+  ko: {
+    rakeTitle: "30% 레이크백 받기",
+    rakeBody: "Portfolio에서 추천 링크를 공유하면 USDC 수수료가 온체인으로 자동 지급됩니다.",
+    rakeTag: "4% 수수료의 30% · 정산 시 컨트랙트가 지급",
+    rakeCta: "Portfolio 열기",
+    rakeCopy: "내 링크 복사",
+    rakeCopied: "링크 복사됨",
+    flexTitle: "포지션 확정 — 자랑하기",
+    flexBody: "게시물에 내 추천 링크가 포함됩니다. 반대쪽에 베팅한 사람이 정산 시 당신에게 지급합니다.",
+    flexCopy: "추천 링크 복사",
+  },
+};
+
+for (const [locale, dict] of Object.entries(RAKEBACK)) {
   EXTRA[locale] = {
     ...(EXTRA[locale] ?? {}),
     growth: { ...(EXTRA[locale]?.growth ?? {}), ...dict },

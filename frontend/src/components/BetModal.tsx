@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useCallback, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAccount } from "wagmi";
 import {
@@ -27,6 +27,8 @@ import { useToast } from "@/components/Toast";
 import { AmountSlider } from "@/components/AmountSlider";
 import { TxProgress } from "@/components/TxProgress";
 import { poolSideMultiplier } from "@/lib/display-stats";
+import { copyText, flexText, trackedMarketUrl, warpcastIntent, xIntent } from "@/lib/share";
+import { shareableRef } from "@/lib/referral";
 import { quickAmountsFor, resolveTradeGuard } from "@/lib/trade-guard";
 import { recordTrade } from "@/hooks/useTradeHistory";
 import {
@@ -92,6 +94,39 @@ export function BetModal({
   const tradable = hasArena;
   const pending = step === "approving" || step === "betting" || step === "confirming";
   const done = step === "done";
+
+  /**
+   * The flex share, built from the same numbers the dialog is showing.
+   *
+   * `probability` here is the post-trade implied share, which is exactly what the position pays
+   * against — so the multiple in the post is the multiple the user just bought, not a headline.
+   * The link carries the bettor's own wallet as `ref`, so anyone who takes the other side credits
+   * them 30% of the rake at settlement.
+   */
+  // Anonymous flex shares keep the channel tag; a connected wallet shares its own address.
+  const shareRef = address ? shareableRef(address) : undefined;
+  const flexUrl = trackedMarketUrl(pool.id, "x", undefined, shareRef);
+  const flexCastUrl = trackedMarketUrl(pool.id, "farcaster", undefined, shareRef);
+  const flexCopyUrl = trackedMarketUrl(pool.id, "copy", undefined, shareRef);
+  const flexBody = useMemo(
+    () =>
+      flexText({
+        title: pool.title,
+        side: option === 0 ? "yes" : "no",
+        yes: Math.round(Math.min(1, Math.max(0, probability)) * 100),
+        traders: pool.traders,
+      }),
+    [pool.title, pool.traders, option, probability],
+  );
+  const flexX = useMemo(() => xIntent(flexBody, flexUrl), [flexBody, flexUrl]);
+  const flexCast = useMemo(() => warpcastIntent(flexBody, flexCastUrl), [flexBody, flexCastUrl]);
+  const [flexCopied, setFlexCopied] = useState(false);
+  const onFlexCopy = useCallback(async () => {
+    const ok = await copyText(flexCopyUrl);
+    if (!ok) return;
+    setFlexCopied(true);
+    window.setTimeout(() => setFlexCopied(false), 2400);
+  }, [flexCopyUrl]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -215,6 +250,43 @@ export function BetModal({
                 {t("trade.viewTx")} <ExternalLink className="size-3" />
               </a>
             )}
+
+            {/* The flex: a position is shareable the moment it confirms, and the link pays the
+                person who shares it. Copy comes from `flexText` so the X and Farcaster posts
+                carry identical numbers. */}
+            <div className="w-full rounded-xl border border-gold/20 bg-gold/[0.04] p-2.5 text-left">
+              <p className="text-[11px] font-semibold text-gold-bright">{t("growth.flexTitle")}</p>
+              <p className="mt-0.5 text-[10.5px] leading-relaxed text-muted">{t("growth.flexBody")}</p>
+              <p className="mono mt-1.5 max-h-24 overflow-hidden whitespace-pre-line rounded-lg border border-white/8 bg-black/25 px-2 py-1.5 text-[10px] leading-relaxed text-muted">
+                {flexBody}
+              </p>
+              <div className="mt-2 grid grid-cols-3 gap-1.5">
+                <a
+                  href={flexX}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-1 rounded-lg border border-white/12 bg-white/[0.04] px-2 py-1.5 text-[10.5px] font-medium text-ink transition-colors hover:border-white/30"
+                >
+                  {t("marketing.shareX")}
+                </a>
+                <a
+                  href={flexCast}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-1 rounded-lg border border-white/12 bg-white/[0.02] px-2 py-1.5 text-[10.5px] font-medium text-muted transition-colors hover:border-[#8A63D2]/50 hover:text-[#B49BEA]"
+                >
+                  {t("marketing.shareCast")}
+                </a>
+                <button
+                  onClick={onFlexCopy}
+                  aria-live="polite"
+                  className="inline-flex items-center justify-center gap-1 rounded-lg border border-gold/30 bg-gold/10 px-2 py-1.5 text-[10.5px] font-medium text-gold-bright transition-colors hover:bg-gold/15"
+                >
+                  {flexCopied ? t("growth.rakeCopied") : t("growth.flexCopy")}
+                </button>
+              </div>
+            </div>
+
             <button
               onClick={() => {
                 reset();
