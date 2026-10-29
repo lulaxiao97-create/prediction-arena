@@ -100,14 +100,45 @@ function frameHtml(params: {
   return out;
 }
 
-function htmlResponse(body: string, status = 200): NextResponse {
+/**
+ * Server-side timing, split from network time.
+ *
+ * A frame that tests at ~700ms end-to-end tells you nothing about which half is slow: the HTML is
+ * assembled here in a few hundred microseconds, while the rest is TLS + Render cold path + the
+ * client's own request overhead. `x-frame-ms` carries only the time spent inside this handler
+ * (manifest read, template fill, serialisation) so the two can be compared directly:
+ *
+ *   x-frame-ms: 1.83         ← our code
+ *   x-frame-cache: hit       ← 30s memo, no manifest read at all
+ *   server-timing: frame;dur=1.83
+ *
+ * Anything above ~50ms here is a regression worth chasing (a cold `readPool` re-reading pools.json
+ * from disk is the usual suspect); network time never shows up in this number.
+ */
+function htmlResponse(body: string, startedAt: number, cache: "hit" | "miss", status = 200): NextResponse {
+  const ms = performance.now() - startedAt;
+  const rounded = Math.round(ms * 100) / 100;
   return new NextResponse(body, {
     status,
     headers: {
       "content-type": "text/html; charset=utf-8",
       // Frames are cached by clients for a minute; the probability inside moves with the board.
       "cache-control": "public, max-age=60, s-maxage=60",
+      "x-frame-ms": String(rounded),
+      "x-frame-cache": cache,
+      "server-timing": `frame;dur=${rounded}`,
+      // The timer is per-request; any shared cache that stored it would report a lie.
+      "cdn-cache-control": "no-store",
     },
+  });
+}
+
+/** Same contract for JSON errors, so a 404 is not the one response without a timing header. */
+function jsonError(body: unknown, startedAt: number, status: number): NextResponse {
+  const rounded = Math.round((performance.now() - startedAt) * 100) / 100;
+  return NextResponse.json(body, {
+    status,
+    headers: { "x-frame-ms": String(rounded), "server-timing": `frame;dur=${rounded}` },
   });
 }
 
@@ -120,28 +151,27 @@ const FRAME_CACHE = new Map<string, { at: number; html: string }>();
 const FRAME_TTL_MS = 30_000;
 
 export async function GET(request: Request) {
+  const startedAt = performance.now();
   const id = new URL(request.url).searchParams.get("id");
   if (!id) {
-    return NextResponse.json(
-      { ok: false, error: "missing id", usage: "/api/frame?id=<marketId>" },
-      { status: 400 },
-    );
+    return jsonError({ ok: false, error: "missing id", usage: "/api/frame?id=<marketId>" }, startedAt, 400);
   }
   const cached = FRAME_CACHE.get(id);
   if (cached && Date.now() - cached.at < FRAME_TTL_MS) {
-    return htmlResponse(cached.html);
+    return htmlResponse(cached.html, startedAt, "hit");
   }
 
   const pool = await readPool(id);
-  if (!pool) return NextResponse.json({ ok: false, error: "market not found" }, { status: 404 });
+  if (!pool) return jsonError({ ok: false, error: "market not found" }, startedAt, 404);
 
   const html = frameHtml({ id, title: pool.title, yes: Math.round(impliedYes(pool) * 100) });
   FRAME_CACHE.set(id, { at: Date.now(), html });
   if (FRAME_CACHE.size > 64) FRAME_CACHE.clear();
-  return htmlResponse(html);
+  return htmlResponse(html, startedAt, "miss");
 }
 
 export async function POST(request: Request) {
+  const startedAt = performance.now();
   let body: FrameAction = {};
   try {
     body = (await request.json()) as FrameAction;
@@ -155,10 +185,12 @@ export async function POST(request: Request) {
   const id = new URL(stateRaw || `${SITE_URL}/`).searchParams.get("id") ?? "700001";
 
   const pool = await readPool(id);
-  if (!pool) return NextResponse.json({ ok: false, error: "market not found" }, { status: 404 });
+  if (!pool) return jsonError({ ok: false, error: "market not found" }, startedAt, 404);
 
   const tapped = pressed === 1 ? "yes" : pressed === 2 ? "no" : null;
   return htmlResponse(
     frameHtml({ id, title: pool.title, yes: Math.round(impliedYes(pool) * 100), tapped }),
+    startedAt,
+    "miss",
   );
 }

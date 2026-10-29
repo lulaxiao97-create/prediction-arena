@@ -75,3 +75,35 @@ test("a garbage ref is ignored rather than stored", async ({ page, context }) =>
   const cookie = (await context.cookies()).find((c) => c.name === "pa_ref");
   expect(cookie).toBeFalsy();
 });
+
+/**
+ * Frame timing — the split between "our code" and "the network".
+ *
+ * The frame card is measured in a feed that scrolls past in under a second, so its budget is a
+ * product requirement. `x-frame-ms` is what makes that budget checkable: end-to-end latency from a
+ * client says nothing about the renderer, because most of it is TLS + Render + the client's own
+ * request. A missing header passes every other test in this suite, which is why this exists.
+ */
+test("/api/frame reports server-side render time, cache state and a <50ms budget", async ({ request }) => {
+  const first = await request.get("/api/frame?id=700011");
+  expect(first.status()).toBe(200);
+
+  const ms = Number(first.headers()["x-frame-ms"]);
+  expect(Number.isFinite(ms)).toBe(true);
+  // Generous ceiling: a cold render on CI hardware is a few milliseconds; anything near this means
+  // the manifest is being re-read on every request.
+  expect(ms).toBeLessThan(50);
+  expect(first.headers()["server-timing"]).toContain("frame;dur=");
+  expect(["hit", "miss"]).toContain(first.headers()["x-frame-cache"]);
+
+  // Second hit inside the 30s memo: the cache has to save the work, not just label itself a hit.
+  const second = await request.get("/api/frame?id=700011");
+  expect(second.headers()["x-frame-cache"]).toBe("hit");
+  expect(Number(second.headers()["x-frame-ms"])).toBeLessThanOrEqual(ms);
+});
+
+test("a frame 404 still carries the timing header", async ({ request }) => {
+  const res = await request.get("/api/frame?id=999999999");
+  expect(res.status()).toBe(404);
+  expect(Number.isFinite(Number(res.headers()["x-frame-ms"]))).toBe(true);
+});
