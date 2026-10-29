@@ -27,12 +27,22 @@
 import { createHmac, randomBytes } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import {
+  SITE,
+  X_HANDLE,
+  weight,
+  money,
+  price,
+  clipped,
+  timeLeft,
+  trackedUrl,
+  bar,
+  bothOdds,
+} from "./lib/copy-kit";
 
-const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://predictionarena.online").replace(/\/+$/, "");
 const ROOT = join(import.meta.dir, "..");
 const MANIFEST = join(ROOT, "frontend", "public", "pools.json");
 const CAMPAIGNS = join(ROOT, "docs", "campaigns");
-const X_HANDLE = "@Predict065";
 
 type Pool = {
   id: string | number;
@@ -82,52 +92,14 @@ function yesShare(pool: Pool): number {
 }
 
 /** X counts every URL as 23 characters. */
-function weight(text: string): number {
-  const urls = text.match(/https?:\/\/\S+/g) ?? [];
-  return urls.reduce((n, u) => n + 23 - u.length, text.length);
-}
-
-function money(v: number): string {
-  if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
-  if (v >= 1_000) return `$${(v / 1_000).toFixed(1)}K`;
-  return `$${Math.round(v)}`;
-}
-
-/** Prices need more precision than a liquidity figure: "$0" for TOSHI is worse than no number. */
-function price(v: number): string {
-  if (!Number.isFinite(v) || v <= 0) return "$—";
-  if (v >= 1_000) return `$${v.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
-  if (v >= 1) return `$${v.toFixed(2)}`;
-  if (v >= 0.01) return `$${v.toFixed(4)}`;
-  return `$${Number(v.toPrecision(4))}`;
-}
-
-function clipped(s: string, n: number): string {
-  return s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s;
-}
-
 function poolClosed(pool: Pool): boolean {
   if (!pool.endTimeUtc) return false;
   return new Date(pool.endTimeUtc).getTime() <= Date.now();
 }
 
+/** Pool-shaped wrapper around the shared `timeLeft` so call sites keep reading naturally. */
 function closeIn(pool: Pool): string {
-  if (!pool.endTimeUtc) return "soon";
-  const ms = new Date(pool.endTimeUtc).getTime() - Date.now();
-  if (ms <= 0) return "closed";
-  const hours = Math.round(ms / 3_600_000);
-  if (hours < 24) return `${hours}h`;
-  return `${Math.round(hours / 24)}d`;
-}
-
-function trackedUrl(id: string | number, source: "x" | "telegram" | "farcaster"): string {
-  const url = new URL(`${SITE}/market/${id}`);
-  url.searchParams.set("utm_source", source);
-  url.searchParams.set("utm_medium", source === "farcaster" ? "cast" : "social");
-  url.searchParams.set("utm_campaign", "auto_market");
-  url.searchParams.set("utm_content", String(id));
-  url.searchParams.set("ref", source === "farcaster" ? "fc" : source);
-  return url.toString();
+  return timeLeft(pool.endTimeUtc);
 }
 
 
@@ -241,24 +213,8 @@ function tribalScore(pool: Pool, withAdaptive = true): number {
 }
 
 /**
- * ASCII share bar. Blocks, not emoji: an 8-cell bar of █/░ is one character per cell in JS length,
- * survives every client's font stack, and reads as data instead of decoration. Emoji would cost two
- * characters per cell and eat a fifth of the X budget.
+ * Battle-call copy: the version that reads like a side to pick, not a report to read.
  */
-function bar(sharePct: number, cells = 8): string {
-  const filled = Math.max(0, Math.min(cells, Math.round((sharePct / 100) * cells)));
-  return "█".repeat(filled) + "░".repeat(cells - filled);
-}
-
-/** Both sides, always: one number is a stat, two numbers are a fight. */
-function bothOdds(yes: number): { y: string; n: string } {
-  return {
-    y: (1 / Math.max(0.02, yes / 100)).toFixed(1),
-    n: (1 / Math.max(0.02, (100 - yes) / 100)).toFixed(1),
-  };
-}
-
-/** Battle-call copy: the version that reads like a side to pick, not a report to read. */
 function battleTweet(pool: Pool): string | null {
   const yes = Math.round(yesShare(pool) * 100);
   const no = 100 - yes;

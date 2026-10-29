@@ -15,6 +15,7 @@
     "auto:market": "bun scripts/auto-market.ts",
     "sync:attribution": "bun scripts/sync-attribution.ts",
     "campaign:digest": "bun scripts/campaign-digest.ts",
+    "push:marketing": "bun scripts/push-desktop-marketing.ts",
     "pool:settle": "hardhat run scripts/settle-pool.ts",
     "abi:export": "hardhat run scripts/export-abi.ts",
     "e2e:local": "hardhat run scripts/e2e-local.ts",
