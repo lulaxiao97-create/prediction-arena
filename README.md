@@ -129,6 +129,15 @@ proves it did, in `git log`.
   wins, so a long title degrades instead of getting truncated mid-word.
 - **Every claim on this page is a `curl` away** (below). If a number here stops being true, that is
   a bug, not marketing drift.
+- **The picture is rendered, not designed.** `scripts/generate-marketing-image.ts` screenshots a
+  1200×675 HTML card in the same Chromium the e2e suite uses, with a QR code of the *tracked* link.
+  Every number on it comes from the archived snapshot the copy was written from, so the tweet and
+  the image can never disagree — and when the card is older than the board it says `AS POSTED`
+  instead of `LIVE`.
+- **The captain bot is a pure function with a transport around it.** `scripts/telegram-bot.ts`
+  answers `/start captain` → wallet address → the captain's own `?ref=<address>` link plus a
+  copy-paste group template. The conversation is tested offline (`--self-test`, no token), because
+  a bot that "should work" is not a deliverable.
 
 ### Verify the agent in 60 seconds — no API key
 
@@ -442,6 +451,9 @@ Read [`SECURITY.md`](SECURITY.md) before reporting anything.
 | `bun run campaign:digest --remote` | pull the newest archived campaign from GitHub and print paste-ready blocks per channel |
 | `bun run campaign:digest --md` | the same archive as a weekly markdown calendar |
 | `bun run push:marketing` | write the day's paste-ready pack (tweet, reply deck, captain pitch) to the desktop |
+| `bun scripts/generate-marketing-image.ts --market=700011` | render the 1200×675 OG card (and its QR) for one market |
+| `bun scripts/telegram-bot.ts --self-test` | exercise the captain conversation offline, no token needed |
+| `bash scripts/start-telegram-bot.sh` | start / keep alive the captain bot (idempotent, no-ops without a token) |
 
 Every tick is fail-soft: a rate-limited RPC or a dry fee wallet logs and exits `0`, so the next tick
 still runs.

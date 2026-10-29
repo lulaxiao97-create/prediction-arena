@@ -19,7 +19,10 @@
     "pool:settle": "hardhat run scripts/settle-pool.ts",
     "abi:export": "hardhat run scripts/export-abi.ts",
     "e2e:local": "hardhat run scripts/e2e-local.ts",
-    "pool:auto:unattended": "bash scripts/open-pool-unattended.sh"
+    "pool:auto:unattended": "bash scripts/open-pool-unattended.sh",
+    "image:card": "bun scripts/generate-marketing-image.ts",
+    "bot:telegram": "bun scripts/telegram-bot.ts",
+    "bot:selftest": "bun scripts/telegram-bot.ts --self-test"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.8",

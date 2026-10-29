@@ -51,6 +51,8 @@ type Post = {
   tweetWeight: number;
   links?: { x?: string };
   tribal?: { total: number };
+  /** Present on archives written after the snapshot change; absent means "numbers unprovable". */
+  snapshot?: { yes: number; traders: number; liquidityUsdc: number };
 };
 
 type Args = { dryRun: boolean; dir: string | null };
@@ -138,12 +140,18 @@ function todayArchive(): { day: string; posts: Post[] } | null {
   }
 }
 
-/** The archived flagship tweet for today, if the cloud run already produced one. */
-function archivedTweet(): Post | null {
-  const archive = todayArchive();
+/**
+ * The archived flagship tweet for today — but only if that archive carries the snapshot the copy
+ * was written from. An archive without one cannot be reconciled with a freshly rendered card, and
+ * shipping a tweet that says $0.7325 next to a picture that says $0.7300 is worse than rerunning
+ * the generator for two seconds.
+ */
+function archivedTweet(archive: { day: string; posts: Post[] } | null): Post | null {
   if (!archive) return null;
-  const tribal = archive.posts.filter((p) => p.tribal && p.tribal.total >= 4);
-  const pool = tribal.length > 0 ? tribal : archive.posts;
+  const usable = archive.posts.filter((p) => p.snapshot);
+  if (usable.length === 0) return null;
+  const tribal = usable.filter((p) => p.tribal && p.tribal.total >= 4);
+  const pool = tribal.length > 0 ? tribal : usable;
   return pool[pool.length - 1] ?? null;
 }
 
@@ -201,10 +209,14 @@ function replyDeck(pools: Pool[]): { angle: string; where: string; text: string 
       `Everyone is sure about this one. ${pool.traders ?? 0} positions say otherwise:\n\n"${clipped(pool.title, 58)}"\n\nYES ${bar(yes)} ${yes}% pays ${y}× · ${left} left\n${url}`,
       `Numbers instead of vibes:\n\nYES ${bar(yes)} ${yes}% · ${y}×\nNO\u00a0\u00a0${bar(no)} ${no}% · ${n}×\n\n"${clipped(pool.title, 56)}" — ${left} left\n${url}`,
     ];
+    // Every reply ends with the follow ask — a reply that only links is a click, a reply that asks
+    // for the follow is a follower. Dropped automatically when it would push the post past 275.
+    const follow = `\n\nFollow ${X_HANDLE} for the on-chain odds breakdown before each settlement.`;
+    const withFollow = texts.map((t) => (weight(`${t}${follow}`) <= 275 ? `${t}${follow}` : t));
     return {
       angle: angles[i].angle,
       where: angles[i].where,
-      text: texts[i],
+      text: withFollow[i],
     };
   });
 }
@@ -293,6 +305,7 @@ function readme(dir: string): string {
 generated: ${new Date().toISOString()}
 
 WHAT IS IN HERE
+  01-market-card.png       1200x675 OG card — drag it straight into the tweet (X crops at 1.91:1)
   01-main-tweet.txt        the flagship tweet for today (under 280, bar + both odds + countdown)
   02-alpha-reply-deck.txt  three replies to drop under someone else's post, different angles
   03-captain-pitch.txt     the DM/enquiry script for a TG owner or KOL — 30% of the 4% fee
@@ -321,6 +334,35 @@ Folder: ${dir}
 `;
 }
 
+/**
+ * Render the OG card by shelling out to the image script.
+ *
+ * Not imported: the renderer pulls in Chromium, and a text-only pack on a machine without it is
+ * still worth having. The failure is reported, not swallowed.
+ */
+function renderCard(marketId: string | number, out: string, snapshot: string | null): { ok: boolean; note: string } {
+  try {
+    const proc = Bun.spawnSync({
+      cmd: [
+        "bun",
+        join(ROOT, "scripts", "generate-marketing-image.ts"),
+        `--market=${marketId}`,
+        `--out=${out}`,
+        ...(snapshot ? [`--snapshot=${snapshot}`] : []),
+        "--quiet",
+      ],
+      cwd: ROOT,
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    if (proc.exitCode === 0 && existsSync(out)) return { ok: true, note: "ok" };
+    const err = new TextDecoder().decode(proc.stderr).trim().split("\n").pop() ?? "unknown error";
+    return { ok: false, note: err.slice(0, 160) };
+  } catch (err) {
+    return { ok: false, note: (err as Error).message.slice(0, 160) };
+  }
+}
+
 function main(): void {
   const args = parseArgs(process.argv);
   const dir = args.dir ?? desktopDir();
@@ -330,18 +372,25 @@ function main(): void {
     process.exit(1);
   }
 
-  const archived = archivedTweet();
-  const flagship = archived ?? null;
+  const archive = todayArchive();
+  const flagship = archivedTweet(archive);
+  const snapshotPath = flagship && archive ? join(CAMPAIGNS, archive.day, "index.json") : null;
+  // Fallback ranking: a fight first, then the crowd size. Falling back to "most traders" alone
+  // kept picking a Premier League market, which is a fine product and a terrible flagship for a
+  // channel built around tribes.
   const flagshipPool =
     (flagship && pools.find((p) => String(p.id) === String(flagship.id))) ??
-    [...pools].sort((a, b) => (b.traders ?? 0) - (a.traders ?? 0))[0];
+    [...pools].sort((a, b) => {
+      const tribeDelta = Number(Boolean(tribe(b))) - Number(Boolean(tribe(a)));
+      return tribeDelta !== 0 ? tribeDelta : (b.traders ?? 0) - (a.traders ?? 0);
+    })[0];
 
   const tweet = flagship?.tweet ?? mainTweet(flagshipPool);
   const tweetId = flagship?.id ?? flagshipPool.id;
   const deck = replyDeck(pools);
 
   const files: Record<string, string> = {
-    "01-main-tweet.txt": `${tweet}\n\n---\nweight: ${weight(tweet)}/280 (URLs counted as 23)\nmarket: ${tweetId}\nsource: ${flagship ? `cloud archive ${todayArchive()?.day}` : "generated from pools.json"}\nref: the link carries ref=x; swap it for your own wallet to get the 30% yourself\n`,
+    "01-main-tweet.txt": `${tweet}\n\n---\nweight: ${weight(tweet)}/280 (URLs counted as 23)\nmarket: ${tweetId}\nsource: ${flagship ? `cloud archive ${archive?.day} (numbers in the archive snapshot)` : "generated from pools.json now — today's archive had no snapshot or does not exist"}\nref: the link carries ref=x; swap it for your own wallet to get the 30% yourself\n`,
     "02-alpha-reply-deck.txt": deck
       .map(
         (r, i) =>
@@ -374,7 +423,8 @@ function main(): void {
   };
 
   if (args.dryRun) {
-    console.log(`# dry run — would write to ${dir}\n`);
+    console.log(`# dry run — would write to ${dir}`);
+    console.log(`# plus 01-market-card.png for market ${tweetId} (1200x675, rendered by scripts/generate-marketing-image.ts)\n`);
     for (const [name, body] of Object.entries(files)) {
       console.log(`\n${"=".repeat(72)}\n${name}\n${"=".repeat(72)}\n${body}`);
     }
@@ -383,6 +433,21 @@ function main(): void {
 
   mkdirSync(dir, { recursive: true });
   for (const [name, body] of Object.entries(files)) writeFileSync(join(dir, name), body, "utf8");
+
+  // The picture ships with the copy, from the same manifest row. Best effort: a missing Chromium
+  // must not cost the operator the text pack.
+  const card = renderCard(tweetId, join(dir, "01-market-card.png"), snapshotPath);
+
+  // meta.json is rewritten once the card exists, so the file records whether the picture is really
+  // there rather than whether we hoped it would be.
+  try {
+    const metaPath = join(dir, "meta.json");
+    const meta = JSON.parse(readFileSync(metaPath, "utf8")) as Record<string, unknown>;
+    meta.card = { file: "01-market-card.png", size: "1200x675", generated: card.ok, note: card.note };
+    writeFileSync(metaPath, `${JSON.stringify(meta, null, 2)}\n`, "utf8");
+  } catch {
+    /* the text pack is what matters; a missing meta line must not fail the run */
+  }
 
   const day = new Date().toISOString().slice(0, 10);
   const archiveDir = join(dir, "archive", day);
@@ -396,6 +461,7 @@ function main(): void {
   );
   console.log(`  reply deck: ${deck.map((r) => `${r.angle} (${weight(r.text)}/280)`).join(" · ")}`);
   console.log(`  captain pitch: EN + 中文 · ${pools.length} open markets available`);
+  console.log(`  01-market-card.png: ${card.ok ? "1200x675 rendered" : `skipped — ${card.note}`}`);
 }
 
 main();

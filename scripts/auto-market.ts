@@ -346,6 +346,20 @@ type Post = {
   links: { x: string; farcaster: string; telegram: string };
   /** Why this market outranked the others — auditable instead of "the bot felt like it". */
   tribal: { base: number; adaptive: number; total: number; leader: string | null };
+  /**
+   * The numbers this copy was written from. Without it the archive can only prove what was said,
+   * not what was true: the picture renderer would have to re-read the live board and could happily
+   * draw a 28% market next to a tweet that says 27%.
+   */
+  snapshot: {
+    yes: number;
+    traders: number;
+    liquidityUsdc: number;
+    asset: string | null;
+    strikeUsd: number | null;
+    spotUsd: number | null;
+    endTimeUtc: string | null;
+  };
   generatedAt: string;
 };
 
@@ -369,6 +383,15 @@ function build(pool: Pool, pick: Args["pick"]): Post {
       telegram: trackedUrl(pool.id, "telegram"),
     },
     tribal: { base, adaptive: Math.round((total - base) * 10) / 10, total, leader: ATTR?.leader ?? null },
+    snapshot: {
+      yes: Math.round(yesShare(pool) * 100),
+      traders: pool.traders ?? 0,
+      liquidityUsdc: Number(pool.liquidityUsdc ?? 0),
+      asset: pool.marketData?.asset ?? null,
+      strikeUsd: pool.marketData?.strikeUsd ?? null,
+      spotUsd: pool.marketData?.spotUsd ?? null,
+      endTimeUtc: pool.endTimeUtc ?? null,
+    },
     generatedAt: new Date().toISOString(),
   };
 }
@@ -571,10 +594,43 @@ async function sendX(text: string): Promise<string> {
   return `failed ${res.status}: ${res.text.slice(0, 200)}`;
 }
 
+/**
+ * The bot's username, so the post can carry a button straight into a private chat.
+ *
+ * A channel cannot start a DM, and `/captain` typed in a channel goes nowhere. The only path from
+ * a public post to a private conversation is a `t.me/<bot>?start=captain` deep link, and that needs
+ * the username — resolved from getMe rather than configured, so there is no second place to forget
+ * to update when the bot is swapped.
+ */
+let BOT_USERNAME: string | null | undefined;
+async function botUsername(token: string): Promise<string | null> {
+  if (BOT_USERNAME !== undefined) return BOT_USERNAME;
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${token}/getMe`);
+    const body = (await res.json()) as { ok?: boolean; result?: { username?: string } };
+    BOT_USERNAME = body.ok ? (body.result?.username ?? null) : null;
+  } catch {
+    BOT_USERNAME = null;
+  }
+  return BOT_USERNAME;
+}
+
 async function sendTelegram(text: string): Promise<string> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chat = process.env.TELEGRAM_CHAT_ID ?? "@predictionarena_hq";
   if (!token) return "skipped: TELEGRAM_BOT_TOKEN unset";
+
+  const username = await botUsername(token);
+  const captainButton = username
+    ? {
+        inline_keyboard: [
+          [
+            { text: "🧑‍💼 Become a Captain (Earn 30%)", url: `https://t.me/${username}?start=captain` },
+            { text: "🏴 Today's board", url: SITE },
+          ],
+        ],
+      }
+    : undefined;
 
   const res = await postJson(`https://api.telegram.org/bot${token}/sendMessage`, {}, {
     chat_id: chat,
@@ -582,9 +638,10 @@ async function sendTelegram(text: string): Promise<string> {
     // No parse_mode: market titles are user-facing text and a stray & or < would make Telegram
     // reject the whole message with "can't parse entities".
     disable_web_page_preview: false,
+    ...(captainButton ? { reply_markup: captainButton } : {}),
   });
 
-  if (res.ok) return "sent";
+  if (res.ok) return username ? "sent (captain button attached)" : "sent (no bot username — text CTA only)";
   if (res.status === 403) {
     return "failed 403: the bot is not an admin of the channel — add it under Channel → Administrators (docs/GROWTH_MILESTONE_1K_30.md §6).";
   }
