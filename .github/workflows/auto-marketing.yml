@@ -1,9 +1,8 @@
 name: Auto marketing
 
-# Cloud-side content factory. Two slots a day, and the pick differs by slot so the channel is not
-# posting the same "widest odds" market twice:
-#   09:10 UTC → movers (longest payout on the board)
-#   17:10 UTC → expiry (what closes next)
+# Cloud-side content factory. Two slots a day, both `--pick=tribal`: the channel's job is to find a
+# fight worth taking a side on, and the second slot deliberately lands on the *next* tribal market
+# (auto-market skips whatever today's archive already featured) rather than reposting the morning's.
 #
 # The run is designed to be boring: if a channel is misconfigured the step still exits 0, prints the
 # reason, and the next slot picks up. A red workflow every day trains everyone to ignore it, and
@@ -18,7 +17,7 @@ on:
       pick:
         description: "Which market to feature"
         type: choice
-        options: [movers, expiry, tvl, tribal]
+        options: [tribal, movers, expiry, tvl]
         default: tribal
       limit:
         description: "How many markets"
@@ -50,10 +49,10 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             PICK="${{ inputs.pick }}"
             LIMIT="${{ inputs.limit }}"
-          elif [ "$(date -u +%H)" -lt "13" ]; then
-            PICK="movers"; LIMIT="1"
           else
-            PICK="expiry"; LIMIT="1"
+            # Both scheduled slots are tribal. The no-repeat rule lives in auto-market.ts (it skips
+            # ids already in today's archive), so 17:10 lands on the next fight, not a repost.
+            PICK="tribal"; LIMIT="1"
           fi
           echo "pick=$PICK" >> "$GITHUB_OUTPUT"
           echo "limit=$LIMIT" >> "$GITHUB_OUTPUT"

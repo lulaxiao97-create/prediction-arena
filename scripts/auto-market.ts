@@ -428,6 +428,23 @@ function isoWeek(d: Date): string {
 }
 
 /**
+ * Market ids already archived today. Two slots a day means the second run would otherwise feature
+ * the same top-scoring tribal market as the first — the channel repeating itself is the failure
+ * mode the schedule comment warned about, so the picker skips what it already posted today.
+ */
+function archivedToday(): Set<string> {
+  const day = new Date().toISOString().slice(0, 10);
+  try {
+    const parsed = JSON.parse(readFileSync(join(CAMPAIGNS, day, "index.json"), "utf8")) as {
+      posts?: { id: string | number }[];
+    };
+    return new Set((parsed.posts ?? []).map((p) => String(p.id)));
+  } catch {
+    return new Set();
+  }
+}
+
+/**
  * Archive the generated copy. One folder per day so a post can be traced to the bot run that
  * produced it, plus a week file that is the schedule a human actually reads on Monday.
  */
@@ -446,8 +463,19 @@ function archive(posts: Post[]): string[] {
     written.push(`${base}-x.txt`, `${base}-cast.txt`, `${base}-telegram.txt`);
   }
 
-  writeFileSync(join(dir, "index.json"), JSON.stringify({ day, posts }, null, 2), "utf8");
-  written.push(join(dir, "index.json"));
+  // Merge, do not replace: the evening run used to overwrite the morning run's index.json, which
+  // silently deleted the only record of what was posted at 09:10 and re-enabled the duplicate pick.
+  const indexPath = join(dir, "index.json");
+  let prior: Post[] = [];
+  try {
+    const parsed = JSON.parse(readFileSync(indexPath, "utf8")) as { posts?: Post[] };
+    prior = (parsed.posts ?? []).filter((p) => !posts.some((q) => String(q.id) === String(p.id)));
+  } catch {
+    prior = [];
+  }
+  const merged = [...prior, ...posts].sort((a, b) => (a.generatedAt < b.generatedAt ? -1 : 1));
+  writeFileSync(indexPath, JSON.stringify({ day, posts: merged }, null, 2), "utf8");
+  written.push(indexPath);
 
   const week = isoWeek(now);
   const weekFile = join(CAMPAIGNS, `${week}.md`);
@@ -618,7 +646,21 @@ async function main() {
   const attribution = loadAttribution();
   ATTR = attribution.data;
 
-  const picked = rank(pools, args.pick).slice(0, args.limit);
+  // `--pick=tribal` is the flagship slot, and it runs twice a day. Skip whatever today's archive
+  // already featured so the 17:10 run is the *next* tribal fight instead of a repost. If every
+  // market has been used (a very thin board), fall back to the full ranking — a repeat beats silence.
+  let ranked = rank(pools, args.pick);
+  let skippedToday = 0;
+  if (args.pick === "tribal") {
+    const seen = archivedToday();
+    const fresh = ranked.filter((p) => !seen.has(String(p.id)));
+    if (fresh.length > 0) {
+      skippedToday = ranked.length - fresh.length;
+      ranked = fresh;
+    }
+  }
+
+  const picked = ranked.slice(0, args.limit);
   const posts = picked.map((p) => build(p, args.pick));
 
   const results: Record<string, unknown>[] = [];
@@ -641,6 +683,9 @@ async function main() {
   }
 
   console.log(`\n[attribution] ${attribution.note}`);
+  if (skippedToday > 0) {
+    console.log(`[schedule] skipped ${skippedToday} market(s) already featured today — the next tribal fight is on deck`);
+  }
 
   results.forEach((r) => {
     const p = r as unknown as Post & { x?: string; telegramSend?: string };
