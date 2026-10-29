@@ -108,10 +108,11 @@ export async function GET(request: Request) {
       byRef.set(r.ref, entry);
     }
 
-    const perMarket = new Map<string, { bets: number; referred: number }>();
+    const perMarket = new Map<string, { bets: number; referred: number; volume: bigint }>();
     for (const r of rows) {
-      const entry = perMarket.get(r.poolId) ?? { bets: 0, referred: 0 };
+      const entry = perMarket.get(r.poolId) ?? { bets: 0, referred: 0, volume: 0n };
       entry.bets += 1;
+      entry.volume += BigInt(r.amount || 0);
       if (r.ref && r.ref !== zero) entry.referred += 1;
       perMarket.set(r.poolId, entry);
     }
@@ -142,7 +143,13 @@ export async function GET(request: Request) {
         perMarket: [...perMarket.entries()]
           .sort((a, b) => b[1].bets - a[1].bets)
           .slice(0, 12)
-          .map(([poolId, v]) => ({ poolId, ...v })),
+          // `volumeUsdc` is gross stake, not revenue: the contract keeps a 4% fee and the rest is pool.
+          .map(([poolId, v]) => ({
+            poolId,
+            bets: v.bets,
+            referred: v.referred,
+            volumeUsdc: Number(formatUnits(v.volume, 6)),
+          })),
         channels: {
           note:
             "Channel mix (Farcaster / X / Telegram / direct) is not derivable from chain logs — the contract's referrer must be an address, while channels are utm_* tags on landing pages. Point NEXT_PUBLIC_ANALYTICS_* at a sink to fill this in.",

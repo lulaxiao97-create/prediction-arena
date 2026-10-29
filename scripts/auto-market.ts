@@ -150,7 +150,73 @@ const TRIBE_TOKENS = ["degen", "toshi", "brett", "mog", "aero", "aerdrome", "zor
 const BATTLE_RE = /\b(vs\.?|versus|flip|flips|overtake|overtakes|surpass|surpasses|beat|beats|higher than|below|above)\b/i;
 const MACRO_RE = /\b(cpi|fomc|fed|inflation|unemployment|gdp|election|senate|powell)\b/i;
 
-function tribalScore(pool: Pool): number {
+/**
+ * Learned tribal weights, written by `scripts/sync-attribution.ts` from `/api/growth/summary`.
+ *
+ * Until the first referred bet lands on Base this file has `bets: 0` and contributes exactly zero:
+ * the score below stays the hand-tuned prior. Once real money moves, the tribe that actually drew
+ * volume gets the extra points, so the daily pick drifts toward the fight people paid for instead
+ * of the fight we guessed they wanted.
+ *
+ * It is a *bonus*, never a penalty, and it is capped at +2 — a leader with 100× the volume of the
+ * runner-up must not turn one market into the only market the channel ever posts.
+ */
+type TribeStat = { token: string; bets: number; volumeUsdc: number };
+type Attribution = {
+  generatedAt: string;
+  source: string;
+  bets: number;
+  referredBets: number;
+  volumeUsdc: number;
+  byTribe: TribeStat[];
+  leader: string | null;
+};
+
+const ATTRIBUTION_FILE = process.env.ATTRIBUTION_FILE ?? join(CAMPAIGNS, "attribution.json");
+const ATTRIBUTION_TTL_MS = 7 * 86_400_000;
+
+/** null = no usable signal (missing file, stale file, or no bets yet). */
+function loadAttribution(): { data: Attribution | null; note: string } {
+  let raw: string;
+  try {
+    raw = readFileSync(ATTRIBUTION_FILE, "utf8");
+  } catch {
+    return { data: null, note: "no attribution file — tribal weights stay at the hand-tuned prior" };
+  }
+  let data: Attribution;
+  try {
+    data = JSON.parse(raw) as Attribution;
+  } catch {
+    return { data: null, note: "attribution file is not valid JSON — ignoring it" };
+  }
+  const age = Date.now() - new Date(data.generatedAt ?? 0).getTime();
+  if (!Number.isFinite(age) || age > ATTRIBUTION_TTL_MS) {
+    return { data: null, note: `attribution is older than ${ATTRIBUTION_TTL_MS / 86_400_000}d — ignoring it` };
+  }
+  if (!data.bets || data.bets <= 0) {
+    return { data: null, note: "no on-chain bets yet — tribal weights stay at the hand-tuned prior" };
+  }
+  return { data, note: `attribution live: ${data.bets} bets, leader=${data.leader ?? "none"}` };
+}
+
+let ATTR: Attribution | null = null;
+
+/**
+ * +2 for the tribe that took the most referred USDC, scaled down for the rest, +0 when there is
+ * no signal. Matched on the same token list as the static +3 above, so a market can score both.
+ */
+function adaptiveBonus(pool: Pool): number {
+  if (!ATTR || !ATTR.byTribe?.length) return 0;
+  const top = Math.max(...ATTR.byTribe.map((t) => t.volumeUsdc));
+  if (!(top > 0)) return 0;
+  const title = pool.title.toLowerCase();
+  const matched = ATTR.byTribe.filter((t) => title.includes(t.token.toLowerCase()));
+  if (matched.length === 0) return 0;
+  const best = Math.max(...matched.map((t) => t.volumeUsdc));
+  return Math.round((best / top) * 2 * 10) / 10;
+}
+
+function tribalScore(pool: Pool, withAdaptive = true): number {
   const title = pool.title.toLowerCase();
   let score = 0;
   if (BATTLE_RE.test(pool.title)) score += 4;
@@ -164,6 +230,7 @@ function tribalScore(pool: Pool): number {
   const liquidity = Number(pool.liquidityUsdc ?? 0);
   if (traders > 0 && liquidity / traders > 120) score += 1;
   if (MACRO_RE.test(title)) score -= 3;
+  if (withAdaptive) score += adaptiveBonus(pool);
   return score;
 }
 
@@ -281,12 +348,16 @@ type Post = {
   castChars: number;
   telegram: string;
   links: { x: string; farcaster: string; telegram: string };
+  /** Why this market outranked the others — auditable instead of "the bot felt like it". */
+  tribal: { base: number; adaptive: number; total: number; leader: string | null };
   generatedAt: string;
 };
 
 function build(pool: Pool, pick: Args["pick"]): Post {
   const tweet = tweetFor(pool);
   const cast = castFor(pool);
+  const base = tribalScore(pool, false);
+  const total = tribalScore(pool);
   return {
     id: pool.id,
     title: pool.title,
@@ -301,6 +372,7 @@ function build(pool: Pool, pick: Args["pick"]): Post {
       farcaster: trackedUrl(pool.id, "farcaster"),
       telegram: trackedUrl(pool.id, "telegram"),
     },
+    tribal: { base, adaptive: Math.round((total - base) * 10) / 10, total, leader: ATTR?.leader ?? null },
     generatedAt: new Date().toISOString(),
   };
 }
@@ -503,6 +575,9 @@ async function main() {
     process.exit(1);
   }
 
+  const attribution = loadAttribution();
+  ATTR = attribution.data;
+
   const picked = rank(pools, args.pick).slice(0, args.limit);
   const posts = picked.map((p) => build(p, args.pick));
 
@@ -521,13 +596,18 @@ async function main() {
   const files = args.write ? archive(posts) : [];
 
   if (args.json) {
-    console.log(JSON.stringify({ site: SITE, posts: results, files }, null, 2));
+    console.log(JSON.stringify({ site: SITE, attribution: { ...attribution, data: ATTR }, posts: results, files }, null, 2));
     return;
   }
+
+  console.log(`\n[attribution] ${attribution.note}`);
 
   results.forEach((r) => {
     const p = r as unknown as Post & { x?: string; telegramSend?: string };
     console.log(`\n=== market ${p.id} — ${p.title}`);
+    console.log(
+      `--- tribal ${p.tribal.total} (prior ${p.tribal.base}${p.tribal.adaptive ? ` + attribution ${p.tribal.adaptive}` : ""})${p.tribal.leader ? ` · ledger leader ${p.tribal.leader}` : ""}`,
+    );
     console.log(`--- X (${p.tweetWeight}/280 weighted)`);
     console.log(p.tweet);
     console.log(`--- Farcaster (${p.castChars}/320)`);

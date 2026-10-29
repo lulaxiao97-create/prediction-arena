@@ -18,8 +18,8 @@ on:
       pick:
         description: "Which market to feature"
         type: choice
-        options: [movers, expiry, tvl]
-        default: movers
+        options: [movers, expiry, tvl, tribal]
+        default: tribal
       limit:
         description: "How many markets"
         default: "1"
@@ -58,6 +58,12 @@ jobs:
           echo "pick=$PICK" >> "$GITHUB_OUTPUT"
           echo "limit=$LIMIT" >> "$GITHUB_OUTPUT"
           echo "running pick=$PICK limit=$LIMIT"
+
+      - name: Refresh tribal attribution
+        # Feeds `--pick=tribal`: which tribe actually drew the most USDC on-chain. Best effort — if
+        # the RPC throttles, the previous attribution (or the hand-tuned prior) still ranks the board
+        # and the run continues. Never let a metrics refresh block the day's post.
+        run: bun scripts/sync-attribution.ts || echo "attribution sync failed — keeping the previous weights"
 
       - name: Generate and publish
         env:
