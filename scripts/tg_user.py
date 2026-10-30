@@ -50,23 +50,20 @@ PROXY = os.environ.get("HTTPS_PROXY") or os.environ.get("HTTP_PROXY")
 
 
 def client() -> TelegramClient:
-    kwargs = {"connection_retries": 3, "request_retries": 3}
-    if PROXY:
-        from telethon.network import ConnectionTcpFull  # noqa: F401  (documents the dependency)
+    kwargs: dict = {"connection_retries": 3, "request_retries": 3}
+    # MTProto is plain TCP, so an HTTP proxy has to be spoken to explicitly — this network answers
+    # api.telegram.org only through the egress proxy, and direct TCP to the DCs times out.
+    raw = os.environ.get("TG_MT_PROXY") or PROXY
+    if raw:
+        try:
+            from python_socks import ProxyType
 
-        scheme, _, rest = PROXY.partition("://")
-        host, _, port = rest.partition(":")
-        if scheme.startswith("http"):
-            # Telethon wants a SOCKS proxy; an HTTP CONNECT proxy is not supported, so we only use it
-            # for the web fetches elsewhere and leave MTProto direct. If direct MTProto is blocked,
-            # set TG_MT_PROXY=socks5://host:port instead.
-            socks = os.environ.get("TG_MT_PROXY")
-            if socks:
-                s_scheme, _, s_rest = socks.partition("://")
-                s_host, _, s_port = s_rest.partition(":")
-                import socks  # type: ignore
-
-                kwargs["proxy"] = (socks.SOCKS5, s_host, int(s_port))
+            scheme, _, rest = raw.partition("://")
+            host, _, port = rest.partition(":")
+            kind = ProxyType.SOCKS5 if scheme.startswith("socks5") else ProxyType.HTTP
+            kwargs["proxy"] = (kind, host, int(port))
+        except Exception:  # noqa: BLE001 — a broken proxy value must not stop a direct attempt
+            pass
     return TelegramClient(str(SESSION), API_ID, API_HASH, **kwargs)
 
 
@@ -197,6 +194,43 @@ async def cmd_send(args) -> None:
     await cli.disconnect()
 
 
+async def cmd_qrfile(args) -> None:
+    """QR login rendered to a PNG that refreshes itself.
+
+    Scanning a terminal QR from a chat window does not work — it expires in half a minute. A file on
+    the desktop that is rewritten every few seconds can be scanned whenever the phone is in hand.
+    """
+    cli = client()
+    await cli.connect()
+    if await cli.is_user_authorized():
+        me = await cli.get_me()
+        out({"ok": True, "already": True, "user": me.username})
+        return
+    import qrcode  # local import: only this command needs it
+
+    path = Path(args.path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    qr = await cli.qr_login()
+    deadline = time.time() + args.minutes * 60
+    while time.time() < deadline:
+        qrcode.make(qr.url).save(str(path))
+        out({"qr": "refreshed", "path": str(path), "expires_in": 30})
+        try:
+            await asyncio.wait_for(qr.wait(), timeout=20)
+            me = await cli.get_me()
+            out({"ok": True, "user": me.username, "id": me.id, "session": str(SESSION)})
+            return
+        except asyncio.TimeoutError:
+            try:
+                await qr.recreate()
+            except Exception:
+                qr = await cli.qr_login()
+        except Exception as err:  # noqa: BLE001
+            out({"ok": False, "error": str(err)[:200]})
+            return
+    out({"ok": False, "error": f"not scanned within {args.minutes}m"})
+
+
 async def cmd_dialogs(args) -> None:
     cli = client()
     await cli.connect()
@@ -215,6 +249,11 @@ def main() -> None:
     p.add_argument("--qr", action="store_true")
     p.add_argument("--phone")
     p.set_defaults(fn=cmd_login)
+
+    p = sub.add_parser("qrfile")
+    p.add_argument("--path", default=str(HOME / "Desktop" / "tg_login_qr.png"))
+    p.add_argument("--minutes", type=int, default=10)
+    p.set_defaults(fn=cmd_qrfile)
 
     p = sub.add_parser("whoami")
     p.set_defaults(fn=cmd_whoami)
