@@ -88,7 +88,7 @@ type Item = {
   source: SourceReport["source"];
 };
 
-type State = { seen: Record<string, string>; lastRun?: string };
+type State = { seen: Record<string, string>; lastRun?: string; replies?: { date: string; count: number } };
 
 type Args = {
   once: boolean;
@@ -764,12 +764,24 @@ async function sweep(args: Args): Promise<number> {
   console.log(`\nqueued ${items.length} · telegram ${delivery}`);
 
   // Auto-reply, when switched on. Each result is printed as the channel states it (sent / 402 /
-  // 403 / skipped), so the first run on a live credential cannot be mistaken for success.
+  // 403 / skipped), so the first run on a live credential cannot be mistaken for success. A daily
+  // cap is not politeness: an account that replies to every match within an hour gets muted, and a
+  // muted account has no distribution at all.
   if (args.reply) {
+    const today = new Date().toISOString().slice(0, 10);
+    const day = state.replies?.date === today ? state.replies : { date: today, count: 0 };
+    const cap = Number(process.env.INTERCEPT_MAX_REPLIES_PER_DAY ?? 12);
     for (const item of items) {
+      if (day.count >= cap) {
+        console.log(`reply cap ${cap}/day reached — the rest stay in the queue`);
+        break;
+      }
       const result = await replyOnX(item);
       console.log(`reply → ${item.tweetUrl}: ${result}`);
+      if (result.startsWith("sent")) day.count += 1;
     }
+    state.replies = day;
+    writeState(state);
   }
   return 0;
 }
