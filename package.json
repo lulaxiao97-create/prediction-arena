@@ -36,7 +36,10 @@
     "tg:selftest": "bun scripts/tg-outreach.ts --self-test",
     "tg:login": "bun scripts/tg-outreach.ts --login",
     "og:warm": "bun scripts/warm-og.ts",
-    "x:post": "bash scripts/x-post.sh"
+    "x:post": "bash scripts/x-post.sh",
+    "x:reply-plan": "bun scripts/x-reply-plan.ts",
+    "x:receipts": "bun scripts/x-settlement-post.ts",
+    "x:header": "node scripts/x_header.js"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.8",
