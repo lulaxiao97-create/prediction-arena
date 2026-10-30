@@ -16,6 +16,29 @@ export const runtime = "nodejs";
  * first request paints once and every later one (crawlers included) is served from cache.
  */
 export const revalidate = 3600;
+
+/**
+ * Prerender every card at build time.
+ *
+ * Satori needs 1.6–3s per card on this instance; X waits 2–3s. Caching helped machines that were
+ * already warm and did nothing for the crawler that arrives first. So the cards become build
+ * artifacts: a static PNG per open market, served by the CDN, no render on the request path. New
+ * market ids still work — they fall back to the dynamic render and get prerendered by the next build.
+ */
+export async function generateStaticParams() {
+  try {
+    const { readFileSync } = await import("node:fs");
+    const path = await import("node:path");
+    const manifest = JSON.parse(
+      readFileSync(path.join(process.cwd(), "public", "pools.json"), "utf8"),
+    ) as { pools?: { id: string | number; status?: number }[] };
+    return (manifest.pools ?? [])
+      .filter((p) => (p.status ?? 1) === 1)
+      .map((p) => ({ id: String(p.id) }));
+  } catch {
+    return [];
+  }
+}
 export const alt = "Prediction Arena — market card";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
