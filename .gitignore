@@ -18,3 +18,6 @@ PUBLIC_URL.txt
 
 # internal working notes — not part of the public repository
 HANDOFF.md
+
+# runtime state (interception queue, captain register) — never part of the repo
+.data/

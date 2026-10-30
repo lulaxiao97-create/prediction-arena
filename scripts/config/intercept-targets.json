@@ -1,0 +1,13 @@
+{
+  "_comment": "Accounts whose posts carry a Base-native audience. A cashtag anywhere in a post of theirs is enough to route a reply to that tribe's market; nothing here is a paid placement.",
+  "accounts": [
+    "AerodromeFi",
+    "degenbot",
+    "jessepollak",
+    "base",
+    "base_eth",
+    "Bankless",
+    "Uniswap"
+  ],
+  "queries": ["$AERO", "$DEGEN", "$TOSHI"]
+}

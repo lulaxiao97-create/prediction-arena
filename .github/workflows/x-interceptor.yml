@@ -1,0 +1,82 @@
+name: X interceptor
+
+# Continuous interception, not a daily digest.
+#
+# A reply is worthless if it lands an hour late, so this job does not run "once a day": it holds a
+# long watch window (default 340 minutes) sweeping every 90 seconds, and a 15-minute cron keeps a
+# replacement queued. `cancel-in-progress: false` means the queued run starts only when the current
+# window ends, so coverage is continuous instead of overlapping — the repo is public, so the minutes
+# are free either way.
+#
+# Every draft lands in the job summary and as an artifact, which is readable from a phone. If an ops
+# chat is configured (INTERCEPT_NOTIFY_CHAT), each draft is also pushed there within seconds of the
+# tweet going up — that is the only version of this that works when nobody is at a desk.
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+    inputs:
+      minutes:
+        description: "watch window in minutes (0 = a single sweep)"
+        default: "20"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: x-interceptor
+  cancel-in-progress: false
+
+jobs:
+  intercept:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Which source can read X right now
+        env:
+          X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+        run: bun scripts/active-x-interceptor.ts --probe || true
+
+      - name: Watch for a post worth answering
+        env:
+          X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          INTERCEPT_NOTIFY_CHAT: ${{ secrets.INTERCEPT_NOTIFY_CHAT }}
+          MINUTES: ${{ github.event.inputs.minutes }}
+        run: |
+          if [ -n "$MINUTES" ] && [ "$MINUTES" != "0" ]; then
+            bun scripts/active-x-interceptor.ts --watch --minutes="$MINUTES" --interval=90
+          elif [ "$MINUTES" = "0" ]; then
+            bun scripts/active-x-interceptor.ts --once
+          else
+            bun scripts/active-x-interceptor.ts --watch --minutes=335 --interval=90
+          fi
+
+      - name: Drafts → job summary
+        if: always()
+        run: |
+          {
+            echo "## Interception queue"
+            if [ -f .data/intercept/QUEUE.md ]; then
+              tail -c 40000 .data/intercept/QUEUE.md
+            else
+              echo "no draft this window — either no source could read X (see the probe step) or nothing matched a market"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: intercept-queue
+          path: .data/intercept
+          retention-days: 14
+          if-no-files-found: ignore

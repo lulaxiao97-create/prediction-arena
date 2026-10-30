@@ -83,6 +83,18 @@ jobs:
             --write \
             --send | tee /tmp/run.log
 
+      - name: Publish Farcaster casts to /base and /degen
+        # Farcaster is the channel with no follower gate: a frame in /base reaches the timeline
+        # directly. No signer is configured yet, so this prints `skipped — no signer` and moves on;
+        # the moment NEYNAR_API_KEY + NEYNAR_SIGNER_UUID land in secrets it starts casting, with no
+        # code change. Never fails the run: a blocked channel must not redden the day's post.
+        env:
+          NEYNAR_API_KEY: ${{ secrets.NEYNAR_API_KEY }}
+          NEYNAR_SIGNER_UUID: ${{ secrets.NEYNAR_SIGNER_UUID }}
+          FARCASTER_BEARER: ${{ secrets.FARCASTER_BEARER }}
+          NEXT_PUBLIC_SITE_URL: https://predictionarena.online
+        run: bun scripts/farcaster-auto-cast.ts --publish 2>&1 | tee /tmp/casts.log || true
+
       - name: Publish summary
         if: always()
         run: |

@@ -12,18 +12,24 @@
  * Why the bot and not a form: the payout is per referred position, forever, so the reply has to
  * live somewhere the captain can come back to. A chat is that place, and it costs nothing.
  *
+ * Registered captains are kept in a store (`CAPTAINS_FILE`, default `.data/captains.json`) so the
+ * bot can act *first* instead of waiting to be asked: `--broadcast` pushes the newest market to
+ * every captain with their own `?ref=` link, already written as a group post.
+ *
  * Token resolution (first hit wins): TELEGRAM_BOT_TOKEN, ~/.hermes/.tg_bot_token, repo `.env`.
  *
  *   bun scripts/telegram-bot.ts                 # long-poll and serve
  *   bun scripts/telegram-bot.ts --self-test     # run the conversation offline, print the replies
  *   bun scripts/telegram-bot.ts --once          # drain one batch and exit (cron-friendly)
+ *   bun scripts/telegram-bot.ts --broadcast     # DM the newest market to every captain
+ *   bun scripts/telegram-bot.ts --captains      # who is registered (masked wallets)
  *
  * `--self-test` exists because the token lives in GitHub secrets: the flow has to be provable
  * without it, and a bot that "should work" is not a deliverable.
  */
 
-import { existsSync, readFileSync } from "node:fs";
-import { homedir } from "node:os";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 
 const ROOT = join(import.meta.dir, "..");
@@ -50,6 +56,54 @@ type Outgoing = {
 type Session = { awaitingWallet: boolean; wallet?: string };
 
 const WALLET_RE = /^0x[0-9a-fA-F]{40}$/;
+
+/**
+ * The captain register.
+ *
+ * In-memory sessions lose everything on restart, and a captain whose link is forgotten is a captain
+ * who never posts. One small JSON file is enough: it is written on every binding and read at boot,
+ * and it carries the last market pushed to each chat so a broadcast never repeats itself.
+ */
+const CAPTAINS_FILE = process.env.CAPTAINS_FILE ?? join(ROOT, ".data", "captains.json");
+
+type Captain = {
+  chatId: number;
+  wallet: string;
+  username?: string;
+  createdAt: string;
+  updatedAt: string;
+  pushes: number;
+};
+
+type Store = {
+  captains: Record<string, Captain>;
+  lastBroadcast?: { marketId: string; at: string };
+};
+
+function loadStore(path = CAPTAINS_FILE): Store {
+  try {
+    const parsed = JSON.parse(readFileSync(path, "utf8")) as Store;
+    return { captains: parsed.captains ?? {}, lastBroadcast: parsed.lastBroadcast };
+  } catch {
+    return { captains: {} };
+  }
+}
+
+function saveStore(store: Store, path = CAPTAINS_FILE): void {
+  mkdirSync(join(path, ".."), { recursive: true });
+  writeFileSync(path, `${JSON.stringify(store, null, 2)}\n`, "utf8");
+}
+
+/** Binding is idempotent: the same wallet twice updates the chat, never duplicates the captain. */
+function bindCaptain(store: Store, chatId: number, wallet: string, username?: string): Captain {
+  const key = String(chatId);
+  const existing = store.captains[key];
+  const captain: Captain = existing
+    ? { ...existing, wallet, username: username ?? existing.username, updatedAt: new Date().toISOString() }
+    : { chatId, wallet, username, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), pushes: 0 };
+  store.captains[key] = captain;
+  return captain;
+}
 
 function token(): string | null {
   const fromEnv = process.env.TELEGRAM_BOT_TOKEN?.trim();
@@ -198,6 +252,18 @@ function respond(
     return { replies, session: { ...session, awaitingWallet: true } };
   }
 
+  if (lower === "/copy") {
+    replies.push(
+      session.wallet
+        ? {
+            text: ["直接复制发群（里面是你的链接）：", "——————", groupTemplate(session.wallet), "——————"].join("\n"),
+            buttons: [[{ text: "🏴 打开盘口", url: refLink(session.wallet) }]],
+          }
+        : { text: "先发 /captain 绑定收款地址，我再给你群发话术。", buttons: [[{ text: "开始绑定", command: "/captain" }]] },
+    );
+    return { replies, session };
+  }
+
   if (lower === "/link") {
     if (session.wallet) {
       replies.push({
@@ -282,6 +348,131 @@ async function send(api: string, chatId: number, out: Outgoing): Promise<void> {
   }
 }
 
+// ---------------------------------------------------------------- captain broadcast
+//
+// The daily channel post is one message to strangers. This is the part that makes it compound: the
+// people who already registered get the new market pushed at them, already written as a group post
+// with their own `?ref=` in it, so forwarding costs them one tap. Numbers come from the same
+// manifest the site renders, so a captain can never quote a price the board does not have.
+
+type Pool = {
+  id: string | number;
+  title: string;
+  status?: number;
+  endTimeUtc?: string;
+  traders?: number;
+  yesShare?: number;
+};
+
+function openPools(): Pool[] {
+  const path = join(ROOT, "frontend", "public", "pools.json");
+  const board = JSON.parse(readFileSync(path, "utf8")) as { pools?: Pool[] };
+  return (board.pools ?? []).filter((p) => (p.status ?? 1) === 1).filter((p) => !p.endTimeUtc || new Date(p.endTimeUtc).getTime() > Date.now());
+}
+
+/** Ids are monotonic on this venue, so the highest open id is the newest market. */
+function newestPool(pools = openPools()): Pool | null {
+  if (pools.length === 0) return null;
+  return [...pools].sort((a, b) => Number(b.id) - Number(a.id))[0];
+}
+
+function share(pool: Pool): number {
+  const raw = Number(pool.yesShare ?? Number.NaN);
+  return Number.isFinite(raw) && raw > 0 && raw < 1 ? raw : 0.5;
+}
+
+function cells(pct: number, n = 8): string {
+  const filled = Math.max(0, Math.min(n, Math.round((pct / 100) * n)));
+  return "█".repeat(filled) + "░".repeat(n - filled);
+}
+
+function odds(pct: number): string {
+  return (1 / Math.max(0.02, pct / 100)).toFixed(1);
+}
+
+function hoursLeft(endTimeUtc?: string): string {
+  if (!endTimeUtc) return "";
+  const ms = new Date(endTimeUtc).getTime() - Date.now();
+  if (ms <= 0) return "";
+  const h = Math.round(ms / 3_600_000);
+  return h < 24 ? `${h}h` : `${Math.round(h / 24)}d`;
+}
+
+/** What the captain forwards. Their link, the duel, and the fee wording — nothing else. */
+function blastText(wallet: string, pool: Pool): string {
+  const yes = Math.round(share(pool) * 100);
+  const no = 100 - yes;
+  const left = hoursLeft(pool.endTimeUtc);
+  return [
+    `🏴 新盘口：${pool.title}`,
+    "",
+    `YES ${cells(yes)} ${yes}% → ${odds(yes)}×`,
+    `NO  ${cells(no)} ${no}% → ${odds(no)}×`,
+    "",
+    `${pool.traders ?? 0} 人已经站队${left ? ` · ${left} 后结束` : ""}`,
+    "",
+    `押这里 → ${refLink(wallet)}`,
+    "",
+    "（赢的一边拿走输的一边的仓位，4% 手续费，合约托管。这个链接是我自己的，通过它下的仓位，结算时合约把手续费里的 30% 记给我——不影响你的赔付。）",
+  ].join("\n");
+}
+
+function blastOutgoing(wallet: string, pool: Pool): Outgoing {
+  return {
+    text: blastText(wallet, pool),
+    buttons: [
+      [{ text: "🏴 直接下注", url: refLink(wallet) }],
+      [{ text: "复制群发话术", command: "/copy" }],
+    ],
+  };
+}
+
+type BroadcastResult = { sent: number; skipped: string | null; failed: number };
+
+async function broadcast(opts: { api: string | null; dryRun: boolean; force?: boolean; chat?: number }): Promise<BroadcastResult> {
+  const store = loadStore();
+  const pool = newestPool();
+  if (!pool) return { sent: 0, skipped: "no open market in the manifest", failed: 0 };
+  if (!opts.force && store.lastBroadcast?.marketId === String(pool.id)) {
+    return { sent: 0, skipped: `market ${pool.id} was already broadcast at ${store.lastBroadcast.at}`, failed: 0 };
+  }
+  const captains = Object.values(store.captains).filter((c) => !opts.chat || c.chatId === opts.chat);
+  if (captains.length === 0) return { sent: 0, skipped: "no registered captains yet", failed: 0 };
+
+  let sent = 0;
+  let failed = 0;
+  for (const captain of captains) {
+    const out = blastOutgoing(captain.wallet, pool);
+    if (opts.dryRun) {
+      console.log(`\n--- DM → ${captain.chatId} (${captain.wallet.slice(0, 6)}…${captain.wallet.slice(-4)})\n${out.text}`);
+      sent += 1;
+      continue;
+    }
+    if (!opts.api) {
+      failed += 1;
+      continue;
+    }
+    const res = await fetch(`${opts.api}/sendMessage`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload(out, captain.chatId)),
+    });
+    if (res.ok) {
+      sent += 1;
+      captain.pushes += 1;
+      captain.updatedAt = new Date().toISOString();
+    } else {
+      failed += 1;
+      console.error(`chat ${captain.chatId} → HTTP ${res.status}: ${(await res.text()).slice(0, 160)}`);
+    }
+  }
+  if (!opts.dryRun) {
+    store.lastBroadcast = { marketId: String(pool.id), at: new Date().toISOString() };
+    saveStore(store);
+  }
+  return { sent, skipped: null, failed };
+}
+
 async function selfTest(): Promise<void> {
   const sessions = new Map<number, Session>();
   const chat = { id: 1, type: "private", username: "captain" };
@@ -289,6 +480,10 @@ async function selfTest(): Promise<void> {
   const steps = ["/start captain", "not-a-wallet", address, "/link", "/help"];
   let failures = 0;
   let session: Session = { awaitingWallet: false };
+  const check = (ok: boolean, label: string) => {
+    console.log(`  ${ok ? "✓" : "✗"} ${label}`);
+    if (!ok) failures += 1;
+  };
 
   for (const step of steps) {
     const out = respond(step, session, { username: chat.username, chatType: chat.type });
@@ -326,13 +521,80 @@ async function selfTest(): Promise<void> {
       failures += 1;
     }
   }
+  // ---- register + proactive broadcast -------------------------------------------------------
+  // These two are the difference between a bot that answers and a bot that recruits: the register
+  // must survive a restart, and the push must carry each captain's own link.
+  console.log("\ncaptain register");
+  const tmp = join(tmpdir(), `pa-captains-${Date.now()}.json`);
+  const reg: Store = { captains: {} };
+  bindCaptain(reg, 42, address, "captain");
+  bindCaptain(reg, 42, address, "captain"); // idempotent: same chat, same wallet
+  saveStore(reg, tmp);
+  const reloaded = loadStore(tmp);
+  check(Object.keys(reloaded.captains).length === 1, "binding twice keeps one captain");
+  check(reloaded.captains["42"].wallet === address, "the register survives a restart");
+
+  console.log("\nbroadcast copy");
+  const pool: Pool = {
+    id: "700099",
+    title: "Will AERO close above $0.7000 before October 31, 2026?",
+    status: 1,
+    endTimeUtc: new Date(Date.now() + 3 * 86_400_000).toISOString(),
+    traders: 311,
+    yesShare: 0.166,
+  };
+  const blast = blastText(address, pool);
+  check(blast.includes(`ref=${address}`), "the DM carries this captain's own ref");
+  check(/30%/.test(blast), "the DM states the 30% cut");
+  check(/YES █|░/.test(blast) && /NO/.test(blast), "the DM shows both sides with bars");
+  check(blast.includes("700099") === false && blast.includes(pool.title), "the DM names the market, not its id");
+  check(!/weight:|source:|ref:|market:/.test(blast.replace(/ref=/g, "")), "no operator noise in the forwarded text");
+  check(!blast.includes("我要") && !blast.includes("我们承诺"), "no revenue promise in the forwarded text");
+
+  const copy = respond("/copy", { awaitingWallet: false, wallet: address }, {});
+  check(copy.replies[0].text.includes(`ref=${address}`), "/copy hands back a paste-ready group post");
+  const copyUnbound = respond("/copy", { awaitingWallet: false }, {});
+  check(/绑定|captain/.test(copyUnbound.replies[0].text), "/copy without a wallet asks to bind first");
+
   sessions.clear();
   console.log(
     failures === 0
-      ? "\nself-test: OK — /start captain → wallet → own ref link + group template, invalid input re-asked"
+      ? "\nself-test: OK — /start captain → wallet → own ref link + group template, invalid input re-asked, register persists, broadcast carries the captain's link"
       : `\nself-test: ${failures} failure(s)`,
   );
   if (failures > 0) process.exit(1);
+}
+
+/** One lazily-loaded register, shared by the poll loop and the broadcast command. */
+let STORE: Store | null = null;
+function store(): Store {
+  if (!STORE) STORE = loadStore();
+  return STORE;
+}
+
+/**
+ * One update → replies, plus the side effect that matters: a wallet that arrived is a captain.
+ * Buttons send `callback_data`, which arrives as a callback_query, not a message — a bot that only
+ * reads `message` looks alive and responds to nothing a user taps.
+ */
+async function handleUpdate(api: string, update: Update, sessions: Map<number, Session>): Promise<void> {
+  const callback = (update as { callback_query?: { data?: string; from?: { username?: string }; message?: Message } }).callback_query;
+  const msg = update.message ?? callback?.message;
+  const text = update.message?.text ?? callback?.data;
+  if (!msg || !text) return;
+
+  const chatId = msg.chat.id;
+  const username = (update.message?.from ?? callback?.from)?.username;
+  const out = respond(text, sessions.get(chatId) ?? { awaitingWallet: false }, { username, chatType: msg.chat.type });
+  sessions.set(chatId, out.session);
+  for (const reply of out.replies) await send(api, chatId, reply);
+
+  if (out.session.wallet && WALLET_RE.test(out.session.wallet)) {
+    bindCaptain(store(), chatId, out.session.wallet, username);
+    saveStore(store());
+    console.log(`[${new Date().toISOString()}] captain bound: chat ${chatId} → ${out.session.wallet}`);
+  }
+  console.log(`[${new Date().toISOString()}] ${chatId} · ${text.slice(0, 40)} → ${out.replies.length} repl${out.replies.length === 1 ? "y" : "ies"}`);
 }
 
 async function drainOnce(api: string, offset: number, sessions: Map<number, Session>): Promise<number> {
@@ -346,16 +608,7 @@ async function drainOnce(api: string, offset: number, sessions: Map<number, Sess
   let next = offset;
   for (const update of data.result) {
     next = Math.max(next, update.update_id + 1);
-    const msg = update.message;
-    if (!msg?.text) continue;
-    const chatId = msg.chat.id;
-    const out = respond(msg.text, sessions.get(chatId) ?? { awaitingWallet: false }, {
-      username: msg.from?.username,
-      chatType: msg.chat.type,
-    });
-    sessions.set(chatId, out.session);
-    for (const reply of out.replies) await send(api, chatId, reply);
-    console.log(`[${new Date().toISOString()}] ${chatId} · ${msg.text.slice(0, 40)} → ${out.replies.length} repl${out.replies.length === 1 ? "y" : "ies"}`);
+    await handleUpdate(api, update, sessions);
   }
   return next;
 }
@@ -365,8 +618,21 @@ async function main(): Promise<void> {
     await selfTest();
     return;
   }
+
+  // Read-only / no-token commands first: they are how an operator checks the register without
+  // holding the credential that the bot itself runs on.
+  if (process.argv.includes("--captains")) {
+    const captains = Object.values(store().captains);
+    console.log(`${captains.length} captain(s) registered`);
+    for (const c of captains) {
+      console.log(`  chat ${c.chatId} · ${c.wallet} · pushes ${c.pushes} · bound ${c.createdAt.slice(0, 10)}${c.username ? ` · @${c.username}` : ""}`);
+    }
+    return;
+  }
+
   const tok = token();
-  if (!tok) {
+  const wantsBroadcast = process.argv.includes("--broadcast");
+  if (!tok && !wantsBroadcast) {
     console.error(
       "TELEGRAM_BOT_TOKEN is not set.\n" +
         "  put the token in ~/.hermes/.tg_bot_token (chmod 600) or export TELEGRAM_BOT_TOKEN, then rerun.\n" +
@@ -374,13 +640,23 @@ async function main(): Promise<void> {
     );
     process.exit(2);
   }
-  const api = `https://api.telegram.org/bot${tok}`;
+  const api = tok ? `https://api.telegram.org/bot${tok}` : "";
+
+  if (wantsBroadcast) {
+    const dryRun = process.argv.includes("--dry-run");
+    const result = await broadcast({ api: api || null, dryRun, force: process.argv.includes("--force") });
+    console.log(
+      `broadcast: ${result.skipped ? `skipped — ${result.skipped}` : `${result.sent} sent`}${result.failed ? `, ${result.failed} failed` : ""}`,
+    );
+    return;
+  }
+
   const me = await fetch(`${api}/getMe`).then((r) => r.json() as Promise<{ ok: boolean; result?: { username?: string } }>);
   if (!me.ok) {
     console.error("getMe failed — token rejected");
     process.exit(2);
   }
-  console.log(`bot @${me.result?.username ?? "?"} polling…`);
+  console.log(`bot @${me.result?.username ?? "?"} polling… (${Object.keys(store().captains).length} captains on file)`);
 
   const sessions = new Map<number, Session>();
   let offset = 0;
@@ -388,6 +664,15 @@ async function main(): Promise<void> {
     await drainOnce(api, offset, sessions);
     return;
   }
+
+  // While serving, the bot also acts on its own schedule: every `--broadcast-every` minutes it
+  // checks whether the board produced a market it has not pushed yet, and DMs it to every captain
+  // with their own link. That is the difference between a bot that waits to be asked and one that
+  // keeps putting the next market in front of the people who distribute it.
+  const everyArg = process.argv.find((a) => a.startsWith("--broadcast-every="));
+  const everyMinutes = everyArg ? Math.max(5, Number(everyArg.split("=")[1]) || 15) : 15;
+  let nextBroadcast = Date.now() + 45_000;
+
   // Long-poll loop. A single failed request must not kill a process that is meant to run for weeks.
   for (;;) {
     try {
@@ -399,15 +684,14 @@ async function main(): Promise<void> {
       const data = (await res.json()) as { ok: boolean; result?: Update[] };
       for (const update of data.result ?? []) {
         offset = Math.max(offset, update.update_id + 1);
-        const msg = update.message;
-        if (!msg?.text) continue;
-        const chatId = msg.chat.id;
-        const out = respond(msg.text, sessions.get(chatId) ?? { awaitingWallet: false }, {
-          username: msg.from?.username,
-          chatType: msg.chat.type,
-        });
-        sessions.set(chatId, out.session);
-        for (const reply of out.replies) await send(api, chatId, reply);
+        await handleUpdate(api, update, sessions);
+      }
+      if (Date.now() >= nextBroadcast) {
+        nextBroadcast = Date.now() + everyMinutes * 60_000;
+        const result = await broadcast({ api, dryRun: false });
+        if (result.sent || result.failed) {
+          console.log(`[${new Date().toISOString()}] broadcast: ${result.sent} sent${result.failed ? `, ${result.failed} failed` : ""}`);
+        }
       }
     } catch (err) {
       console.error(`poll error: ${(err as Error).message}`);

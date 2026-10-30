@@ -1,0 +1,83 @@
+name: Captain bot
+
+# The recruiting bot, hosted where the credential already is.
+#
+# A long-poll bot has to be running to answer, and the token lives in this repo's secrets — so the
+# bot runs here: a bounded 55-minute window (`timeout`), restarted by a 30-minute cron, with
+# `concurrency` keeping exactly one instance alive. Same job id as the local crontab entry, so the
+# register format is identical either way.
+#
+# The register (chat id + payout wallet) is carried between runs through the Actions cache instead of
+# a commit: it is small, it changes on every binding, and it is nobody else's business.
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+    inputs:
+      minutes:
+        description: "serve window in minutes"
+        default: "25"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: captain-bot
+  cancel-in-progress: false
+
+jobs:
+  serve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Restore the captain register
+        uses: actions/cache/restore@v4
+        with:
+          path: .data/captains.json
+          key: captains-${{ github.run_id }}
+          restore-keys: |
+            captains-
+
+      - name: Serve (long-poll + scheduled captain push)
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          MINUTES: ${{ github.event.inputs.minutes }}
+        run: |
+          set -uo pipefail
+          if [ -z "${TELEGRAM_BOT_TOKEN:-}" ]; then
+            echo "TELEGRAM_BOT_TOKEN is not in repo secrets — the bot cannot serve. Add it under Settings → Secrets." | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          WINDOW="${MINUTES:-55}"
+          if [ "$WINDOW" -gt 55 ]; then WINDOW=55; fi
+          # timeout, not a forever-loop: the job must end so the cache can be saved and the next
+          # window can start. A crash mid-window is fine — the offset comes back from Telegram.
+          timeout "${WINDOW}m" bun scripts/telegram-bot.ts --broadcast-every=15 || true
+
+      - name: Register snapshot
+        if: always()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          {
+            echo "## Captain register"
+            echo '```'
+            bun scripts/telegram-bot.ts --captains 2>&1 | head -40
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Save the captain register
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: .data/captains.json
+          key: captains-${{ github.run_id }}

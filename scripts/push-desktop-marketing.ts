@@ -26,7 +26,7 @@
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { SITE, X_HANDLE, bar, bothOdds, clipped, price, timeLeft, trackedUrl, weight } from "./lib/copy-kit";
+import { SITE, X_HANDLE, bar, bothOdds, clipped, price, shortTrackedUrl, timeLeft, trackedUrl, weight } from "./lib/copy-kit";
 
 const ROOT = join(import.meta.dir, "..");
 const MANIFEST = join(ROOT, "frontend", "public", "pools.json");
@@ -172,12 +172,19 @@ function mainTweet(pool: Pool): string {
 /**
  * Alpha reply deck.
  *
- * These are for the comment section of someone else's post, so each one leads with a number and
- * ends with a link — no brand voice, no "check out our platform". Three different angles so the
- * same account is not repeating one sentence under three different posts.
+ * These are for the comment section of someone else's post, so each one is three lines and nothing
+ * else: a claim a reader can check, the two-sided duel, the link. Three different angles so the
+ * same account is not repeating one sentence under three different posts — no "check out our
+ * platform", no follow-ask, no metadata. Anything an operator would have to delete before pasting
+ * does not belong in the file.
  */
-function replyDeck(pools: Pool[]): { angle: string; where: string; text: string }[] {
-  const ranked = [...pools].sort((a, b) => (b.traders ?? 0) - (a.traders ?? 0));
+function replyDeck(pools: Pool[]): { angle: string; text: string }[] {
+  // Tribe first, then crowd. A reply under a Base-native post has to be about a token that account's
+  // readers already hold; the biggest market on the board last week was a Premier League match, and
+  // nobody in a DeFi comment section cares how many people took the over.
+  const ranked = [...pools].sort(
+    (a, b) => Number(Boolean(tribe(b))) - Number(Boolean(tribe(a))) || (b.traders ?? 0) - (a.traders ?? 0),
+  );
   // One market per tribe first (three AERO replies is a broken deck), then fill from the ranking.
   const picks: Pool[] = [];
   const usedTribes = new Set<string>();
@@ -189,35 +196,32 @@ function replyDeck(pools: Pool[]): { angle: string; where: string; text: string 
     picks.push(pool);
   }
 
-  const angles = [
-    { angle: "contrarian number", where: "under a post calling this market already decided" },
-    { angle: "receipt", where: "under a post about the token/asset in question" },
-    { angle: "open challenge", where: "under a KOL's take you disagree with" },
-  ];
+  const angles = ["contrarian number", "receipt", "open challenge"];
 
   return picks.map((pool, i) => {
     const yes = Math.round(yesShare(pool) * 100);
     const no = 100 - yes;
     const { y, n } = bothOdds(yes);
-    const url = trackedUrl(pool.id, "x");
+    const url = shortTrackedUrl(pool.id, "x");
     const left = timeLeft(pool.endTimeUtc);
-    const spot = pool.marketData?.asset
-      ? `${pool.marketData.asset} ${price(pool.marketData.spotUsd ?? 0)} now`
-      : `${pool.traders ?? 0} in`;
-    const texts = [
-      `The crowd is ${no}% on NO here and YES still pays ${y}×:\n\nYES ${bar(yes)} ${yes}% · NO ${bar(no)} ${no}%\n\n"${clipped(pool.title, 60)}" — ${spot}, ${left} left.\n\n${url}`,
-      `Everyone is sure about this one. ${pool.traders ?? 0} positions say otherwise:\n\n"${clipped(pool.title, 58)}"\n\nYES ${bar(yes)} ${yes}% pays ${y}× · ${left} left\n${url}`,
-      `Numbers instead of vibes:\n\nYES ${bar(yes)} ${yes}% · ${y}×\nNO\u00a0\u00a0${bar(no)} ${no}% · ${n}×\n\n"${clipped(pool.title, 56)}" — ${left} left\n${url}`,
+    const count = pool.traders ?? 0;
+    const asset = pool.marketData?.asset;
+    const spot = pool.marketData?.spotUsd;
+    const subject = asset ? `${asset} at ${price(spot ?? 0)}` : `"${clipped(pool.title, 46)}"`;
+    const duel = `YES ${bar(yes)} ${yes}% → ${y}× · NO ${bar(no)} ${no}% → ${n}×`;
+    const footer = `${count} in · ${left} left → ${url}`;
+    const byAngle = [
+      [`The board is ${no}% NO on ${subject} and YES still pays ${y}×`, duel, footer],
+      [`${subject} → ${yes}% YES, ${count} positions already placed`, duel, `${left} left → ${url}`],
+      [`${count} people disagree about this one. ${no}% are on NO.`, `${duel} · ${left} left`, url],
     ];
-    // Every reply ends with the follow ask — a reply that only links is a click, a reply that asks
-    // for the follow is a follower. Dropped automatically when it would push the post past 275.
-    const follow = `\n\nFollow ${X_HANDLE} for the on-chain odds breakdown before each settlement.`;
-    const withFollow = texts.map((t) => (weight(`${t}${follow}`) <= 275 ? `${t}${follow}` : t));
-    return {
-      angle: angles[i].angle,
-      where: angles[i].where,
-      text: withFollow[i],
-    };
+    // Long subjects degrade to a shorter sentence, they never get cut mid-word.
+    const candidates = [
+      byAngle[i].join("\n"),
+      [byAngle[i][0].slice(0, 90), `${yes}% YES → ${y}× · ${no}% NO → ${n}×`, url].join("\n"),
+    ];
+    const text = candidates.find((c) => weight(c) <= 275) ?? candidates[candidates.length - 1];
+    return { angle: angles[i], text };
   });
 }
 
@@ -390,13 +394,11 @@ function main(): void {
   const deck = replyDeck(pools);
 
   const files: Record<string, string> = {
-    "01-main-tweet.txt": `${tweet}\n\n---\nweight: ${weight(tweet)}/280 (URLs counted as 23)\nmarket: ${tweetId}\nsource: ${flagship ? `cloud archive ${archive?.day} (numbers in the archive snapshot)` : "generated from pools.json now — today's archive had no snapshot or does not exist"}\nref: the link carries ref=x; swap it for your own wallet to get the 30% yourself\n`,
-    "02-alpha-reply-deck.txt": deck
-      .map(
-        (r, i) =>
-          `=== REPLY ${i + 1} · ${r.angle} · ${r.where}\n\n${r.text}\n\n---\nweight: ${weight(r.text)}/280\n`,
-      )
-      .join("\n"),
+    // Paste-ready means paste-ready: no weight watermark, no source note, no "how to use" tell at
+    // the bottom. Those live in meta.json where a machine reads them, not in the thing a human
+    // copies while a post is three minutes old.
+    "01-main-tweet.txt": `${tweet}\n`,
+    "02-alpha-reply-deck.txt": deck.map((r, i) => `#${i + 1}\n${r.text}\n`).join("\n"),
     "03-captain-pitch.txt": `=== EN (DM / email)\n\n${CAPTAIN_EN}\n\n\n=== 中文（TG / 微信）\n\n${CAPTAIN_ZH}\n`,
     "04-calendar.md": calendar(),
     "README.txt": readme(dir),

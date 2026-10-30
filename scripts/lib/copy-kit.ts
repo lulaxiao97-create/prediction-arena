@@ -78,3 +78,21 @@ export function trackedUrl(
   url.searchParams.set("ref", source === "farcaster" ? "fc" : source);
   return url.toString();
 }
+
+/**
+ * The same attribution, half the characters.
+ *
+ * A reply lives in someone else's comment section: the link is on screen next to the numbers, so a
+ * 130-character URL is the difference between a three-line reply and a five-line one. `ref` and
+ * `utm_source` are what the contract and the funnel actually read; medium/campaign/content are
+ * navigation for us, not attribution the chain can see — so they are the ones that go.
+ */
+export function shortTrackedUrl(
+  id: string | number,
+  source: "x" | "telegram" | "farcaster",
+  site: string = SITE,
+): string {
+  const host = site.replace(/^https?:\/\//, "").replace(/\/+$/, "");
+  const ref = source === "farcaster" ? "fc" : source;
+  return `${host}/market/${id}?ref=${ref}&utm_source=${source}`;
+}
