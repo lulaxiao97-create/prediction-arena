@@ -35,6 +35,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { bar, bothOdds, clipped, price, shortTrackedUrl, timeLeft, weight } from "./lib/copy-kit";
+import { oauthCreds, oauthHeader, postJson } from "./lib/x-oauth";
 
 const ROOT = join(import.meta.dir, "..");
 const MANIFEST = join(ROOT, "frontend", "public", "pools.json");
@@ -100,6 +101,7 @@ type Args = {
   login: boolean;
   notifyChat: string | null;
   forceSource: SourceReport["source"] | null;
+  reply: boolean;
 };
 
 function parseArgs(argv: string[]): Args {
@@ -114,10 +116,12 @@ function parseArgs(argv: string[]): Args {
     login: false,
     notifyChat: process.env.INTERCEPT_NOTIFY_CHAT ?? null,
     forceSource: null,
+    reply: process.env.INTERCEPT_AUTO_REPLY === "1",
   };
   for (const raw of argv.slice(2)) {
     const [k, v = ""] = raw.replace(/^--/, "").split("=");
     if (k === "once") args.once = true;
+    else if (k === "reply") args.reply = true;
     else if (k === "watch") {
       args.watch = true;
       args.once = false;
@@ -438,8 +442,34 @@ async function browserTimeline(handle: string): Promise<SourceReport> {
   }
 }
 
+/** Recent-search for the cashtags the board actually prices. Same 402 wall as the timeline today. */
+async function xSearch(token: string, queries: string[]): Promise<SourceReport> {
+  if (queries.length === 0) return { source: "x_api", ok: true, status: 200, detail: "no cashtags configured", tweets: [] };
+  const query = `(${queries.join(" OR ")}) -is:retweet lang:en`;
+  const url =
+    "https://api.x.com/2/tweets/search/recent?max_results=10&sort_order=relevancy" +
+    `&query=${encodeURIComponent(query)}&tweet.fields=created_at,public_metrics,author_id&expansions=author_id&user.fields=username`;
+  const res = await fetch(url, { headers: { Authorization: ["Bearer", token].join(" ") } });
+  const body = await res.text();
+  if (!res.ok) return { source: "x_api", ok: false, status: res.status, detail: `search: ${body.slice(0, 180)}`, tweets: [] };
+  const parsed = JSON.parse(body) as {
+    data?: { id: string; text: string; created_at?: string; author_id?: string; public_metrics?: { like_count?: number } }[];
+    includes?: { users?: { id: string; username: string }[] };
+  };
+  const handles = new Map((parsed.includes?.users ?? []).map((u) => [u.id, u.username]));
+  const tweets: Tweet[] = (parsed.data ?? []).map((t) => ({
+    id: t.id,
+    author: handles.get(t.author_id ?? "") ?? "unknown",
+    text: t.text.replace(/\s+https:\/\/t\.co\/\S+$/g, "").trim(),
+    createdAt: t.created_at ?? new Date().toISOString(),
+    url: `https://x.com/${handles.get(t.author_id ?? "") ?? "i"}/status/${t.id}`,
+    likes: t.public_metrics?.like_count,
+  }));
+  return { source: "x_api", ok: true, status: 200, detail: `search: ${tweets.length} tweets`, tweets };
+}
+
 async function collect(args: Args): Promise<SourceReport[]> {
-  const targets = JSON.parse(readFileSync(TARGETS, "utf8")) as { accounts: string[] };
+  const targets = JSON.parse(readFileSync(TARGETS, "utf8")) as { accounts: string[]; queries?: string[] };
   const reports: SourceReport[] = [];
   const want = (s: SourceReport["source"]) => !args.forceSource || args.forceSource === s;
 
@@ -466,6 +496,7 @@ async function collect(args: Args): Promise<SourceReport[]> {
           reports.push(report);
           if (!report.ok && /429|rate/i.test(String(report.status))) break;
         }
+        reports.push(await xSearch(chosen.token, targets.queries ?? []));
       }
     }
   }
@@ -560,6 +591,40 @@ function persist(items: Item[]): void {
     )
     .join("\n");
   writeFileSync(join(DATA, "QUEUE.md"), `# Interception queue\n\n${md}`, "utf8");
+}
+
+/**
+ * Post the draft as a reply.
+ *
+ * This is the "no human in the loop" half: an OAuth 1.0a user context can write, and a reply is one
+ * POST with `reply.in_reply_to_tweet_id`. It is off unless `--reply` / `INTERCEPT_AUTO_REPLY=1`,
+ * because an account that replies to everything is an account people mute — and because X is
+ * answering 402 on this deployment, which the return value says plainly instead of pretending.
+ */
+async function replyOnX(item: Item): Promise<string> {
+  const creds = oauthCreds();
+  if (!creds) return "skipped: no OAuth 1.0a keys (X_CONSUMER_KEY / X_CONSUMER_SECRET / X_ACCESS_TOKEN / X_ACCESS_SECRET)";
+  const url = "https://api.x.com/2/tweets";
+  const res = await postJson(
+    url,
+    { Authorization: oauthHeader("POST", url, creds) },
+    { text: item.reply, reply: { in_reply_to_tweet_id: item.tweetId } },
+  );
+  if (res.ok) {
+    try {
+      const id = (JSON.parse(res.text) as { data?: { id?: string } }).data?.id;
+      return `sent${id ? `: ${id}` : ""}`;
+    } catch {
+      return "sent";
+    }
+  }
+  if (res.status === 402) return "blocked 402: X credits depleted — billing, not a code path";
+  if (res.status === 403 && /unsupported authentication|application-only/i.test(res.text)) {
+    return "blocked 403: the configured token is app-only (read scope only)";
+  }
+  if (res.status === 401) return "failed 401: signature or credentials rejected";
+  if (res.status === 429) return "failed 429: rate limited after 3 attempts";
+  return `failed ${res.status}: ${res.text.slice(0, 160)}`;
 }
 
 async function notify(items: Item[], chat: string | null): Promise<string> {
@@ -697,6 +762,15 @@ async function sweep(args: Args): Promise<number> {
   }
   const delivery = await notify(items, args.notifyChat);
   console.log(`\nqueued ${items.length} · telegram ${delivery}`);
+
+  // Auto-reply, when switched on. Each result is printed as the channel states it (sent / 402 /
+  // 403 / skipped), so the first run on a live credential cannot be mistaken for success.
+  if (args.reply) {
+    for (const item of items) {
+      const result = await replyOnX(item);
+      console.log(`reply → ${item.tweetUrl}: ${result}`);
+    }
+  }
   return 0;
 }
 

@@ -37,6 +37,11 @@
 
 已看到的推文 ID 记在 `.data/intercept/state.json`，同一分钟重跑不会重复生成。
 
+输入有两路：7 个账号的时间线 + `$AERO / $DEGEN / $TOSHI` 的 recent search（`scripts/config/intercept-targets.json`）。
+输出有两档：`--reply`（或仓库变量 `INTERCEPT_AUTO_REPLY=1`，默认开）直接用 OAuth 1.0a 把它作为
+`in_reply_to_tweet_id` 的回复发出去；关掉就只落草稿，等人粘。发失败会原样打印对方的状态码
+（401/402/403），不会把「没发出去」写成「已发」。
+
 源码选择顺序（`--probe` 会逐条打印真实结果）：
 
 1. `X_BEARER_TOKEN` —— 现值为 **401 Unauthorized**（token 已失效/被轮换）。
