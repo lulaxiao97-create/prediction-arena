@@ -681,7 +681,9 @@ async function sweep(args: Args): Promise<number> {
     const why = okReports.length === 0 ? reports.map((r) => `${r.source}:${r.status} ${r.detail}`).join(" | ") : `${tweets.length} tweets, none fresh and relevant`;
     console.log(`[${new Date().toISOString()}] nothing to intercept — ${why}`);
     if (!args.dryRun) writeState(state);
-    return 0;
+    // 2 = every source failed. A watch window that cannot read X is not a watch window, and
+    // burning 5.5 runner-hours to print the same 402 every 90 seconds helps nobody.
+    return okReports.length === 0 ? 2 : 0;
   }
 
   for (const item of items) {
@@ -701,9 +703,15 @@ async function sweep(args: Args): Promise<number> {
 async function watch(args: Args): Promise<void> {
   const deadline = Date.now() + args.minutes * 60_000;
   console.log(`interceptor watching every ${args.interval}s for ${args.minutes}m`);
+  let blind = 0;
   while (Date.now() < deadline) {
     try {
-      await sweep(args);
+      const code = await sweep(args);
+      blind = code === 2 ? blind + 1 : 0;
+      if (blind >= 2) {
+        console.log("stopping early: no source can read X (see --probe) — fix the credential and rerun");
+        return;
+      }
     } catch (err) {
       console.error(`sweep failed: ${(err as Error).message}`);
     }
