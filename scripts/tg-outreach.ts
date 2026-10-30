@@ -569,8 +569,22 @@ function compose(): void {
   }
   const queueDir = join(DATA, "queue");
   mkdirSync(queueDir, { recursive: true });
+  // An airdrop-hunting channel has no traders in it: pitching a market to that audience wastes the
+  // one message Telegram lets us send. Only skip when the *only* angle the channel has is airdrops.
+  const channelText = new Map(store.channels.map((c) => [c.username.toLowerCase(), `${c.title} ${c.description}`.toLowerCase()]));
+  const weakAudience = (via: string) => {
+    const text = channelText.get(via.toLowerCase()) ?? "";
+    return /airdrop/.test(text) && !/(trading|calls|degen|memecoin|perp|futures|leverage)/.test(text);
+  };
+
   let built = 0;
+  let dropped = 0;
   for (const person of store.people.filter((p) => p.status === "new")) {
+    if (weakAudience(person.via)) {
+      person.status = "skipped";
+      dropped += 1;
+      continue;
+    }
     const picked = pickMarket(pools, `${person.snippet} ${person.via}`, person.username);
     if (!picked) continue;
     const text = pitch(person, picked.pool);
@@ -594,7 +608,7 @@ function compose(): void {
     .map((p) => `## @${p.username} · via @${p.via} · ${p.lang} · market ${p.marketId}\n\n\`\`\`\n${(JSON.parse(readFileSync(join(queueDir, `${p.username}.json`), "utf8")) as { text: string }).text}\n\`\`\``)
     .join("\n\n");
   writeFileSync(join(DATA, "QUEUE.md"), `# Outreach queue\n\n${preview}\n`, "utf8");
-  console.log(`compose: ${built} DM(s) queued → ${join(DATA, "QUEUE.md")}`);
+  console.log(`compose: ${built} DM(s) queued${dropped > 0 ? `, ${dropped} skipped (airdrop-only audience)` : ""} → ${join(DATA, "QUEUE.md")}`);
 }
 
 // ---------------------------------------------------------------- send
