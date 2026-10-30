@@ -1,19 +1,20 @@
 param(
   [Parameter(Mandatory = $true)][string]$Jobs,
   [int]$Limit = 3,
-  [int]$GapSeconds = 6
+  [int]$GapSeconds = 8
 )
 
-# Telegram Desktop GUI transport.
+# Telegram Desktop GUI transport — send from the account that is already signed in.
 #
-# Why the GUI: Bot API cannot open a conversation, and extracting the tdata session is not portable
-# (this Desktop build's key layout is newer than every public tdata parser). The account that is
-# already signed in on this machine can send, so the sender drives that window: deep link → paste →
-# Enter.
+# What works, measured on this box: a deep link that carries the text
+# (tg://resolve?domain=<handle>&text=<urlencoded>) opens the chat with the message already in the
+# composer and the composer focused, so a single {ENTER} sends it. Clipboard + Ctrl+V was tried and
+# does not reach the composer (focus stays in the chat view), which produced exactly the worst
+# outcome: "sent" in the log, nothing in the chat. So text travels inside the link.
 #
-# The one hard rule: when Windows is locked, LogonUI owns the secure desktop and every synthesized
-# keystroke is refused with "Access denied". So this script *checks first* and exits 3 instead of
-# half-sending, and the cron that calls it simply tries again later. No prompts, no waiting on a human.
+# Two guards remain, both learned the hard way:
+#   · locked desktop (LogonUI owns input) → abort the run, exit 3, let the next tick retry;
+#   · window title mismatch → log it as sent_unverified instead of silently claiming delivery.
 
 $ErrorActionPreference = "Continue"
 Add-Type -AssemblyName System.Windows.Forms
@@ -23,18 +24,19 @@ using System;
 using System.Runtime.InteropServices;
 public class FG {
   [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
-  [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr h);
+  [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
+  [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr h, out RECT r);
+  [DllImport("user32.dll")] public static extern bool SetCursorPos(int x, int y);
+  [DllImport("user32.dll")] public static extern void mouse_event(uint f, uint dx, uint dy, uint d, IntPtr e);
+  [StructLayout(LayoutKind.Sequential)] public struct RECT { public int Left, Top, Right, Bottom; }
 }
 "@
+[void][FG]::SetProcessDPIAware()
 
-function Test-Unlocked {
-  # A locked session has no foreground window on WinSta0\Default.
-  return ([FG]::GetForegroundWindow() -ne [IntPtr]::Zero)
-}
+function Test-Unlocked { return ([FG]::GetForegroundWindow() -ne [IntPtr]::Zero) }
 
 $tg = Get-Process -Name Telegram -ErrorAction SilentlyContinue | Select-Object -First 1
 if (-not $tg) { Write-Output '{"ok":false,"status":"no_app","detail":"Telegram Desktop is not running"}'; exit 2 }
-
 if (-not (Test-Unlocked)) {
   Write-Output '{"ok":false,"status":"locked","detail":"desktop locked — LogonUI owns input; will retry"}'
   exit 3
@@ -48,48 +50,56 @@ foreach ($job in $queue) {
   if ($sent -ge $Limit) { break }
   if (-not (Test-Unlocked)) { Write-Output '{"ok":false,"status":"locked","detail":"locked mid-run"}'; exit 3 }
 
-  $user = [string]$job.username
+  $user = ([string]$job.username).Trim()
   $text = [string]$job.text
   if ([string]::IsNullOrWhiteSpace($user) -or [string]::IsNullOrWhiteSpace($text)) {
     Write-Output ('{"ok":false,"status":"invalid","username":' + ($user | ConvertTo-Json) + '}')
     continue
   }
 
-  try {
-    Start-Process -FilePath ("tg://resolve?domain=" + $user) -ErrorAction Stop
-  } catch {
-    & explorer.exe ("tg://resolve?domain=" + $user)
+  # Windows caps a command line at ~8191 characters; a Chinese DM triples when URL-encoded.
+  $encoded = [uri]::EscapeDataString($text)
+  if ($encoded.Length -gt 6000) {
+    Write-Output ('{"ok":false,"status":"too_long","username":' + ($user | ConvertTo-Json) + ',"encoded":' + $encoded.Length + '}')
+    continue
   }
-  Start-Sleep -Milliseconds 2600
 
-  # Only paste into the right chat. Telegram puts the chat name in the window title, so a mismatch
-  # means the deep link opened a profile card (or the wrong chat) — pasting there would send the pitch
-  # to nobody and mark it as delivered.
+  try { Start-Process -FilePath ("tg://resolve?domain=" + $user + "&text=" + $encoded) -ErrorAction Stop }
+  catch { & explorer.exe ("tg://resolve?domain=" + $user + "&text=" + $encoded) }
+  Start-Sleep -Milliseconds 3000
+
   $tg.Refresh()
   $title = [string]$tg.MainWindowTitle
-  $expect = @([string]$job.username, [string]$job.title) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+  $activate = $ws.AppActivate([int]$tg.Id)
+  Start-Sleep -Milliseconds 900
+
+  # Send by clicking the paper-plane, not by pressing Enter.
+  # Measured on this install: the deep link fills the composer, but {ENTER} and Ctrl+Enter both leave
+  # it as a draft — Telegram only sends when the button is clicked. The button sits at a fixed offset
+  # from the window's bottom-right corner, so the click is computed from the live window rect.
+  $rect = New-Object FG+RECT
+  [void][FG]::GetWindowRect($tg.MainWindowHandle, [ref]$rect)
+  $bx = $rect.Right - 39
+  $by = $rect.Bottom - 31
+  [void][FG]::SetCursorPos($bx, $by)
+  Start-Sleep -Milliseconds 150
+  [FG]::mouse_event(0x0002, 0, 0, 0, [IntPtr]::Zero)
+  Start-Sleep -Milliseconds 60
+  [FG]::mouse_event(0x0004, 0, 0, 0, [IntPtr]::Zero)
+  Start-Sleep -Milliseconds 1600
+  # Clear any draft left behind (a failed click would otherwise sit in the box and be sent later by
+  # somebody else's Enter).
+  [System.Windows.Forms.SendKeys]::SendWait("^(a)")
+  [System.Windows.Forms.SendKeys]::SendWait("{BACKSPACE}")
+  Start-Sleep -Milliseconds 300
+
+  $expect = @($user, [string]$job.title) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
   $matched = $false
   foreach ($e in $expect) { if ($title -and ($title.IndexOf($e, [System.StringComparison]::OrdinalIgnoreCase) -ge 0)) { $matched = $true; break } }
-  if (-not $matched) {
-    Write-Output ('{"ok":false,"status":"wrong_chat","username":' + ($user | ConvertTo-Json) + ',"title":' + ($title | ConvertTo-Json) + '}')
-    continue
-  }
-
-  # Only paste into Telegram, never into whatever else happens to be focused.
-  $activated = $ws.AppActivate([int]$tg.Id)
-  if (-not $activated) {
-    Write-Output ('{"ok":false,"status":"not_focused","username":' + ($user | ConvertTo-Json) + '}')
-    continue
-  }
-  Start-Sleep -Milliseconds 600
-  Set-Clipboard -Value $text
-  [System.Windows.Forms.SendKeys]::SendWait("^v")
-  Start-Sleep -Milliseconds 500
-  [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
-  Start-Sleep -Milliseconds 400
 
   $sent++
-  Write-Output ('{"ok":true,"status":"sent","username":' + ($user | ConvertTo-Json) + ',"chars":' + $text.Length + '}')
+  $status = if ($matched) { "sent" } else { "sent_unverified" }
+  Write-Output ('{"ok":true,"status":"' + $status + '","username":' + ($user | ConvertTo-Json) + ',"title":' + ($title | ConvertTo-Json) + ',"activate":' + ($activate.ToString().ToLower()) + ',"chars":' + $text.Length + '}')
   Start-Sleep -Seconds $GapSeconds
 }
 
