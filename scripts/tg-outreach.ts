@@ -659,6 +659,40 @@ function sessionOk(): boolean {
   return false;
 }
 
+const PS = process.env.POWERSHELL ?? "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe";
+
+/** /mnt/c/x -> C:\\x — the GUI transport runs on the Windows side and cannot read WSL paths. */
+function winPath(p: string): string {
+  return p.replace(/^\/mnt\/([a-z])\//, (_, d: string) => `${d.toUpperCase()}:\\`).replace(/\//g, "\\");
+}
+
+/**
+ * GUI transport: the account is already signed in on the desktop, so drive that window.
+ *
+ * `locked` is a normal answer here, not an error — this box is locked most of the time, and the
+ * scheduled run simply tries again. Nothing is half-sent: the script checks the desktop before it
+ * touches the clipboard.
+ */
+function sendViaGui(jobs: { username: string; text: string }[], limit: number): { sent: number; status: string; lines: string[] } {
+  const file = join(DATA, "gui-jobs.json");
+  writeFileSync(file, `${JSON.stringify(jobs, null, 2)}\n`, "utf8");
+  try {
+    const proc = Bun.spawnSync({
+      cmd: [PS, "-NoProfile", "-STA", "-ExecutionPolicy", "Bypass", "-File", winPath(join(ROOT, "scripts", "tg_gui_send.ps1")), "-Jobs", winPath(file), "-Limit", String(limit)],
+      cwd: ROOT,
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    const out = new TextDecoder().decode(proc.stdout).trim();
+    const lines = out.split("\n").map((l) => l.trim()).filter(Boolean);
+    const sent = lines.filter((l) => l.includes('"status":"sent"')).length;
+    const locked = lines.some((l) => l.includes('"status":"locked"'));
+    return { sent, status: locked ? "locked" : sent > 0 ? "sent" : "idle", lines };
+  } catch (err) {
+    return { sent: 0, status: `error: ${(err as Error).message.slice(0, 120)}`, lines: [] };
+  }
+}
+
 async function send(dryRun: boolean, limit: number): Promise<void> {
   const store = readStore();
   const state = readState();
@@ -673,7 +707,11 @@ async function send(dryRun: boolean, limit: number): Promise<void> {
     console.log(`send: nothing queued${cap === 0 ? ` — daily cap reached (${sentToday}/${dailyCap})` : ""}`);
     return;
   }
-  const jobs = queued.map((p) => ({ username: p.username, text: (JSON.parse(readFileSync(join(queueDir, `${p.username}.json`), "utf8")) as { text: string }).text }));
+  const jobs = queued.map((p) => ({
+    username: p.username,
+    title: p.title,
+    text: (JSON.parse(readFileSync(join(queueDir, `${p.username}.json`), "utf8")) as { text: string }).text,
+  }));
 
   if (dryRun) {
     for (const job of jobs) console.log(`\n=== would DM @${job.username} (${job.text.length} chars)\n${job.text}`);
@@ -681,18 +719,35 @@ async function send(dryRun: boolean, limit: number): Promise<void> {
     return;
   }
 
-  if (!sessionOk()) {
-    console.log(
-      [
-        `send: skipped — no Telegram user session; ${jobs.length} DM(s) stay queued.`,
-        "  Bot API cannot open a conversation with someone who has not messaged the bot, so cold",
-        "  outreach needs a normal account session:",
-        "",
-        "    bun scripts/tg-outreach.ts --login      # QR, ~20 seconds with a phone in hand",
-        "",
-        `  the queue is readable meanwhile: ${join(DATA, "QUEUE.md")}`,
-      ].join("\n"),
-    );
+  const transport = value("transport", "auto");
+  if (transport === "gui" || (transport === "auto" && !sessionOk())) {
+    if (transport === "auto" && !sessionOk()) console.log("send: no MTProto session — using the signed-in Telegram Desktop window");
+    const result = sendViaGui(jobs, cap);
+    if (result.status === "locked") {
+      console.log(`send: desktop locked — ${jobs.length} DM(s) stay queued, the next scheduled run retries`);
+      return;
+    }
+    let sent = 0;
+    for (const line of result.lines) {
+      try {
+        const parsed = JSON.parse(line) as { username?: string; status?: string; detail?: string };
+        if (!parsed.username) continue;
+        const person = store.people.find((p) => p.username === parsed.username);
+        if (person && parsed.status === "sent") {
+          person.status = "pitched";
+          person.pitchedAt = new Date().toISOString();
+          sent += 1;
+        }
+        state.log.push({ at: new Date().toISOString(), username: parsed.username, status: parsed.status ?? "unknown", detail: parsed.detail });
+        console.log(`  @${parsed.username}: ${parsed.status}${parsed.detail ? ` — ${parsed.detail}` : ""}`);
+      } catch {
+        /* non-json line from PowerShell */
+      }
+    }
+    state.sends = { date: today, count: sentToday + sent };
+    writeState(state);
+    writeStore(store);
+    console.log(`send(gui): ${sent} sent · ${state.sends.count}/${dailyCap} today`);
     return;
   }
 
