@@ -366,7 +366,17 @@ async function discover(maxPeople: number): Promise<void> {
   const MAX_DEPTH = 2;
   const LINKS_PER_CHANNEL = 12;
   const CONCURRENCY = 6;
-  const queue: { name: string; depth: number }[] = seeds.channels.map((name) => ({ name, depth: 0 }));
+  // Channels learned by earlier crawls are kept and re-used as seeds. Without this every daily run
+  // starts from the same hand-written list and the reachable graph never compounds.
+  const learnedFile = join(DATA, "learned.json");
+  let learned: string[] = [];
+  try {
+    learned = (JSON.parse(readFileSync(learnedFile, "utf8")) as { channels?: string[] }).channels ?? [];
+  } catch {
+    learned = [];
+  }
+  const seedNames = [...seeds.channels, ...learned];
+  const queue: { name: string; depth: number }[] = seedNames.map((name) => ({ name, depth: 0 }));
   const seen = new Set<string>();
   const channels: Channel[] = [];
   const people = new Map<string, Person>(previous.people.map((p) => [p.username.toLowerCase(), p]));
@@ -465,6 +475,13 @@ async function discover(maxPeople: number): Promise<void> {
     people: [...people.values()].sort((a, b) => a.username.localeCompare(b.username)),
   };
   writeStore(store);
+
+  // Remember what the crawl taught us: every channel that is still posting, capped so the daily run
+  // stays inside a few minutes of fetching.
+  const learnedNext = [...new Set([...learned, ...channels.filter((c) => c.status === "eligible").map((c) => c.username)])]
+    .filter((n) => !seeds.channels.some((s2) => s2.toLowerCase() === n.toLowerCase()))
+    .slice(-200);
+  writeFileSync(learnedFile, `${JSON.stringify({ updatedAt: new Date().toISOString(), channels: learnedNext }, null, 2)}\n`, "utf8");
 
   const eligible = store.channels.filter((c) => c.status === "eligible");
   const fresh = store.people.filter((p) => p.status === "new");
