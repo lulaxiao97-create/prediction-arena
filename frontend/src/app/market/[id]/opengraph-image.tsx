@@ -7,6 +7,15 @@ import { coverOf } from "@/lib/covers";
 // Node runtime: the market manifest and the brand mark are read straight off disk, so a
 // share card never depends on an outbound request at the moment someone posts a link.
 export const runtime = "nodejs";
+
+/**
+ * Cache the rendered card.
+ *
+ * Every response used to be `max-age=0, must-revalidate` and took ~3s of satori work, which is
+ * outside the 2–3s window X's card crawler waits — the tweet then shows a broken image. With ISR the
+ * first request paints once and every later one (crawlers included) is served from cache.
+ */
+export const revalidate = 3600;
 export const alt = "Prediction Arena — market card";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -347,5 +356,12 @@ export default async function Image({ params }: { params: Promise<{ id: string }
     </div>
   );
 
-  return new ImageResponse(card, { ...size });
+  return new ImageResponse(card, {
+    ...size,
+    headers: {
+      // Crawlers respect this; the hour matches `revalidate` above so a cached card cannot outlive
+      // the data it was rendered from by more than one refresh cycle.
+      "cache-control": "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400",
+    },
+  });
 }
