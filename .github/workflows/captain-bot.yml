@@ -2,17 +2,14 @@ name: Captain bot
 
 # The recruiting bot, hosted where the credential already is.
 #
-# A long-poll bot has to be running to answer, and the token lives in this repo's secrets — so the
-# bot runs here: a bounded 55-minute window (`timeout`), restarted by a 30-minute cron, with
-# `concurrency` keeping exactly one instance alive. Same job id as the local crontab entry, so the
-# register format is identical either way.
-#
-# The register (chat id + payout wallet) is carried between runs through the Actions cache instead of
-# a commit: it is small, it changes on every binding, and it is nobody else's business.
+# A long-poll bot has to be running to answer, and the token lives in this repo's secrets — so this
+# workflow exists for the case where no machine of ours is awake. **It is dispatch-only on purpose**:
+# the operator box now runs the same bot from cron (`scripts/start-telegram-bot.sh`), and Telegram
+# allows exactly one `getUpdates` consumer per token. Two of them fight, and the loser dies with
+# `409 Conflict: terminated by other getUpdates request` — which looks like a crash and is not.
+# Use this workflow only when the local daemon is down, and set TELEGRAM_LOCAL_ONLY=0 first.
 
 on:
-  schedule:
-    - cron: "*/30 * * * *"
   workflow_dispatch:
     inputs:
       minutes:

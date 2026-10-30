@@ -10,7 +10,7 @@
 | 管线 | 脚本 | 跑在哪 | 节奏 | 状态（已验证） |
 |---|---|---|---|---|
 | X 截流 | `scripts/active-x-interceptor.ts` | GitHub Actions（`x-interceptor.yml`） | 每 15 分钟排一个 335 分钟监听窗，窗内每 90 秒扫一次 | **读不到 X**：bearer 401、自签 bearer 402 `credits depleted` |
-| TG 团长 | `scripts/telegram-bot.ts` | GitHub Actions（`captain-bot.yml`）+ 本机 crontab | 一次长轮询 55 分钟，30 分钟排下一班，无缝接力 | **在跑**：`bot @predictaing_bot polling…`（run 40992175732） |
+| TG 团长 | `scripts/telegram-bot.ts` | **本机常驻**（crontab `*/10` + `@reboot`，`logs/telegram-bot.log`）；CI `captain-bot.yml` 只在手动 dispatch 时兜底 | 长轮询 + 每 15 分钟一次主动私信 | **在跑**：`bot @predictaing_bot polling…` |
 | Farcaster | `scripts/farcaster-auto-cast.ts` | 挂在 `auto-marketing.yml` 里，每天两班 | 每班给 /base、/degen 各一条 | **compose 通过、未发布**：没有 signer |
 
 桌面包（`scripts/push-desktop-marketing.ts`）仍是零成本分发的一环，但内容已经改成纯可粘贴格式：
@@ -67,7 +67,21 @@
 5. `/copy` 随时补发群话术，`/link` 补发链接，`/how` 解释 30% 从哪来（合约结算时从 4% 手续费里付）。
 
 验证：`bun run bot:selftest`（26 条断言，含“注册表重启后仍在”“私信里带的是这个团长自己的 ref”）
-+ CI 日志 `bot @predictaing_bot polling… (0 captains on file)`（新表，之前没有持久化，所以是 0）。
++ 本机日志 `logs/telegram-bot.log` 里的 `bot @predictaing_bot polling… (0 captains on file)`。
+
+### 运行与守护（本机）
+
+```bash
+printf '%s' '<token>' > ~/.hermes/.tg_bot_token && chmod 600 ~/.hermes/.tg_bot_token
+cat ~/.hermes/.proxy                     # 出网代理（Telegram 直连不通，必须走它）
+bash scripts/start-telegram-bot.sh       # 幂等：已在跑就什么都不做
+tail -f logs/telegram-bot.log            # 期待 bot @predictaing_bot polling…
+bash scripts/tg-bot-profile.sh           # 命令菜单 + 简介（改文案后重跑一次）
+```
+
+crontab 里两条守着它：`@reboot` 与 `*/10`。**Telegram 一个 token 只允许一个 `getUpdates` 消费者**，
+所以 `captain-bot.yml` 改成了只手动触发 —— 两边同时跑会互踢，日志里是
+`409 Conflict: terminated by other getUpdates request`，看起来像崩溃。
 
 ---
 

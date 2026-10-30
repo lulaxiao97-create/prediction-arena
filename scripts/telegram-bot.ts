@@ -398,6 +398,16 @@ function hoursLeft(endTimeUtc?: string): string {
   return h < 24 ? `${h}h` : `${Math.round(h / 24)}d`;
 }
 
+/** Landing on the market being promoted, not the home page — a click that needs a second search is lost. */
+function marketRefLink(address: string, id: string | number): string {
+  const url = new URL(`${SITE}/market/${id}`);
+  url.searchParams.set("ref", address);
+  url.searchParams.set("utm_source", "invite");
+  url.searchParams.set("utm_medium", "referral");
+  url.searchParams.set("utm_campaign", "captain_market");
+  return url.toString();
+}
+
 /** What the captain forwards. Their link, the duel, and the fee wording — nothing else. */
 function blastText(wallet: string, pool: Pool): string {
   const yes = Math.round(share(pool) * 100);
@@ -411,7 +421,7 @@ function blastText(wallet: string, pool: Pool): string {
     "",
     `${pool.traders ?? 0} 人已经站队${left ? ` · ${left} 后结束` : ""}`,
     "",
-    `押这里 → ${refLink(wallet)}`,
+    `押这里 → ${marketRefLink(wallet, pool.id)}`,
     "",
     "（赢的一边拿走输的一边的仓位，4% 手续费，合约托管。这个链接是我自己的，通过它下的仓位，结算时合约把手续费里的 30% 记给我——不影响你的赔付。）",
   ].join("\n");
@@ -421,7 +431,7 @@ function blastOutgoing(wallet: string, pool: Pool): Outgoing {
   return {
     text: blastText(wallet, pool),
     buttons: [
-      [{ text: "🏴 直接下注", url: refLink(wallet) }],
+      [{ text: "🏴 直接下注", url: marketRefLink(wallet, pool.id) }],
       [{ text: "复制群发话术", command: "/copy" }],
     ],
   };
@@ -547,7 +557,7 @@ async function selfTest(): Promise<void> {
   check(blast.includes(`ref=${address}`), "the DM carries this captain's own ref");
   check(/30%/.test(blast), "the DM states the 30% cut");
   check(/YES █|░/.test(blast) && /NO/.test(blast), "the DM shows both sides with bars");
-  check(blast.includes("700099") === false && blast.includes(pool.title), "the DM names the market, not its id");
+  check(blast.includes(`/market/${pool.id}?ref=${address}`), "the DM links the promoted market with this captain's ref, not the home page");
   check(!/weight:|source:|ref:|market:/.test(blast.replace(/ref=/g, "")), "no operator noise in the forwarded text");
   check(!blast.includes("我要") && !blast.includes("我们承诺"), "no revenue promise in the forwarded text");
 
