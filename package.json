@@ -28,7 +28,13 @@
     "pool:auto:unattended": "bash scripts/open-pool-unattended.sh",
     "image:card": "bun scripts/generate-marketing-image.ts",
     "bot:telegram": "bun scripts/telegram-bot.ts",
-    "bot:selftest": "bun scripts/telegram-bot.ts --self-test"
+    "bot:selftest": "bun scripts/telegram-bot.ts --self-test",
+    "tg:discover": "bun scripts/tg-outreach.ts --discover",
+    "tg:compose": "bun scripts/tg-outreach.ts --compose",
+    "tg:send": "bun scripts/tg-outreach.ts --send",
+    "tg:stats": "bun scripts/tg-outreach.ts --stats",
+    "tg:selftest": "bun scripts/tg-outreach.ts --self-test",
+    "tg:login": "bun scripts/tg-outreach.ts --login"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.8",
