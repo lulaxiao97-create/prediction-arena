@@ -44,11 +44,17 @@ jobs:
       - name: Which source can read X right now
         env:
           X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+          X_CONSUMER_KEY: ${{ secrets.X_CONSUMER_KEY }}
+          X_CONSUMER_SECRET: ${{ secrets.X_CONSUMER_SECRET }}
         run: bun scripts/active-x-interceptor.ts --probe || true
 
       - name: Watch for a post worth answering
         env:
           X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+          # A revoked app-only bearer is normal; the consumer key/secret can mint a fresh one at
+          # runtime (POST /oauth2/token), so the interceptor heals itself without a human in the loop.
+          X_CONSUMER_KEY: ${{ secrets.X_CONSUMER_KEY }}
+          X_CONSUMER_SECRET: ${{ secrets.X_CONSUMER_SECRET }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           INTERCEPT_NOTIFY_CHAT: ${{ secrets.INTERCEPT_NOTIFY_CHAT }}
           MINUTES: ${{ github.event.inputs.minutes }}

@@ -246,6 +246,52 @@ function bearer(): string | null {
   return tok || null;
 }
 
+/**
+ * Mint an app-only bearer from the consumer key/secret.
+ *
+ * X's `POST /oauth2/token` (grant_type=client_credentials, HTTP Basic with the key and secret) is
+ * the one read credential a solo operator can renew without a browser session — which matters when
+ * the stored `X_BEARER_TOKEN` has been rotated or revoked and the deployment has no human in it.
+ * A 401 on that call means the key/secret pair itself is dead, and that is a portal job.
+ */
+async function mintBearer(key: string, secret: string): Promise<{ token: string | null; detail: string }> {
+  const basic = Buffer.from(`${encodeURIComponent(key)}:${encodeURIComponent(secret)}`).toString("base64");
+  try {
+    const res = await fetch("https://api.x.com/oauth2/token", {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${basic}`,
+        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+      },
+      body: "grant_type=client_credentials",
+      signal: AbortSignal.timeout(20_000),
+    });
+    const body = await res.text();
+    if (!res.ok) return { token: null, detail: `${res.status}: ${body.slice(0, 160)}` };
+    const parsed = JSON.parse(body) as { access_token?: string };
+    return parsed.access_token
+      ? { token: parsed.access_token, detail: "minted" }
+      : { token: null, detail: `no access_token in response: ${body.slice(0, 160)}` };
+  } catch (err) {
+    return { token: null, detail: `mint failed: ${(err as Error).message.slice(0, 120)}` };
+  }
+}
+
+/** Every bearer this environment can produce, in the order worth trying. */
+async function bearerCandidates(): Promise<{ token: string; label: string }[]> {
+  const out: { token: string; label: string }[] = [];
+  const direct = bearer();
+  if (direct) out.push({ token: direct, label: "X_BEARER_TOKEN" });
+  const key = process.env.X_CONSUMER_KEY?.trim();
+  const secret = process.env.X_CONSUMER_SECRET?.trim();
+  if (key && secret) {
+    const minted = await mintBearer(key, secret);
+    console.log(`  · bearer from X_CONSUMER_KEY/SECRET: ${minted.detail}`);
+    if (minted.token) out.push({ token: minted.token, label: "minted(key+secret)" });
+  }
+  return out;
+}
+
 async function xApiTimeline(handle: string, token: string): Promise<SourceReport> {
   const base = "https://api.x.com/2";
   const headers = { Authorization: ["Bearer", token].join(" ") };
@@ -397,14 +443,31 @@ async function collect(args: Args): Promise<SourceReport[]> {
   const reports: SourceReport[] = [];
   const want = (s: SourceReport["source"]) => !args.forceSource || args.forceSource === s;
 
-  if (want("x_api") && bearer()) {
-    for (const handle of targets.accounts) {
-      const r = await xApiTimeline(handle, bearer() as string);
-      reports.push(r);
-      if (!r.ok) break; // a credential/quota failure repeats on every handle — say it once
+  if (want("x_api")) {
+    const candidates = await bearerCandidates();
+    if (candidates.length === 0) {
+      reports.push({ source: "x_api", ok: false, status: "no token", detail: "X_BEARER_TOKEN and X_CONSUMER_KEY/X_CONSUMER_SECRET are all unset", tweets: [] });
+    } else {
+      // First handle is the canary: a dead credential fails identically on all seven, and finding
+      // out once is cheaper than finding out seven times.
+      let chosen: { token: string; label: string } | null = null;
+      for (const candidate of candidates) {
+        const probeReport = await xApiTimeline(targets.accounts[0], candidate.token);
+        if (probeReport.ok) {
+          chosen = candidate;
+          reports.push(probeReport);
+          break;
+        }
+        reports.push({ ...probeReport, detail: `[${candidate.label}] ${probeReport.detail}` });
+      }
+      if (chosen) {
+        for (const handle of targets.accounts.slice(1)) {
+          const report = await xApiTimeline(handle, chosen.token);
+          reports.push(report);
+          if (!report.ok && /429|rate/i.test(String(report.status))) break;
+        }
+      }
     }
-  } else if (want("x_api")) {
-    reports.push({ source: "x_api", ok: false, status: "no token", detail: "X_BEARER_TOKEN unset", tweets: [] });
   }
 
   const usable = reports.some((r) => r.ok);
