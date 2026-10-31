@@ -26,6 +26,17 @@ export PATH="$HOME/.foundry/bin:$PATH"
 set -a; . ./.env; set +a
 export HTTPS_PROXY="${HTTPS_PROXY:-http://172.17.240.1:16781}"
 
+# One instance at a time. A manual BATCH=80 and the :10 cron fired together once, assigned
+# overlapping nonces from the same read, and one broadcast was lost — the run reported 49 opened
+# from 80 sent. flock is the same guard scripts/open-pool-unattended.sh uses for the same reason.
+LOCK="logs/pool-batch.lock"
+mkdir -p logs
+exec 9>"$LOCK"
+if ! flock -n 9; then
+  echo "[$(date -Is)] another open-pools-batch run holds $LOCK — exiting"
+  exit 0
+fi
+
 BATCH="${BATCH:-40}"
 MIN_GAS_ETH="${MIN_GAS_ETH:-0.0004}"     # reserve: below this, stop and let the operator top up
 REGISTRY="scripts/opened-pools.json"
