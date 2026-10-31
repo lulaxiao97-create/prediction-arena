@@ -19,6 +19,7 @@ import type { Address } from "viem";
 import { useI18n } from "@/components/LocaleProvider";
 import { RewardsPanel } from "@/components/RewardsPanel";
 import { InviteEarn } from "@/components/InviteEarn";
+import { PointsCard } from "@/components/PointsCard";
 import { Logo } from "@/components/Logo";
 import { useToast } from "@/components/Toast";
 import { useMarkets } from "@/hooks/useMarkets";
@@ -178,7 +179,8 @@ export function PortfolioDrawer({ open, onClose }: { open: boolean; onClose: () 
           <RewardsPanel />
 
           {/* Zero-budget viral loop: the contract already pays the referrer out of the fee. */}
-          <InviteEarn address={address} />
+          <PointsCard />
+            <InviteEarn address={address} />
 
           {!address && (
             <div className="rounded-xl border border-gold/25 bg-gold/[0.06] px-3 py-6 text-center">

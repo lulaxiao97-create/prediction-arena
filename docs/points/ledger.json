@@ -1,0 +1,27 @@
+{
+  "v": 1,
+  "generatedAt": "2026-10-31T04:08:54.742Z",
+  "rules": {
+    "perUsd": 10,
+    "riskRange": [
+      1,
+      2
+    ],
+    "horizonBonus": {
+      "short": 1.5,
+      "mid": 1.2
+    },
+    "referralShare": 0.2,
+    "genesisAllocation": 420000000,
+    "totalSupply": 1000000000
+  },
+  "disclaimer": "Points are a record of early participation. There is no token yet, nothing is purchasable, and no value is promised. If a genesis token launches, points convert 1:1 into it; if it never launches, points remain a scoreboard.",
+  "totals": {
+    "wallets": 0,
+    "points": 0,
+    "bets": 0,
+    "volumeUsd": 0
+  },
+  "holders": {},
+  "top": []
+}

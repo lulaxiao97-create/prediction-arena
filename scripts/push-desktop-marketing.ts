@@ -189,6 +189,14 @@ function flagshipScore(pool: Pool): number {
 }
 
 /** Same list as the cloud picker: a token with a community behind it, nothing generic. */
+/**
+ * The genesis-airdrop line. It rides every tweet and every card because it is the only reason a
+ * stranger stops scrolling: the venue pays attention with a scoreboard before it has a token.
+ * `weight()` counts it like any other text — a draft that runs over 280 falls back to the shorter
+ * variant rather than getting truncated mid-URL.
+ */
+const AIRDROP_TAG = "🔥 Arena Points genesis airdrop live — bet or refer, earn $ARENA";
+
 const TRIBES = ["aero", "degen", "toshi", "brett", "mog", "zora"];
 
 function tribe(pool: Pool): string | null {
@@ -231,9 +239,11 @@ function mainTweet(pool: Pool): string {
   const { y, n } = bothOdds(yes);
   const left = timeLeft(pool.endTimeUtc);
   const url = trackedUrl(pool.id, "x");
+  const body = `YES ${bar(yes)} ${yes}% → ${y}×\nNO\u00a0\u00a0${bar(no)} ${no}% → ${n}×`;
   const drafts = [
-    `🏴 ${clipped(pool.title, 64)}\n\nYES ${bar(yes)} ${yes}% → ${y}×\nNO\u00a0\u00a0${bar(no)} ${no}% → ${n}×\n\n${pool.traders ?? 0} already picked a side. ${left} left. The wrong side pays the right side.\n\n${url}\n${X_HANDLE}`,
-    `${yes}% YES pays ${y}× — ${pool.traders ?? 0} already picked a side, ${left} left.\n\n${clipped(pool.title, 58)}\n\n${url}\n${X_HANDLE}`,
+    `🏴 ${clipped(pool.title, 64)}\n\n${body}\n\n${pool.traders ?? 0} picked a side. ${left} left.\n${AIRDROP_TAG}\n\n${url}\n${X_HANDLE}`,
+    `🏴 ${clipped(pool.title, 52)}\n\n${body}\n\n${AIRDROP_TAG}\n\n${url}\n${X_HANDLE}`,
+    `${yes}% YES pays ${y}× · ${left} left\n${clipped(pool.title, 48)}\n${AIRDROP_TAG}\n${url}`,
   ];
   return drafts.find((d) => weight(d) <= 275) ?? drafts[drafts.length - 1];
 }
@@ -303,8 +313,10 @@ function replyDeck(pools: Pool[]): { angle: string; text: string }[] {
       [voice ? `${voice.challenge}. ${count} in, ${no}% on NO.` : `${count} people disagree about this one. ${no}% are on NO.`, `${duel} · ${left} left`, url],
     ];
     // Long subjects degrade to a shorter sentence, they never get cut mid-word.
+    // Only the first reply carries the airdrop line: three of them in one deck reads like spam and
+    // gets the account muted, which is a worse outcome than a quieter first reply.
     const candidates = [
-      byAngle[i].join("\n"),
+      (i === 0 ? [...byAngle[i], AIRDROP_TAG] : byAngle[i]).join("\n"),
       [byAngle[i][0].slice(0, 90), `${yes}% YES → ${y}× · ${no}% NO → ${n}×`, url].join("\n"),
     ];
     const text = candidates.find((c) => weight(c) <= 275) ?? candidates[candidates.length - 1];

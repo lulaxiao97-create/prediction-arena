@@ -204,6 +204,9 @@ function html(pool: Pool, qrSvg: string, trackedUrl: string): string {
   .qrbox svg { width:230px; height:230px; display:block; }
   .domain { font-family:"DejaVu Sans Mono", monospace; font-size:18px; color:#22D3EE; letter-spacing:.02em; }
   .handle { font-size:13.5px; color:#8FA0BF; font-family:"DejaVu Sans Mono", monospace; white-space:nowrap; }
+  /* The airdrop pill: the one line on the card that is about the venue rather than the market. */
+  .airdrop { margin-top:10px; display:inline-block; font-size:12.5px; font-weight:700; letter-spacing:.06em;
+    color:#0B0F1A; background:#FBBF24; border-radius:999px; padding:5px 11px; white-space:nowrap; }
   .contract { position:absolute; left:58px; right:58px; bottom:26px; display:flex;
     justify-content:space-between; font-family:"DejaVu Sans Mono", monospace; font-size:12.5px;
     color:rgba(143,160,191,0.72); }
@@ -253,6 +256,7 @@ function html(pool: Pool, qrSvg: string, trackedUrl: string): string {
     <div class="right">
       <div class="qrbox">${qrSvg}</div>
       <div class="domain">predictionarena.online</div>
+      <div class="airdrop">🔥 ARENA POINTS · GENESIS AIRDROP</div>
       <div class="handle">@Predict065 · t.me/predictionarena_hq</div>
     </div>
   </div>

@@ -23,6 +23,7 @@
  *   bun scripts/telegram-bot.ts --once          # drain one batch and exit (cron-friendly)
  *   bun scripts/telegram-bot.ts --broadcast     # DM the newest market to every captain
  *   bun scripts/telegram-bot.ts --captains      # who is registered (masked wallets)
+ *   bun scripts/telegram-bot.ts --leaderboard   # DM every captain their points + projected airdrop
  *
  * `--self-test` exists because the token lives in GitHub secrets: the flow has to be provable
  * without it, and a bot that "should work" is not a deliverable.
@@ -35,6 +36,19 @@ import { join } from "node:path";
 const ROOT = join(import.meta.dir, "..");
 const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://predictionarena.online").replace(/\/+$/, "");
 const CONTACT = "@Predict065";
+
+/**
+ * The one line every captain message carries while the genesis season is open.
+ *
+ * It says three things and stops: points exist, bets and referrals earn them, and they convert at
+ * genesis. It does NOT promise a price — the ledger is a scoreboard until a token actually exists,
+ * and the disclaimer in docs/TOKENOMICS.md is the long version of that.
+ */
+const AIRDROP_CN =
+  "🔥 <b>Arena Points 创世空投季</b> — 每一笔下注、每一个通过你链接进来的人，都在给你累积积分；积分在创世时 1:1 兑换 $ARENA。";
+const AIRDROP_EN =
+  "🔥 <b>Arena Points genesis airdrop</b> — every bet and every referral earns points; points convert 1:1 into $ARENA at genesis.";
+
 
 type Chat = { id: number; type: string; username?: string };
 type Message = {
@@ -197,7 +211,10 @@ function respond(
         "你的专属链接（这个地址就是链上收款人）：",
         refLink(address),
         "",
+        AIRDROP_CN,
+        "",
         "规则很简单：通过这个链接进来的每一笔仓位，结算时合约把平台 4% 手续费的 30% 记给你。",
+        "积分规则：每 $1 下注 10 分，冷门方向 ×2，48 小时内到期的盘口 ×1.5；你的团长积分 = 团员积分的 20%。",
         "不是我们转账给你，是合约直接付——所以不用信任任何人，Basescan 上能看到。",
         "",
         "下面是给群主/群聊用的话术，直接复制发群：",
@@ -237,6 +254,8 @@ function respond(
     }
     replies.push({
       text: [
+        AIRDROP_CN,
+        "",
         "🧑‍💼 团长计划 — 平台 4% 手续费的 30%，结算时由合约直接付给你。",
         "",
         "要做的事：把你群里的盘口链接换成你的专属链接。",
@@ -483,6 +502,86 @@ async function broadcast(opts: { api: string | null; dryRun: boolean; force?: bo
   return { sent, skipped: null, failed };
 }
 
+/**
+ * The daily points DM: every captain gets their own score, their rank and their projected slice of
+ * the genesis allocation. This is the FOMO loop — a captain who can see the number moving posts more
+ * than one who was told "there is a referral programme somewhere".
+ *
+ * Reads the ledger scripts/sync-points.ts writes (frontend/public/points.json). No ledger file (or an
+ * empty one) is not an error: the message still goes out, honestly reading zero.
+ */
+type PointsLedger = {
+  totals?: { points?: number; wallets?: number; bets?: number };
+  holders?: Record<string, { points?: number; fromReferrals?: number; bets?: number }>;
+  generatedAt?: string;
+};
+
+function readPointsLedger(): PointsLedger {
+  try {
+    return JSON.parse(readFileSync(join(ROOT, "frontend", "public", "points.json"), "utf8")) as PointsLedger;
+  } catch {
+    return {};
+  }
+}
+
+async function leaderboardPush(opts: { api: string | null; dryRun: boolean }): Promise<BroadcastResult> {
+  const store = loadStore();
+  const captains = Object.values(store.captains);
+  if (captains.length === 0) return { sent: 0, skipped: "no registered captains yet", failed: 0 };
+  const ledger = readPointsLedger();
+  const holders = ledger.holders ?? {};
+  const total = ledger.totals?.points ?? 0;
+  const ranked = Object.entries(holders)
+    .sort((a, b) => (b[1].points ?? 0) - (a[1].points ?? 0))
+    .map(([addr]) => addr);
+
+  let sent = 0;
+  let failed = 0;
+  for (const captain of captains) {
+    const key = captain.wallet.toLowerCase();
+    const row = holders[key];
+    const points = row?.points ?? 0;
+    const rank = ranked.indexOf(key) + 1;
+    const est = total > 0 ? Math.floor((points / total) * 420_000_000) : 0;
+    const text = [
+      "📊 <b>Arena Points · 24h 战报</b>",
+      "",
+      `你的积分：<b>${points.toLocaleString("en-US")}</b>${rank > 0 ? `（第 ${rank} 名 / 共 ${ranked.length} 人）` : ""}`,
+      `其中来自团员的 20% 分润：${(row?.fromReferrals ?? 0).toLocaleString("en-US")}`,
+      `预估创世份额：<b>${est.toLocaleString("en-US")} $ARENA</b>`,
+      "",
+      `全站：${(ledger.totals?.wallets ?? 0)} 个钱包、${total.toLocaleString("en-US")} 分、${(ledger.totals?.bets ?? 0)} 笔下注。`,
+      "",
+      AIRDROP_CN,
+      "想涨分：把带 ?ref= 的链接发到群里，每一笔团员下注都给你加 20%。",
+      "",
+      `你的链接：${refLink(captain.wallet)}`,
+      "（积分是对早期参与的记录，暂无代币、不可购买、不承诺价值；上线时按 1:1 兑换。）",
+    ].join("\n");
+
+    if (opts.dryRun) {
+      console.log(`\n--- points DM → ${captain.chatId} (${captain.wallet.slice(0, 6)}…${captain.wallet.slice(-4)})\n${text}`);
+      sent += 1;
+      continue;
+    }
+    if (!opts.api) {
+      failed += 1;
+      continue;
+    }
+    const res = await fetch(`${opts.api}/sendMessage`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ chat_id: captain.chatId, text, parse_mode: "HTML", disable_web_page_preview: true }),
+    });
+    if (res.ok) sent += 1;
+    else {
+      failed += 1;
+      console.error(`points DM chat ${captain.chatId} → HTTP ${res.status}: ${(await res.text()).slice(0, 160)}`);
+    }
+  }
+  return { sent, skipped: null, failed };
+}
+
 async function selfTest(): Promise<void> {
   const sessions = new Map<number, Session>();
   const chat = { id: 1, type: "private", username: "captain" };
@@ -651,6 +750,15 @@ async function main(): Promise<void> {
     process.exit(2);
   }
   const api = tok ? `https://api.telegram.org/bot${tok}` : "";
+
+  if (process.argv.includes("--leaderboard")) {
+    const dryRun = process.argv.includes("--dry-run");
+    const result = await leaderboardPush({ api: api || null, dryRun });
+    console.log(
+      `leaderboard: ${result.skipped ? `skipped — ${result.skipped}` : `${result.sent} sent`}${result.failed ? `, ${result.failed} failed` : ""}`,
+    );
+    return;
+  }
 
   if (wantsBroadcast) {
     const dryRun = process.argv.includes("--dry-run");
