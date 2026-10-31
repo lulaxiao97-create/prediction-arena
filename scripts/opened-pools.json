@@ -1223,5 +1223,317 @@
     "title": "Will the Bank of Japan raise its policy rate before December 31, 2026?",
     "tx": "0x9f3d71866f4d7171f245a6fb77c8ec5528c62593d951dc43916f283004a1867e",
     "openedAt": "2026-10-31T03:11:36.326736+00:00"
+  },
+  "720372898": {
+    "id": "720372898",
+    "title": "Will Apple close above $372.50 before December 31, 2026?",
+    "tx": "0xd26a1aba831f3ac64deadcfebbd072306dba22940ddb2a6fefcc0f27b3913a60",
+    "openedAt": "2026-10-31T03:27:07.089435+00:00"
+  },
+  "720636606": {
+    "id": "720636606",
+    "title": "Will a generative-art piece sell for over $1M this quarter?",
+    "tx": "0x5b35d5960d4bd04d8e3c74f83999e68752eda6165cffa5a266177180b3da8bd3",
+    "openedAt": "2026-10-31T03:27:07.829634+00:00"
+  },
+  "720655156": {
+    "id": "720655156",
+    "title": "Will China announce a new stimulus package above $200B this quarter?",
+    "tx": "0x383e0eb1e21995d0cedfa5c49e08853a0093f1d47552b374bf91a615fb0c2b71",
+    "openedAt": "2026-10-31T03:27:08.588097+00:00"
+  },
+  "721208415": {
+    "id": "721208415",
+    "title": "Will Nasdaq Composite close above $27,000 before December 31, 2026?",
+    "tx": "0x4c4687dec740a8878235eb2c62cb21c5f208039c4f540a09c6e91f279410b204",
+    "openedAt": "2026-10-31T03:27:09.351410+00:00"
+  },
+  "721524197": {
+    "id": "721524197",
+    "title": "Will Hong Kong approve another crypto trading platform licence this quarter?",
+    "tx": "0x4f7b51f6bfc0657e7f4dd93704c6102eced5c50d8390f3c66fec26db223557c0",
+    "openedAt": "2026-10-31T03:27:10.179587+00:00"
+  },
+  "721676571": {
+    "id": "721676571",
+    "title": "Will a quantum computer solve a problem beyond classical simulation this quarter?",
+    "tx": "0xddd50a6f36a1e40d514233b88d0153a1d19241905a1b383eaf53f1615574660f",
+    "openedAt": "2026-10-31T03:27:10.909764+00:00"
+  },
+  "721693720": {
+    "id": "721693720",
+    "title": "Will blob fees on Ethereum exceed 0.01 gwei for a full week before December 31, 2026?",
+    "tx": "0x38f319e68e5292034381a6428dbb60468561e4e7536fdaf59d0509e2e0101f84",
+    "openedAt": "2026-10-31T03:27:11.747655+00:00"
+  },
+  "721843413": {
+    "id": "721843413",
+    "title": "Will any mega-cap report revenue growth above 20% YoY this quarter?",
+    "tx": "0xe66029d795a5565b55e6c9dfc9861e2c43ca2ca74aec6502a10a236bee83a3db",
+    "openedAt": "2026-10-31T03:27:12.609281+00:00"
+  },
+  "721977353": {
+    "id": "721977353",
+    "title": "Will Ethereum ship its next scheduled upgrade before December 31, 2026?",
+    "tx": "0xccd68cd21291c49016d3e71fe0d2f7306a7ad2e90d77d3ed77e3c49275b7bd69",
+    "openedAt": "2026-10-31T03:27:13.365728+00:00"
+  },
+  "722146102": {
+    "id": "722146102",
+    "title": "Will an NFT lending protocol cross $1B in cumulative loans before December 31, 2026?",
+    "tx": "0xb8d569be5293ed3a5f977e4dfce4733ee7183d999828da4e5f05966a75c97de8",
+    "openedAt": "2026-10-31T03:27:14.101787+00:00"
+  },
+  "722324587": {
+    "id": "722324587",
+    "title": "Will a major AI lab publish a safety evaluation of a frontier model this quarter?",
+    "tx": "0xe2c81eb4d81b8a2da1951ea0027e66bd89c1b8afa12438c718f98ae081a3bd5e",
+    "openedAt": "2026-10-31T03:27:14.886924+00:00"
+  },
+  "722593143": {
+    "id": "722593143",
+    "title": "Will a single film open above $150M domestic in one weekend before December 31, 2026?",
+    "tx": "0x4af2213693c1bab1bde35578099a5e592b1408ca94dc729a0fa3f9de8c88553a",
+    "openedAt": "2026-10-31T03:27:15.671135+00:00"
+  },
+  "722780405": {
+    "id": "722780405",
+    "title": "Will SpaceX complete a Starship flight without a loss of vehicle before December 31, 2026?",
+    "tx": "0x0f9f804a8ed938274efb803fe2a9a68ed7f96256676350297869a48accbd6540",
+    "openedAt": "2026-10-31T03:27:16.505875+00:00"
+  },
+  "722881547": {
+    "id": "722881547",
+    "title": "Will gold print a new all-time high before December 31, 2026?",
+    "tx": "0x0bac7729c8d8dbf8163422ce2c5b70de8bd37ea72e1d6956b7a9916701bcce84",
+    "openedAt": "2026-10-31T03:27:17.226111+00:00"
+  },
+  "722920331": {
+    "id": "722920331",
+    "title": "Will BAYC's floor price close above 12 ETH before December 31, 2026?",
+    "tx": "0x41d0878630338c693c387e17a583c73978f7df91ba43dde69b9ae473e7022346",
+    "openedAt": "2026-10-31T03:27:17.931919+00:00"
+  },
+  "723045296": {
+    "id": "723045296",
+    "title": "Will a prediction market's TVL exceed $500M before December 31, 2026?",
+    "tx": "0xced4b0f6749f5f7438a5f1d0c5cb53d8d75e6f936d3e30e02748f5e4966b3e7b",
+    "openedAt": "2026-10-31T03:27:18.610281+00:00"
+  },
+  "723049736": {
+    "id": "723049736",
+    "title": "Will a major L2 post a full day of downtime before December 31, 2026?",
+    "tx": "0x0f7317d4bbb0a502140a36dd972fe100de86289035caf0a0a3bcb23c20cf189d",
+    "openedAt": "2026-10-31T03:27:19.359789+00:00"
+  },
+  "723258447": {
+    "id": "723258447",
+    "title": "Will a major RPC provider suffer a multi-hour outage this quarter?",
+    "tx": "0x2fd5162572917ef58e50787ff9ce7b74706bad1b6e920d8ff750c0747e95faad",
+    "openedAt": "2026-10-31T03:27:20.107873+00:00"
+  },
+  "723562358": {
+    "id": "723562358",
+    "title": "Will total prediction-market volume across venues exceed $5B in a month before December 31, 2026?",
+    "tx": "0xe497e70935b123ca8e6e54764bde6699e41ee210b95c4eb0ab7cd73d4cc5e02b",
+    "openedAt": "2026-10-31T03:27:20.956285+00:00"
+  },
+  "723858149": {
+    "id": "723858149",
+    "title": "Will a prediction market receive a US regulated exchange licence before December 31, 2026?",
+    "tx": "0x828ceed14faa60166ba63e09670703c2d7fc53a81827ba9568a6608e94ff202b",
+    "openedAt": "2026-10-31T03:27:21.698817+00:00"
+  },
+  "724373021": {
+    "id": "724373021",
+    "title": "Will Polymarket's monthly volume exceed $2B before December 31, 2026?",
+    "tx": "0x6f220c411caaa4f740f18b347a513bdda5f62be78be8c0ef2e1e7abe55858089",
+    "openedAt": "2026-10-31T03:27:22.450797+00:00"
+  },
+  "724622191": {
+    "id": "724622191",
+    "title": "Will the gold/silver ratio close below 75 before December 31, 2026?",
+    "tx": "0x2814fc8c38687fd8c77997f8b1055238efafea2c0c0dc9e8796ee6e88ac6ac34",
+    "openedAt": "2026-10-31T03:27:23.287644+00:00"
+  },
+  "724680035": {
+    "id": "724680035",
+    "title": "Will Lido's share of staked ETH fall below 25% before December 31, 2026?",
+    "tx": "0x0bd0bc3e7bcb8f83f4dbad068c77f703094a70c8564ee6882433cd97c4d1c27e",
+    "openedAt": "2026-10-31T03:27:24.013969+00:00"
+  },
+  "724959438": {
+    "id": "724959438",
+    "title": "Will COMEX gold close above $4,360 before December 31, 2026?",
+    "tx": "0x61a46431465beec6fa7ed0ec564da8e494084f1fc40a09fdf1ac55495608b108",
+    "openedAt": "2026-10-31T03:27:24.734609+00:00"
+  },
+  "725091416": {
+    "id": "725091416",
+    "title": "Will the S&P 500 print a new all-time high before December 31, 2026?",
+    "tx": "0x445fde322026c973a4a6ccb67742c244cc5aefee4652538cbe49b326969fbcb6",
+    "openedAt": "2026-10-31T03:27:25.412933+00:00"
+  },
+  "725858955": {
+    "id": "725858955",
+    "title": "Will the Basel Committee finalise bank capital rules for crypto exposures before December 31, 2026?",
+    "tx": "0x2ca8cb48bc8346184afb36ac21f3a054969e631a2e1b8a442c2898e7c00e5466",
+    "openedAt": "2026-10-31T03:27:26.211386+00:00"
+  },
+  "726082278": {
+    "id": "726082278",
+    "title": "Will China cut its one-year loan prime rate before December 31, 2026?",
+    "tx": "0x55d4d3e7265b5418270a1331398b7134e3160a1e271d58c5a90e4c73c9a75ad4",
+    "openedAt": "2026-10-31T03:27:27.039488+00:00"
+  },
+  "726107330": {
+    "id": "726107330",
+    "title": "Will a private AI company raise at a valuation above $300B before December 31, 2026?",
+    "tx": "0x1d8555be1fce0e0c9c470fd72caed07b4a2801007095f8cabbc049478ac5348c",
+    "openedAt": "2026-10-31T03:27:27.748918+00:00"
+  },
+  "726203310": {
+    "id": "726203310",
+    "title": "Will a video-game release be delayed out of this quarter?",
+    "tx": "0x74b0a7d373c822d47c06c0f84d726dd7940665e3638d4171e94eb70834c10e24",
+    "openedAt": "2026-10-31T03:27:28.489427+00:00"
+  },
+  "726424071": {
+    "id": "726424071",
+    "title": "Will a robotaxi service expand to a new US city this quarter?",
+    "tx": "0xd4cb9a64f632edd6c38c1796da6da62a10cb77b6a888e4d5485d35d792da7d95",
+    "openedAt": "2026-10-31T03:27:29.399352+00:00"
+  },
+  "726644138": {
+    "id": "726644138",
+    "title": "Will Blur's weekly volume exceed $100M before December 31, 2026?",
+    "tx": "0x97f727c645bcb58656a08dd58d435de6201be0aa1e67e3ffedb6e78bd5c4ac58",
+    "openedAt": "2026-10-31T03:27:30.265734+00:00"
+  },
+  "726972738": {
+    "id": "726972738",
+    "title": "Will a commercial fusion company report net energy gain before December 31, 2026?",
+    "tx": "0xcfb49c9981e1da6eb62935232b86751f578b8dd4bfae760304d0b4a3ba6978bb",
+    "openedAt": "2026-10-31T03:27:31.118748+00:00"
+  },
+  "727375254": {
+    "id": "727375254",
+    "title": "Will a small modular reactor receive a construction permit before December 31, 2026?",
+    "tx": "0xf05749582ae7482a75bda1f2bed4bf9c4914a1d4d1c4e0d6fed4baa4258ea4b7",
+    "openedAt": "2026-10-31T03:27:31.904711+00:00"
+  },
+  "727415662": {
+    "id": "727415662",
+    "title": "Will crypto VC funding exceed $5B in a single quarter before December 31, 2026?",
+    "tx": "0xae0fb36e6326829ebf6d89bee98954073475fed6166038c75ff85cdf8b18c95d",
+    "openedAt": "2026-10-31T03:27:32.696791+00:00"
+  },
+  "727445796": {
+    "id": "727445796",
+    "title": "Will a mainstream sportsbook list a prediction-market product this quarter?",
+    "tx": "0xf2b5ffd1313a83e2c7f64c443e36d1d49fafc0bf82dde6ef01baf234fb5fb291",
+    "openedAt": "2026-10-31T03:27:33.496510+00:00"
+  },
+  "727488838": {
+    "id": "727488838",
+    "title": "Will a G20 government declare a climate emergency this quarter?",
+    "tx": "0xafc6f71e16d592e242184058e4a47d5253b0a406295606722d2e40fe85234c64",
+    "openedAt": "2026-10-31T03:27:34.225571+00:00"
+  },
+  "727491917": {
+    "id": "727491917",
+    "title": "Will a Dow Jones component be removed from the index before December 31, 2026?",
+    "tx": "0x06d99f197d4b9e63e20ec6aba1fd801c0a8d42b1e3950bc7b0eb1f66bf1428ff",
+    "openedAt": "2026-10-31T03:27:34.974189+00:00"
+  },
+  "727524814": {
+    "id": "727524814",
+    "title": "Will a crypto startup with no token raise above $100M this quarter?",
+    "tx": "0x20274eedfbf8bbc67b2ffa59c929729b16101e586a1d3581bceab32b30863e8a",
+    "openedAt": "2026-10-31T03:27:35.688409+00:00"
+  },
+  "727678585": {
+    "id": "727678585",
+    "title": "Will copper close above $5.50/lb before December 31, 2026?",
+    "tx": "0x9e08609516a6d06093451e379565cd8faf4aa5c235799629b6204a882cd79cf3",
+    "openedAt": "2026-10-31T03:27:36.547976+00:00"
+  },
+  "727777770": {
+    "id": "727777770",
+    "title": "Will CryptoPunks record a sale above $500k before December 31, 2026?",
+    "tx": "0x404700e4af9436f0b16669bb196d7ea747cf1a7d225a90ac20f9c2e748944f17",
+    "openedAt": "2026-10-31T03:27:37.277182+00:00"
+  },
+  "727817120": {
+    "id": "727817120",
+    "title": "Will a payments company file for IPO before December 31, 2026?",
+    "tx": "0xa4d9b717631b6a3139a7c9d0474113a6832f846d5871bc8db03ec18867bcfed6",
+    "openedAt": "2026-10-31T03:27:38.058645+00:00"
+  },
+  "727856968": {
+    "id": "727856968",
+    "title": "Will Solana experience a halt longer than 30 minutes before December 31, 2026?",
+    "tx": "0xd47416a55f7c9e4c1ba3457f2111158c21b667cbf27e4bca93e517bb6c2716af",
+    "openedAt": "2026-10-31T03:27:38.947779+00:00"
+  },
+  "727900084": {
+    "id": "727900084",
+    "title": "Will a viral AI-generated track chart on a major platform this quarter?",
+    "tx": "0xb925a9bdeba5b9c7c9f008bffdad51ce11b732e94cd912325942d99176a9d3e7",
+    "openedAt": "2026-10-31T03:27:39.675014+00:00"
+  },
+  "727913059": {
+    "id": "727913059",
+    "title": "Will any streaming service raise prices before December 31, 2026?",
+    "tx": "0x2fbfaa90afb8e136d13cc38d52095fe173f984676241bec8d087148f96364137",
+    "openedAt": "2026-10-31T03:27:40.402607+00:00"
+  },
+  "727914190": {
+    "id": "727914190",
+    "title": "Will OpenSea report a profitable quarter before December 31, 2026?",
+    "tx": "0x498217ab9751d1aa5873a9aef0f779f614a555b838e9b65a67483c163fc5f615",
+    "openedAt": "2026-10-31T03:27:41.091759+00:00"
+  },
+  "727998490": {
+    "id": "727998490",
+    "title": "Will NVIDIA close above $246.00 before December 31, 2026?",
+    "tx": "0x9eb3afa0c319e2a8c5de6ff51dc77dbb7e6a5bc57fa0c56f75c6800d64c9e79d",
+    "openedAt": "2026-10-31T03:27:41.858191+00:00"
+  },
+  "724301327": {
+    "id": "724301327",
+    "title": "Will the EU's AI Act trigger its first enforcement action against a model provider?",
+    "tx": "0x1f1685300411700634fcb4766805bdb94faca4364eecbeccbbe89de10bb351f9",
+    "openedAt": "2026-10-31T03:27:42.590437+00:00"
+  },
+  "724908319": {
+    "id": "724908319",
+    "title": "Will Korea pass a law allowing spot crypto ETFs this year?",
+    "tx": "0x5f5c6a2b642c9c46bcd55f63be83a6bdea931d067ba18d1da96ea79f27ba2299",
+    "openedAt": "2026-10-31T03:27:43.414914+00:00"
+  },
+  "725836946": {
+    "id": "725836946",
+    "title": "Will a G20 country ban algorithmic stablecoins this year?",
+    "tx": "0x2b948e803a1f9f2335427009963661cda72660432e2fbcf7a3603e8c184cbefe",
+    "openedAt": "2026-10-31T03:27:44.301223+00:00"
+  },
+  "726403268": {
+    "id": "726403268",
+    "title": "Will a G7 country adopt the OECD crypto reporting framework (CARF) into law this year?",
+    "tx": "0xca6257191e6fb3cfabede41565051147cb09b81abb720f11a6f79c1065ffde79",
+    "openedAt": "2026-10-31T03:27:45.175575+00:00"
+  },
+  "727706304": {
+    "id": "727706304",
+    "title": "Will an AI startup reach a $1B valuation within 12 months of founding?",
+    "tx": "0xc49ba1c5f05c9f285cd66f79ecd5d491fa3d201bcd8aa8946326f39166c97f40",
+    "openedAt": "2026-10-31T03:27:45.885197+00:00"
+  },
+  "727934377": {
+    "id": "727934377",
+    "title": "Will a G7 country ban an AI model on national-security grounds this year?",
+    "tx": "0x803df5a7ebeb1746de473be8c313ac4e505b5145ae22e94ef35b7180c05e1430",
+    "openedAt": "2026-10-31T03:27:46.588923+00:00"
   }
 }
