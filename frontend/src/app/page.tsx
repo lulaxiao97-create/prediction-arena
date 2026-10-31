@@ -135,7 +135,7 @@ export default function Home() {
 
       <TrendTicker pools={pools} />
 
-      <main className="mx-auto w-full max-w-[1400px] px-4 pb-10 pt-5 sm:px-6">
+      <main className="mx-auto w-full max-w-[1400px] overflow-x-clip px-4 pb-10 pt-5 sm:px-6">
         <RakebackBanner />
         <HeroMasthead />
         <GrowthStrip />
