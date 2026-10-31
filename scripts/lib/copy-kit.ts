@@ -32,8 +32,10 @@ export function price(v: number): string {
   if (!Number.isFinite(v) || v <= 0) return "$—";
   if (v >= 1_000) return `$${v.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
   if (v >= 1) return `$${v.toFixed(2)}`;
-  if (v >= 0.01) return `$${v.toFixed(4)}`;
-  return `$${Number(v.toPrecision(4))}`;
+  if (v >= 0.0001) return `$${v.toFixed(6).replace(/0+$/, "").replace(/\.$/, "")}`;
+  // Sub-cent memecoins: "9.829e-8" in a tweet reads like a broken feed. A fixed decimal is long,
+  // but it is unambiguous, and these titles are under 280 characters either way.
+  return `$${v.toFixed(10).replace(/0+$/, "").replace(/\.$/, "")}`;
 }
 
 export function clipped(s: string, n: number): string {

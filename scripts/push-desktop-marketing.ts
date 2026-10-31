@@ -41,6 +41,10 @@ type Pool = {
   traders?: number;
   liquidityUsdc?: string | number;
   yesShare?: number;
+  category?: string;
+  tier?: "24h" | "mid" | "long";
+  /** Written by scripts/gen-board.ts: real 24h move of the underlying + how split the crowd is. */
+  heat?: { volatilityPct: number; controversy: number; hoursLeft: number; score: number };
   marketData?: { asset?: string; spotUsd?: number; strikeUsd?: number; source?: string };
 };
 
@@ -119,6 +123,26 @@ function yesShare(pool: Pool): number {
   return Number.isFinite(raw) && raw > 0 && raw < 1 ? raw : 0.5;
 }
 
+/**
+ * Heat: why the day's flagship is chosen by move + disagreement instead of by crowd size.
+ *
+ * With 150 markets the old rule ("most traders, tribe preferred") picked the same handful of
+ * cards every day and never surfaced the thing that actually travels on X — a violent underlying
+ * with a split crowd. `heat` is written by the generator (real 24h change of the underlying,
+ * `1 - |yes-0.5|*2` for how split the two sides are, urgency for the 24h rung), so this file only
+ * has to weigh it. `tribe()` stays as a small bonus: a Base-native token travels further in the
+ * comments section that actually gets read.
+ */
+function flagshipScore(pool: Pool): number {
+  const controversy = pool.heat?.controversy ?? 1 - Math.abs(yesShare(pool) - 0.5) * 2;
+  const volatility = pool.heat?.volatilityPct ?? 0;
+  const hoursLeft = pool.endTimeUtc ? (Date.parse(pool.endTimeUtc) - Date.now()) / 3.6e6 : 999;
+  const urgency = hoursLeft <= 48 ? 12 : hoursLeft <= 24 * 8 ? 6 : 0;
+  const crowd = Math.min(1, (pool.traders ?? 0) / 320) * 8;
+  const tribal = tribe(pool) ? 6 : 0;
+  return volatility * 4 + controversy * 30 + urgency + crowd + tribal;
+}
+
 /** Same list as the cloud picker: a token with a community behind it, nothing generic. */
 const TRIBES = ["aero", "degen", "toshi", "brett", "mog", "zora"];
 
@@ -183,17 +207,32 @@ function replyDeck(pools: Pool[]): { angle: string; text: string }[] {
   // readers already hold; the biggest market on the board last week was a Premier League match, and
   // nobody in a DeFi comment section cares how many people took the over.
   const ranked = [...pools].sort(
-    (a, b) => Number(Boolean(tribe(b))) - Number(Boolean(tribe(a))) || (b.traders ?? 0) - (a.traders ?? 0),
+    (a, b) => Number(Boolean(tribe(b))) - Number(Boolean(tribe(a))) || flagshipScore(b) - flagshipScore(a),
   );
-  // One market per tribe first (three AERO replies is a broken deck), then fill from the ranking.
+  // One market per tribe first (three AERO replies is a broken deck), then one per lane, then
+  // fill from the ranking. On a 150-market board the deck should not be three crypto cards when
+  // the board also carries the Fed, NVIDIA and the Champions League.
   const picks: Pool[] = [];
   const usedTribes = new Set<string>();
+  const usedCategories = new Set<string>();
+  for (const pass of [0, 1] as const) {
+    for (const pool of ranked) {
+      if (picks.length >= 3) break;
+      if (picks.includes(pool)) continue;
+      const t = tribe(pool);
+      if (pass === 0 && (!t || usedTribes.has(t))) continue;
+      if (pass === 1) {
+        const c = String(pool.category ?? "");
+        if (c && usedCategories.has(c)) continue;
+        usedCategories.add(c);
+      }
+      if (t) usedTribes.add(t);
+      picks.push(pool);
+    }
+  }
   for (const pool of ranked) {
     if (picks.length >= 3) break;
-    const t = tribe(pool);
-    if (t && usedTribes.has(t)) continue;
-    if (t) usedTribes.add(t);
-    picks.push(pool);
+    if (!picks.includes(pool)) picks.push(pool);
   }
 
   const angles = ["contrarian number", "receipt", "open challenge"];
@@ -379,14 +418,14 @@ function main(): void {
   const archive = todayArchive();
   const flagship = archivedTweet(archive);
   const snapshotPath = flagship && archive ? join(CAMPAIGNS, archive.day, "index.json") : null;
-  // Fallback ranking: a fight first, then the crowd size. Falling back to "most traders" alone
-  // kept picking a Premier League market, which is a fine product and a terrible flagship for a
-  // channel built around tribes.
+  // Fallback ranking: heat first (real move × split crowd × urgency), tribe as the tie-break.
+  // The old rule ("most traders") picked a Premier League market for a channel built around
+  // tribes; on a 150-market board it is also the rule that never surfaces a new lane.
   const flagshipPool =
     (flagship && pools.find((p) => String(p.id) === String(flagship.id))) ??
     [...pools].sort((a, b) => {
-      const tribeDelta = Number(Boolean(tribe(b))) - Number(Boolean(tribe(a)));
-      return tribeDelta !== 0 ? tribeDelta : (b.traders ?? 0) - (a.traders ?? 0);
+      const delta = flagshipScore(b) - flagshipScore(a);
+      return delta !== 0 ? delta : Number(Boolean(tribe(b))) - Number(Boolean(tribe(a)));
     })[0];
 
   const tweet = flagship?.tweet ?? mainTweet(flagshipPool);

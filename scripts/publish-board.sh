@@ -34,6 +34,15 @@ if git diff --quiet -- frontend/public/pools.json frontend/public/prices.json; t
   exit 0
 fi
 
+# Floor check: the board is a 100+ market product now, and a manifest that shrank because a
+# quote source dropped out must never be what gets pushed. refresh-board.sh already exits 1 in
+# that case; this is the second lock, for a hand-edited file.
+BOARD_COUNT="$(python3 -c 'import json;print(len(json.load(open("frontend/public/pools.json"))["pools"]))' 2>/dev/null || echo 0)"
+if (( BOARD_COUNT < ${BOARD_MIN_MARKETS:-100} )); then
+  say "ERROR manifest has ${BOARD_COUNT} markets (floor ${BOARD_MIN_MARKETS:-100}) — refusing to publish"
+  exit 1
+fi
+
 NOW=$(date +%s)
 LAST=$(cat "$STAMP_FILE" 2>/dev/null || echo 0)
 if [[ "${FORCE:-0}" != "1" ]] && (( NOW - LAST < PUBLISH_EVERY )); then
@@ -53,7 +62,12 @@ import json
 d = json.load(open("frontend/public/pools.json"))
 p = json.load(open("frontend/public/prices.json"))
 a = p["assets"]
-print(f"{len(d['pools'])} markets · BTC ${a['BTC']['usd']:,.0f} · ETH ${a['ETH']['usd']:,.2f} · SOL ${a['SOL']['usd']:,.2f}")
+tiers = {}
+for row in d["pools"]:
+    t = row.get("tier") or "mid"
+    tiers[t] = tiers.get(t, 0) + 1
+mix = "/".join(f"{k}:{v}" for k, v in sorted(tiers.items()))
+print(f"{len(d['pools'])} markets [{mix}] · BTC ${a['BTC']['usd']:,.0f} · ETH ${a['ETH']['usd']:,.2f} · SOL ${a['SOL']['usd']:,.2f}")
 PY
 )
 

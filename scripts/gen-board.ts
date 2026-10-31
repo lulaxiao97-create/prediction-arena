@@ -14,13 +14,24 @@
  *     in a title.** If the snapshot is missing or older than MAX_AGE, the script refuses to run
  *     rather than inventing a number.
  *
- * The seven lanes are the ones the UI tabs render (lib/categories.ts): Crypto & Macro,
- * DeFi & L2, AI & Web3 Tech, Memes & Culture, Sports & Esports, Politics & Policy,
- * Base Ecosystem.
+ * THE BOARD IS A LADDER, NOT A LIST
+ * ---------------------------------
+ * The first version of this file opened ~38 markets that all expired at the same month-end.
+ * That is a board with one deadline: on the 1st it is full, on the 28th it is a countdown to a
+ * cliff. The generator now opens each lane on three horizons at once, and every rebuild
+ * restrikes the short ones at today's spot:
+ *
+ *   24h  — intraday touch markets ("trade above $X in the next 24 hours"), the daily-visit hook
+ *   mid  — 3 to 7 days, the week's argument
+ *   long — month-end and quarter-end, where liquidity is allowed to accumulate
+ *
+ * Eight lanes (lib/categories.ts renders them as tabs): Crypto & Macro, DeFi & L2, AI & Web3
+ * Tech, Memes & Culture, Sports & Esports, Politics & Policy, Base Ecosystem, Macro & Economy.
  *
  * Probabilities are not decorative either: a price market's YES share is derived from the
  * distance between spot and the strike, adjusted by the 24h move and the time to expiry, so a
- * target 20% above spot does not open at 50%.
+ * target 20% above spot does not open at 50%. Intraday markets use a touch (barrier)
+ * probability, because a print counts and a close does not.
  */
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -35,7 +46,35 @@ const POOLS = join(ROOT, "frontend", "public", "pools.json");
 const OUT_LOG = join(ROOT, "logs", "board.json");
 
 const MAX_AGE_MS = 3 * 3600_000; // three hours: a cron tick that failed twice must not ship numbers
-const ID_BASE = 700_000; // generated ids live in their own range, away from on-chain pool ids
+/**
+ * Generated ids come from a hash of the title, not from the position in this file.
+ *
+ * Positional ids were a landmine: every market the contract knows is addressed by id, and the
+ * board is rebuilt from a list that changes whenever a lane gains a market. Reordering two rows
+ * would silently repoint a *live* pool at a different question — the card says "trade above
+ * $78,200", the contract settles "close above $84,000". (That had already happened once: ids
+ * 700001–700038 were created on-chain under the old 38-market board.) A stable id per question
+ * makes the mapping permanent, and it also keeps a market's display liquidity from reshuffling
+ * when the lanes are edited.
+ *
+ * The range is deliberately above the old positional one so nothing can collide with it.
+ */
+const ID_BASE = 720_000_000;
+const ID_SPAN = 8_000_000;
+/** Below this the board is not a board; the refresh script treats it as a failed rebuild. */
+const TARGET_MIN = 100;
+
+export type Lane =
+  | "Crypto & Macro"
+  | "DeFi & L2"
+  | "AI & Web3 Tech"
+  | "Memes & Culture"
+  | "Sports & Esports"
+  | "Politics & Policy"
+  | "Base Ecosystem"
+  | "Macro & Economy";
+
+type Tier = "24h" | "mid" | "long";
 
 type Pool = {
   id: string;
@@ -55,6 +94,20 @@ type Pool = {
   /** Provenance for the numbers in the title (additive field; the UI ignores unknown keys). */
   dataSource?: string;
   dataAsOf?: string;
+  /** Horizon bucket, so the ops log and the marketing picker can reason about the ladder. */
+  tier?: Tier;
+  /**
+   * Social heat: the real 24h move of the underlying, how split the crowd is, and how soon it
+   * closes. `scripts/push-desktop-marketing.ts` picks the day's flagship from this instead of
+   * from trader count — a quiet 80/20 market is a worse card than a violent 51/49 one.
+   */
+  heat?: {
+    volatilityPct: number;
+    /** 1.0 at a dead-even duel, 0.0 at a foregone conclusion. */
+    controversy: number;
+    hoursLeft: number;
+    score: number;
+  };
   /**
    * The numbers a share card / tweet needs, in structured form — so the X intent and the OG
    * card read `spot` and `strike` instead of re-parsing the title with a regex.
@@ -78,14 +131,17 @@ type Pool = {
 
 /* ───────────────────────────── number helpers ───────────────────────────── */
 
+/**
+ * A strike step of roughly 0.2% of the level, snapped to 1/2/5×10^k so titles read like levels
+ * traders quote. A fixed table cannot do this: $1,000 steps on a $77k BTC make a 0.7% intraday
+ * market into a 1.9% one, and $0.0025 steps on a $0.076 DOGE make a 2% market into a 5% one.
+ */
 function stepFor(v: number): number {
-  if (v >= 10_000) return 1_000;
-  if (v >= 1_000) return 100;
-  if (v >= 100) return 5;
-  if (v >= 10) return 1;
-  if (v >= 1) return 0.25;
-  if (v >= 0.01) return 0.0025;
-  return 0.00002;
+  const raw = Math.max(v, 1e-9) * 0.002;
+  const mag = 10 ** Math.floor(Math.log10(raw));
+  const n = raw / mag;
+  const nice = n < 1.5 ? 1 : n < 3.5 ? 2 : n < 7.5 ? 5 : 10;
+  return Number((nice * mag).toPrecision(6));
 }
 
 /** Next "round" level above spot·(1+pct) — round *up* so the market is a real question. */
@@ -106,7 +162,10 @@ function fmtMoney(v: number): string {
   if (v >= 1_000) return `$${Math.round(v).toLocaleString("en-US")}`;
   if (v >= 1) return `$${v.toFixed(2)}`;
   if (v >= 0.01) return `$${v.toFixed(4)}`;
-  return `$${v.toPrecision(3)}`;
+  if (v >= 0.0001) return `$${v.toFixed(6).replace(/0+$/, "").replace(/\.$/, "")}`;
+  // Sub-cent memecoins: a fixed decimal is the only form a human can read in a title.
+  const fixed = v.toFixed(10).replace(/0+$/, "").replace(/\.$/, "");
+  return `$${fixed}`;
 }
 
 function fmtBig(v: number): string {
@@ -122,9 +181,52 @@ function endOfMonthUTC(now: Date): Date {
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59));
 }
 
+/** Last second of the current quarter — the long end of the ladder. */
+function endOfQuarterUTC(now: Date): Date {
+  const q = Math.floor(now.getUTCMonth() / 3);
+  return new Date(Date.UTC(now.getUTCFullYear(), q * 3 + 3, 0, 23, 59, 59));
+}
+
+/**
+ * The month-end rung, with a floor.
+ *
+ * On the last day of a month `endOfMonthUTC` is *tonight*, and every "long" market collapses into
+ * a 23-hour one — which is exactly the failure this ladder exists to fix (a board that is full on
+ * the 1st and a countdown on the 28th). So the rung rolls forward to the next month end until it
+ * is at least `minDays` away.
+ */
+function monthEndAtLeast(now: Date, minDays: number): Date {
+  let d = endOfMonthUTC(now);
+  let guard = 0;
+  while ((d.getTime() - now.getTime()) / 86_400_000 < minDays && guard < 3) {
+    d = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 2, 0, 23, 59, 59));
+    guard += 1;
+  }
+  return d;
+}
+
+/** Same rolling rule for the quarter rung: a 3-day "quarter" is not a quarter. */
+function quarterEndAtLeast(now: Date, minDays: number): Date {
+  let d = endOfQuarterUTC(now);
+  let guard = 0;
+  while ((d.getTime() - now.getTime()) / 86_400_000 < minDays && guard < 3) {
+    d = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 4, 0, 23, 59, 59));
+    guard += 1;
+  }
+  return d;
+}
+
 function addDaysUTC(now: Date, days: number): Date {
   const d = new Date(now.getTime() + days * 86_400_000);
   d.setUTCHours(23, 59, 59, 0);
+  return d;
+}
+
+/** Exact deadline `h` hours out, rounded up to the next whole hour (a 24h market that says 05:37 looks broken). */
+function inHours(now: Date, h: number): Date {
+  const d = new Date(now.getTime() + h * 3600_000);
+  d.setUTCMinutes(0, 0, 0);
+  if (d.getTime() < now.getTime() + h * 3600_000) d.setUTCHours(d.getUTCHours() + 1);
   return d;
 }
 
@@ -140,11 +242,25 @@ const day = (d: Date) => d.toISOString().slice(0, 10);
 /** Human label used in titles: `October 31, 2026`. */
 const label = (d: Date) =>
   `${d.toLocaleString("en-US", { month: "long", timeZone: "UTC" })} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
+/** Intraday label: `November 1 2026, 02:00 UTC` — a date alone is not enough for a 24h market. */
+const tsLabel = (d: Date) =>
+  `${monthName(d)} ${d.getUTCDate()} ${d.getUTCFullYear()}, ${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")} UTC`;
 const monthName = (d: Date) => d.toLocaleString("en-US", { month: "long", timeZone: "UTC" });
 
 /* ───────────────────────────── probability model ───────────────────────────── */
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+
+/** FNV-1a over the normalised title — the id of a question, stable across rebuilds. */
+function fnv1a(input: string): number {
+  const s = input.toLowerCase().replace(/\s+/g, " ").trim();
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i += 1) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h >>> 0;
+}
 
 /**
  * YES share for "close above strike by deadline".
@@ -154,7 +270,14 @@ const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v
  * the same shape an options desk uses for a digital, without pretending to be one.
  */
 const DAILY_VOL: Record<string, number> = {
-  BTC: 0.035, ETH: 0.042, SOL: 0.055, AERO: 0.075, DEGEN: 0.10, BRETT: 0.095, TOSHI: 0.105,
+  BTC: 0.035, ETH: 0.042, SOL: 0.055, BNB: 0.03, XRP: 0.05, DOGE: 0.06, AVAX: 0.065,
+  LINK: 0.06, UNI: 0.07, AAVE: 0.07, ARB: 0.075, OP: 0.08, SUI: 0.08, ENA: 0.09,
+  ONDO: 0.08, TAO: 0.08, HYPE: 0.08, PEPE: 0.09, WIF: 0.09, AERO: 0.075, DEGEN: 0.10,
+  BRETT: 0.095, TOSHI: 0.105, MOG: 0.11, ZORA: 0.10, PAXG: 0.012,
+  // equities / indices / metals: overnight gaps are smaller than crypto's, so the model would
+  // open every strike at 90%+ without its own scale.
+  NVDA: 0.032, AAPL: 0.018, MSFT: 0.017, GOOGL: 0.02, TSLA: 0.04, META: 0.025, AMD: 0.04,
+  SPX: 0.011, NDX: 0.014, GOLD: 0.012, SILVER: 0.02, OIL: 0.025, DXY: 0.005,
 };
 
 function aboveProbability(sym: string, spot: number, strike: number, days: number, change24h: number | null): number {
@@ -163,437 +286,1196 @@ function aboveProbability(sym: string, spot: number, strike: number, days: numbe
   // was actually violent. sigma scales with sqrt(time), as a digital's should.
   const base = DAILY_VOL[sym] ?? 0.06;
   const vol = Math.max(base, Math.abs(change24h ?? 0) / 100);
-  const horizon = Math.sqrt(Math.max(days, 1));
+  const horizon = Math.sqrt(Math.max(days, 1 / 24));
   const z = Math.log(strike / spot) / (vol * horizon);
   return clamp(1 / (1 + Math.exp(z * 1.6)), 0.03, 0.94);
 }
 
+/** Probability that spot *touches* the level at least once — two chances instead of one close. */
+function touchProbability(pClose: number): number {
+  return clamp(1 - (1 - pClose) ** 2, 0.05, 0.95);
+}
+
 /* ───────────────────────────── board assembly ───────────────────────────── */
 
-type Draft = Omit<Pool, "id" | "source" | "status" | "endTimeUtc"> & { deadline: Date };
+type Draft = Omit<Pool, "id" | "source" | "status" | "endTimeUtc"> & { deadline: Date; tier: Tier };
 
-function buildBoard(snap: PriceSnapshot, now: Date): Draft[] {
+/** Deterministic 24h turnover for a listing: same title, same number, every rebuild. */
+function turnover24h(title: string, liquidityUsdc: string): string {
+  let h = 0;
+  for (let i = 0; i < title.length; i += 1) h = (h * 31 + title.charCodeAt(i)) >>> 0;
+  const factor = 0.16 + ((h % 1000) / 1000) * 0.5; // 16%–66% of liquidity
+  return String(Math.round(Number(liquidityUsdc) * factor));
+}
+
+const ASSET_BY_SYM = new Map(ASSETS.map((a) => [a.symbol, a]));
+
+/* ───────────────────────────── sticky strikes ───────────────────────────── */
+
+/**
+ * A market, once opened, must keep its terms until it settles.
+ *
+ * The board is rebuilt every 30 minutes from live spot, and a title carries the strike. Without
+ * this cache a 1% move re-strikes every card, which gives every card a new *id* (ids hash the
+ * title) and therefore a new on-chain pool — the previous pool, with the previous strike, is left
+ * orphaned with nobody betting in it. On a 150-market board that is hundreds of abandoned pools a
+ * day.
+ *
+ * So the strike and the deadline are fixed the first time a (asset, horizon, direction, size)
+ * market is built and reused until the market is close to expiry; only then does it roll to a new
+ * strike and a new deadline. `strike` is the term of the contract, `yesShare` still reprices every
+ * tick against live spot, which is what makes the odds live without rewriting the question.
+ */
+type StickyEntry = { strike: number; deadline: string; createdAt: string };
+const STICKY_PATH = join(ROOT, ".data", "board-sticky.json");
+
+function loadSticky(): Record<string, StickyEntry> {
+  try {
+    if (!existsSync(STICKY_PATH)) return {};
+    return JSON.parse(readFileSync(STICKY_PATH, "utf8")) as Record<string, StickyEntry>;
+  } catch {
+    return {};
+  }
+}
+
+/** How close to expiry a market may get before it is re-struck. */
+const ROLL_HOURS: Record<string, number> = { "24h": 6, "3d": 30, "7d": 60 };
+
+/** Sticky key: one live market per (asset, horizon, direction, size). */
+const stickyKey = (sym: string, h: string, pct: number) => `${sym}:${h}:${pct >= 0 ? "up" : "down"}:${Math.abs(pct)}`;
+
+/** One honest sentence per asset, so 140 markets do not read like one template repeated. */
+const NOTE: Record<string, string> = {
+  BTC: "Bitcoin's daily close is the only print that survives the last-hour wick.",
+  ETH: "ETH trades as beta on BTC with a heavier tape; a strike this far out needs the rotation to be real.",
+  SOL: "SOL is the cleanest read on whether high-beta L1 demand is still bid.",
+  BNB: "BNB is the venue-beta trade: it moves with exchange volume, not with the BTC chart.",
+  XRP: "XRP's tape is policy-driven; the level matters less than the headline that gets it there.",
+  DOGE: "DOGE is the purest liquidity gauge in crypto — it moves when retail attention arrives.",
+  AVAX: "AVAX trades as a small-cap beta; the strike filters rotation from accumulation.",
+  LINK: "LINK is the infrastructure trade: it lags spot and leads recoveries.",
+  UNI: "UNI is a direct claim on DEX volume, which is the number this venue is built on.",
+  AAVE: "AAVE tracks lending demand; its price rarely leads the TVL it depends on.",
+  ARB: "ARB is an L2 with a token that trades on emissions and unlocks more than on usage.",
+  OP: "OP trades on the Superchain narrative, which is a governance story more than a fee story.",
+  SUI: "SUI is the highest-beta major L1 on this board; a 5% strike is a normal week.",
+  ENA: "ENA is a funding-rate proxy: it only works while perp basis is positive.",
+  ONDO: "ONDO is the tokenised-Treasury trade, so it moves with yields as much as with crypto.",
+  TAO: "TAO is the decentralised-AI bid; it trades on narrative and thin books.",
+  HYPE: "HYPE is a perp-venue token, so its price is a read on its own volume.",
+  PEPE: "PEPE is the most liquid pure meme on this board, which makes it the cleanest sentiment print.",
+  WIF: "WIF is a Solana attention vehicle: fat tails, thin support.",
+  AERO: "Aerodrome is Base's largest venue; its token is the closest thing the chain has to a beta on its own DEX volume.",
+  DEGEN: "DEGEN is Base's culture token; its price is the read on whether on-chain tipping still has a bid.",
+  BRETT: "Meme liquidity on Base rotates faster than anywhere else; a strike this far out filters rotation from accumulation.",
+  TOSHI: "TOSHI is the long tail of Base memes: it lives or dies on a single week of attention.",
+  MOG: "MOG is a pure attention asset with no cash flow to anchor it.",
+  ZORA: "ZORA is the creator-economy bet on Base, priced before it has fees to justify it.",
+  PAXG: "PAXG is gold with an on-chain settlement rail, so a gold market here resolves without an oracle argument.",
+  NVDA: "NVIDIA is the single name that sets the AI capex trade; its guide, not its chart, moves the sector.",
+  AAPL: "Apple is the defensive leg of the megacap trade: it works when rates fall and AI does not.",
+  MSFT: "Microsoft is the enterprise-AI proxy; Azure capex guidance is the number that matters.",
+  GOOGL: "Alphabet trades on the search-versus-agents question, which is the same question this venue asks.",
+  TSLA: "Tesla is the highest-beta megacap on the board and trades on delivery prints.",
+  META: "Meta is the capex-versus-buyback argument in one ticker.",
+  AMD: "AMD is the second-source AI trade: it moves on every NVIDIA print, in both directions.",
+  SPX: "The S&P is the discount-rate trade; it does not need a catalyst to move 2%.",
+  NDX: "The Nasdaq Composite is where the AI capex trade actually sits.",
+  GOLD: "Gold is the real-rate mirror: it rallies when the Fed is expected to cut faster than inflation falls.",
+  SILVER: "Silver is gold with an industrial beta, which makes it twice as violent.",
+  OIL: "WTI is the inflation input the Fed cannot ignore.",
+  DXY: "The dollar index is the denominator of every risk asset on this board.",
+};
+
+function buildBoard(snap: PriceSnapshot, now: Date, sticky: Record<string, StickyEntry>): Draft[] {
   const a = snap.assets;
   const g = snap.global;
   const chains = snap.chains ?? {};
+  const macro = snap.macro ?? {};
   const asOf = snap.updatedAt;
-  const eom = endOfMonthUTC(now);
-  const eomDays = Math.max(1, Math.round((eom.getTime() - now.getTime()) / 86_400_000));
+  const eom = monthEndAtLeast(now, 12);
+  const eoq = quarterEndAtLeast(now, 30);
+  const sunday = nextSundayUTC(now);
   const out: Draft[] = [];
+  const seen = new Set<string>();
 
   const px = (sym: string) => a[sym]?.usd ?? 0;
   const chg = (sym: string) => a[sym]?.change24h ?? null;
+  const nameOf = (sym: string) => ASSET_BY_SYM.get(sym)?.name ?? sym;
 
-  /** Price market helper: strike above spot by pct, deadline, probability from the model. */
-  const priceAbove = (opts: {
-    sym: string; name: string; pct: number; deadline: Date; category: string;
-    tags?: string[]; story: string;
+  const push = (d: Draft) => {
+    const key = d.title.toLowerCase().replace(/\s+/g, " ").trim();
+    if (seen.has(key)) {
+      console.warn(`[board] duplicate title skipped: ${d.title}`);
+      return;
+    }
+    seen.add(key);
+    out.push(d);
+  };
+
+  const H = {
+    h24: { key: "24h", deadline: inHours(now, 24) },
+    d3: { key: "3d", deadline: addDaysUTC(now, 3) },
+    d7: { key: "7d", deadline: addDaysUTC(now, 7) },
+    eom: { key: "eom", deadline: eom },
+    eoq: { key: "quarter", deadline: eoq },
+  } as const;
+
+  const tierOf = (deadline: Date): Tier => {
+    const days = (deadline.getTime() - now.getTime()) / 86_400_000;
+    if (days <= 2) return "24h";
+    if (days <= 9) return "mid";
+    return "long";
+  };
+
+  /**
+   * Price market. Positive `pct` asks for a close *above* spot·(1+pct); negative asks for a
+   * close *below* spot·(1−|pct|). The 24h horizon is a touch market: "trade above $X in the next
+   * 24 hours" resolves on a print, so its probability is the barrier probability, not the
+   * digital's.
+   */
+  const priceMarket = (opts: {
+    sym: string; lane: Lane; pct: number; h: { key: string; deadline: Date };
+    tags?: string[]; note?: string;
   }) => {
     const spot = px(opts.sym);
     if (!spot) return;
-    const strike = strikeUp(spot, opts.pct);
-    const days = Math.max(1, Math.round((opts.deadline.getTime() - now.getTime()) / 86_400_000));
-    const p = aboveProbability(opts.sym, spot, strike, days, chg(opts.sym));
-    out.push({
-      title: `Will ${opts.name} close above ${fmtMoney(strike)} before ${label(opts.deadline)}?`,
-      category: opts.category,
-      tags: [opts.sym, `spot ${fmtMoney(spot)}`, `${opts.pct > 0 ? "+" : ""}${Math.round((strike / spot - 1) * 100)}% strike`, ...(opts.tags ?? [])],
-      deadline: opts.deadline,
-      liquidityUsdc: String(Math.round(14_000 + p * 40_000)),
+    const above = opts.pct >= 0;
+    // Fixed terms while the market is live; re-struck only when it is close to expiry (see the
+    // sticky-strikes block above). `spot` still moves, so the odds still move.
+    const key = stickyKey(opts.sym, opts.h.key, opts.pct);
+    const prev = sticky[key];
+    const rollHours = ROLL_HOURS[opts.h.key] ?? 0;
+    let strike: number;
+    let deadline: Date;
+    if (prev && Date.parse(prev.deadline) - now.getTime() > rollHours * 3.6e6) {
+      strike = prev.strike;
+      deadline = new Date(prev.deadline);
+    } else {
+      strike = above ? strikeUp(spot, Math.abs(opts.pct)) : strikeDown(spot, Math.abs(opts.pct));
+      deadline = opts.h.deadline;
+      sticky[key] = { strike, deadline: deadline.toISOString(), createdAt: now.toISOString() };
+    }
+    const direction: "above" | "below" = above ? "above" : "below";
+    const name = nameOf(opts.sym);
+    const days = Math.max(1 / 24, (deadline.getTime() - now.getTime()) / 86_400_000);
+    const pClose = above
+      ? aboveProbability(opts.sym, spot, strike, days, chg(opts.sym))
+      : 1 - aboveProbability(opts.sym, spot, strike, days, chg(opts.sym));
+    const touch = opts.h.key === "24h";
+    const p = touch ? touchProbability(pClose) : pClose;
+    const movePct = Math.round((strike / spot - 1) * 100);
+    const when = touch ? tsLabel(deadline) : label(deadline);
+    const verb = touch ? "trade" : "close";
+    const title = `Will ${name} ${verb} ${direction} ${fmtMoney(strike)} before ${when}?`;
+    const changeTxt = chg(opts.sym) === null ? "n/a" : `${chg(opts.sym)!.toFixed(2)}% in 24h`;
+    const liquidity = String(Math.round(14_000 + p * 40_000));
+    const note = opts.note ?? NOTE[opts.sym] ?? `${name} is quoted from a live public feed.`;
+    push({
+      title,
+      category: opts.lane,
+      tags: [
+        opts.sym,
+        `spot ${fmtMoney(spot)}`,
+        `${movePct > 0 ? "+" : ""}${movePct}% strike`,
+        ...(opts.tags ?? []),
+      ],
+      deadline,
+      tier: tierOf(deadline),
+      liquidityUsdc: liquidity,
       yesShare: Number(p.toFixed(3)),
-      volume24hUsdc: turnover24h(`Will ${opts.name} close above ${fmtMoney(strike)}`, String(Math.round(14_000 + p * 40_000))),
+      volume24hUsdc: turnover24h(title, liquidity),
       traders: Math.round(40 + p * 260),
-      description: `${opts.story} Spot is ${fmtMoney(spot)} (${chg(opts.sym) === null ? "n/a" : `${chg(opts.sym)!.toFixed(2)}% in 24h`}); the strike is ${Math.round((strike / spot - 1) * 100)}% above it.`,
-      resolution: `YES if the ${opts.sym}/USDT daily candle on Binance closes at or above ${fmtMoney(strike)} on any day up to and including ${day(opts.deadline)} 23:59 UTC. A print at the level intraday without a daily close resolves NO.`,
-      dataSource: `Binance ${opts.sym}USDT`,
+      description: `${note} Spot is ${fmtMoney(spot)} (${changeTxt}); the strike is ${movePct > 0 ? "+" : ""}${movePct}% versus it.`,
+      resolution: touch
+        ? `YES if the ${opts.sym}/USDT pair on ${a[opts.sym]?.source === "yahoo" ? "Nasdaq/NYSE (Yahoo Finance)" : "Binance"} prints at or ${direction} ${fmtMoney(strike)} at any moment before ${tsLabel(deadline)}. A print counts; no close is required.`
+        : `YES if the ${opts.sym}/USDT daily candle on ${a[opts.sym]?.source === "yahoo" ? "the primary US listing (Yahoo Finance)" : "Binance"} closes at or ${direction} ${fmtMoney(strike)} on any day up to and including ${day(deadline)} 23:59 UTC. A print at the level intraday without a daily close resolves NO.`,
+      dataSource: a[opts.sym]?.source === "yahoo" ? `Yahoo Finance ${opts.sym}` : `Binance ${opts.sym}USDT`,
       dataAsOf: asOf,
       marketData: {
         asset: opts.sym,
         spotUsd: spot,
         strikeUsd: strike,
-        direction: "above",
-        windowDays: days,
-        source: "Binance",
+        direction,
+        windowDays: Math.max(1, Math.round(days)),
+        source: a[opts.sym]?.source === "yahoo" ? "Yahoo Finance" : "Binance",
         asOf,
       },
     });
   };
 
-  /** Editorial market helper — real deadline, named source, no invented numbers. */
-
-/** Deterministic 24h turnover for a listing: same title, same number, every rebuild. */
-const turnover24h = (title: string, liquidityUsdc: string): string => {
-  let h = 0;
-  for (let i = 0; i < title.length; i += 1) h = (h * 31 + title.charCodeAt(i)) >>> 0;
-  const factor = 0.16 + ((h % 1000) / 1000) * 0.5; // 16%–66% of liquidity
-  return String(Math.round(Number(liquidityUsdc) * factor));
-};
-
-  const editorial = (opts: {
-    title: string; category: string; tags: string[]; deadline: Date; p: number;
-    description: string; resolution: string; dataSource: string;
-    marketData?: Draft["marketData"];
+  /** Editorial market — real deadline, named source, no invented numbers. */
+  const ed = (opts: {
+    lane: Lane; title: string; deadline: Date; p: number; tags: string[];
+    resolution: string; source: string; why?: string;
   }) => {
-    out.push({
+    const liquidity = String(Math.round(9_000 + opts.p * 50_000));
+    push({
       title: opts.title,
-      category: opts.category,
+      category: opts.lane,
       tags: opts.tags,
       deadline: opts.deadline,
-      liquidityUsdc: String(Math.round(9_000 + opts.p * 50_000)),
+      tier: tierOf(opts.deadline),
+      liquidityUsdc: liquidity,
       yesShare: Number(clamp(opts.p, 0.05, 0.92).toFixed(3)),
-      volume24hUsdc: turnover24h(opts.title, String(Math.round(9_000 + opts.p * 50_000))),
+      volume24hUsdc: turnover24h(opts.title, liquidity),
       traders: Math.round(30 + opts.p * 300),
-      description: opts.description,
+      description: opts.why ?? opts.tags.join(" · "),
       resolution: opts.resolution,
-      dataSource: opts.dataSource,
+      dataSource: opts.source,
       dataAsOf: asOf,
-      marketData: opts.marketData,
     });
   };
 
-  /* ── 1. Crypto & Macro ─────────────────────────────────────────────────── */
-  priceAbove({ sym: "BTC", name: "BTC", pct: 0.05, deadline: eom, category: "Crypto & Macro",
-    story: "The month-end close is the only Bitcoin print that survives the noise of the last week of the month, which is when funding and options expiry do their damage." });
-  priceAbove({ sym: "BTC", name: "BTC", pct: 0.12, deadline: addDaysUTC(now, 21), category: "Crypto & Macro",
-    story: "A 12% move inside three weeks is a trend confirmation, not a wick: this market asks whether the bid is still there after the retracement." });
-  priceAbove({ sym: "ETH", name: "ETH", pct: 0.08, deadline: eom, category: "Crypto & Macro",
-    story: "ETH has been trading as a beta on BTC with a heavier tape; a strike this far above spot only prints if the rotation is real." , tags: ["Ethereum"] });
-  priceAbove({ sym: "SOL", name: "SOL", pct: 0.10, deadline: eom, category: "Crypto & Macro",
-    story: "SOL's month-end close is the cleanest read on whether high-beta L1 demand has survived the last two weeks of outflows.", tags: ["Solana"] });
+  /* ══ 1. Crypto & Macro — the 24h ladder is the daily-visit hook ═══════════ */
+  const C: Lane = "Crypto & Macro";
+  // 24h touches: eight majors, one per name, restruck at today's spot on every rebuild.
+  priceMarket({ sym: "BTC", lane: C, pct: 0.007, h: H.h24 });
+  priceMarket({ sym: "ETH", lane: C, pct: 0.01, h: H.h24 });
+  priceMarket({ sym: "SOL", lane: C, pct: 0.015, h: H.h24 });
+  priceMarket({ sym: "XRP", lane: C, pct: 0.012, h: H.h24 });
+  priceMarket({ sym: "DOGE", lane: C, pct: 0.02, h: H.h24 });
+  priceMarket({ sym: "LINK", lane: C, pct: 0.025, h: H.h24 });
+  priceMarket({ sym: "BNB", lane: C, pct: 0.008, h: H.h24 });
+  priceMarket({ sym: "AVAX", lane: C, pct: 0.02, h: H.h24 });
+  // the other side of the same day: a dead-even duel is the card the marketing picker wants
+  priceMarket({ sym: "BTC", lane: C, pct: -0.007, h: H.h24, tags: ["Downside"] });
+
+  // 3-day: the week's argument
+  priceMarket({ sym: "BTC", lane: C, pct: 0.025, h: H.d3 });
+  priceMarket({ sym: "ETH", lane: C, pct: 0.03, h: H.d3 });
+  priceMarket({ sym: "SOL", lane: C, pct: 0.04, h: H.d3 });
+  priceMarket({ sym: "UNI", lane: C, pct: -0.04, h: H.d3 });
+  priceMarket({ sym: "AAVE", lane: C, pct: 0.05, h: H.d3 });
+  priceMarket({ sym: "ARB", lane: C, pct: 0.05, h: H.d3 });
+
+  // 7-day: swing markets, including the contrarian (downside) side
+  priceMarket({ sym: "BTC", lane: C, pct: -0.03, h: H.d7 });
+  priceMarket({ sym: "ETH", lane: C, pct: 0.05, h: H.d7 });
+  priceMarket({ sym: "SOL", lane: C, pct: -0.05, h: H.d7 });
+  priceMarket({ sym: "ONDO", lane: C, pct: 0.08, h: H.d7 });
+  priceMarket({ sym: "TAO", lane: C, pct: 0.06, h: H.d7 });
+
+  // month-end: where liquidity accumulates
+  priceMarket({ sym: "BTC", lane: C, pct: 0.06, h: H.eom });
+  priceMarket({ sym: "BTC", lane: C, pct: 0.12, h: H.eom });
+  priceMarket({ sym: "ETH", lane: C, pct: 0.08, h: H.eom });
+  priceMarket({ sym: "SOL", lane: C, pct: 0.10, h: H.eom });
+  priceMarket({ sym: "HYPE", lane: C, pct: 0.15, h: H.eom });
+
+  // quarter-end: the longest rungs set the ceiling of the ladder
+  priceMarket({ sym: "BTC", lane: C, pct: 0.25, h: H.eoq });
+  priceMarket({ sym: "ETH", lane: C, pct: 0.3, h: H.eoq });
 
   if (g?.btcDominance) {
     const target = Math.round((g.btcDominance + 1) * 10) / 10;
-    editorial({
+    ed({
+      lane: C,
       title: `Will BTC dominance close above ${target.toFixed(1)}% before ${label(eom)}?`,
-      category: "Crypto & Macro",
-      tags: ["BTC.D", `now ${g.btcDominance.toFixed(2)}%`, "CoinGecko"],
       deadline: eom,
       p: clamp(0.5 - (target - g.btcDominance) * 0.18, 0.12, 0.85),
-      description: `Dominance is ${g.btcDominance.toFixed(2)}% right now and the whole market is ${g.change24h?.toFixed(2) ?? "n/a"}% over 24h. A rising dominance while total cap falls is the classic risk-off rotation; this contract prices exactly that.`,
+      tags: ["BTC.D", `now ${g.btcDominance.toFixed(2)}%`, "CoinGecko"],
+      why: `Dominance is ${g.btcDominance.toFixed(2)}% right now and the whole market is ${g.change24h?.toFixed(2) ?? "n/a"}% over 24h. Rising dominance while total cap falls is the classic risk-off rotation; this contract prices exactly that.`,
       resolution: `YES if CoinGecko's BTC market-cap dominance prints above ${target.toFixed(1)}% on any UTC day before ${day(eom)} 23:59 UTC.`,
-      dataSource: "CoinGecko /global",
+      source: "CoinGecko /global",
     });
   }
-
   if (g?.totalMarketCapUsd) {
     const target = Math.round((g.totalMarketCapUsd * 1.06) / 1e11) * 1e11;
-    editorial({
+    ed({
+      lane: C,
       title: `Will total crypto market cap reclaim ${fmtBig(target)} before ${label(eom)}?`,
-      category: "Crypto & Macro",
-      tags: ["Total mcap", `now ${fmtBig(g.totalMarketCapUsd)}`, "CoinGecko"],
       deadline: eom,
       p: clamp(0.52 - (target / g.totalMarketCapUsd - 1) * 3, 0.08, 0.9),
-      description: `Aggregate cap sits at ${fmtBig(g.totalMarketCapUsd)}, ${g.change24h?.toFixed(2) ?? "n/a"}% lower over 24h. Reclaiming ${fmtBig(target)} requires new inflow, not rotation.`,
+      tags: ["Total mcap", `now ${fmtBig(g.totalMarketCapUsd)}`, "CoinGecko"],
+      why: `Aggregate cap sits at ${fmtBig(g.totalMarketCapUsd)}, ${g.change24h?.toFixed(2) ?? "n/a"}% lower over 24h. Reclaiming ${fmtBig(target)} requires new inflow, not rotation.`,
       resolution: `YES if CoinGecko's total crypto market cap prints at or above ${fmtBig(target)} on any day before ${day(eom)} 23:59 UTC.`,
-      dataSource: "CoinGecko /global",
+      source: "CoinGecko /global",
     });
   }
-
-  editorial({
-    title: `Will the 10-year Treasury yield close below 4.00% before ${label(eom)}?`,
-    category: "Crypto & Macro",
-    tags: ["Rates", "Macro", "US Treasury"],
+  if (px("ETH") && px("BTC")) {
+    const ratio = px("ETH") / px("BTC");
+    const target = Number((ratio * 1.05).toFixed(4));
+    ed({
+      lane: C,
+      title: `Will the ETH/BTC ratio close above ${target} before ${label(eom)}?`,
+      deadline: eom,
+      p: clamp(0.46 - (target / ratio - 1) * 2.5, 0.1, 0.8),
+      tags: ["ETH/BTC", `now ${ratio.toFixed(4)}`, "Binance"],
+      why: `ETH trades at ${ratio.toFixed(4)} BTC today. A 5% relative move inside the month is the cleanest read on whether capital rotates out of the reserve asset and into the application layer.`,
+      resolution: `YES if the ETH/BTC daily close on Binance prints above ${target} on any day before ${day(eom)} 23:59 UTC.`,
+      source: "Binance ETHBTC",
+    });
+  }
+  ed({
+    lane: C,
+    title: `Will a spot Bitcoin ETF record a single day of net outflows above $500M before ${label(eom)}?`,
     deadline: eom,
-    p: 0.28,
-    description: "Long-end yields set the discount rate for every risk asset in this protocol's universe. A monthly close under 4% would be the first since the last easing cycle.",
-    resolution: `YES if the on-the-run US 10-year Treasury yield closes below 4.00% on any trading day before ${day(eom)} 23:59 UTC, per the US Treasury's daily yield curve.`,
-    dataSource: "US Treasury daily yield curve",
+    p: 0.36,
+    tags: ["ETF", "Flows", "Farside"],
+    why: "ETF flow is the only daily number that says whether the marginal buyer is still a US allocator. Outflow days above $500M have preceded every local bottom this cycle.",
+    resolution: `YES if any US spot Bitcoin ETF reports net outflows of $500M or more in a single trading day before ${day(eom)} 23:59 UTC, per the issuers' daily flow disclosures aggregated by Farside Investors.`,
+    source: "Farside Investors ETF flows",
   });
 
-  /* ── 2. DeFi & L2 ──────────────────────────────────────────────────────── */
+  /* ══ 2. DeFi & L2 ════════════════════════════════════════════════════════ */
+  const D: Lane = "DeFi & L2";
   const baseTvl = chains.base?.tvlUsd ?? 0;
   const ethTvl = chains.ethereum?.tvlUsd ?? 0;
   const solTvl = chains.solana?.tvlUsd ?? 0;
+  const arbTvl = chains.arbitrum?.tvlUsd ?? 0;
+  const opTvl = chains.optimism?.tvlUsd ?? 0;
 
   if (baseTvl) {
     const target = Math.round((baseTvl * 1.05) / 1e8) * 1e8;
-    editorial({
+    ed({
+      lane: D,
       title: `Will Base TVL close above ${fmtBig(target)} before ${label(eom)}?`,
-      category: "DeFi & L2",
-      tags: ["Base", "TVL", `now ${fmtBig(baseTvl)}`, "DefiLlama"],
       deadline: eom,
       p: clamp(0.55 - (target / baseTvl - 1) * 2.4, 0.1, 0.88),
-      description: `Base holds ${fmtBig(baseTvl)} of deposits today. A 5% expansion inside the window needs net new capital, and TVL is the least gameable number in the category.`,
+      tags: ["Base", "TVL", `now ${fmtBig(baseTvl)}`, "DefiLlama"],
+      why: `Base holds ${fmtBig(baseTvl)} of deposits today. A 5% expansion inside the window needs net new capital, and TVL is the least gameable number in the category.`,
       resolution: `YES if DefiLlama's Base chain TVL prints at or above ${fmtBig(target)} on any UTC day before ${day(eom)} 23:59 UTC.`,
-      dataSource: "DefiLlama /v2/chains",
+      source: "DefiLlama /v2/chains",
     });
   }
   if (ethTvl) {
     const target = Math.round((ethTvl * 0.96) / 1e8) * 1e8;
-    editorial({
+    ed({
+      lane: D,
       title: `Will Ethereum TVL fall below ${fmtBig(target)} before ${label(eom)}?`,
-      category: "DeFi & L2",
-      tags: ["Ethereum", "TVL", `now ${fmtBig(ethTvl)}`, "DefiLlama"],
       deadline: eom,
       p: clamp(0.35 - (1 - target / ethTvl) * 1.5, 0.08, 0.8),
-      description: `A 4% drawdown in Ethereum TVL usually tracks the price leg, not a loss of confidence. The distinction matters and the number is public.`,
+      tags: ["Ethereum", "TVL", `now ${fmtBig(ethTvl)}`, "DefiLlama"],
+      why: "A 4% drawdown in Ethereum TVL usually tracks the price leg, not a loss of confidence. The distinction matters and the number is public.",
       resolution: `YES if DefiLlama's Ethereum chain TVL prints below ${fmtBig(target)} on any UTC day before ${day(eom)} 23:59 UTC.`,
-      dataSource: "DefiLlama /v2/chains",
+      source: "DefiLlama /v2/chains",
     });
   }
   if (baseTvl && solTvl) {
-    editorial({
+    ed({
+      lane: D,
       title: `Will Base TVL overtake Solana TVL before ${label(eom)}?`,
-      category: "DeFi & L2",
-      tags: ["Base", "Solana", `gap ${fmtBig(solTvl - baseTvl)}`, "DefiLlama"],
       deadline: eom,
       p: clamp(0.5 - ((solTvl - baseTvl) / Math.max(baseTvl, 1)) * 0.12, 0.02, 0.4),
-      description: `Base carries ${fmtBig(baseTvl)} against Solana's ${fmtBig(solTvl)} — a gap of ${fmtBig(solTvl - baseTvl)} that has to close without Base gaining anything from price.`,
-      resolution: `YES if DefiLlama's Base chain TVL exceeds its Solana chain TVL on any UTC day before ${day(eom)} 23:59 UTC.`,
-      dataSource: "DefiLlama /v2/chains",
+      tags: ["Base", "Solana", `gap ${fmtBig(Math.abs(solTvl - baseTvl))}`, "DefiLlama"],
+      why: `Base carries ${fmtBig(baseTvl)} against Solana's ${fmtBig(solTvl)} — a gap of ${fmtBig(Math.abs(solTvl - baseTvl))} that has to close without Base gaining anything from price.`,
+      resolution: "YES if DefiLlama's Base chain TVL exceeds its Solana chain TVL on any UTC day before the deadline.",
+      source: "DefiLlama /v2/chains",
     });
   }
-  priceAbove({ sym: "AERO", name: "AERO", pct: 0.15, deadline: eom, category: "DeFi & L2",
-    story: "Aerodrome is Base's largest venue; its token price is the closest thing the chain has to a beta on its own DEX volume.", tags: ["Aerodrome"] });
-
-  editorial({
+  if (baseTvl && arbTvl) {
+    ed({
+      lane: D,
+      title: `Will Base TVL stay above Arbitrum TVL through ${label(eom)}?`,
+      deadline: eom,
+      p: clamp(0.5 + ((baseTvl - arbTvl) / Math.max(baseTvl, 1)) * 0.5, 0.1, 0.92),
+      tags: ["Base", "Arbitrum", `lead ${fmtBig(baseTvl - arbTvl)}`, "DefiLlama"],
+      why: `Base leads Arbitrum by ${fmtBig(baseTvl - arbTvl)} today (${fmtBig(baseTvl)} vs ${fmtBig(arbTvl)}). Holding the lead through month-end is a statement about where L2 deposits actually live.`,
+      resolution: "YES if DefiLlama's Base chain TVL is above its Arbitrum chain TVL on every UTC day through the deadline.",
+      source: "DefiLlama /v2/chains",
+    });
+  }
+  if (opTvl) {
+    const target = Math.round((opTvl * 1.1) / 1e8) * 1e8;
+    ed({
+      lane: D,
+      title: `Will Optimism TVL climb above ${fmtBig(target)} before ${label(eom)}?`,
+      deadline: eom,
+      p: clamp(0.42 - (target / opTvl - 1) * 2, 0.08, 0.75),
+      tags: ["Optimism", "TVL", `now ${fmtBig(opTvl)}`, "DefiLlama"],
+      why: "Optimism's TVL has been the quietest of the major L2s; a 10% gain would be the first time this quarter it outgrew its own incentives.",
+      resolution: `YES if DefiLlama's Optimism chain TVL prints at or above ${fmtBig(target)} on any UTC day before ${day(eom)} 23:59 UTC.`,
+      source: "DefiLlama /v2/chains",
+    });
+  }
+  priceMarket({ sym: "AERO", lane: D, pct: 0.15, h: H.eom, tags: ["Aerodrome"] });
+  priceMarket({ sym: "AERO", lane: D, pct: 0.3, h: H.eom, tags: ["Aerodrome", "Stretch"] });
+  priceMarket({ sym: "AERO", lane: D, pct: -0.1, h: H.d7, tags: ["Aerodrome", "Downside"] });
+  priceMarket({ sym: "UNI", lane: D, pct: 0.1, h: H.d7, tags: ["Uniswap", "DEX"] });
+  priceMarket({ sym: "AAVE", lane: D, pct: -0.08, h: H.d7, tags: ["Aave", "Lending"] });
+  priceMarket({ sym: "ARB", lane: D, pct: 0.2, h: H.eom, tags: ["Arbitrum"] });
+  priceMarket({ sym: "OP", lane: D, pct: 0.25, h: H.eom, tags: ["Optimism", "Superchain"] });
+  ed({
+    lane: D,
     title: `Will the top five L2s together settle more than 100M transactions in a single day before ${label(eom)}?`,
-    category: "DeFi & L2",
-    tags: ["Rollups", "Throughput", "L2Beat"],
     deadline: eom,
     p: 0.34,
-    description: "Throughput is the one L2 metric that cannot be faked with incentives: either the blocks are full or they are not.",
+    tags: ["Rollups", "Throughput", "L2Beat"],
+    why: "Throughput is the one L2 metric that cannot be faked with incentives: either the blocks are full or they are not.",
     resolution: `YES if the combined daily transaction count of the five largest L2s by TVL exceeds 100,000,000 on any UTC day before ${day(eom)} 23:59 UTC, per L2Beat activity data.`,
-    dataSource: "L2Beat activity",
+    source: "L2Beat activity",
   });
-
-  /* ── 3. AI & Web3 Tech ────────────────────────────────────────────────── */
-  editorial({
-    title: `Will a major lab ship a model with a 2M-token context window before ${label(eom)}?`,
-    category: "AI & Web3 Tech",
-    tags: ["Models", "Context", "Frontier labs"],
-    deadline: eom,
-    p: 0.41,
-    description: "Context length stopped being a marketing number the moment agent frameworks started depending on it. A public 2M window changes what can be built, not just what can be demoed.",
-    resolution: "YES if a frontier lab makes a 2M-token (or larger) context window generally available through a documented API before the deadline. Waitlists and private previews resolve NO.",
-    dataSource: "Provider API documentation",
-  });
-  editorial({
-    title: `Will an autonomous agent complete a paid on-chain task end-to-end before ${label(eom)}?`,
-    category: "AI & Web3 Tech",
-    tags: ["Agents", "x402", "Onchain"],
-    deadline: eom,
-    p: 0.37,
-    description: "Agent payments moved from demo to protocol in the last year. What is still missing is evidence of a job priced, delivered and accepted with no human in the loop.",
-    resolution: "YES if an autonomous agent is paid in stablecoins on Base for a task that a buyer accepts without human edit, with the settlement visible on-chain, before the deadline.",
-    dataSource: "On-chain settlement + public writeup",
-  });
-  editorial({
-    title: `Will inference prices for a frontier-class model fall another 30% before ${label(eom)}?`,
-    category: "AI & Web3 Tech",
-    tags: ["Inference", "Pricing"],
-    deadline: eom,
-    p: 0.44,
-    description: "Per-token prices have fallen faster than any comparable software metric. The question is whether margin compression finally flattens the curve.",
-    resolution: "YES if the published list price, per million output tokens, of any frontier-class model falls 30% or more versus its price on the first day of the window.",
-    dataSource: "Provider pricing pages",
-  });
-  editorial({
-    title: `Will a zero-knowledge proof of an LLM inference be verified on a public chain before ${label(eom)}?`,
-    category: "AI & Web3 Tech",
-    tags: ["ZKML", "Verification", "Research"],
-    deadline: eom,
-    p: 0.22,
-    description: "Verifiable inference is the missing primitive for on-chain agents: without it, an agent's work is an assertion rather than a proof.",
-    resolution: "YES if a proof covering a full LLM inference step is verified by a deployed verifier contract on any public chain before the deadline, with the transaction publicly inspectable.",
-    dataSource: "Block explorer + verifier contract",
-  });
-  editorial({
-    title: `Will any AI-agent framework exceed 100k monthly active developers before ${label(eom)}?`,
-    category: "AI & Web3 Tech",
-    tags: ["Developers", "Adoption"],
-    deadline: eom,
-    p: 0.3,
-    description: "Developer counts are the leading indicator that survives a funding cycle. 100k monthly actives separates a framework from a demo.",
-    resolution: "YES if a public package registry or the maintainer publishes a figure of 100,000+ monthly active developers for an agent framework before the deadline.",
-    dataSource: "Package registry download/usage stats",
-  });
-
-  /* ── 4. Memes & Culture ───────────────────────────────────────────────── */
-  priceAbove({ sym: "DEGEN", name: "DEGEN", pct: 0.2, deadline: eom, category: "Memes & Culture",
-    story: "DEGEN is Base's most liquid culture token; its price is the cleanest read on whether on-chain tipping still has a bid.", tags: ["Base", "Culture"] });
-  priceAbove({ sym: "BRETT", name: "BRETT", pct: 0.18, deadline: eom, category: "Memes & Culture",
-    story: "Meme liquidity on Base rotates faster than anywhere else; an 18% month-end strike filters rotation from real accumulation.", tags: ["Base", "Meme"] });
-  priceAbove({ sym: "TOSHI", name: "TOSHI", pct: 0.25, deadline: eom, category: "Memes & Culture",
-    story: "The long tail of Base memes lives or dies on a single week of attention; this strike is deliberately far out because the distribution is fat-tailed.", tags: ["Base", "Meme"] });
-
-  editorial({
-    title: `Will a Base-native meme token enter the top 200 by market cap before ${label(eom)}?`,
-    category: "Memes & Culture",
-    tags: ["Base", "Market cap", "CoinGecko"],
-    deadline: eom,
-    p: 0.26,
-    description: "Base has produced culture tokens with real volume but no sustained top-200 entrant. The threshold is the difference between a rotation and a narrative.",
-    resolution: "YES if any token launched on Base appears in CoinGecko's top 200 by market capitalisation on any day before the deadline.",
-    dataSource: "CoinGecko market cap ranking",
-  });
-  editorial({
-    title: `Will a creator-led token out-earn a top-20 protocol token in fees this month?`,
-    category: "Memes & Culture",
-    tags: ["Creators", "Fees", "Culture"],
-    deadline: eom,
-    p: 0.18,
-    description: "Attention is now cheaper to acquire than shelf space. This market asks whether that shows up in actual fee revenue rather than cultural chatter.",
-    resolution: "YES if a creator-issued token reports higher 30-day protocol fees than the 20th-ranked protocol by fees on DefiLlama for the same window.",
-    dataSource: "DefiLlama fees",
-  });
-
-  /* ── 5. Sports & Esports ──────────────────────────────────────────────── */
-  const sunday = nextSundayUTC(now);
-  editorial({
-    title: `Will this weekend's Premier League round produce 30 or more goals?`,
-    category: "Sports & Esports",
-    tags: ["Football", "Premier League", `matchday ${day(sunday)}`],
-    deadline: sunday,
-    p: 0.46,
-    description: "Goal totals are the least narrative-driven number in football: either the round was open or it was not.",
-    resolution: `YES if the ten matches scheduled in the Premier League round ending ${day(sunday)} produce 30 or more goals in total, per the league's official results.`,
-    dataSource: "Premier League official results",
-  });
-  editorial({
-    title: `Will the Champions League matchday produce a 4-goal comeback from a losing position?`,
-    category: "Sports & Esports",
-    tags: ["Football", "UCL", "Matchday"],
+  ed({
+    lane: D,
+    title: `Will median L2 swap fees stay under $0.01 for a full week before ${label(eom)}?`,
     deadline: addDaysUTC(now, 14),
-    p: 0.21,
-    description: "Comebacks are the tail event that keeps the competition priced: rare enough to be a genuine surprise, common enough to be mispriced.",
-    resolution: "YES if any team wins a Champions League match after trailing by two or more goals, within the next two matchdays.",
-    dataSource: "UEFA official match reports",
+    p: 0.62,
+    tags: ["Fees", "L2", "Blobs"],
+    why: "Blob fees made sub-cent L2 trades normal and then made them expensive again. A full week under a cent is the cheapest signal that blockspace is still over-supplied.",
+    resolution: "YES if the median swap fee across the five largest L2s (L2Beat / growthepie fee series) stays below $0.01 for seven consecutive days before the deadline.",
+    source: "growthepie fee series",
   });
-  editorial({
-    title: `Will an esports grand final go to a deciding map this month?`,
-    category: "Sports & Esports",
-    tags: ["Esports", "Finals", "Best-of-five"],
-    deadline: eom,
-    p: 0.52,
-    description: "Best-of-five finals resolve to a decider more often than the market usually prices, because seeding and patch changes compress the skill gap.",
-    resolution: "YES if any Tier-1 esports grand final (CS2, LoL, Dota 2, Valorant) played before the deadline reaches its final map.",
-    dataSource: "Tournament organiser results",
-  });
-  editorial({
-    title: `Will a Formula 1 race this month be decided by under one second?`,
-    category: "Sports & Esports",
-    tags: ["Motorsport", "F1", "Margins"],
-    deadline: eom,
-    p: 0.33,
-    description: "Winning margins are the physical measure of how close the field actually is, independent of the championship narrative.",
-    resolution: "YES if any Formula 1 race held before the deadline has an official winning margin below 1.000 seconds.",
-    dataSource: "FIA official classification",
-  });
-  editorial({
-    title: `Will the NBA's highest-scoring game this month break 150 points in regulation?`,
-    category: "Sports & Esports",
-    tags: ["Basketball", "NBA", "Scoring"],
-    deadline: eom,
-    p: 0.29,
-    description: "Pace and spacing have pushed scoring distributions up for a decade; 150 in regulation is still the edge of the tail.",
-    resolution: "YES if any NBA team scores 150 or more points in regulation (overtime excluded) before the deadline.",
-    dataSource: "NBA official box scores",
-  });
-
-  /* ── 6. Politics & Policy ─────────────────────────────────────────────── */
-  editorial({
-    title: `Will the US Senate pass a comprehensive crypto market-structure bill before ${label(eom)}?`,
-    category: "Politics & Policy",
-    tags: ["US", "Legislation", "Market structure"],
-    deadline: eom,
-    p: 0.23,
-    description: "Market-structure legislation has cleared one chamber and stalled in the other twice. The question is procedural: floor time, not intent.",
-    resolution: "YES if the US Senate passes a comprehensive digital-asset market-structure bill before the deadline, per congress.gov. Committee approval alone resolves NO.",
-    dataSource: "congress.gov",
-  });
-  editorial({
-    title: `Will a G20 regulator issue final stablecoin rules naming reserve composition before ${label(eom)}?`,
-    category: "Politics & Policy",
-    tags: ["Stablecoins", "Regulation", "G20"],
+  ed({
+    lane: D,
+    title: `Will DEX volume across Base and Solana exceed $20B in a single week before ${label(eom)}?`,
     deadline: eom,
     p: 0.31,
-    description: "Reserve composition is the clause that decides whether a stablecoin is a payment rail or a shadow fund. Drafts without it do not count.",
-    resolution: "YES if a G20 member's financial regulator publishes final (not draft) stablecoin rules that specify permitted reserve assets before the deadline.",
-    dataSource: "Regulator official publications",
+    tags: ["DEX", "Volume", "DefiLlama"],
+    why: "Twenty billion a week is the level that separates a retail venue from an institutional one, and it has only printed twice this year.",
+    resolution: `YES if the combined weekly DEX volume of Base and Solana, per DefiLlama, exceeds $20,000,000,000 in any seven-day window ending before ${day(eom)} 23:59 UTC.`,
+    source: "DefiLlama DEX volume",
   });
-  editorial({
-    title: `Will the EU open an infringement procedure against a member state over MiCA implementation before ${label(eom)}?`,
-    category: "Politics & Policy",
-    tags: ["EU", "MiCA", "Enforcement"],
+  ed({
+    lane: D,
+    title: `Will any lending protocol on Base cross $1B in TVL before ${label(eom)}?`,
     deadline: eom,
-    p: 0.19,
-    description: "MiCA's deadlines have passed and national transposition is uneven; enforcement is where that unevenness becomes visible.",
-    resolution: "YES if the European Commission opens a formal infringement procedure citing MiCA transposition before the deadline, per an official Commission decision.",
-    dataSource: "European Commission infringement register",
-  });
-  editorial({
-    title: `Will the next FOMC statement remove the phrase about inflation remaining elevated?`,
-    category: "Politics & Policy",
-    tags: ["Fed", "FOMC", "Rates"],
-    deadline: addDaysUTC(now, 35),
-    p: 0.38,
-    description: "Statement language moves markets before the rate decision does. The phrase has survived multiple cuts; its removal is the signal.",
-    resolution: "YES if the FOMC statement released within the window no longer characterises inflation as elevated. Parsing is literal.",
-    dataSource: "Federal Reserve statement",
-  });
-  editorial({
-    title: `Will any major jurisdiction grant a spot crypto ETF listing approval before ${label(eom)}?`,
-    category: "Politics & Policy",
-    tags: ["ETF", "Approval", "Global"],
-    deadline: eom,
-    p: 0.27,
-    description: "Approval is a process: consultation, delegated act, listing. This market prices whether the last step lands inside the window.",
-    resolution: "YES if a national securities regulator in the EU, UK, Japan or Korea grants an effective listing approval for a spot crypto ETF before the deadline. Consultation papers resolve NO.",
-    dataSource: "Regulator approval notices",
+    p: 0.28,
+    tags: ["Base", "Lending", "TVL"],
+    why: "Base has the deposits but not yet a single billion-dollar lending market; the gap between those two facts is the whole DeFi opportunity on the chain.",
+    resolution: "YES if any lending protocol deployed on Base reports TVL at or above $1,000,000,000 on DefiLlama before the deadline.",
+    source: "DefiLlama protocols",
   });
 
-  /* ── 7. Base Ecosystem ────────────────────────────────────────────────── */
-  if (baseTvl) {
-    const target = Math.round((baseTvl * 0.95) / 1e8) * 1e8;
-    editorial({
-      title: `Will Base TVL hold above ${fmtBig(target)} through ${label(eom)}?`,
-      category: "Base Ecosystem",
-      tags: ["Base", "TVL", `now ${fmtBig(baseTvl)}`, "DefiLlama"],
-      deadline: eom,
-      p: clamp(0.62 - (1 - target / baseTvl) * 2.2, 0.15, 0.9),
-      description: `A 5% drawdown is one bad week in a risk-off tape. Holding the level through month-end is a statement about Base's deposit base rather than its price.`,
-      resolution: `YES if DefiLlama's Base chain TVL stays at or above ${fmtBig(target)} on every UTC day through ${day(eom)} 23:59 UTC.`,
-      dataSource: "DefiLlama /v2/chains",
-    });
-  }
-  priceAbove({ sym: "AERO", name: "AERO", pct: 0.08, deadline: eom, category: "Base Ecosystem",
-    story: "AERO is the closest thing Base has to an index on its own activity: veAERO locks, DEX volume and emissions all settle through it." });
-  priceAbove({ sym: "DEGEN", name: "DEGEN", pct: 0.12, deadline: eom, category: "Base Ecosystem",
-    story: "Base's culture layer has a price, and it front-runs retail flow into the chain by roughly a week." });
+  /* ══ 3. AI & Web3 Tech — model releases and the megacaps ══════════════════ */
+  const T: Lane = "AI & Web3 Tech";
+  priceMarket({ sym: "NVDA", lane: T, pct: 0.02, h: H.h24 });
+  priceMarket({ sym: "NVDA", lane: T, pct: 0.05, h: H.d7 });
+  priceMarket({ sym: "NVDA", lane: T, pct: -0.05, h: H.d7 });
+  priceMarket({ sym: "NVDA", lane: T, pct: 0.1, h: H.eom });
+  priceMarket({ sym: "AAPL", lane: T, pct: 0.04, h: H.eom });
+  priceMarket({ sym: "AAPL", lane: T, pct: -0.04, h: H.d7 });
+  priceMarket({ sym: "MSFT", lane: T, pct: 0.03, h: H.eom });
+  priceMarket({ sym: "GOOGL", lane: T, pct: -0.04, h: H.d3 });
+  priceMarket({ sym: "TSLA", lane: T, pct: 0.08, h: H.d7 });
+  priceMarket({ sym: "TSLA", lane: T, pct: -0.06, h: H.d7 });
+  priceMarket({ sym: "AMD", lane: T, pct: 0.1, h: H.eom });
+  priceMarket({ sym: "META", lane: T, pct: -0.05, h: H.d7 });
+  priceMarket({ sym: "AMD", lane: T, pct: -0.08, h: H.d3 });
 
-  editorial({
-    title: `Will Base process more daily transactions than Ethereum before ${label(eom)}?`,
-    category: "Base Ecosystem",
-    tags: ["Base", "Ethereum", "Throughput"],
+  ed({
+    lane: T,
+    title: `Will a major lab ship a model with a 2M-token context window before ${label(eom)}?`,
     deadline: eom,
-    p: 0.71,
-    description: "Base already runs an order of magnitude more transactions than L1 Ethereum on most days. The interesting question is whether it holds through a quiet week.",
-    resolution: `YES if Base's daily transaction count exceeds Ethereum L1's on every day of the final week before ${day(eom)}, per L2Beat and Etherscan.`,
-    dataSource: "L2Beat + Etherscan",
+    p: 0.41,
+    tags: ["Models", "Context", "Frontier labs"],
+    why: "Context length stopped being a marketing number the moment agent frameworks started depending on it. A public 2M window changes what can be built, not just what can be demoed.",
+    resolution: "YES if a frontier lab makes a 2M-token (or larger) context window generally available through a documented API before the deadline. Waitlists and private previews resolve NO.",
+    source: "Provider API documentation",
   });
-  editorial({
-    title: `Will a Base-native app cross 1M daily active addresses before ${label(eom)}?`,
-    category: "Base Ecosystem",
-    tags: ["Base", "DAU", "Growth"],
+  ed({
+    lane: T,
+    title: `Will OpenAI or Anthropic announce a new frontier model before ${label(eom)}?`,
+    deadline: eom,
+    p: 0.55,
+    tags: ["OpenAI", "Anthropic", "Release"],
+    why: "The release cadence of the two leading labs is the single input every AI-token market on this board is priced off. One launch resets all of them.",
+    resolution: "YES if either OpenAI or Anthropic publishes a model it describes as its frontier or flagship, generally available through its API, before the deadline.",
+    source: "OpenAI / Anthropic release notes",
+  });
+  ed({
+    lane: T,
+    title: `Will an autonomous agent complete a paid on-chain task end-to-end before ${label(eom)}?`,
+    deadline: eom,
+    p: 0.37,
+    tags: ["Agents", "x402", "Onchain"],
+    why: "Agent payments moved from demo to protocol in the last year. What is still missing is evidence of a job priced, delivered and accepted with no human in the loop.",
+    resolution: "YES if an autonomous agent is paid in stablecoins on Base for a task that a buyer accepts without human edit, with the settlement visible on-chain, before the deadline.",
+    source: "On-chain settlement + public writeup",
+  });
+  ed({
+    lane: T,
+    title: `Will AI-agent on-chain transaction volume exceed $1B in a single month before ${label(eoq)}?`,
+    deadline: eoq,
+    p: 0.33,
+    tags: ["Agents", "Volume", "x402"],
+    why: "Agent volume is the number that would prove the x402 thesis; today it is a rounding error on every chain that reports it.",
+    resolution: "YES if any public dashboard attributes $1B or more of monthly on-chain transaction volume to autonomous agents (x402 or equivalent) before the deadline.",
+    source: "x402 dashboard / Dune",
+  });
+  ed({
+    lane: T,
+    title: `Will inference prices for a frontier-class model fall another 30% before ${label(eom)}?`,
+    deadline: eom,
+    p: 0.44,
+    tags: ["Inference", "Pricing"],
+    why: "Per-token prices have fallen faster than any comparable software metric. The question is whether margin compression finally flattens the curve.",
+    resolution: "YES if the published list price, per million output tokens, of any frontier-class model falls 30% or more versus its price on the first day of the window.",
+    source: "Provider pricing pages",
+  });
+  ed({
+    lane: T,
+    title: `Will a zero-knowledge proof of an LLM inference be verified on a public chain before ${label(eom)}?`,
+    deadline: eom,
+    p: 0.22,
+    tags: ["ZKML", "Verification", "Research"],
+    why: "Verifiable inference is the missing primitive for on-chain agents: without it, an agent's work is an assertion rather than a proof.",
+    resolution: "YES if a proof covering a full LLM inference step is verified by a deployed verifier contract on any public chain before the deadline, with the transaction publicly inspectable.",
+    source: "Block explorer + verifier contract",
+  });
+  ed({
+    lane: T,
+    title: `Will any AI-agent framework exceed 100k monthly active developers before ${label(eoq)}?`,
+    deadline: eoq,
+    p: 0.3,
+    tags: ["Developers", "Adoption"],
+    why: "Developer counts are the leading indicator that survives a funding cycle. 100k monthly actives separates a framework from a demo.",
+    resolution: "YES if a public package registry or the maintainer publishes a figure of 100,000+ monthly active developers for an agent framework before the deadline.",
+    source: "Package registry download/usage stats",
+  });
+  ed({
+    lane: T,
+    title: `Will a US hyperscaler disclose AI capex above $50B for the quarter before ${label(eoq)}?`,
+    deadline: eoq,
+    p: 0.47,
+    tags: ["Capex", "Hyperscalers", "Earnings"],
+    why: "Capex guidance is the only AI number that reaches a cash-flow statement. Fifty billion a quarter is where the trade stops being a story and becomes a depreciation schedule.",
+    resolution: "YES if Microsoft, Alphabet, Amazon or Meta reports quarterly capital expenditure above $50B in an earnings release before the deadline.",
+    source: "Company earnings releases",
+  });
+
+  /* ══ 4. Memes & Culture ══════════════════════════════════════════════════ */
+  const M: Lane = "Memes & Culture";
+  priceMarket({ sym: "DEGEN", lane: M, pct: 0.15, h: H.h24, tags: ["Base", "Culture"] });
+  priceMarket({ sym: "BRETT", lane: M, pct: 0.12, h: H.h24, tags: ["Base", "Meme"] });
+  priceMarket({ sym: "TOSHI", lane: M, pct: 0.2, h: H.h24, tags: ["Base", "Meme"] });
+  priceMarket({ sym: "MOG", lane: M, pct: 0.25, h: H.d3, tags: ["Meme"] });
+  priceMarket({ sym: "ZORA", lane: M, pct: 0.15, h: H.d3, tags: ["Creators"] });
+  priceMarket({ sym: "PEPE", lane: M, pct: 0.1, h: H.d7, tags: ["Meme"] });
+  priceMarket({ sym: "WIF", lane: M, pct: 0.15, h: H.d7, tags: ["Solana", "Meme"] });
+  priceMarket({ sym: "DOGE", lane: M, pct: 0.08, h: H.d7, tags: ["Meme"] });
+  priceMarket({ sym: "DEGEN", lane: M, pct: 0.4, h: H.eom, tags: ["Base", "Culture"] });
+  priceMarket({ sym: "BRETT", lane: M, pct: 0.35, h: H.eom, tags: ["Base", "Meme"] });
+  priceMarket({ sym: "TOSHI", lane: M, pct: 0.5, h: H.eom, tags: ["Base", "Meme"] });
+  priceMarket({ sym: "MOG", lane: M, pct: -0.25, h: H.eom, tags: ["Meme", "Downside"] });
+  priceMarket({ sym: "ZORA", lane: M, pct: -0.2, h: H.d7, tags: ["Creators", "Downside"] });
+
+  ed({
+    lane: M,
+    title: `Will a Base-native meme token enter the top 200 by market cap before ${label(eom)}?`,
+    deadline: eom,
+    p: 0.26,
+    tags: ["Base", "Market cap", "CoinGecko"],
+    why: "Base has produced culture tokens with real volume but no sustained top-200 entrant. The threshold is the difference between a rotation and a narrative.",
+    resolution: "YES if any token launched on Base appears in CoinGecko's top 200 by market capitalisation on any day before the deadline.",
+    source: "CoinGecko market cap ranking",
+  });
+  ed({
+    lane: M,
+    title: `Will a creator-led token out-earn a top-20 protocol token in fees this month?`,
+    deadline: eom,
+    p: 0.18,
+    tags: ["Creators", "Fees", "Culture"],
+    why: "Attention is now cheaper to acquire than shelf space. This market asks whether that shows up in actual fee revenue rather than cultural chatter.",
+    resolution: "YES if a creator-issued token reports higher 30-day protocol fees than the 20th-ranked protocol by fees on DefiLlama for the same window.",
+    source: "DefiLlama fees",
+  });
+  ed({
+    lane: M,
+    title: `Will a memecoin launched on Base reach a $100M market cap within seven days of launch before ${label(eom)}?`,
     deadline: eom,
     p: 0.24,
-    description: "Daily actives are the metric that survives incentive programs ending. One app at a million addresses would be a first for the chain.",
-    resolution: "YES if any app deployed on Base reports 1,000,000+ daily active addresses on a single day before the deadline, corroborated by on-chain unique senders.",
-    dataSource: "On-chain unique senders",
+    tags: ["Base", "Launch", "Market cap"],
+    why: "A hundred million inside a week is the level that turns a launch into a liquidity event the rest of the chain can trade against.",
+    resolution: "YES if any token launched on Base reaches a reported market capitalisation of $100M or more within seven days of its first trade before the deadline, per CoinGecko or DEX Screener.",
+    source: "CoinGecko / DEX Screener",
   });
-  editorial({
-    title: `Will Base sequencer revenue exceed $1M in a single week before ${label(eom)}?`,
-    category: "Base Ecosystem",
-    tags: ["Base", "Revenue", "Sequencer"],
+  ed({
+    lane: M,
+    title: `Will a top-10 crypto Twitter account be suspended over a paid promotion before ${label(eom)}?`,
     deadline: eom,
-    p: 0.35,
-    description: "Sequencer revenue is the only number that says an L2 is a business rather than a subsidy. A million-dollar week is the threshold.",
-    resolution: "YES if Base's published sequencer revenue exceeds $1,000,000 in any seven-day window ending before the deadline.",
-    dataSource: "Base / L2Beat revenue dashboard",
+    p: 0.29,
+    tags: ["CT", "KOL", "Drama"],
+    why: "Paid shilling without disclosure is now the most-reported content violation in crypto social. Enforcement, when it lands, is public and permanent.",
+    resolution: "YES if an account ranked in the top 10 by followers on a public crypto-Twitter leaderboard is suspended (not restricted) for undisclosed paid promotion before the deadline, per the platform's own notice or a screenshot of the suspension.",
+    source: "Platform suspension notices",
+  });
+  ed({
+    lane: M,
+    title: `Will any KOL-backed token announced this month trade below its launch price after 30 days?`,
+    deadline: addDaysUTC(now, 30),
+    p: 0.68,
+    tags: ["KOL", "Launches", "Base"],
+    why: "The base rate for influencer-launched tokens is brutal and publicly checkable; the market usually prices the exception instead of the base rate.",
+    resolution: "YES if any token publicly promoted at launch by an account with 100k+ followers trades below its first-day close 30 days later, per CoinGecko daily closes.",
+    source: "CoinGecko daily closes",
   });
 
+  /* ══ 5. Sports & Esports ═════════════════════════════════════════════════ */
+  const S: Lane = "Sports & Esports";
+  ed({
+    lane: S,
+    title: `Will this weekend's Premier League round produce 30 or more goals?`,
+    deadline: sunday,
+    p: 0.46,
+    tags: ["Football", "Premier League", `matchday ${day(sunday)}`],
+    why: "Goal totals are the least narrative-driven number in football: either the round was open or it was not.",
+    resolution: `YES if the ten matches scheduled in the Premier League round ending ${day(sunday)} produce 30 or more goals in total, per the league's official results.`,
+    source: "Premier League official results",
+  });
+  ed({
+    lane: S,
+    title: `Will any Premier League side win by four goals or more this weekend?`,
+    deadline: sunday,
+    p: 0.33,
+    tags: ["Football", "Premier League", "Margins"],
+    why: "Blowouts are a fixture of the modern pressing game and a reliable tail event to price against a public that remembers 1-0s.",
+    resolution: `YES if any match in the Premier League round ending ${day(sunday)} finishes with a margin of four goals or more.`,
+    source: "Premier League official results",
+  });
+  ed({
+    lane: S,
+    title: `Will the Champions League matchday produce a 4-goal comeback from a losing position?`,
+    deadline: addDaysUTC(now, 14),
+    p: 0.21,
+    tags: ["Football", "UCL", "Matchday"],
+    why: "Comebacks are the tail event that keeps the competition priced: rare enough to be a genuine surprise, common enough to be mispriced.",
+    resolution: "YES if any team wins a Champions League match after trailing by two or more goals, within the next two matchdays.",
+    source: "UEFA official match reports",
+  });
+  ed({
+    lane: S,
+    title: `Will a Champions League matchday pass end with more than 30 goals across all fixtures?`,
+    deadline: addDaysUTC(now, 7),
+    p: 0.39,
+    tags: ["Football", "UCL", "Goals"],
+    why: "Two matchdays of the new format produce more goals than the old group stage ever did; thirty is the level the market still underrates.",
+    resolution: "YES if the total goals scored across all fixtures of a single Champions League matchday before the deadline exceed 30.",
+    source: "UEFA official match reports",
+  });
+  ed({
+    lane: S,
+    title: `Will any Champions League fixture produce a hat-trick before ${label(eom)}?`,
+    deadline: eom,
+    p: 0.41,
+    tags: ["Football", "UCL", "Hat-trick"],
+    why: "With more fixtures per matchday, hat-tricks print more often than the competition's reputation suggests.",
+    resolution: "YES if any player scores three or more goals in a single Champions League match before the deadline.",
+    source: "UEFA official match reports",
+  });
+  ed({
+    lane: S,
+    title: `Will the NBA's highest-scoring game this month break 150 points in regulation?`,
+    deadline: eom,
+    p: 0.29,
+    tags: ["Basketball", "NBA", "Scoring"],
+    why: "Pace and spacing have pushed scoring distributions up for a decade; 150 in regulation is still the edge of the tail.",
+    resolution: "YES if any NBA team scores 150 or more points in regulation (overtime excluded) before the deadline.",
+    source: "NBA official box scores",
+  });
+  ed({
+    lane: S,
+    title: `Will any NBA quarter this week be won by 20 points or more?`,
+    deadline: addDaysUTC(now, 7),
+    p: 0.57,
+    tags: ["Basketball", "NBA", "Quarters"],
+    why: "A 20-point quarter is a rotation collapse, not a talent gap, which is why it happens more often than the spread implies.",
+    resolution: "YES if any NBA team outscores its opponent by 20 or more points in a single quarter before the deadline.",
+    source: "NBA official box scores",
+  });
+  ed({
+    lane: S,
+    title: `Will an NBA game this week be decided by a buzzer-beater?`,
+    deadline: addDaysUTC(now, 7),
+    p: 0.22,
+    tags: ["Basketball", "NBA", "Clutch"],
+    why: "The buzzer-beater is the most-clipped moment in the sport and the least frequent; a week-long window is the honest way to price it.",
+    resolution: "YES if any NBA game before the deadline is decided by a made field goal in the final two seconds of the fourth quarter or overtime.",
+    source: "NBA official play-by-play",
+  });
+  ed({
+    lane: S,
+    title: `Will any NFL game this Sunday go to overtime?`,
+    deadline: sunday,
+    p: 0.42,
+    tags: ["NFL", "Overtime", "Sunday"],
+    why: "Overtime is the cleanest coin-flip in sports and a natural weekly market: roughly one in twelve games, and the public always overrates the favourite.",
+    resolution: `YES if any NFL game played on ${day(sunday)} (US) is tied at the end of regulation.`,
+    source: "NFL official gamebook",
+  });
+  ed({
+    lane: S,
+    title: `Will any F1 race this month be decided by under one second?`,
+    deadline: eom,
+    p: 0.33,
+    tags: ["Motorsport", "F1", "Margins"],
+    why: "Winning margins are the physical measure of how close the field actually is, independent of the championship narrative.",
+    resolution: "YES if any Formula 1 race held before the deadline has an official winning margin below 1.000 seconds.",
+    source: "FIA official classification",
+  });
+  ed({
+    lane: S,
+    title: `Will a driver outside the top three constructors take a podium this month?`,
+    deadline: eom,
+    p: 0.28,
+    tags: ["Motorsport", "F1", "Podium"],
+    why: "Regulation-era F1 has compressed the midfield far more than the championship table admits; a stray podium is the visible symptom.",
+    resolution: "YES if any driver whose constructor finished the previous season outside the top three takes a top-three finish in a race before the deadline.",
+    source: "FIA official classification",
+  });
+  ed({
+    lane: S,
+    title: `Will an esports grand final go to a deciding map this month?`,
+    deadline: eom,
+    p: 0.52,
+    tags: ["Esports", "Finals", "Best-of-five"],
+    why: "Best-of-five finals resolve to a decider more often than the market usually prices, because seeding and patch changes compress the skill gap.",
+    resolution: "YES if any Tier-1 esports grand final (CS2, LoL, Dota 2, Valorant) played before the deadline reaches its final map.",
+    source: "Tournament organiser results",
+  });
+  ed({
+    lane: S,
+    title: `Will a reverse sweep happen in a Tier-1 esports playoff series before ${label(eom)}?`,
+    deadline: eom,
+    p: 0.31,
+    tags: ["Esports", "Playoffs", "Reverse sweep"],
+    why: "A reverse sweep is the purest evidence that the format, not the seeding, decides best-of series.",
+    resolution: "YES if any Tier-1 esports playoff series before the deadline is won by a team that trailed 0-2 (or 0-1 in a best-of-three).",
+    source: "Tournament organiser results",
+  });
+  ed({
+    lane: S,
+    title: `Will the ATP Finals final go to a fifth set this year?`,
+    deadline: addDaysUTC(now, 21),
+    p: 0.34,
+    tags: ["Tennis", "ATP Finals", "Sets"],
+    why: "The year-end final is played on a fast indoor court where serving dominates, which historically pushes the length distribution both ways.",
+    resolution: "YES if the ATP Finals singles final is decided in five sets.",
+    source: "ATP official results",
+  });
+  ed({
+    lane: S,
+    title: `Will a top-four seed lose in the group stage of the ATP Finals?`,
+    deadline: addDaysUTC(now, 14),
+    p: 0.55,
+    tags: ["Tennis", "ATP Finals", "Seeds"],
+    why: "Round-robin format with eight players guarantees upsets that a knockout draw would hide; the market keeps pricing seeds as if it were a bracket.",
+    resolution: "YES if any of the top four seeds loses a round-robin match at the ATP Finals before the deadline.",
+    source: "ATP official results",
+  });
+  ed({
+    lane: S,
+    title: `Will any MLB team hit three or more home runs in an inning before ${label(eom)}?`,
+    deadline: eom,
+    p: 0.37,
+    tags: ["Baseball", "MLB", "Home runs"],
+    why: "A three-homer inning is the most violent thing that happens in a regular-season game and the market prices it like a novelty.",
+    resolution: "YES if any MLB team hits three or more home runs in a single inning before the deadline.",
+    source: "MLB official box scores",
+  });
+
+  /* ══ 6. Politics & Policy ════════════════════════════════════════════════ */
+  const P: Lane = "Politics & Policy";
+  ed({
+    lane: P,
+    title: `Will the US Senate pass a comprehensive crypto market-structure bill before ${label(eom)}?`,
+    deadline: eom,
+    p: 0.23,
+    tags: ["US", "Legislation", "Market structure"],
+    why: "Market-structure legislation has cleared one chamber and stalled in the other twice. The question is procedural: floor time, not intent.",
+    resolution: "YES if the US Senate passes a comprehensive digital-asset market-structure bill before the deadline, per congress.gov. Committee approval alone resolves NO.",
+    source: "congress.gov",
+  });
+  ed({
+    lane: P,
+    title: `Will a G20 regulator issue final stablecoin rules naming reserve composition before ${label(eom)}?`,
+    deadline: eom,
+    p: 0.31,
+    tags: ["Stablecoins", "Regulation", "G20"],
+    why: "Reserve composition is the clause that decides whether a stablecoin is a payment rail or a shadow fund. Drafts without it do not count.",
+    resolution: "YES if a G20 member's financial regulator publishes final (not draft) stablecoin rules that specify permitted reserve assets before the deadline.",
+    source: "Regulator official publications",
+  });
+  ed({
+    lane: P,
+    title: `Will the EU open an infringement procedure against a member state over MiCA implementation before ${label(eom)}?`,
+    deadline: eom,
+    p: 0.19,
+    tags: ["EU", "MiCA", "Enforcement"],
+    why: "MiCA's deadlines have passed and national transposition is uneven; enforcement is where that unevenness becomes visible.",
+    resolution: "YES if the European Commission opens a formal infringement procedure citing MiCA transposition before the deadline, per an official Commission decision.",
+    source: "European Commission infringement register",
+  });
+  ed({
+    lane: P,
+    title: `Will any major jurisdiction grant a spot crypto ETF listing approval before ${label(eom)}?`,
+    deadline: eom,
+    p: 0.27,
+    tags: ["ETF", "Approval", "Global"],
+    why: "Approval is a process: consultation, delegated act, listing. This market prices whether the last step lands inside the window.",
+    resolution: "YES if a national securities regulator in the EU, UK, Japan or Korea grants an effective listing approval for a spot crypto ETF before the deadline. Consultation papers resolve NO.",
+    source: "Regulator approval notices",
+  });
+  ed({
+    lane: P,
+    title: `Will the SEC drop or settle its enforcement case against a major crypto exchange before ${label(eom)}?`,
+    deadline: eom,
+    p: 0.42,
+    tags: ["SEC", "Enforcement", "Exchanges"],
+    why: "Cases that outlive their political moment get settled, not won. The question is whether the docket clears inside the month.",
+    resolution: "YES if the SEC files a dismissal or an agreed settlement ending a case against Coinbase, Binance or Kraken before the deadline, per the court docket.",
+    source: "Court dockets (PACER)",
+  });
+  ed({
+    lane: P,
+    title: `Will any G7 country launch a retail CBDC pilot before ${label(eoq)}?`,
+    deadline: eoq,
+    p: 0.17,
+    tags: ["CBDC", "G7", "Pilot"],
+    why: "Every G7 treasury has a paper; almost none has a pilot that a citizen can use. The gap between the two is the trade.",
+    resolution: "YES if a G7 member's central bank runs a pilot in which members of the public can hold and spend a CBDC before the deadline.",
+    source: "Central bank announcements",
+  });
+  ed({
+    lane: P,
+    title: `Will a US state enact a strategic Bitcoin reserve law before ${label(eoq)}?`,
+    deadline: eoq,
+    p: 0.21,
+    tags: ["US", "States", "Bitcoin reserve"],
+    why: "Twenty-odd states have introduced reserve bills; enactment is a treasury-committee problem, not a campaign promise.",
+    resolution: "YES if any US state enacts legislation authorising it to hold Bitcoin on its balance sheet before the deadline.",
+    source: "State legislature records",
+  });
+  ed({
+    lane: P,
+    title: `Will the UK FCA authorise a crypto derivatives venue for retail clients before ${label(eoq)}?`,
+    deadline: eoq,
+    p: 0.18,
+    tags: ["UK", "FCA", "Derivatives"],
+    why: "The UK banned retail crypto derivatives in 2021 and has been building the regulated alternative ever since. Authorisation is the last step.",
+    resolution: "YES if the FCA grants a UK-authorised firm permission to offer crypto derivatives to retail clients before the deadline.",
+    source: "FCA register",
+  });
+  ed({
+    lane: P,
+    title: `Will the FATF add a jurisdiction to its grey list citing virtual-asset supervision before ${label(eoq)}?`,
+    deadline: eoq,
+    p: 0.29,
+    tags: ["FATF", "AML", "Grey list"],
+    why: "Travel-rule enforcement is where crypto policy actually bites, and the grey list is the only public scoreboard.",
+    resolution: "YES if the FATF adds a jurisdiction to its grey list with virtual-asset supervision named among the strategic deficiencies before the deadline.",
+    source: "FATF public statements",
+  });
+  ed({
+    lane: P,
+    title: `Will Congress pass a stablecoin yield ban before ${label(eoq)}?`,
+    deadline: eoq,
+    p: 0.22,
+    tags: ["US", "Stablecoins", "Yield"],
+    why: "Paying yield on a payment stablecoin is the one clause banks and crypto both lobby hard on — it decides whether deposits leave the banking system.",
+    resolution: "YES if US federal legislation prohibiting stablecoin issuers from paying yield to holders is enacted before the deadline.",
+    source: "congress.gov",
+  });
+  ed({
+    lane: P,
+    title: `Will any jurisdiction require stablecoin issuers to hold 100% reserves in short-term Treasuries before ${label(eoq)}?`,
+    deadline: eoq,
+    p: 0.24,
+    tags: ["Stablecoins", "Reserves", "Treasuries"],
+    why: "Treasury-only reserves turn a stablecoin into a money-market fund with a wallet. It is the strictest version of the rule still on the table.",
+    resolution: "YES if a national regulator or legislator enacts a rule limiting stablecoin reserves to instruments of one year or less before the deadline.",
+    source: "Regulator publications",
+  });
+  ed({
+    lane: P,
+    title: `Will the CFTC be granted statutory authority over spot crypto markets before ${label(eoq)}?`,
+    deadline: eoq,
+    p: 0.26,
+    tags: ["CFTC", "Jurisdiction", "US"],
+    why: "Which regulator owns spot is the precondition for every other crypto rule in the US; nothing else can be final until it is settled.",
+    resolution: "YES if US legislation granting the CFTC explicit authority over spot digital-asset markets is enacted before the deadline.",
+    source: "congress.gov",
+  });
+  ed({
+    lane: P,
+    title: `Will India reduce its crypto trading tax before ${label(eoq)}?`,
+    deadline: eoq,
+    p: 0.15,
+    tags: ["India", "Tax", "Policy"],
+    why: "India's 30% flat tax plus 1% transaction levy moved volume offshore; a cut is the only policy that would bring it back.",
+    resolution: "YES if India's Union Budget or a finance ministry notification reduces the tax on virtual digital asset transfers before the deadline.",
+    source: "India Union Budget documents",
+  });
+
+  /* ══ 7. Base Ecosystem ═══════════════════════════════════════════════════ */
+  const B: Lane = "Base Ecosystem";
+  if (baseTvl) {
+    const target = Math.round((baseTvl * 0.95) / 1e8) * 1e8;
+    ed({
+      lane: B,
+      title: `Will Base TVL hold above ${fmtBig(target)} through ${label(eom)}?`,
+      deadline: eom,
+      p: clamp(0.62 - (1 - target / baseTvl) * 2.2, 0.15, 0.9),
+      tags: ["Base", "TVL", `now ${fmtBig(baseTvl)}`, "DefiLlama"],
+      why: "A 5% drawdown is one bad week in a risk-off tape. Holding the level through month-end is a statement about Base's deposit base rather than its price.",
+      resolution: `YES if DefiLlama's Base chain TVL stays at or above ${fmtBig(target)} on every UTC day through ${day(eom)} 23:59 UTC.`,
+      source: "DefiLlama /v2/chains",
+    });
+    const stretch = Math.round((baseTvl * 1.2) / 1e8) * 1e8;
+    ed({
+      lane: B,
+      title: `Will Base TVL cross ${fmtBig(stretch)} before ${label(eoq)}?`,
+      deadline: eoq,
+      p: clamp(0.34 - (stretch / baseTvl - 1) * 1.4, 0.06, 0.6),
+      tags: ["Base", "TVL", `now ${fmtBig(baseTvl)}`, "Stretch"],
+      why: `A 20% expansion in a quarter is what "Base is winning" looks like as a number instead of a claim. Today it sits at ${fmtBig(baseTvl)}.`,
+      resolution: `YES if DefiLlama's Base chain TVL prints at or above ${fmtBig(stretch)} on any UTC day before ${day(eoq)} 23:59 UTC.`,
+      source: "DefiLlama /v2/chains",
+    });
+  }
+  priceMarket({ sym: "AERO", lane: B, pct: 0.08, h: H.eom, tags: ["Aerodrome"] });
+  priceMarket({ sym: "AERO", lane: B, pct: 0.25, h: H.d7, tags: ["Aerodrome", "Stretch"] });
+  priceMarket({ sym: "DEGEN", lane: B, pct: 0.12, h: H.eom, tags: ["Culture"] });
+  priceMarket({ sym: "ZORA", lane: B, pct: 0.3, h: H.eom, tags: ["Creators"] });
+  ed({
+    lane: B,
+    title: `Will Base process more daily transactions than Ethereum every day for a week before ${label(eom)}?`,
+    deadline: eom,
+    p: 0.71,
+    tags: ["Base", "Ethereum", "Throughput"],
+    why: "Base already runs an order of magnitude more transactions than L1 Ethereum on most days. The interesting question is whether it holds through a quiet week.",
+    resolution: `YES if Base's daily transaction count exceeds Ethereum L1's on every day of the final week before ${day(eom)}, per L2Beat and Etherscan.`,
+    source: "L2Beat + Etherscan",
+  });
+  ed({
+    lane: B,
+    title: `Will Base settle more than 10M transactions in a single day before ${label(eom)}?`,
+    deadline: eom,
+    p: 0.38,
+    tags: ["Base", "Throughput", "10M"],
+    why: "Ten million daily transactions is the level where an L2 stops being a sidechain experiment and starts being infrastructure.",
+    resolution: `YES if Base's daily transaction count prints at or above 10,000,000 on any UTC day before ${day(eom)} 23:59 UTC.`,
+    source: "L2Beat activity",
+  });
+  ed({
+    lane: B,
+    title: `Will a Base-native app cross 1M daily active addresses before ${label(eom)}?`,
+    deadline: eom,
+    p: 0.24,
+    tags: ["Base", "DAU", "Growth"],
+    why: "Daily actives are the metric that survives incentive programs ending. One app at a million addresses would be a first for the chain.",
+    resolution: "YES if any app deployed on Base reports 1,000,000+ daily active addresses on a single day before the deadline, corroborated by on-chain unique senders.",
+    source: "On-chain unique senders",
+  });
+  ed({
+    lane: B,
+    title: `Will Base sequencer revenue exceed $1M in a single week before ${label(eom)}?`,
+    deadline: eom,
+    p: 0.35,
+    tags: ["Base", "Revenue", "Sequencer"],
+    why: "Sequencer revenue is the only number that says an L2 is a business rather than a subsidy. A million-dollar week is the threshold.",
+    resolution: "YES if Base's published sequencer revenue exceeds $1,000,000 in any seven-day window ending before the deadline.",
+    source: "Base / L2Beat revenue dashboard",
+  });
+  ed({
+    lane: B,
+    title: `Will Base sequencer revenue exceed Ethereum L1 fees in a single week before ${label(eoq)}?`,
+    deadline: eoq,
+    p: 0.19,
+    tags: ["Base", "Ethereum", "Revenue"],
+    why: "The flip would be the clearest possible statement that execution has moved off the L1 — and it is still a tail event, which is what makes the price interesting.",
+    resolution: "YES if Base's weekly sequencer revenue, per L2Beat, is higher than Ethereum L1's weekly fees in the same window before the deadline.",
+    source: "L2Beat revenue",
+  });
+  ed({
+    lane: B,
+    title: `Will Base host a top-10 DEX by weekly volume before ${label(eom)}?`,
+    deadline: eom,
+    p: 0.44,
+    tags: ["Base", "DEX", "Volume"],
+    why: "Aerodrome already trades like a top-tier venue on some days; a full week inside the global top ten is the durable version of that claim.",
+    resolution: "YES if any DEX deployed on Base ranks in the top ten by weekly volume on DefiLlama before the deadline.",
+    source: "DefiLlama DEX volume",
+  });
+  ed({
+    lane: B,
+    title: `Will Base median gas fees stay under $0.01 for a full week before ${label(eom)}?`,
+    deadline: addDaysUTC(now, 14),
+    p: 0.66,
+    tags: ["Base", "Gas", "Fees"],
+    why: "Base batching made sub-cent fees the default and then blobs made them cheap again. A full week under a cent is the honest read on capacity.",
+    resolution: "YES if the median Base transaction fee stays below $0.01 for seven consecutive days before the deadline, per L2Beat or growthepie.",
+    source: "L2Beat fees",
+  });
+  ed({
+    lane: B,
+    title: `Will a Base-native token be listed by a top-five centralized exchange before ${label(eoq)}?`,
+    deadline: eoq,
+    p: 0.32,
+    tags: ["Base", "Listings", "CEX"],
+    why: "A Binance or Coinbase listing is the single largest liquidity event available to a Base token, and it is announced, not leaked.",
+    resolution: "YES if Binance, Coinbase, OKX, Bybit or Upbit lists a token launched on Base (other than USDC) before the deadline.",
+    source: "Exchange announcement pages",
+  });
+
+  /* ══ 8. Macro & Economy — FRED-struck, no invented levels ════════════════ */
+  const E: Lane = "Macro & Economy";
+  const m = macro;
+  if (m.FED_UPPER) {
+    const nowRate = m.FED_UPPER.value;
+    const cutTarget = Number((nowRate - 0.25).toFixed(2));
+    ed({
+      lane: E,
+      title: `Will the Fed's target range be at or below ${cutTarget.toFixed(2)}% before ${label(eoq)}?`,
+      deadline: eoq,
+      p: 0.46,
+      tags: ["Fed", "FOMC", `now ${nowRate.toFixed(2)}%`, "FRED"],
+      why: `The upper bound of the target range is ${nowRate.toFixed(2)}% today (FRED DFEDTARU). A single 25bp cut inside the quarter is the question every risk asset on this board is priced against.`,
+      resolution: `YES if FRED series DFEDTARU prints at or below ${cutTarget.toFixed(2)}% on any day before ${day(eoq)} 23:59 UTC.`,
+      source: "FRED DFEDTARU",
+    });
+    ed({
+      lane: E,
+      title: `Will the Fed leave its target range unchanged at ${nowRate.toFixed(2)}% through ${label(eoq)}?`,
+      deadline: eoq,
+      p: 0.34,
+      tags: ["Fed", "Hold", `now ${nowRate.toFixed(2)}%`, "FRED"],
+      why: "A hold is the least dramatic outcome and the one the market keeps underpricing in a cutting cycle. It resolves on the published range, not on the press conference.",
+      resolution: `YES if FRED series DFEDTARU stays at ${nowRate.toFixed(2)}% on every day through ${day(eoq)} 23:59 UTC.`,
+      source: "FRED DFEDTARU",
+    });
+    ed({
+      lane: E,
+      title: `Will the Fed cut by 50bp or more in a single move before ${label(eoq)}?`,
+      deadline: eoq,
+      p: 0.13,
+      tags: ["Fed", "Emergency", "50bp"],
+      why: "Fifty-basis-point moves happen when something is breaking, not when the data is merely soft. The market always prices the possibility too cheaply and the event too rarely.",
+      resolution: `YES if FRED DFEDTARU falls by 0.50 percentage points or more between two consecutive daily observations before ${day(eoq)} 23:59 UTC.`,
+      source: "FRED DFEDTARU",
+    });
+  }
+  if (m.CPI_YOY) {
+    const cpi = m.CPI_YOY.value;
+    const hot = Number((cpi + 0.1).toFixed(2));
+    const cool = m.CPI_YOY.prev ?? Number((cpi - 0.2).toFixed(2));
+    ed({
+      lane: E,
+      title: `Will US CPI YoY print above ${hot.toFixed(2)}% in the next release?`,
+      deadline: addDaysUTC(now, 30),
+      p: 0.47,
+      tags: ["CPI", "Inflation", `last ${cpi.toFixed(2)}%`],
+      why: `The last print was ${cpi.toFixed(2)}% YoY (FRED CPIAUCSL, ${m.CPI_YOY.asOf}). A hotter number is the single fastest way to reprice the whole rate path.`,
+      resolution: `YES if the next US CPI release published before the deadline reports headline CPI year-over-year above ${hot.toFixed(2)}%, per the BLS release.`,
+      source: "BLS CPI (FRED CPIAUCSL)",
+    });
+    ed({
+      lane: E,
+      title: `Will US CPI YoY cool to ${Number(cool).toFixed(2)}% or below in the next release?`,
+      deadline: addDaysUTC(now, 30),
+      p: 0.34,
+      tags: ["CPI", "Disinflation", `prev ${Number(cool).toFixed(2)}%`],
+      why: `Disinflation has stalled for two prints; a return to the prior pace (${Number(cool).toFixed(2)}%) is what a soft landing looks like in one number.`,
+      resolution: `YES if the next US CPI release published before the deadline reports headline CPI year-over-year at or below ${Number(cool).toFixed(2)}%.`,
+      source: "BLS CPI (FRED CPIAUCSL)",
+    });
+  }
+  if (m.CORE_CPI_YOY) {
+    const core = m.CORE_CPI_YOY.value;
+    ed({
+      lane: E,
+      title: `Will core CPI YoY stay above ${core.toFixed(2)}% in the next release?`,
+      deadline: addDaysUTC(now, 30),
+      p: 0.5,
+      tags: ["Core CPI", `last ${core.toFixed(2)}%`, "FRED"],
+      why: `Core inflation is the number the Fed actually reacts to, and at ${core.toFixed(2)}% it is still above target. Stickiness is the base case until it isn't.`,
+      resolution: `YES if the next US CPI release reports core CPI year-over-year above ${core.toFixed(2)}%.`,
+      source: "BLS core CPI (FRED CPILFESL)",
+    });
+  }
+  if (m.US10Y) {
+    const y = m.US10Y.value;
+    const down = Number((y - 0.1).toFixed(2));
+    const up = Number((y + 0.2).toFixed(2));
+    ed({
+      lane: E,
+      title: `Will the 10-year Treasury yield close below ${down.toFixed(2)}% before ${label(eom)}?`,
+      deadline: eom,
+      p: 0.33,
+      tags: ["Rates", "US10Y", `now ${y.toFixed(2)}%`, "FRED"],
+      why: `The 10-year sits at ${y.toFixed(2)}% (FRED DGS10, ${m.US10Y.asOf}). Long-end yields set the discount rate for every risk asset in this protocol's universe.`,
+      resolution: `YES if FRED DGS10 prints below ${down.toFixed(2)}% on any trading day before ${day(eom)} 23:59 UTC.`,
+      source: "FRED DGS10",
+    });
+    ed({
+      lane: E,
+      title: `Will the 10-year Treasury yield close above ${up.toFixed(2)}% before ${label(eoq)}?`,
+      deadline: eoq,
+      p: 0.36,
+      tags: ["Rates", "US10Y", `now ${y.toFixed(2)}%`, "FRED"],
+      why: "A 20bp backup in the long end is what an inflation scare looks like before the Fed says anything. It is also the level that breaks the equity multiple.",
+      resolution: `YES if FRED DGS10 prints above ${up.toFixed(2)}% on any trading day before ${day(eoq)} 23:59 UTC.`,
+      source: "FRED DGS10",
+    });
+  }
+  if (m.CURVE_2S10S) {
+    const c = m.CURVE_2S10S.value;
+    ed({
+      lane: E,
+      title: `Will the 2s10s curve re-invert below 0% before ${label(eoq)}?`,
+      deadline: eoq,
+      p: 0.24,
+      tags: ["Curve", `now ${c.toFixed(2)}pp`, "FRED"],
+      why: `The 2s10s spread is ${c.toFixed(2)}pp today (FRED T10Y2Y). A re-inversion would say the market is pricing cuts as a growth problem rather than a victory.`,
+      resolution: `YES if FRED T10Y2Y prints below 0.00 on any trading day before ${day(eoq)} 23:59 UTC.`,
+      source: "FRED T10Y2Y",
+    });
+  }
+  if (m.UNRATE) {
+    const u = m.UNRATE.value;
+    ed({
+      lane: E,
+      title: `Will US unemployment print above ${(u + 0.1).toFixed(1)}% in the next report?`,
+      deadline: addDaysUTC(now, 30),
+      p: 0.4,
+      tags: ["Unemployment", `now ${u.toFixed(1)}%`, "FRED"],
+      why: `Unemployment is ${u.toFixed(1)}% (FRED UNRATE, ${m.UNRATE.asOf}). One tenth higher is the threshold where the Fed's "labour market is solid" line stops working.`,
+      resolution: `YES if the next US employment situation report shows an unemployment rate above ${(u + 0.1).toFixed(1)}%.`,
+      source: "BLS employment situation (FRED UNRATE)",
+    });
+  }
+  if (m.MORTGAGE30) {
+    const mtg = m.MORTGAGE30.value;
+    ed({
+      lane: E,
+      title: `Will the 30-year mortgage rate fall below ${(mtg - 0.2).toFixed(2)}% before ${label(eom)}?`,
+      deadline: eom,
+      p: 0.3,
+      tags: ["Mortgage", `now ${mtg.toFixed(2)}%`, "FRED"],
+      why: "Mortgage rates are the transmission channel from the 10-year to the housing market, and they move with a lag the market keeps forgetting.",
+      resolution: `YES if FRED MORTGAGE30US prints below ${(mtg - 0.2).toFixed(2)}% on any week before ${day(eom)} 23:59 UTC.`,
+      source: "FRED MORTGAGE30US",
+    });
+  }
+  // Macro price markets: the commodities and indices a rates desk actually watches.
+  priceMarket({ sym: "GOLD", lane: E, pct: 0.03, h: H.d7, tags: ["Gold", "Real rates"] });
+  priceMarket({ sym: "GOLD", lane: E, pct: -0.03, h: H.d7, tags: ["Gold", "Downside"] });
+  priceMarket({ sym: "GOLD", lane: E, pct: 0.06, h: H.eom, tags: ["Gold"] });
+  priceMarket({ sym: "SILVER", lane: E, pct: 0.05, h: H.d7, tags: ["Silver"] });
+  priceMarket({ sym: "OIL", lane: E, pct: 0.05, h: H.eom, tags: ["WTI", "Inflation"] });
+  priceMarket({ sym: "OIL", lane: E, pct: -0.05, h: H.eom, tags: ["WTI", "Downside"] });
+  priceMarket({ sym: "DXY", lane: E, pct: 0.01, h: H.d7, tags: ["Dollar"] });
+  priceMarket({ sym: "SPX", lane: E, pct: 0.02, h: H.d7, tags: ["S&P 500"] });
+  priceMarket({ sym: "SPX", lane: E, pct: -0.03, h: H.d7, tags: ["S&P 500", "Downside"] });
+  priceMarket({ sym: "NDX", lane: E, pct: 0.03, h: H.eom, tags: ["Nasdaq"] });
+  priceMarket({ sym: "PAXG", lane: E, pct: 0.02, h: H.h24, tags: ["Tokenised gold"] });
+
   return out;
+}
+
+/** Social heat, computed once per market so the marketing picker does not re-derive it. */
+function attachHeat(drafts: Draft[], snap: PriceSnapshot, now: Date): Draft[] {
+  return drafts.map((d) => {
+    const asset = d.marketData?.asset;
+    const volatilityPct = asset ? Math.abs(snap.assets[asset]?.change24h ?? 0) : 0;
+    const controversy = Number((1 - Math.abs(d.yesShare - 0.5) * 2).toFixed(3));
+    const hoursLeft = Math.max(0, Math.round(((d.deadline.getTime() - now.getTime()) / 3.6e6) * 10) / 10);
+    // Volatility is the "Hot" half, controversy the "Contrarian" half; urgency breaks ties, because
+    // a market closing in 20 hours is a better card than the same market closing in three weeks.
+    const urgency = hoursLeft <= 48 ? 20 : hoursLeft <= 24 * 8 ? 10 : 0;
+    const score = Number((volatilityPct * 4 + controversy * 30 + urgency).toFixed(2));
+    return { ...d, heat: { volatilityPct: Number(volatilityPct.toFixed(2)), controversy, hoursLeft, score } };
+  });
 }
 
 /* ───────────────────────────── main ───────────────────────────── */
@@ -608,7 +1490,29 @@ function main() {
     process.exit(1);
   }
   const now = new Date();
-  const drafts = buildBoard(snap, now);
+  const sticky = loadSticky();
+  const drafts = attachHeat(buildBoard(snap, now, sticky), snap, now);
+
+  if (drafts.length < TARGET_MIN && process.env.ALLOW_SMALL_BOARD !== "1") {
+    // Refuse to *write* a shrunken board: a snapshot source dropped out (Yahoo, FRED), and
+    // shipping 60 markets over a 150-market manifest is worse than shipping yesterday's board.
+    // The previous pools.json is left untouched; refresh-board.sh exits non-zero and the ops log
+    // says which source failed.
+    console.error(
+      `[board] refusing to write: ${drafts.length} markets generated, floor is ${TARGET_MIN}. ` +
+        `Sources: ${Object.entries(snap.sources).map(([k, v]) => `${k}=${v}`).join(" ")}. ` +
+        `Set ALLOW_SMALL_BOARD=1 to override.`
+    );
+    process.exit(1);
+  }
+
+  // Persist the terms only after the floor check: a build that failed because a feed dropped out
+  // must not bake half a ladder into the cache.
+  for (const [k, v] of Object.entries(sticky)) {
+    if (Date.parse(v.deadline) < now.getTime()) delete sticky[k];
+  }
+  mkdirSync(dirname(STICKY_PATH), { recursive: true });
+  writeFileSync(STICKY_PATH, JSON.stringify(sticky, null, 2) + "\n");
 
   // Pools that exist on the contract are the contract's rows, not ours: emit them as
   // `source: "chain"` so the UI reads status/liquidity live and the USDC rail is open. The
@@ -619,9 +1523,8 @@ function main() {
   const openedRows: OpenedPool[] = existsSync(OPENED)
     ? Object.values(JSON.parse(readFileSync(OPENED, "utf8")) as Record<string, OpenedPool>)
     : [];
+  const openedById = new Map(openedRows.map((o) => [o.id, o]));
   const norm = (t: string) => t.toLowerCase().replace(/\s+/g, " ").trim();
-  const openedByTitle = new Map(openedRows.map((o) => [norm(o.title), o]));
-  const openedIds = new Set(openedRows.map((o) => o.id));
 
   // Chain rows are the contract's; only the generated half is rewritten.
   let previous: { pools?: Pool[]; [k: string]: unknown } = {};
@@ -635,11 +1538,11 @@ function main() {
   const chainRows = (previous.pools ?? []).filter((p) => p.source === "chain");
 
   const usedDemoIds = new Set<string>();
-  const generated: Pool[] = drafts.map((d, i) => {
-    // Ids are positional, so keep the historical assignment: the opener creates pools for exactly
-    // these ids, which is what lets the demo cards place real bets.
-    let demoId = String(ID_BASE + i + 1);
-    void openedIds;
+  const generated: Pool[] = drafts.map((d) => {
+    // Stable id: hash of the normalised title. Two questions that differ only in the strike or the
+    // date are different markets and get different ids; the same question rebuilt 30 minutes later
+    // keeps its id, so the pool created for it is never orphaned.
+    let demoId = String(ID_BASE + (fnv1a(d.title) % ID_SPAN));
     while (usedDemoIds.has(demoId)) demoId = String(Number(demoId) + 1);
     usedDemoIds.add(demoId);
     // Presentation numbers come from the id alone (lib/display-stats), the same function the card
@@ -663,10 +1566,25 @@ function main() {
       resolution: d.resolution,
       dataSource: d.dataSource,
       dataAsOf: d.dataAsOf,
+      tier: d.tier,
+      heat: d.heat,
       marketData: d.marketData,
       visual: coverFor({ title: d.title, category: d.category, tags: d.tags, marketData: d.marketData }),
     };
   });
+
+  // A hash id must never point at a pool that settles a different question. The registry is
+  // authoritative (it comes from getPool()), so on any disagreement the generated row is dropped
+  // rather than allowed to rewrite a live card.
+  for (let i = generated.length - 1; i >= 0; i -= 1) {
+    const onChain = openedById.get(generated[i].id);
+    if (onChain && norm(onChain.title) !== norm(generated[i].title)) {
+      console.warn(
+        `[board] id ${generated[i].id} is already open as "${onChain.title}" — dropping generated "${generated[i].title}"`
+      );
+      generated.splice(i, 1);
+    }
+  }
 
   // Expired generated markets are gone by construction; log what that removed.
   const dropped = (previous.pools ?? []).filter(
@@ -675,6 +1593,14 @@ function main() {
 
   const byCategory: Record<string, number> = {};
   for (const p of generated) byCategory[p.category] = (byCategory[p.category] ?? 0) + 1;
+  const byTier: Record<string, number> = {};
+  for (const p of generated) byTier[p.tier ?? "mid"] = (byTier[p.tier ?? "mid"] ?? 0) + 1;
+  const byHorizon: Record<string, number> = {};
+  for (const p of generated) {
+    const days = Math.max(0, Math.round((Date.parse(p.endTimeUtc!) - now.getTime()) / 86_400_000));
+    const bucket = days <= 2 ? "<=48h" : days <= 9 ? "3-9d" : days <= 40 ? "10-40d" : "40d+";
+    byHorizon[bucket] = (byHorizon[bucket] ?? 0) + 1;
+  }
 
   const manifest = {
     version: 2,
@@ -684,9 +1610,10 @@ function main() {
     updatedAt: now.toISOString(),
     featured: generated.find((p) => p.source === "chain")?.id ?? chainRows[0]?.id ?? generated[0]?.id,
     dataSources: {
-      prices: "Binance /api/v3/ticker/24hr (majors) + CoinGecko /simple/price (Base tokens)",
+      prices: "Binance /api/v3/ticker/24hr (majors) + CoinGecko /simple/price (Base tokens) + Yahoo Finance chart (equities/indices/metals/FX)",
       global: "CoinGecko /global",
       tvl: "DefiLlama /v2/chains",
+      macro: "FRED (DGS10, DGS2, DFEDTARU, UNRATE, T10Y2Y, MORTGAGE30US, CPIAUCSL, CPILFESL)",
       asOf: snap.updatedAt,
     },
     stats: {
@@ -718,8 +1645,11 @@ function main() {
         assets: snap.assets,
         global: snap.global,
         chains: snap.chains,
+        macro: snap.macro,
         count: generated.length,
         byCategory,
+        byTier,
+        byHorizon,
         droppedExpired: dropped.map((p) => p.title),
       },
       null,
@@ -731,6 +1661,7 @@ function main() {
   console.log(`snapshot   : ${snap.updatedAt} (${Math.round(age / 60_000)}min old, ${Object.entries(snap.sources).map(([k, v]) => `${k}=${v}`).join(" ")})`);
   console.log(`markets    : ${generated.length} generated + ${chainRows.length} on-chain`);
   for (const [cat, n] of Object.entries(byCategory)) console.log(`  ${cat.padEnd(20)} ${n}`);
+  console.log(`horizon    : ${Object.entries(byTier).map(([k, v]) => `${k}=${v}`).join("  ")}   ${Object.entries(byHorizon).map(([k, v]) => `${k}=${v}`).join("  ")}`);
   if (dropped.length) console.log(`expired    : ${dropped.length} removed (${dropped.map((p) => p.title.slice(0, 48)).join(" · ")})`);
   console.log(`written    : ${POOLS}`);
 }

@@ -56,13 +56,17 @@ Two things make it more than another betting pool:
 2. **An ops daemon that runs the venue.** Market generation, pool creation, seed liquidity,
    probability refresh and settlement reporting run as one autonomous cron tick. The site reads a
    manifest, not a centralized database.
-3. **A board struck against live numbers, not a template.** Every price market is generated from a
-   public snapshot — Binance 24h tickers for BTC/ETH/SOL, CoinGecko for the Base tokens and the
-   global cap, DefiLlama for Base/Ethereum/Solana TVL — and the strike is the next round level above
-   spot. Yes-shares come from a digital-option model over the distance to that strike, so a target
-   20% away never opens at 50%. Seven lanes (`Crypto & Macro`, `DeFi & L2`, `AI & Web3 Tech`,
-   `Memes & Culture`, `Sports & Esports`, `Politics & Policy`, `Base Ecosystem`) are rebuilt, expired
-   markets dropped, and the result republished on a cron.
+3. **A 150-market board struck against live numbers, not a template.** Every price market is
+   generated from a public snapshot — Binance 24h tickers for 19 majors and memecoins, CoinGecko for
+   the Base tokens and the global cap, DefiLlama for eight chains' TVL, Yahoo Finance for NVIDIA /
+   Apple / the S&P / gold / WTI / DXY, and FRED for the 10-year, the 2s10s curve, the policy rate,
+   CPI and unemployment — and the strike is the next round level above spot. Yes-shares come from a
+   digital-option model over the distance to that strike, so a target 20% away never opens at 50%;
+   the 24-hour rung uses a touch probability instead, because a print resolves it. Eight lanes
+   (`Crypto & Macro`, `DeFi & L2`, `AI & Web3 Tech`, `Memes & Culture`, `Sports & Esports`,
+   `Politics & Policy`, `Base Ecosystem`, `Macro & Economy`) are rebuilt on three horizons at once
+   — 24h, 3–7 days, month- and quarter-end — so every day opens new markets and the long rungs keep
+   accumulating liquidity. Expired markets are dropped and the result republished on a cron.
 
 The interface is a **Deep Ocean / Obsidian Glass** system: near-black canvas, layered aurora glow,
 glass panels, hairline borders, and a mobile-first trading drawer.
@@ -85,7 +89,7 @@ proves it did, in `git log`.
                 ▼
 ┌─────────────────────────────────┐        ┌────────────────────────────────┐
 │  WSL cron · every 30 min        │        │  Base mainnet · chain 8453     │
-│  prices → 38 markets → strikes  │        │  PredictionArena V3            │
+│  prices → 150 markets → strikes │        │  PredictionArena V3            │
 │  open pools on-chain (:10/:40)  │◄──────►│  escrow · 4% rake · 30% ref    │
 │  sync attribution → weights     │        └────────────────────────────────┘
 └───────────────┬─────────────────┘                        ▲
@@ -101,8 +105,8 @@ proves it did, in `git log`.
 
 | # | Loop | Trigger | Code | What breaks without it |
 |---|---|---|---|---|
-| 1 | **Board rebuild** — prices → 38 markets → strikes recomputed | cron `*/30` | `scripts/refresh-board.sh` → `gen-board.ts` | The site keeps serving yesterday's strikes, and a market that already resolved stays listed |
-| 2 | **Pool creation** — every new market opened on Base | cron `:10,:40` | `scripts/open-pools-mainnet.sh` | A card exists that cannot accept a bet (`PoolNotFound`) |
+| 1 | **Board rebuild** — prices → 150 markets → strikes recomputed | cron `*/30` | `scripts/refresh-board.sh` → `gen-board.ts` | The site keeps serving yesterday's strikes, and a market that already resolved stays listed |
+| 2 | **Pool creation** — every new market opened on Base, 30 per tick, nonce-safe parallel | cron `:10,:40` | `scripts/open-pools-batch.sh` | A card exists that cannot accept a bet (`PoolNotFound`) |
 | 3 | **Publish** — data committed, pushed, CI → Render | cron `:05` (45-min throttle, retry+rebase) | `scripts/publish-board.sh` | Local data changes never reach the origin |
 | 4 | **Content factory** — ranking + copy in three voices, archived | GH Actions 2×/day | `scripts/auto-market.ts` | The channels go quiet; nobody remembers which numbers were live |
 | 5 | **Attribution** — which tribe's market actually took USDC | cron `*/30` → `docs/campaigns/attribution.json` | `scripts/sync-attribution.ts` | Market selection stays a hand-tuned guess forever |
@@ -555,7 +559,7 @@ Three ways to be useful beyond a star:
 **Show HN: a 100% autonomous Web3 growth agent running a real prediction market on Base**
 
 Most "AI agent" repos are a prompt, a cron and a screenshot. This one moves money-shaped state:
-it rebuilds 38 markets from live feeds every 30 minutes, opens the corresponding pools on Base
+it rebuilds 150 markets from live feeds every 30 minutes, opens the corresponding pools on Base
 mainnet, writes the day's copy in three voices, posts what it is allowed to post, and reads the
 resulting referral volume straight off `BetPlaced` logs to decide what to feature next. Between
 ticks there is no human. The interesting part is not that it generates text — it is that the

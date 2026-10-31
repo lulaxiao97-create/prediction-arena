@@ -48,9 +48,17 @@ if "$NODE" --experimental-strip-types scripts/gen-board.ts >> "$LOG" 2>&1; then
 import json
 d = json.load(open("logs/board.json"))
 cats = ", ".join(f"{k.split(' ')[0]}={v}" for k, v in d["byCategory"].items())
-print(f"{d['count']} markets ({cats}) snapshot {d['snapshotAgeMin']}min old")
+tiers = ", ".join(f"{k}={v}" for k, v in (d.get("byTier") or {}).items())
+print(f"{d['count']} markets ({cats}) horizons {tiers} snapshot {d['snapshotAgeMin']}min old")
 PY
 )"
+  # A board that shrank back to the old size is a failed expansion, not a quiet success: exit
+  # non-zero so publish-board keeps the shipped manifest and ops-daemon reports it.
+  COUNT="$(python3 -c 'import json;print(json.load(open("logs/board.json"))["count"])' 2>/dev/null || echo 0)"
+  if (( COUNT < ${BOARD_MIN_MARKETS:-100} )); then
+    say "ERROR board has ${COUNT} markets (floor ${BOARD_MIN_MARKETS:-100}) — a snapshot source is down"
+    exit 1
+  fi
 else
   say "WARN board rebuild skipped — snapshot missing or older than 3h"
   exit 1

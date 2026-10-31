@@ -1,11 +1,12 @@
 /**
  * Market taxonomy — the single source of truth for the category tabs.
  *
- * Seven lanes, the ones the board is actually generated into (scripts/gen-board.ts writes the
- * canonical strings verbatim) plus "All Markets". On-chain pools still carry a free-text
- * `category` chosen by the owner, so `toMarketCategory()` folds that into a lane and never
- * leaves a tab empty because of a spelling variant. Unknown values land in `other`, which only
- * appears under "All".
+ * Nine lanes, the ones the board is actually generated into (scripts/gen-board.ts writes the
+ * canonical strings verbatim) plus "All Markets" and "Macro & Economy" — the rates/Fed lane the
+ * FRED- and Yahoo-quoted markets needed once the board went past crypto. On-chain pools still
+ * carry a free-text `category` chosen by the owner, so `toMarketCategory()` folds that into a
+ * lane and never leaves a tab empty because of a spelling variant. Unknown values land in
+ * `other`, which only appears under "All".
  *
  * Adding a lane means three edits, in this order: this file, the `nav.*` + `category.*` keys in
  * lib/i18n.ts (all six locales), and the generator's category string.
@@ -19,7 +20,8 @@ export type MarketCategory =
   | "memes"
   | "sports"
   | "politics"
-  | "base";
+  | "base"
+  | "macro";
 export type ResolvedCategory = Exclude<MarketCategory, "all"> | "other";
 
 export const CATEGORY_TABS: { id: MarketCategory; emoji: string; i18n: string }[] = [
@@ -27,6 +29,7 @@ export const CATEGORY_TABS: { id: MarketCategory; emoji: string; i18n: string }[
   { id: "crypto", emoji: "🪙", i18n: "nav.crypto" },
   { id: "defi", emoji: "🚀", i18n: "nav.defi" },
   { id: "ai", emoji: "🤖", i18n: "nav.ai" },
+  { id: "macro", emoji: "🏦", i18n: "nav.macro" },
   { id: "memes", emoji: "🎭", i18n: "nav.memes" },
   { id: "sports", emoji: "⚽", i18n: "nav.sports" },
   { id: "politics", emoji: "🏛️", i18n: "nav.politics" },
@@ -43,15 +46,27 @@ const ALIASES: Record<string, ResolvedCategory> = {
   ethereum: "crypto",
   sol: "crypto",
   solana: "crypto",
-  macro: "crypto",
-  "macro & economy": "crypto",
   "crypto & macro": "crypto",
-  economy: "crypto",
-  economics: "crypto",
-  fed: "crypto",
-  rates: "crypto",
-  inflation: "crypto",
-  macroeconomics: "crypto",
+  // 🏦 Macro & Economy — the Fed, prints and the assets a rates desk watches. These used to fold
+  // into "crypto"; they are a lane of their own now that the board quotes FRED and Yahoo levels.
+  macro: "macro",
+  "macro & economy": "macro",
+  "macro & fed": "macro",
+  economy: "macro",
+  economics: "macro",
+  fed: "macro",
+  fomc: "macro",
+  rates: "macro",
+  inflation: "macro",
+  cpi: "macro",
+  treasury: "macro",
+  treasuries: "macro",
+  yields: "macro",
+  gold: "macro",
+  commodities: "macro",
+  equities: "macro",
+  stocks: "macro",
+  macroeconomics: "macro",
   // 🚀 DeFi & L2
   defi: "defi",
   "defi & l2": "defi",

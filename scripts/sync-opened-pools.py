@@ -41,36 +41,46 @@ if os.path.exists(OUT):
         prev = {}
 
 opened = {}
-for p in pools:
-    pid = str(p.get("id", ""))
-    if not pid.isdigit():
-        continue
+
+
+def read_pool(pid: str):
+    """One getPool call. cast is the only thing here that costs time (RPC round-trip), so the
+    calls are fanned out below instead of walking 150 ids in series — that took four minutes and
+    pushed this reconciler past the cron slot it runs in."""
     try:
         out = subprocess.run(
             [cast, "call", arena, "getPool(uint256)((string,string,uint64,uint8,uint8,uint256,uint256,uint256,bytes32))", pid,
              "--rpc-url", rpc],
-            capture_output=True, text=True, timeout=45,
+            capture_output=True, text=True, timeout=45, stdin=subprocess.DEVNULL,
         )
     except subprocess.TimeoutExpired:
         print(f"{pid}: rpc timeout", file=sys.stderr)
-        continue
+        return None
     if out.returncode != 0 or "Error" in (out.stdout + out.stderr):
-        continue
+        return None
     # ("title", "Category", 1793491199 [1.79e9], 0, 1, ...)
     import re
     m = re.match(r'\(\s*"(.*?)"\s*,\s*"(.*?)"\s*,\s*(\d+)', out.stdout.strip())
     if not m:
         print(f"{pid}: unparsable getPool output", file=sys.stderr)
-        continue
+        return None
     title, category, end_ts = m.group(1), m.group(2), int(m.group(3))
     import datetime
-    opened[pid] = {
+    return {
         "id": pid,
         "title": title,
         "category": category,
         "endTimeUtc": datetime.datetime.fromtimestamp(end_ts, datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z"),
         "tx": (prev.get(pid) or {}).get("tx"),
     }
+
+
+ids = [str(p.get("id", "")) for p in pools if str(p.get("id", "")).isdigit()]
+from concurrent.futures import ThreadPoolExecutor
+with ThreadPoolExecutor(max_workers=int(os.environ.get("SYNC_WORKERS", "8"))) as pool:
+    for row in pool.map(read_pool, ids):
+        if row:
+            opened[row["id"]] = row
 
 json.dump(opened, open(OUT, "w"), indent=2, ensure_ascii=False)
 print(f"opened pools on chain: {len(opened)} -> {os.path.relpath(OUT, ROOT)}")

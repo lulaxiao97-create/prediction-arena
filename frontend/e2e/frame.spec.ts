@@ -1,4 +1,19 @@
 import { expect, test } from "@playwright/test";
+import type { APIRequestContext } from "@playwright/test";
+
+/**
+ * Market ids are hashed from the market's title (scripts/gen-board.ts), so a hardcoded id is a
+ * test that breaks the moment the board rebuilds — it used to point at "market 700001", which was
+ * a positional id from the 38-market board. Resolve a live id from the shipped manifest instead.
+ */
+async function liveMarketIds(request: APIRequestContext, n = 2): Promise<string[]> {
+  const res = await request.get("/pools.json");
+  expect(res.status()).toBe(200);
+  const body = (await res.json()) as { pools?: { id: string | number; status?: number }[] };
+  const ids = (body.pools ?? []).filter((p) => (p.status ?? 1) === 1).map((p) => String(p.id));
+  expect(ids.length).toBeGreaterThanOrEqual(n);
+  return ids.slice(0, n);
+}
 
 /**
  * Farcaster Frame + referral capture.
@@ -7,8 +22,9 @@ import { expect, test } from "@playwright/test";
  * drops `other:` from the metadata: the page still renders, the share card still works, and the
  * market simply stops existing inside Warpcast. These assertions are the only guard.
  */
-test("market page exposes Farcaster Frame tags with attributed buttons", async ({ page }) => {
-  await page.goto("/market/700001", { waitUntil: "domcontentloaded" });
+test("market page exposes Farcaster Frame tags with attributed buttons", async ({ page, request }) => {
+  const [id] = await liveMarketIds(request, 1);
+  await page.goto(`/market/${id}`, { waitUntil: "domcontentloaded" });
   const html = await page.content();
 
   expect(html).toContain('name="fc:frame" content="vNext"');
@@ -25,13 +41,14 @@ test("market page exposes Farcaster Frame tags with attributed buttons", async (
 });
 
 test("/api/frame answers with a frame document", async ({ request }) => {
-  const res = await request.get("/api/frame?id=700001");
+  const [id] = await liveMarketIds(request, 1);
+  const res = await request.get(`/api/frame?id=${id}`);
   expect(res.status()).toBe(200);
   expect(res.headers()["content-type"]).toContain("text/html");
 
   const body = await res.text();
   expect(body).toContain('name="fc:frame" content="vNext"');
-  expect(body).toContain("/market/700001/opengraph-image");
+  expect(body).toContain(`/market/${id}/opengraph-image`);
   expect(body).toContain("ref=fc");
   expect(body).toContain("fc:frame:button:1");
 });
@@ -64,7 +81,7 @@ test("?ref is persisted and survives navigation", async ({ page, context }) => {
     .toContain(wallet);
 
   // a visitor who lands on the referral link and then browses two markets still credits the ref
-  await page.goto("/market/700001", { waitUntil: "domcontentloaded" });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(400);
   expect(await page.evaluate(() => window.localStorage.getItem("pa.ref"))).toContain(wallet);
 });
@@ -85,7 +102,8 @@ test("a garbage ref is ignored rather than stored", async ({ page, context }) =>
  * request. A missing header passes every other test in this suite, which is why this exists.
  */
 test("/api/frame reports server-side render time, cache state and a <50ms budget", async ({ request }) => {
-  const first = await request.get("/api/frame?id=700011");
+  const [, secondId] = await liveMarketIds(request, 2);
+  const first = await request.get(`/api/frame?id=${secondId}`);
   expect(first.status()).toBe(200);
 
   const ms = Number(first.headers()["x-frame-ms"]);
@@ -97,7 +115,7 @@ test("/api/frame reports server-side render time, cache state and a <50ms budget
   expect(["hit", "miss"]).toContain(first.headers()["x-frame-cache"]);
 
   // Second hit inside the 30s memo: the cache has to save the work, not just label itself a hit.
-  const second = await request.get("/api/frame?id=700011");
+  const second = await request.get(`/api/frame?id=${secondId}`);
   expect(second.headers()["x-frame-cache"]).toBe("hit");
   expect(Number(second.headers()["x-frame-ms"])).toBeLessThanOrEqual(ms);
 });

@@ -81,8 +81,14 @@ test("growth attribution endpoint answers with a JSON contract", async ({ reques
   }
 });
 
-test("market share metadata leads with the payout multiple", async ({ page }) => {
-  await page.goto("/market/700001", { waitUntil: "domcontentloaded" });
+test("market share metadata leads with the payout multiple", async ({ page, request }) => {
+  // Ids are hashed from the title, so resolve one from the shipped manifest instead of pinning a
+  // positional id that stopped existing when the board went past 38 markets.
+  const board = await request.get("/pools.json");
+  const body = (await board.json()) as { pools?: { id: string | number; status?: number }[] };
+  const id = String((body.pools ?? []).find((p) => (p.status ?? 1) === 1)?.id ?? "");
+  expect(id).not.toBe("");
+  await page.goto(`/market/${id}`, { waitUntil: "domcontentloaded" });
   const html = await page.content();
   expect(html).toMatch(/\d+% YES · pays \d+\.\d× · \d+ traders/);
 });
