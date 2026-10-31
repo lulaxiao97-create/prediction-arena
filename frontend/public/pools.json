@@ -3,7 +3,7 @@
   "address": "0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5",
   "chainId": 8453,
   "deployBlock": 53150166,
-  "updatedAt": "2026-10-31T02:05:20.593Z",
+  "updatedAt": "2026-10-31T02:16:51.486Z",
   "featured": "721675639",
   "dataSources": {
     "prices": "Binance /api/v3/ticker/24hr (majors) + CoinGecko /simple/price (Base tokens) + Yahoo Finance chart (equities/indices/metals/FX)",
@@ -43,7 +43,7 @@
       "heat": {
         "volatilityPct": 1.04,
         "controversy": 0.692,
-        "hoursLeft": 24.9,
+        "hoursLeft": 24.7,
         "score": 44.93
       },
       "marketData": {
@@ -89,7 +89,7 @@
       "heat": {
         "volatilityPct": 2.72,
         "controversy": 0.732,
-        "hoursLeft": 24.9,
+        "hoursLeft": 24.7,
         "score": 52.82
       },
       "marketData": {
@@ -135,7 +135,7 @@
       "heat": {
         "volatilityPct": 3.23,
         "controversy": 0.764,
-        "hoursLeft": 24.9,
+        "hoursLeft": 24.7,
         "score": 55.84
       },
       "marketData": {
@@ -170,7 +170,7 @@
       "status": 1,
       "endTimeUtc": "2026-11-01T03:00:00.000Z",
       "liquidityUsdc": "52100",
-      "yesShare": 0.628,
+      "yesShare": 0.627,
       "volume24hUsdc": "14800",
       "traders": 197,
       "description": "XRP's tape is policy-driven; the level matters less than the headline that gets it there. Spot is $1.25 (3.92% in 24h); the strike is +1% versus it.",
@@ -180,9 +180,9 @@
       "tier": "24h",
       "heat": {
         "volatilityPct": 3.92,
-        "controversy": 0.744,
-        "hoursLeft": 24.9,
-        "score": 58
+        "controversy": 0.746,
+        "hoursLeft": 24.7,
+        "score": 58.06
       },
       "marketData": {
         "asset": "XRP",
@@ -215,7 +215,7 @@
       "status": 1,
       "endTimeUtc": "2026-11-01T03:00:00.000Z",
       "liquidityUsdc": "71000",
-      "yesShare": 0.587,
+      "yesShare": 0.586,
       "volume24hUsdc": "11700",
       "traders": 284,
       "description": "DOGE is the purest liquidity gauge in crypto — it moves when retail attention arrives. Spot is $0.0759 (3.06% in 24h); the strike is +2% versus it.",
@@ -225,9 +225,9 @@
       "tier": "24h",
       "heat": {
         "volatilityPct": 3.06,
-        "controversy": 0.826,
-        "hoursLeft": 24.9,
-        "score": 57
+        "controversy": 0.828,
+        "hoursLeft": 24.7,
+        "score": 57.06
       },
       "marketData": {
         "asset": "DOGE",
@@ -271,7 +271,7 @@
       "heat": {
         "volatilityPct": 10.65,
         "controversy": 0.732,
-        "hoursLeft": 24.9,
+        "hoursLeft": 24.7,
         "score": 84.58
       },
       "marketData": {
@@ -305,7 +305,7 @@
       "status": 1,
       "endTimeUtc": "2026-11-01T03:00:00.000Z",
       "liquidityUsdc": "13000",
-      "yesShare": 0.572,
+      "yesShare": 0.571,
       "volume24hUsdc": "7200",
       "traders": 111,
       "description": "BNB is the venue-beta trade: it moves with exchange volume, not with the BTC chart. Spot is $704.35 (0.35% in 24h); the strike is +1% versus it.",
@@ -315,9 +315,9 @@
       "tier": "24h",
       "heat": {
         "volatilityPct": 0.35,
-        "controversy": 0.856,
-        "hoursLeft": 24.9,
-        "score": 47.08
+        "controversy": 0.858,
+        "hoursLeft": 24.7,
+        "score": 47.14
       },
       "marketData": {
         "asset": "BNB",
@@ -350,7 +350,7 @@
       "status": 1,
       "endTimeUtc": "2026-11-01T03:00:00.000Z",
       "liquidityUsdc": "23500",
-      "yesShare": 0.601,
+      "yesShare": 0.6,
       "volume24hUsdc": "4500",
       "traders": 245,
       "description": "AVAX trades as a small-cap beta; the strike filters rotation from accumulation. Spot is $8.63 (5.75% in 24h); the strike is +2% versus it.",
@@ -360,9 +360,9 @@
       "tier": "24h",
       "heat": {
         "volatilityPct": 5.75,
-        "controversy": 0.798,
-        "hoursLeft": 24.9,
-        "score": 66.94
+        "controversy": 0.8,
+        "hoursLeft": 24.7,
+        "score": 67
       },
       "marketData": {
         "asset": "AVAX",
@@ -396,7 +396,7 @@
       "status": 1,
       "endTimeUtc": "2026-11-01T03:00:00.000Z",
       "liquidityUsdc": "38100",
-      "yesShare": 0.659,
+      "yesShare": 0.658,
       "volume24hUsdc": "18400",
       "traders": 296,
       "description": "Bitcoin's daily close is the only print that survives the last-hour wick. Spot is $77,385 (1.04% in 24h); the strike is -1% versus it.",
@@ -406,9 +406,9 @@
       "tier": "24h",
       "heat": {
         "volatilityPct": 1.04,
-        "controversy": 0.682,
-        "hoursLeft": 24.9,
-        "score": 44.63
+        "controversy": 0.684,
+        "hoursLeft": 24.7,
+        "score": 44.69
       },
       "marketData": {
         "asset": "BTC",
@@ -453,7 +453,7 @@
       "heat": {
         "volatilityPct": 1.04,
         "controversy": 0.712,
-        "hoursLeft": 93.9,
+        "hoursLeft": 93.7,
         "score": 35.53
       },
       "marketData": {
@@ -499,7 +499,7 @@
       "heat": {
         "volatilityPct": 2.72,
         "controversy": 0.71,
-        "hoursLeft": 93.9,
+        "hoursLeft": 93.7,
         "score": 42.16
       },
       "marketData": {
@@ -545,7 +545,7 @@
       "heat": {
         "volatilityPct": 3.23,
         "controversy": 0.694,
-        "hoursLeft": 93.9,
+        "hoursLeft": 93.7,
         "score": 43.74
       },
       "marketData": {
@@ -591,7 +591,7 @@
       "heat": {
         "volatilityPct": 8.2,
         "controversy": 0.82,
-        "hoursLeft": 93.9,
+        "hoursLeft": 93.7,
         "score": 67.38
       },
       "marketData": {
@@ -636,7 +636,7 @@
       "heat": {
         "volatilityPct": 9.96,
         "controversy": 0.784,
-        "hoursLeft": 93.9,
+        "hoursLeft": 93.7,
         "score": 73.36
       },
       "marketData": {
@@ -681,7 +681,7 @@
       "heat": {
         "volatilityPct": 5.88,
         "controversy": 0.704,
-        "hoursLeft": 93.9,
+        "hoursLeft": 93.7,
         "score": 54.65
       },
       "marketData": {
@@ -726,7 +726,7 @@
       "heat": {
         "volatilityPct": 1.04,
         "controversy": 0.75,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 36.67
       },
       "marketData": {
@@ -772,7 +772,7 @@
       "heat": {
         "volatilityPct": 2.72,
         "controversy": 0.672,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 41.02
       },
       "marketData": {
@@ -818,7 +818,7 @@
       "heat": {
         "volatilityPct": 3.23,
         "controversy": 0.744,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 45.24
       },
       "marketData": {
@@ -864,7 +864,7 @@
       "heat": {
         "volatilityPct": 13.18,
         "controversy": 0.824,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 87.44
       },
       "marketData": {
@@ -909,7 +909,7 @@
       "heat": {
         "volatilityPct": 4.27,
         "controversy": 0.78,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 50.46
       },
       "marketData": {
@@ -954,7 +954,7 @@
       "heat": {
         "volatilityPct": 1.04,
         "controversy": 0.756,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 26.85
       },
       "marketData": {
@@ -1000,7 +1000,7 @@
       "heat": {
         "volatilityPct": 1.04,
         "controversy": 0.56,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 20.97
       },
       "marketData": {
@@ -1046,7 +1046,7 @@
       "heat": {
         "volatilityPct": 2.72,
         "controversy": 0.74,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 33.06
       },
       "marketData": {
@@ -1092,7 +1092,7 @@
       "heat": {
         "volatilityPct": 3.23,
         "controversy": 0.746,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 35.3
       },
       "marketData": {
@@ -1138,7 +1138,7 @@
       "heat": {
         "volatilityPct": 0.66,
         "controversy": 0.748,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 25.1
       },
       "marketData": {
@@ -1183,7 +1183,7 @@
       "heat": {
         "volatilityPct": 1.04,
         "controversy": 0.428,
-        "hoursLeft": 1485.9,
+        "hoursLeft": 1485.7,
         "score": 17.01
       },
       "marketData": {
@@ -1229,7 +1229,7 @@
       "heat": {
         "volatilityPct": 2.72,
         "controversy": 0.438,
-        "hoursLeft": 1485.9,
+        "hoursLeft": 1485.7,
         "score": 24
       },
       "marketData": {
@@ -1275,7 +1275,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.634,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 19.02
       },
       "visual": {
@@ -1312,7 +1312,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.636,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 19.08
       },
       "visual": {
@@ -1348,7 +1348,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.662,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 19.86
       },
       "visual": {
@@ -1385,7 +1385,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.72,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 21.6
       },
       "visual": {
@@ -1421,7 +1421,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.888,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 26.64
       },
       "visual": {
@@ -1458,7 +1458,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.58,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 17.4
       },
       "visual": {
@@ -1495,7 +1495,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.8,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 24
       },
       "visual": {
@@ -1532,7 +1532,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.244,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 7.32
       },
       "visual": {
@@ -1569,7 +1569,7 @@
       "heat": {
         "volatilityPct": 4.09,
         "controversy": 0.724,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 38.08
       },
       "marketData": {
@@ -1617,7 +1617,7 @@
       "heat": {
         "volatilityPct": 4.09,
         "controversy": 0.524,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 32.08
       },
       "marketData": {
@@ -1665,7 +1665,7 @@
       "heat": {
         "volatilityPct": 4.09,
         "controversy": 0.642,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 45.62
       },
       "marketData": {
@@ -1713,7 +1713,7 @@
       "heat": {
         "volatilityPct": 8.2,
         "controversy": 0.668,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 62.82
       },
       "marketData": {
@@ -1760,7 +1760,7 @@
       "heat": {
         "volatilityPct": 9.96,
         "controversy": 0.774,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 73.06
       },
       "marketData": {
@@ -1806,7 +1806,7 @@
       "heat": {
         "volatilityPct": 5.88,
         "controversy": 0.652,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 43.09
       },
       "marketData": {
@@ -1853,7 +1853,7 @@
       "heat": {
         "volatilityPct": 24.2,
         "controversy": 0.86,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 122.6
       },
       "marketData": {
@@ -1898,7 +1898,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.68,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 20.4
       },
       "visual": {
@@ -1933,7 +1933,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.76,
-        "hoursLeft": 357.9,
+        "hoursLeft": 357.7,
         "score": 22.8
       },
       "visual": {
@@ -1968,7 +1968,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.62,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 18.6
       },
       "visual": {
@@ -2004,7 +2004,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.56,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 16.8
       },
       "visual": {
@@ -2028,7 +2028,7 @@
       "status": 1,
       "endTimeUtc": "2026-11-01T03:00:00.000Z",
       "liquidityUsdc": "38400",
-      "yesShare": 0.529,
+      "yesShare": 0.528,
       "volume24hUsdc": "22900",
       "traders": 287,
       "description": "NVIDIA is the single name that sets the AI capex trade; its guide, not its chart, moves the sector. Spot is $204.64 (-4.22% in 24h); the strike is +2% versus it.",
@@ -2038,9 +2038,9 @@
       "tier": "24h",
       "heat": {
         "volatilityPct": 4.22,
-        "controversy": 0.942,
-        "hoursLeft": 24.9,
-        "score": 65.15
+        "controversy": 0.944,
+        "hoursLeft": 24.7,
+        "score": 65.21
       },
       "marketData": {
         "asset": "NVDA",
@@ -2073,7 +2073,7 @@
       "status": 1,
       "endTimeUtc": "2026-11-07T23:59:59.000Z",
       "liquidityUsdc": "45400",
-      "yesShare": 0.34,
+      "yesShare": 0.339,
       "volume24hUsdc": "8100",
       "traders": 227,
       "description": "NVIDIA is the single name that sets the AI capex trade; its guide, not its chart, moves the sector. Spot is $204.64 (-4.22% in 24h); the strike is +5% versus it.",
@@ -2083,9 +2083,9 @@
       "tier": "mid",
       "heat": {
         "volatilityPct": 4.22,
-        "controversy": 0.68,
-        "hoursLeft": 189.9,
-        "score": 47.29
+        "controversy": 0.678,
+        "hoursLeft": 189.7,
+        "score": 47.23
       },
       "marketData": {
         "asset": "NVDA",
@@ -2118,7 +2118,7 @@
       "status": 1,
       "endTimeUtc": "2026-11-07T23:59:59.000Z",
       "liquidityUsdc": "21800",
-      "yesShare": 0.328,
+      "yesShare": 0.327,
       "volume24hUsdc": "11700",
       "traders": 207,
       "description": "NVIDIA is the single name that sets the AI capex trade; its guide, not its chart, moves the sector. Spot is $204.64 (-4.22% in 24h); the strike is -5% versus it.",
@@ -2128,9 +2128,9 @@
       "tier": "mid",
       "heat": {
         "volatilityPct": 4.22,
-        "controversy": 0.656,
-        "hoursLeft": 189.9,
-        "score": 46.57
+        "controversy": 0.654,
+        "hoursLeft": 189.7,
+        "score": 46.51
       },
       "marketData": {
         "asset": "NVDA",
@@ -2174,7 +2174,7 @@
       "heat": {
         "volatilityPct": 4.22,
         "controversy": 0.68,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 37.29
       },
       "marketData": {
@@ -2219,7 +2219,7 @@
       "heat": {
         "volatilityPct": 1.23,
         "controversy": 0.694,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 25.73
       },
       "marketData": {
@@ -2264,7 +2264,7 @@
       "heat": {
         "volatilityPct": 1.23,
         "controversy": 0.42,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 27.51
       },
       "marketData": {
@@ -2309,7 +2309,7 @@
       "heat": {
         "volatilityPct": 1.55,
         "controversy": 0.748,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 28.65
       },
       "marketData": {
@@ -2354,7 +2354,7 @@
       "heat": {
         "volatilityPct": 1.4,
         "controversy": 0.316,
-        "hoursLeft": 93.9,
+        "hoursLeft": 93.7,
         "score": 25.09
       },
       "marketData": {
@@ -2388,7 +2388,7 @@
       "status": 1,
       "endTimeUtc": "2026-11-07T23:59:59.000Z",
       "liquidityUsdc": "64200",
-      "yesShare": 0.25,
+      "yesShare": 0.249,
       "volume24hUsdc": "13500",
       "traders": 117,
       "description": "Tesla is the highest-beta megacap on the board and trades on delivery prints. Spot is $399.81 (-0.86% in 24h); the strike is +8% versus it.",
@@ -2398,9 +2398,9 @@
       "tier": "mid",
       "heat": {
         "volatilityPct": 0.86,
-        "controversy": 0.5,
-        "hoursLeft": 189.9,
-        "score": 28.46
+        "controversy": 0.498,
+        "hoursLeft": 189.7,
+        "score": 28.4
       },
       "marketData": {
         "asset": "TSLA",
@@ -2444,7 +2444,7 @@
       "heat": {
         "volatilityPct": 0.86,
         "controversy": 0.574,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 30.68
       },
       "marketData": {
@@ -2489,7 +2489,7 @@
       "heat": {
         "volatilityPct": 10.88,
         "controversy": 0.872,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 69.68
       },
       "marketData": {
@@ -2534,7 +2534,7 @@
       "heat": {
         "volatilityPct": 1.53,
         "controversy": 0.472,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 30.26
       },
       "marketData": {
@@ -2579,7 +2579,7 @@
       "heat": {
         "volatilityPct": 10.88,
         "controversy": 0.696,
-        "hoursLeft": 93.9,
+        "hoursLeft": 93.7,
         "score": 74.4
       },
       "marketData": {
@@ -2624,7 +2624,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.82,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 24.6
       },
       "visual": {
@@ -2659,7 +2659,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.9,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 27
       },
       "visual": {
@@ -2694,7 +2694,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.74,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 22.2
       },
       "visual": {
@@ -2729,7 +2729,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.66,
-        "hoursLeft": 1485.9,
+        "hoursLeft": 1485.7,
         "score": 19.8
       },
       "visual": {
@@ -2763,7 +2763,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.88,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 26.4
       },
       "visual": {
@@ -2798,7 +2798,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.44,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 13.2
       },
       "visual": {
@@ -2832,7 +2832,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.6,
-        "hoursLeft": 1485.9,
+        "hoursLeft": 1485.7,
         "score": 18
       },
       "visual": {
@@ -2867,7 +2867,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.94,
-        "hoursLeft": 1485.9,
+        "hoursLeft": 1485.7,
         "score": 28.2
       },
       "visual": {
@@ -2893,7 +2893,7 @@
       "status": 1,
       "endTimeUtc": "2026-11-01T03:00:00.000Z",
       "liquidityUsdc": "27100",
-      "yesShare": 0.184,
+      "yesShare": 0.182,
       "volume24hUsdc": "16600",
       "traders": 96,
       "description": "DEGEN is Base's culture token; its price is the read on whether on-chain tipping still has a bid. Spot is $0.000881 (3.02% in 24h); the strike is +15% versus it.",
@@ -2903,9 +2903,9 @@
       "tier": "24h",
       "heat": {
         "volatilityPct": 3.02,
-        "controversy": 0.368,
-        "hoursLeft": 24.9,
-        "score": 43.1
+        "controversy": 0.364,
+        "hoursLeft": 24.7,
+        "score": 42.98
       },
       "marketData": {
         "asset": "DEGEN",
@@ -2941,7 +2941,7 @@
       "status": 1,
       "endTimeUtc": "2026-11-01T03:00:00.000Z",
       "liquidityUsdc": "59000",
-      "yesShare": 0.241,
+      "yesShare": 0.24,
       "volume24hUsdc": "20200",
       "traders": 114,
       "description": "Meme liquidity on Base rotates faster than anywhere else; a strike this far out filters rotation from accumulation. Spot is $0.004339 (4.46% in 24h); the strike is +12% versus it.",
@@ -2951,9 +2951,9 @@
       "tier": "24h",
       "heat": {
         "volatilityPct": 4.46,
-        "controversy": 0.482,
-        "hoursLeft": 24.9,
-        "score": 52.31
+        "controversy": 0.48,
+        "hoursLeft": 24.7,
+        "score": 52.25
       },
       "marketData": {
         "asset": "BRETT",
@@ -2989,7 +2989,7 @@
       "status": 1,
       "endTimeUtc": "2026-11-01T03:00:00.000Z",
       "liquidityUsdc": "36800",
-      "yesShare": 0.117,
+      "yesShare": 0.116,
       "volume24hUsdc": "20700",
       "traders": 284,
       "description": "TOSHI is the long tail of Base memes: it lives or dies on a single week of attention. Spot is $0.000106 (6.37% in 24h); the strike is +20% versus it.",
@@ -2999,9 +2999,9 @@
       "tier": "24h",
       "heat": {
         "volatilityPct": 6.37,
-        "controversy": 0.234,
-        "hoursLeft": 24.9,
-        "score": 52.49
+        "controversy": 0.232,
+        "hoursLeft": 24.7,
+        "score": 52.43
       },
       "marketData": {
         "asset": "TOSHI",
@@ -3047,7 +3047,7 @@
       "heat": {
         "volatilityPct": 6.89,
         "controversy": 0.32,
-        "hoursLeft": 93.9,
+        "hoursLeft": 93.7,
         "score": 47.16
       },
       "marketData": {
@@ -3093,7 +3093,7 @@
       "heat": {
         "volatilityPct": 5.72,
         "controversy": 0.472,
-        "hoursLeft": 93.9,
+        "hoursLeft": 93.7,
         "score": 47.03
       },
       "marketData": {
@@ -3139,7 +3139,7 @@
       "heat": {
         "volatilityPct": 6.96,
         "controversy": 0.698,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 58.77
       },
       "marketData": {
@@ -3186,7 +3186,7 @@
       "heat": {
         "volatilityPct": 7.92,
         "controversy": 0.574,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 58.9
       },
       "marketData": {
@@ -3233,7 +3233,7 @@
       "heat": {
         "volatilityPct": 3.06,
         "controversy": 0.638,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 41.36
       },
       "marketData": {
@@ -3280,7 +3280,7 @@
       "heat": {
         "volatilityPct": 3.02,
         "controversy": 0.548,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 28.5
       },
       "marketData": {
@@ -3328,7 +3328,7 @@
       "heat": {
         "volatilityPct": 4.46,
         "controversy": 0.572,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 35.01
       },
       "marketData": {
@@ -3376,7 +3376,7 @@
       "heat": {
         "volatilityPct": 6.37,
         "controversy": 0.494,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 40.29
       },
       "marketData": {
@@ -3424,7 +3424,7 @@
       "heat": {
         "volatilityPct": 6.89,
         "controversy": 0.638,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 46.7
       },
       "marketData": {
@@ -3471,7 +3471,7 @@
       "heat": {
         "volatilityPct": 5.72,
         "controversy": 0.446,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 46.25
       },
       "marketData": {
@@ -3516,7 +3516,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.52,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 15.6
       },
       "visual": {
@@ -3551,7 +3551,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.36,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 10.8
       },
       "visual": {
@@ -3586,7 +3586,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.48,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 14.4
       },
       "visual": {
@@ -3621,7 +3621,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.58,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 17.4
       },
       "visual": {
@@ -3656,7 +3656,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.64,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 19.2
       },
       "visual": {
@@ -3691,7 +3691,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.92,
-        "hoursLeft": 45.9,
+        "hoursLeft": 45.7,
         "score": 47.6
       },
       "visual": {
@@ -3727,7 +3727,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.66,
-        "hoursLeft": 45.9,
+        "hoursLeft": 45.7,
         "score": 39.8
       },
       "visual": {
@@ -3762,7 +3762,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.42,
-        "hoursLeft": 357.9,
+        "hoursLeft": 357.7,
         "score": 12.6
       },
       "visual": {
@@ -3797,7 +3797,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.78,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 33.4
       },
       "visual": {
@@ -3832,7 +3832,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.82,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 24.6
       },
       "visual": {
@@ -3867,7 +3867,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.58,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 17.4
       },
       "visual": {
@@ -3902,7 +3902,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.86,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 35.8
       },
       "visual": {
@@ -3937,7 +3937,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.44,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 23.2
       },
       "visual": {
@@ -3972,7 +3972,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.84,
-        "hoursLeft": 45.9,
+        "hoursLeft": 45.7,
         "score": 45.2
       },
       "visual": {
@@ -4007,7 +4007,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.66,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 19.8
       },
       "visual": {
@@ -4042,7 +4042,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.56,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 16.8
       },
       "visual": {
@@ -4077,7 +4077,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.96,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 28.8
       },
       "visual": {
@@ -4112,7 +4112,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.62,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 18.6
       },
       "visual": {
@@ -4147,7 +4147,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.68,
-        "hoursLeft": 525.9,
+        "hoursLeft": 525.7,
         "score": 20.4
       },
       "visual": {
@@ -4182,7 +4182,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.9,
-        "hoursLeft": 357.9,
+        "hoursLeft": 357.7,
         "score": 27
       },
       "visual": {
@@ -4217,7 +4217,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.74,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 22.2
       },
       "visual": {
@@ -4252,7 +4252,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.46,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 13.8
       },
       "visual": {
@@ -4287,7 +4287,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.62,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 18.6
       },
       "visual": {
@@ -4322,7 +4322,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.38,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 11.4
       },
       "visual": {
@@ -4357,7 +4357,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.54,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 16.2
       },
       "visual": {
@@ -4392,7 +4392,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.84,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 25.2
       },
       "visual": {
@@ -4427,7 +4427,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.34,
-        "hoursLeft": 1485.9,
+        "hoursLeft": 1485.7,
         "score": 10.2
       },
       "visual": {
@@ -4462,7 +4462,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.42,
-        "hoursLeft": 1485.9,
+        "hoursLeft": 1485.7,
         "score": 12.6
       },
       "visual": {
@@ -4498,7 +4498,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.36,
-        "hoursLeft": 1485.9,
+        "hoursLeft": 1485.7,
         "score": 10.8
       },
       "visual": {
@@ -4533,7 +4533,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.58,
-        "hoursLeft": 1485.9,
+        "hoursLeft": 1485.7,
         "score": 17.4
       },
       "visual": {
@@ -4568,7 +4568,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.44,
-        "hoursLeft": 1485.9,
+        "hoursLeft": 1485.7,
         "score": 13.2
       },
       "visual": {
@@ -4603,7 +4603,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.48,
-        "hoursLeft": 1485.9,
+        "hoursLeft": 1485.7,
         "score": 14.4
       },
       "visual": {
@@ -4638,7 +4638,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.52,
-        "hoursLeft": 1485.9,
+        "hoursLeft": 1485.7,
         "score": 15.6
       },
       "visual": {
@@ -4673,7 +4673,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.3,
-        "hoursLeft": 1485.9,
+        "hoursLeft": 1485.7,
         "score": 9
       },
       "visual": {
@@ -4709,7 +4709,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.942,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 28.26
       },
       "visual": {
@@ -4746,7 +4746,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.126,
-        "hoursLeft": 1485.9,
+        "hoursLeft": 1485.7,
         "score": 3.78
       },
       "visual": {
@@ -4783,7 +4783,7 @@
       "heat": {
         "volatilityPct": 4.09,
         "controversy": 0.838,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 41.5
       },
       "marketData": {
@@ -4820,7 +4820,7 @@
       "status": 1,
       "endTimeUtc": "2026-11-07T23:59:59.000Z",
       "liquidityUsdc": "28300",
-      "yesShare": 0.149,
+      "yesShare": 0.148,
       "volume24hUsdc": "6500",
       "traders": 171,
       "description": "Aerodrome is Base's largest venue; its token is the closest thing the chain has to a beta on its own DEX volume. Spot is $0.6292 (4.09% in 24h); the strike is +26% versus it.",
@@ -4830,9 +4830,9 @@
       "tier": "mid",
       "heat": {
         "volatilityPct": 4.09,
-        "controversy": 0.298,
-        "hoursLeft": 189.9,
-        "score": 35.3
+        "controversy": 0.296,
+        "hoursLeft": 189.7,
+        "score": 35.24
       },
       "marketData": {
         "asset": "AERO",
@@ -4878,7 +4878,7 @@
       "heat": {
         "volatilityPct": 3.02,
         "controversy": 0.834,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 37.08
       },
       "marketData": {
@@ -4925,7 +4925,7 @@
       "heat": {
         "volatilityPct": 5.72,
         "controversy": 0.634,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 41.89
       },
       "marketData": {
@@ -4970,7 +4970,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.58,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 17.4
       },
       "visual": {
@@ -5005,7 +5005,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.76,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 22.8
       },
       "visual": {
@@ -5041,7 +5041,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.48,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 14.4
       },
       "visual": {
@@ -5076,7 +5076,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.7,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 21
       },
       "visual": {
@@ -5111,7 +5111,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.38,
-        "hoursLeft": 1485.9,
+        "hoursLeft": 1485.7,
         "score": 11.4
       },
       "visual": {
@@ -5146,7 +5146,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.88,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 26.4
       },
       "visual": {
@@ -5181,7 +5181,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.68,
-        "hoursLeft": 357.9,
+        "hoursLeft": 357.7,
         "score": 20.4
       },
       "visual": {
@@ -5216,7 +5216,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.64,
-        "hoursLeft": 1485.9,
+        "hoursLeft": 1485.7,
         "score": 19.2
       },
       "visual": {
@@ -5252,7 +5252,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.92,
-        "hoursLeft": 1485.9,
+        "hoursLeft": 1485.7,
         "score": 27.6
       },
       "visual": {
@@ -5289,7 +5289,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.68,
-        "hoursLeft": 1485.9,
+        "hoursLeft": 1485.7,
         "score": 20.4
       },
       "visual": {
@@ -5325,7 +5325,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.26,
-        "hoursLeft": 1485.9,
+        "hoursLeft": 1485.7,
         "score": 7.8
       },
       "visual": {
@@ -5361,7 +5361,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.94,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 28.2
       },
       "visual": {
@@ -5397,7 +5397,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.68,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 20.4
       },
       "visual": {
@@ -5433,7 +5433,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 1,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 30
       },
       "visual": {
@@ -5470,7 +5470,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.66,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 19.8
       },
       "visual": {
@@ -5507,7 +5507,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.72,
-        "hoursLeft": 1485.9,
+        "hoursLeft": 1485.7,
         "score": 21.6
       },
       "visual": {
@@ -5543,7 +5543,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.48,
-        "hoursLeft": 1485.9,
+        "hoursLeft": 1485.7,
         "score": 14.4
       },
       "visual": {
@@ -5579,7 +5579,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.8,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 24
       },
       "visual": {
@@ -5615,7 +5615,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.6,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 18
       },
       "visual": {
@@ -5653,7 +5653,7 @@
       "heat": {
         "volatilityPct": 3.63,
         "controversy": 0.756,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 47.22
       },
       "marketData": {
@@ -5700,7 +5700,7 @@
       "heat": {
         "volatilityPct": 3.63,
         "controversy": 0.75,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 47.04
       },
       "marketData": {
@@ -5746,7 +5746,7 @@
       "heat": {
         "volatilityPct": 3.63,
         "controversy": 0.772,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 37.7
       },
       "marketData": {
@@ -5792,7 +5792,7 @@
       "heat": {
         "volatilityPct": 5.86,
         "controversy": 0.766,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 56.4
       },
       "marketData": {
@@ -5839,7 +5839,7 @@
       "heat": {
         "volatilityPct": 0.93,
         "controversy": 0.722,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 25.38
       },
       "marketData": {
@@ -5886,7 +5886,7 @@
       "heat": {
         "volatilityPct": 0.93,
         "controversy": 0.712,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 25.08
       },
       "marketData": {
@@ -5932,7 +5932,7 @@
       "heat": {
         "volatilityPct": 0.07,
         "controversy": 0.48,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 24.7
       },
       "marketData": {
@@ -5978,7 +5978,7 @@
       "heat": {
         "volatilityPct": 1.82,
         "controversy": 0.684,
-        "hoursLeft": 189.9,
+        "hoursLeft": 189.7,
         "score": 37.79
       },
       "marketData": {
@@ -6014,7 +6014,7 @@
       "status": 1,
       "endTimeUtc": "2026-11-07T23:59:59.000Z",
       "liquidityUsdc": "42400",
-      "yesShare": 0.268,
+      "yesShare": 0.267,
       "volume24hUsdc": "9000",
       "traders": 131,
       "description": "The S&P is the discount-rate trade; it does not need a catalyst to move 2%. Spot is $7,580 (-1.82% in 24h); the strike is -3% versus it.",
@@ -6024,9 +6024,9 @@
       "tier": "mid",
       "heat": {
         "volatilityPct": 1.82,
-        "controversy": 0.536,
-        "hoursLeft": 189.9,
-        "score": 33.35
+        "controversy": 0.534,
+        "hoursLeft": 189.7,
+        "score": 33.29
       },
       "marketData": {
         "asset": "SPX",
@@ -6071,7 +6071,7 @@
       "heat": {
         "volatilityPct": 2.86,
         "controversy": 0.842,
-        "hoursLeft": 741.9,
+        "hoursLeft": 741.7,
         "score": 36.68
       },
       "marketData": {
@@ -6106,7 +6106,7 @@
       "status": 1,
       "endTimeUtc": "2026-11-01T03:00:00.000Z",
       "liquidityUsdc": "23500",
-      "yesShare": 0.382,
+      "yesShare": 0.381,
       "volume24hUsdc": "4500",
       "traders": 296,
       "description": "PAXG is gold with an on-chain settlement rail, so a gold market here resolves without an oracle argument. Spot is $3,900 (-2.74% in 24h); the strike is +2% versus it.",
@@ -6116,9 +6116,9 @@
       "tier": "24h",
       "heat": {
         "volatilityPct": 2.74,
-        "controversy": 0.764,
-        "hoursLeft": 24.9,
-        "score": 53.88
+        "controversy": 0.762,
+        "hoursLeft": 24.7,
+        "score": 53.82
       },
       "marketData": {
         "asset": "PAXG",

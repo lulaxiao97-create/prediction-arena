@@ -1,144 +1,1047 @@
 {
-  "725267574": {
-    "id": "725267574",
-    "title": "Will Bitcoin trade above $78,200 before November 1 2026, 02:00 UTC?",
+  "721675639": {
+    "id": "721675639",
+    "title": "Will Bitcoin trade above $78,000 before November 1 2026, 03:00 UTC?",
     "category": "Crypto & Macro",
-    "endTimeUtc": "2026-11-01T02:00:00.000Z",
+    "endTimeUtc": "2026-11-01T03:00:00.000Z",
+    "tx": "0xbd7e1aa7c214a1cfe9ef2dc51df6c60ee69dd8b0d0b6bbdb0b27d87dd863e14e"
+  },
+  "720652246": {
+    "id": "720652246",
+    "title": "Will Ethereum trade above $2,270 before November 1 2026, 03:00 UTC?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-01T03:00:00.000Z",
+    "tx": "0xc9235d2f47d7078b13d97a3067d485c165ccb8bb8fe8f6c2127dfa3628bdd507"
+  },
+  "725116591": {
+    "id": "725116591",
+    "title": "Will Solana trade above $98.20 before November 1 2026, 03:00 UTC?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-01T03:00:00.000Z",
+    "tx": "0x5555910d86d65d360537ca42eb1851b864232aea3c75218cead94d14de2f4e5d"
+  },
+  "722318062": {
+    "id": "722318062",
+    "title": "Will XRP trade above $1.27 before November 1 2026, 03:00 UTC?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-01T03:00:00.000Z",
+    "tx": "0x00926e058daa4e97adddeef944ba5e73928075fa209032e6b5a332e47aefe0d0"
+  },
+  "726548712": {
+    "id": "726548712",
+    "title": "Will Dogecoin trade above $0.0776 before November 1 2026, 03:00 UTC?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-01T03:00:00.000Z",
+    "tx": "0x926fbeb3245d165708faa3a414605a78a6e42a7ad958571a599a9d587026ddd3"
+  },
+  "727117598": {
+    "id": "727117598",
+    "title": "Will Chainlink trade above $11.94 before November 1 2026, 03:00 UTC?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-01T03:00:00.000Z",
+    "tx": "0x7d39c5fc22c8f9a24d9d945773491d27b18db35686d78f2f271d240960347589"
+  },
+  "724359617": {
+    "id": "724359617",
+    "title": "Will BNB trade above $713.00 before November 1 2026, 03:00 UTC?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-01T03:00:00.000Z",
+    "tx": "0x4995bd46451e0fac8df9f5569d9fea5069d1e5abd7bafb45b5cc63fe9cdbfc2c"
+  },
+  "723830179": {
+    "id": "723830179",
+    "title": "Will Avalanche trade above $8.82 before November 1 2026, 03:00 UTC?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-01T03:00:00.000Z",
+    "tx": "0x78a0605b170d4c55d400030430fe6bcab7302d5a4df68025df83cd277570458f"
+  },
+  "726254365": {
+    "id": "726254365",
+    "title": "Will Bitcoin trade below $76,800 before November 1 2026, 03:00 UTC?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-01T03:00:00.000Z",
+    "tx": "0xa2765e705d02196352d64281f756625e391cdff91ddcc765b1ee8db6ffc17290"
+  },
+  "721588015": {
+    "id": "721588015",
+    "title": "Will Bitcoin close above $79,400 before November 3, 2026?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-03T23:59:59.000Z",
+    "tx": "0x46fd6ade5217167edd048b75aa7500b5eb42b1afcbe76199c16264545e8344fd"
+  },
+  "722420765": {
+    "id": "722420765",
+    "title": "Will Ethereum close above $2,315 before November 3, 2026?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-03T23:59:59.000Z",
+    "tx": "0xdb09a441001cc25af3c4c685b5621f3e82e9dfeb250578a58c71b7556f15b136"
+  },
+  "723666594": {
+    "id": "723666594",
+    "title": "Will Solana close above $100.80 before November 3, 2026?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-03T23:59:59.000Z",
+    "tx": "0x8a3ff72b56b7dc3306a66e87d0b51b06d4d0dcbb4635064051427a0cb3376d68"
+  },
+  "727379888": {
+    "id": "727379888",
+    "title": "Will Uniswap close below $6.77 before November 3, 2026?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-03T23:59:59.000Z",
+    "tx": "0x61ba7ad58d7dc68d01be500ab63225260c834c169f9a7dd95a8cf50ec212f397"
+  },
+  "727658260": {
+    "id": "727658260",
+    "title": "Will Aave close above $138.40 before November 3, 2026?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-03T23:59:59.000Z",
+    "tx": "0xc0324fb410b28159348dec58cff5bf147f3532e6eac8947720e108a805980c81"
+  },
+  "722447072": {
+    "id": "722447072",
+    "title": "Will Arbitrum close above $0.1714 before November 3, 2026?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-03T23:59:59.000Z",
+    "tx": "0xb3ef03471b05f70a78f04f1e136b21f7744924d5e17a960232381deea0750054"
+  },
+  "724369747": {
+    "id": "724369747",
+    "title": "Will Bitcoin close below $75,000 before November 7, 2026?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0xf32804c63eac245295e5c4f9d82f4a483175f1e0f3cf5a56ded63a55b18f3ac6"
+  },
+  "726751385": {
+    "id": "726751385",
+    "title": "Will Ethereum close above $2,360 before November 7, 2026?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0xcde92b81dd804258654eee2094c3fd9dccfac494ff37d3d869ddeb769a71a5d9"
+  },
+  "723497679": {
+    "id": "723497679",
+    "title": "Will Solana close below $91.80 before November 7, 2026?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0xcc364b983cd458a23ff9da6dcc3e0e5a1c8c7a9607b2d0b97e4cef1c2cdfb1ae"
+  },
+  "725419867": {
+    "id": "725419867",
+    "title": "Will Ondo close above $0.4550 before November 7, 2026?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0xca4038e1d04062f3505f904e31f1cf0ea94d6c272f6c196274d2908ce2fd52d8"
+  },
+  "723820943": {
+    "id": "723820943",
+    "title": "Will Bittensor close above $252.50 before November 7, 2026?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0x20ab3d6e0bb6e3d96ad9f342145e279e54f4817b825c7193fd36d2a0b1f2d580"
+  },
+  "724066691": {
+    "id": "724066691",
+    "title": "Will Bitcoin close above $82,200 before November 30, 2026?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
     "tx": null
   },
-  "724087409": {
-    "id": "724087409",
-    "title": "Will XRP trade above $1.27 before November 1 2026, 02:00 UTC?",
+  "724060529": {
+    "id": "724060529",
+    "title": "Will Bitcoin close above $86,800 before November 30, 2026?",
     "category": "Crypto & Macro",
-    "endTimeUtc": "2026-11-01T02:00:00.000Z",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
     "tx": null
   },
-  "723314157": {
-    "id": "723314157",
-    "title": "Will Chainlink trade above $11.98 before November 1 2026, 02:00 UTC?",
+  "721369503": {
+    "id": "721369503",
+    "title": "Will Ethereum close above $2,425 before November 30, 2026?",
     "category": "Crypto & Macro",
-    "endTimeUtc": "2026-11-01T02:00:00.000Z",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
     "tx": null
   },
-  "723397440": {
-    "id": "723397440",
-    "title": "Will BNB trade above $715.00 before November 1 2026, 02:00 UTC?",
+  "721905708": {
+    "id": "721905708",
+    "title": "Will Solana close above $106.60 before November 30, 2026?",
     "category": "Crypto & Macro",
-    "endTimeUtc": "2026-11-01T02:00:00.000Z",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
     "tx": null
   },
-  "724977672": {
-    "id": "724977672",
-    "title": "Will Avalanche trade above $8.82 before November 1 2026, 02:00 UTC?",
+  "725465957": {
+    "id": "725465957",
+    "title": "Will Hyperliquid close above $103.20 before November 30, 2026?",
     "category": "Crypto & Macro",
-    "endTimeUtc": "2026-11-01T02:00:00.000Z",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
     "tx": null
   },
-  "726887610": {
-    "id": "726887610",
-    "title": "Will Bitcoin trade below $76,800 before November 1 2026, 02:00 UTC?",
+  "722977288": {
+    "id": "722977288",
+    "title": "Will Bitcoin close above $96,800 before December 31, 2026?",
     "category": "Crypto & Macro",
-    "endTimeUtc": "2026-11-01T02:00:00.000Z",
+    "endTimeUtc": "2026-12-31T23:59:59.000Z",
     "tx": null
   },
-  "721519783": {
-    "id": "721519783",
-    "title": "Will NVIDIA trade above $209.00 before November 1 2026, 02:00 UTC?",
+  "726142651": {
+    "id": "726142651",
+    "title": "Will Ethereum close above $2,920 before December 31, 2026?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-12-31T23:59:59.000Z",
+    "tx": null
+  },
+  "726858831": {
+    "id": "726858831",
+    "title": "Will BTC dominance close above 60.2% before November 30, 2026?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "721955300": {
+    "id": "721955300",
+    "title": "Will total crypto market cap reclaim $2.80T before November 30, 2026?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "727891504": {
+    "id": "727891504",
+    "title": "Will the ETH/BTC ratio close above 0.0305 before November 30, 2026?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "722063308": {
+    "id": "722063308",
+    "title": "Will a spot Bitcoin ETF record a single day of net outflows above $500M before November 30, 2026?",
+    "category": "Crypto & Macro",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "725568699": {
+    "id": "725568699",
+    "title": "Will Base TVL close above $6.10B before November 30, 2026?",
+    "category": "DeFi & L2",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "723121753": {
+    "id": "723121753",
+    "title": "Will Ethereum TVL fall below $42.20B before November 30, 2026?",
+    "category": "DeFi & L2",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "723338352": {
+    "id": "723338352",
+    "title": "Will Base TVL overtake Solana TVL before November 30, 2026?",
+    "category": "DeFi & L2",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "726737603": {
+    "id": "726737603",
+    "title": "Will Base TVL stay above Arbitrum TVL through November 30, 2026?",
+    "category": "DeFi & L2",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "723436497": {
+    "id": "723436497",
+    "title": "Will Aerodrome close above $0.7290 before November 30, 2026?",
+    "category": "DeFi & L2",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "722211567": {
+    "id": "722211567",
+    "title": "Will Aerodrome close above $0.8240 before November 30, 2026?",
+    "category": "DeFi & L2",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "720011541": {
+    "id": "720011541",
+    "title": "Will Aerodrome close below $0.5700 before November 7, 2026?",
+    "category": "DeFi & L2",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0x54844ee12a0387afcb352465cd832bafc639ea6253192080de51daa0f12147ca"
+  },
+  "721822858": {
+    "id": "721822858",
+    "title": "Will Uniswap close above $7.76 before November 7, 2026?",
+    "category": "DeFi & L2",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0xc484fede6237e06958fe0707c5b4a911f3f007280f4ee7bd079c1e10ef7ab0c3"
+  },
+  "723280206": {
+    "id": "723280206",
+    "title": "Will Aave close below $121.00 before November 7, 2026?",
+    "category": "DeFi & L2",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0xf5e18cf6a44ce646a3f731139a32b7c7005a9b0684adae43edb7a5500a50aca3"
+  },
+  "724171108": {
+    "id": "724171108",
+    "title": "Will Arbitrum close above $0.1958 before November 30, 2026?",
+    "category": "DeFi & L2",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "725139683": {
+    "id": "725139683",
+    "title": "Will Optimism close above $0.1524 before November 30, 2026?",
+    "category": "DeFi & L2",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "726717801": {
+    "id": "726717801",
+    "title": "Will the top five L2s together settle more than 100M transactions in a single day before November 30, 2026?",
+    "category": "DeFi & L2",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "723758115": {
+    "id": "723758115",
+    "title": "Will median L2 swap fees stay under $0.01 for a full week before November 30, 2026?",
+    "category": "DeFi & L2",
+    "endTimeUtc": "2026-11-14T23:59:59.000Z",
+    "tx": null
+  },
+  "724807328": {
+    "id": "724807328",
+    "title": "Will DEX volume across Base and Solana exceed $20B in a single week before November 30, 2026?",
+    "category": "DeFi & L2",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "727054391": {
+    "id": "727054391",
+    "title": "Will any lending protocol on Base cross $1B in TVL before November 30, 2026?",
+    "category": "DeFi & L2",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "724164492": {
+    "id": "724164492",
+    "title": "Will NVIDIA trade above $209.00 before November 1 2026, 03:00 UTC?",
     "category": "AI & Web3 Tech",
-    "endTimeUtc": "2026-11-01T02:00:00.000Z",
+    "endTimeUtc": "2026-11-01T03:00:00.000Z",
+    "tx": "0x99ec72568d95b178f9429c487cdb10bd81b978a1b1b7f4b6441115cfe71cf481"
+  },
+  "724103432": {
+    "id": "724103432",
+    "title": "Will NVIDIA close above $215.00 before November 7, 2026?",
+    "category": "AI & Web3 Tech",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0xdb2ac79338362d450dfb05e45528d96efc35db45e29d6ffb380b5104ce690448"
+  },
+  "725100206": {
+    "id": "725100206",
+    "title": "Will NVIDIA close below $194.00 before November 7, 2026?",
+    "category": "AI & Web3 Tech",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0xf1c3b47b2d19a5b8a68b122fbc17d066f2f0fa4309683624333f65075fbc2437"
+  },
+  "722737546": {
+    "id": "722737546",
+    "title": "Will NVIDIA close above $225.50 before November 30, 2026?",
+    "category": "AI & Web3 Tech",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
     "tx": null
   },
-  "726004038": {
-    "id": "726004038",
-    "title": "Will Degen trade above $0.001012 before November 1 2026, 02:00 UTC?",
-    "category": "Memes & Culture",
-    "endTimeUtc": "2026-11-01T02:00:00.000Z",
+  "721997354": {
+    "id": "721997354",
+    "title": "Will Apple close above $358.50 before November 30, 2026?",
+    "category": "AI & Web3 Tech",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
     "tx": null
   },
-  "726255355": {
-    "id": "726255355",
-    "title": "Will Brett trade above $0.00489 before November 1 2026, 02:00 UTC?",
-    "category": "Memes & Culture",
-    "endTimeUtc": "2026-11-01T02:00:00.000Z",
+  "723870314": {
+    "id": "723870314",
+    "title": "Will Apple close below $330.50 before November 7, 2026?",
+    "category": "AI & Web3 Tech",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0xba0907e6e5b8bf70061102b1ab5d9a84293bb6fb447b4b19453b923b4a539e80"
+  },
+  "721342911": {
+    "id": "721342911",
+    "title": "Will Microsoft close above $538.00 before November 30, 2026?",
+    "category": "AI & Web3 Tech",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
     "tx": null
-  },
-  "723774497": {
-    "id": "723774497",
-    "title": "Will PAX Gold trade above $3,990 before November 1 2026, 02:00 UTC?",
-    "category": "Macro & Economy",
-    "endTimeUtc": "2026-11-01T02:00:00.000Z",
-    "tx": null
-  },
-  "727082380": {
-    "id": "727082380",
-    "title": "Will Ethereum trade above $2,275 before November 1 2026, 02:00 UTC?",
-    "tx": "0x2095f6cef842dbdd4c11a7f69fe9caa59f8983920153ef03c59c0fa9b490aedf",
-    "openedAt": "2026-10-31T01:58:46.205741+00:00"
-  },
-  "727409592": {
-    "id": "727409592",
-    "title": "Will Solana trade above $98.60 before November 1 2026, 02:00 UTC?",
-    "tx": "0x21ff9b861a8697f73c8afa4454184dc458d526fd0f20cafaf7dace9a4e48b06e",
-    "openedAt": "2026-10-31T01:58:46.903500+00:00"
-  },
-  "727534949": {
-    "id": "727534949",
-    "title": "Will Dogecoin trade above $0.0778 before November 1 2026, 02:00 UTC?",
-    "tx": "0x3a866c185f379ed214f5650f7077d813d6e55454a1623520a93cf94be5329d34",
-    "openedAt": "2026-10-31T01:58:47.623244+00:00"
-  },
-  "727568577": {
-    "id": "727568577",
-    "title": "Will Toshi trade above $0.000128 before November 1 2026, 02:00 UTC?",
-    "tx": "0x8a7eead518ed42c4d0a8470d56ee2efb2f48c4c0ced98afb039e03a0aed5d23f",
-    "openedAt": "2026-10-31T01:58:48.448723+00:00"
-  },
-  "723490816": {
-    "id": "723490816",
-    "title": "Will any NFL game this Sunday go to overtime?",
-    "tx": "0xf72ca5408452eb3374e2c5a822bed1fe35ac2a6f0759f250798744d055a7e7ae",
-    "openedAt": "2026-10-31T01:58:49.147470+00:00"
-  },
-  "724440203": {
-    "id": "724440203",
-    "title": "Will this weekend's Premier League round produce 30 or more goals?",
-    "tx": "0x9ddb3a9c34820d5c89824b4bdd9ba5e22bd43db75f5e548c7fad5e5eb731836f",
-    "openedAt": "2026-10-31T01:58:49.930556+00:00"
-  },
-  "724697562": {
-    "id": "724697562",
-    "title": "Will any Premier League side win by four goals or more this weekend?",
-    "tx": "0xf7626f6493ccc0fd837caf68b32883c85ee10ad743833c5772481c750cb50413",
-    "openedAt": "2026-10-31T01:58:50.702513+00:00"
-  },
-  "720462589": {
-    "id": "720462589",
-    "title": "Will Solana close above $101.00 before November 3, 2026?",
-    "tx": "0xd39240029b1acbec8196b8ec9461660c0229ebc0ea98eb4a1e3bb78ab49b4b32",
-    "openedAt": "2026-10-31T01:58:51.348462+00:00"
   },
   "720877243": {
     "id": "720877243",
     "title": "Will Alphabet close below $268.50 before November 3, 2026?",
-    "tx": "0xbe0350271a4e72f52ec235f689d9a1661eae217cf8b45e264a5b2715639c80e4",
-    "openedAt": "2026-10-31T01:58:52.110142+00:00"
+    "category": "AI & Web3 Tech",
+    "endTimeUtc": "2026-11-03T23:59:59.000Z",
+    "tx": "0xbe0350271a4e72f52ec235f689d9a1661eae217cf8b45e264a5b2715639c80e4"
   },
-  "722049251": {
-    "id": "722049251",
-    "title": "Will Zora close above $0.00721 before November 3, 2026?",
-    "tx": "0x1a6d5a6d63885ae5737b19397e0dc1016b67f07afd3f7657db5d1968f5e73bf7",
-    "openedAt": "2026-10-31T01:58:52.873274+00:00"
+  "725432203": {
+    "id": "725432203",
+    "title": "Will Tesla close above $432.00 before November 7, 2026?",
+    "category": "AI & Web3 Tech",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0xaf32dbea621a865748f04e9fb2416f3fa20fb09f2e4b07ecde0c54bf245ed18c"
   },
-  "724412349": {
-    "id": "724412349",
-    "title": "Will Arbitrum close above $0.1720 before November 3, 2026?",
-    "tx": "0x1a6043553af11bb5869b60195eb19e70b0b31898306686bdade5e8110995f08e",
-    "openedAt": "2026-10-31T01:58:53.654596+00:00"
+  "720450727": {
+    "id": "720450727",
+    "title": "Will Tesla close below $375.00 before November 7, 2026?",
+    "category": "AI & Web3 Tech",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0xac8c91606006731339f7f0b33a1d18e76d723435e67605a6af4e06fbf6333da6"
+  },
+  "726689417": {
+    "id": "726689417",
+    "title": "Will AMD close above $556.00 before November 30, 2026?",
+    "category": "AI & Web3 Tech",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "726296517": {
+    "id": "726296517",
+    "title": "Will Meta Platforms close below $584.00 before November 7, 2026?",
+    "category": "AI & Web3 Tech",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0xb1fe087051cb1e1f1453586f412e9b3c9f1cad261a0f0f1af4d2a87157151b19"
   },
   "725029511": {
     "id": "725029511",
     "title": "Will AMD close below $464.00 before November 3, 2026?",
-    "tx": "0x7e7ff235f2057a57eb8c8d50bc298c19341bd8f7c1d1c6ed796c2119a79cb077",
-    "openedAt": "2026-10-31T01:58:54.457332+00:00"
+    "category": "AI & Web3 Tech",
+    "endTimeUtc": "2026-11-03T23:59:59.000Z",
+    "tx": "0x7e7ff235f2057a57eb8c8d50bc298c19341bd8f7c1d1c6ed796c2119a79cb077"
+  },
+  "723069660": {
+    "id": "723069660",
+    "title": "Will a major lab ship a model with a 2M-token context window before November 30, 2026?",
+    "category": "AI & Web3 Tech",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "725413485": {
+    "id": "725413485",
+    "title": "Will OpenAI or Anthropic announce a new frontier model before November 30, 2026?",
+    "category": "AI & Web3 Tech",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "720909243": {
+    "id": "720909243",
+    "title": "Will an autonomous agent complete a paid on-chain task end-to-end before November 30, 2026?",
+    "category": "AI & Web3 Tech",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "722357228": {
+    "id": "722357228",
+    "title": "Will AI-agent on-chain transaction volume exceed $1B in a single month before December 31, 2026?",
+    "category": "AI & Web3 Tech",
+    "endTimeUtc": "2026-12-31T23:59:59.000Z",
+    "tx": null
+  },
+  "720980726": {
+    "id": "720980726",
+    "title": "Will inference prices for a frontier-class model fall another 30% before November 30, 2026?",
+    "category": "AI & Web3 Tech",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "725749243": {
+    "id": "725749243",
+    "title": "Will a zero-knowledge proof of an LLM inference be verified on a public chain before November 30, 2026?",
+    "category": "AI & Web3 Tech",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "722959998": {
+    "id": "722959998",
+    "title": "Will any AI-agent framework exceed 100k monthly active developers before December 31, 2026?",
+    "category": "AI & Web3 Tech",
+    "endTimeUtc": "2026-12-31T23:59:59.000Z",
+    "tx": null
+  },
+  "722458982": {
+    "id": "722458982",
+    "title": "Will a US hyperscaler disclose AI capex above $50B for the quarter before December 31, 2026?",
+    "category": "AI & Web3 Tech",
+    "endTimeUtc": "2026-12-31T23:59:59.000Z",
+    "tx": null
+  },
+  "723921333": {
+    "id": "723921333",
+    "title": "Will Degen trade above $0.001016 before November 1 2026, 03:00 UTC?",
+    "category": "Memes & Culture",
+    "endTimeUtc": "2026-11-01T03:00:00.000Z",
+    "tx": "0x938e16da3028691e259d4f2bb8f37013016f7f88a3fcf86d3963a221f52f522a"
+  },
+  "721857738": {
+    "id": "721857738",
+    "title": "Will Brett trade above $0.00487 before November 1 2026, 03:00 UTC?",
+    "category": "Memes & Culture",
+    "endTimeUtc": "2026-11-01T03:00:00.000Z",
+    "tx": "0x46774117accbf1d220269473ea94744b9c038d665b005b1365399fa61806b113"
+  },
+  "723677054": {
+    "id": "723677054",
+    "title": "Will Toshi trade above $0.000128 before November 1 2026, 03:00 UTC?",
+    "category": "Memes & Culture",
+    "endTimeUtc": "2026-11-01T03:00:00.000Z",
+    "tx": "0x5241bf0d11f29a7e3bc95c70fe94747bcab128599319c1e952fa3e2873909e52"
+  },
+  "722016336": {
+    "id": "722016336",
+    "title": "Will Mog Coin close above $0.0000001228 before November 3, 2026?",
+    "category": "Memes & Culture",
+    "endTimeUtc": "2026-11-03T23:59:59.000Z",
+    "tx": "0x312c629cd83f338b17a108df36eea6c820275323abdbb8cc30356340afc999d8"
+  },
+  "722049251": {
+    "id": "722049251",
+    "title": "Will Zora close above $0.00721 before November 3, 2026?",
+    "category": "Memes & Culture",
+    "endTimeUtc": "2026-11-03T23:59:59.000Z",
+    "tx": "0x1a6d5a6d63885ae5737b19397e0dc1016b67f07afd3f7657db5d1968f5e73bf7"
+  },
+  "720494779": {
+    "id": "720494779",
+    "title": "Will Pepe close above $0.00000543 before November 7, 2026?",
+    "category": "Memes & Culture",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0x158ba4c5f96c215e990b901ee8f18899899f6bb6bb26fa6525982d9d6f5e3bae"
+  },
+  "727601091": {
+    "id": "727601091",
+    "title": "Will dogwifhat close above $0.2030 before November 7, 2026?",
+    "category": "Memes & Culture",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0xbc26ef261f318751dfaead82c6752627abf74af589a22e87650e8e3a2c6cb874"
+  },
+  "726493325": {
+    "id": "726493325",
+    "title": "Will Dogecoin close above $0.0822 before November 7, 2026?",
+    "category": "Memes & Culture",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0x0ec0e6661cf469b269b91dcf29ef36946117e96855e17e616b972f86b59dcc8d"
+  },
+  "720256138": {
+    "id": "720256138",
+    "title": "Will Degen close above $0.001236 before November 30, 2026?",
+    "category": "Memes & Culture",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "726646712": {
+    "id": "726646712",
+    "title": "Will Brett close above $0.00587 before November 30, 2026?",
+    "category": "Memes & Culture",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "721397007": {
+    "id": "721397007",
+    "title": "Will Toshi close above $0.00016 before November 30, 2026?",
+    "category": "Memes & Culture",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "724790665": {
+    "id": "724790665",
+    "title": "Will Mog Coin close below $0.0000000734 before November 30, 2026?",
+    "category": "Memes & Culture",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "721465295": {
+    "id": "721465295",
+    "title": "Will Zora close below $0.00501 before November 7, 2026?",
+    "category": "Memes & Culture",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0x4639067edf02a3a712058209b1a50232b1ea8812c723f8e388369262b51da486"
+  },
+  "725509368": {
+    "id": "725509368",
+    "title": "Will a Base-native meme token enter the top 200 by market cap before November 30, 2026?",
+    "category": "Memes & Culture",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "725250525": {
+    "id": "725250525",
+    "title": "Will a creator-led token out-earn a top-20 protocol token in fees this month?",
+    "category": "Memes & Culture",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "725619293": {
+    "id": "725619293",
+    "title": "Will a memecoin launched on Base reach a $100M market cap within seven days of launch before November 30, 2026?",
+    "category": "Memes & Culture",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "720714895": {
+    "id": "720714895",
+    "title": "Will a top-10 crypto Twitter account be suspended over a paid promotion before November 30, 2026?",
+    "category": "Memes & Culture",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "720102914": {
+    "id": "720102914",
+    "title": "Will any KOL-backed token announced this month trade below its launch price after 30 days?",
+    "category": "Memes & Culture",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "724440203": {
+    "id": "724440203",
+    "title": "Will this weekend's Premier League round produce 30 or more goals?",
+    "category": "Sports & Esports",
+    "endTimeUtc": "2026-11-01T23:59:59.000Z",
+    "tx": "0x9ddb3a9c34820d5c89824b4bdd9ba5e22bd43db75f5e548c7fad5e5eb731836f"
+  },
+  "724697562": {
+    "id": "724697562",
+    "title": "Will any Premier League side win by four goals or more this weekend?",
+    "category": "Sports & Esports",
+    "endTimeUtc": "2026-11-01T23:59:59.000Z",
+    "tx": "0xf7626f6493ccc0fd837caf68b32883c85ee10ad743833c5772481c750cb50413"
+  },
+  "726863915": {
+    "id": "726863915",
+    "title": "Will the Champions League matchday produce a 4-goal comeback from a losing position?",
+    "category": "Sports & Esports",
+    "endTimeUtc": "2026-11-14T23:59:59.000Z",
+    "tx": null
+  },
+  "726185140": {
+    "id": "726185140",
+    "title": "Will a Champions League matchday pass end with more than 30 goals across all fixtures?",
+    "category": "Sports & Esports",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0x2dd70f6a605c7cddaa0ad764c049ac51d5e89d8b621a9ddda847fbaf6e5cf89e"
+  },
+  "722847284": {
+    "id": "722847284",
+    "title": "Will any Champions League fixture produce a hat-trick before November 30, 2026?",
+    "category": "Sports & Esports",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "722982145": {
+    "id": "722982145",
+    "title": "Will the NBA's highest-scoring game this month break 150 points in regulation?",
+    "category": "Sports & Esports",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "722300590": {
+    "id": "722300590",
+    "title": "Will any NBA quarter this week be won by 20 points or more?",
+    "category": "Sports & Esports",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0x62e3ae394a59a4356373546a82f6e1db4d8b3c256b85645c39a897a70d6ff457"
+  },
+  "721199741": {
+    "id": "721199741",
+    "title": "Will an NBA game this week be decided by a buzzer-beater?",
+    "category": "Sports & Esports",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0xf59ae1d32cfa34d0a90ed8c66c27d5b4824ed1d8c1c15451ac9eb69fe40f2d4e"
+  },
+  "723490816": {
+    "id": "723490816",
+    "title": "Will any NFL game this Sunday go to overtime?",
+    "category": "Sports & Esports",
+    "endTimeUtc": "2026-11-01T23:59:59.000Z",
+    "tx": "0xf72ca5408452eb3374e2c5a822bed1fe35ac2a6f0759f250798744d055a7e7ae"
+  },
+  "720532276": {
+    "id": "720532276",
+    "title": "Will any F1 race this month be decided by under one second?",
+    "category": "Sports & Esports",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "726073251": {
+    "id": "726073251",
+    "title": "Will a driver outside the top three constructors take a podium this month?",
+    "category": "Sports & Esports",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "724665836": {
+    "id": "724665836",
+    "title": "Will an esports grand final go to a deciding map this month?",
+    "category": "Sports & Esports",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "722583991": {
+    "id": "722583991",
+    "title": "Will a reverse sweep happen in a Tier-1 esports playoff series before November 30, 2026?",
+    "category": "Sports & Esports",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "725892943": {
+    "id": "725892943",
+    "title": "Will the ATP Finals final go to a fifth set this year?",
+    "category": "Sports & Esports",
+    "endTimeUtc": "2026-11-21T23:59:59.000Z",
+    "tx": null
+  },
+  "723811146": {
+    "id": "723811146",
+    "title": "Will a top-four seed lose in the group stage of the ATP Finals?",
+    "category": "Sports & Esports",
+    "endTimeUtc": "2026-11-14T23:59:59.000Z",
+    "tx": null
+  },
+  "727983015": {
+    "id": "727983015",
+    "title": "Will any MLB team hit three or more home runs in an inning before November 30, 2026?",
+    "category": "Sports & Esports",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "726431631": {
+    "id": "726431631",
+    "title": "Will the US Senate pass a comprehensive crypto market-structure bill before November 30, 2026?",
+    "category": "Politics & Policy",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "721698845": {
+    "id": "721698845",
+    "title": "Will a G20 regulator issue final stablecoin rules naming reserve composition before November 30, 2026?",
+    "category": "Politics & Policy",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "724408094": {
+    "id": "724408094",
+    "title": "Will the EU open an infringement procedure against a member state over MiCA implementation before November 30, 2026?",
+    "category": "Politics & Policy",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "721554368": {
+    "id": "721554368",
+    "title": "Will any major jurisdiction grant a spot crypto ETF listing approval before November 30, 2026?",
+    "category": "Politics & Policy",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "720740490": {
+    "id": "720740490",
+    "title": "Will the SEC drop or settle its enforcement case against a major crypto exchange before November 30, 2026?",
+    "category": "Politics & Policy",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "724909540": {
+    "id": "724909540",
+    "title": "Will a US state enact a strategic Bitcoin reserve law before December 31, 2026?",
+    "category": "Politics & Policy",
+    "endTimeUtc": "2026-12-31T23:59:59.000Z",
+    "tx": null
+  },
+  "725788962": {
+    "id": "725788962",
+    "title": "Will the UK FCA authorise a crypto derivatives venue for retail clients before December 31, 2026?",
+    "category": "Politics & Policy",
+    "endTimeUtc": "2026-12-31T23:59:59.000Z",
+    "tx": null
+  },
+  "722338032": {
+    "id": "722338032",
+    "title": "Will the FATF add a jurisdiction to its grey list citing virtual-asset supervision before December 31, 2026?",
+    "category": "Politics & Policy",
+    "endTimeUtc": "2026-12-31T23:59:59.000Z",
+    "tx": null
+  },
+  "722086316": {
+    "id": "722086316",
+    "title": "Will Congress pass a stablecoin yield ban before December 31, 2026?",
+    "category": "Politics & Policy",
+    "endTimeUtc": "2026-12-31T23:59:59.000Z",
+    "tx": null
+  },
+  "720518908": {
+    "id": "720518908",
+    "title": "Will any jurisdiction require stablecoin issuers to hold 100% reserves in short-term Treasuries before December 31, 2026?",
+    "category": "Politics & Policy",
+    "endTimeUtc": "2026-12-31T23:59:59.000Z",
+    "tx": null
+  },
+  "722230678": {
+    "id": "722230678",
+    "title": "Will India reduce its crypto trading tax before December 31, 2026?",
+    "category": "Politics & Policy",
+    "endTimeUtc": "2026-12-31T23:59:59.000Z",
+    "tx": null
+  },
+  "721352196": {
+    "id": "721352196",
+    "title": "Will Base TVL hold above $5.60B through November 30, 2026?",
+    "category": "Base Ecosystem",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "726820062": {
+    "id": "726820062",
+    "title": "Will Aerodrome close above $0.6850 before November 30, 2026?",
+    "category": "Base Ecosystem",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "722871839": {
+    "id": "722871839",
+    "title": "Will Aerodrome close above $0.7920 before November 7, 2026?",
+    "category": "Base Ecosystem",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0x96105eb5ffbbc2ebb6c39784d70e07c4d9dfa60feebb34e4814be4b2b13a0fd5"
+  },
+  "721378844": {
+    "id": "721378844",
+    "title": "Will Degen close above $0.00099 before November 30, 2026?",
+    "category": "Base Ecosystem",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "722885569": {
+    "id": "722885569",
+    "title": "Will Zora close above $0.00815 before November 30, 2026?",
+    "category": "Base Ecosystem",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "723449700": {
+    "id": "723449700",
+    "title": "Will Base process more daily transactions than Ethereum every day for a week before November 30, 2026?",
+    "category": "Base Ecosystem",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "723711545": {
+    "id": "723711545",
+    "title": "Will Base settle more than 10M transactions in a single day before November 30, 2026?",
+    "category": "Base Ecosystem",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "727559844": {
+    "id": "727559844",
+    "title": "Will a Base-native app cross 1M daily active addresses before November 30, 2026?",
+    "category": "Base Ecosystem",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "727628812": {
+    "id": "727628812",
+    "title": "Will Base sequencer revenue exceed $1M in a single week before November 30, 2026?",
+    "category": "Base Ecosystem",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "722170942": {
+    "id": "722170942",
+    "title": "Will Base host a top-10 DEX by weekly volume before November 30, 2026?",
+    "category": "Base Ecosystem",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "722885906": {
+    "id": "722885906",
+    "title": "Will Base median gas fees stay under $0.01 for a full week before November 30, 2026?",
+    "category": "Base Ecosystem",
+    "endTimeUtc": "2026-11-14T23:59:59.000Z",
+    "tx": null
+  },
+  "725726043": {
+    "id": "725726043",
+    "title": "Will a Base-native token be listed by a top-five centralized exchange before December 31, 2026?",
+    "category": "Base Ecosystem",
+    "endTimeUtc": "2026-12-31T23:59:59.000Z",
+    "tx": null
+  },
+  "722663566": {
+    "id": "722663566",
+    "title": "Will the Fed leave its target range unchanged at 4.00% through December 31, 2026?",
+    "category": "Macro & Economy",
+    "endTimeUtc": "2026-12-31T23:59:59.000Z",
+    "tx": null
+  },
+  "726360789": {
+    "id": "726360789",
+    "title": "Will the Fed cut by 50bp or more in a single move before December 31, 2026?",
+    "category": "Macro & Economy",
+    "endTimeUtc": "2026-12-31T23:59:59.000Z",
+    "tx": null
+  },
+  "725041743": {
+    "id": "725041743",
+    "title": "Will US CPI YoY print above 3.82% in the next release?",
+    "category": "Macro & Economy",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "724674453": {
+    "id": "724674453",
+    "title": "Will US CPI YoY cool to 3.35% or below in the next release?",
+    "category": "Macro & Economy",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "725985913": {
+    "id": "725985913",
+    "title": "Will core CPI YoY stay above 2.57% in the next release?",
+    "category": "Macro & Economy",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "720437828": {
+    "id": "720437828",
+    "title": "Will the 10-year Treasury yield close below 4.88% before November 30, 2026?",
+    "category": "Macro & Economy",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "726163684": {
+    "id": "726163684",
+    "title": "Will the 10-year Treasury yield close above 5.18% before December 31, 2026?",
+    "category": "Macro & Economy",
+    "endTimeUtc": "2026-12-31T23:59:59.000Z",
+    "tx": null
+  },
+  "722422519": {
+    "id": "722422519",
+    "title": "Will the 2s10s curve re-invert below 0% before December 31, 2026?",
+    "category": "Macro & Economy",
+    "endTimeUtc": "2026-12-31T23:59:59.000Z",
+    "tx": null
+  },
+  "724233130": {
+    "id": "724233130",
+    "title": "Will US unemployment print above 4.3% in the next report?",
+    "category": "Macro & Economy",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "727074530": {
+    "id": "727074530",
+    "title": "Will the 30-year mortgage rate fall below 7.04% before November 30, 2026?",
+    "category": "Macro & Economy",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "727699806": {
+    "id": "727699806",
+    "title": "Will COMEX gold close above $4,010 before November 7, 2026?",
+    "category": "Macro & Economy",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0x2f79d2e316b69f4e9189c670b8d385271d6ac3cfa368b74c3de318596947ca6f"
+  },
+  "721071159": {
+    "id": "721071159",
+    "title": "Will COMEX gold close below $3,760 before November 7, 2026?",
+    "category": "Macro & Economy",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0xe6940c796143baed1d65f83006a30afbff4df8ee79292fda46e4c42917b2f958"
+  },
+  "727210676": {
+    "id": "727210676",
+    "title": "Will COMEX gold close above $4,120 before November 30, 2026?",
+    "category": "Macro & Economy",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "725311504": {
+    "id": "725311504",
+    "title": "Will COMEX silver close above $51.60 before November 7, 2026?",
+    "category": "Macro & Economy",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0xdd34eac8b4a457c5d1c5344902bd4db84ce2fe8e8eb14469fdbd931550272773"
+  },
+  "723209197": {
+    "id": "723209197",
+    "title": "Will WTI crude close above $108.20 before November 30, 2026?",
+    "category": "Macro & Economy",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "724134160": {
+    "id": "724134160",
+    "title": "Will WTI crude close below $97.80 before November 30, 2026?",
+    "category": "Macro & Economy",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "721306235": {
+    "id": "721306235",
+    "title": "Will US dollar index close above $103.00 before November 7, 2026?",
+    "category": "Macro & Economy",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0x49cc1cfda9d6d61b60fcdea74aa0e9de8ddbebba69679b8b5206de1b151db6fa"
+  },
+  "723593397": {
+    "id": "723593397",
+    "title": "Will S&P 500 close above $7,740 before November 7, 2026?",
+    "category": "Macro & Economy",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0x7abbea4a4f5c7b297686ff866d59aecf102537886387eb8514c444da4b5dfb02"
+  },
+  "723144625": {
+    "id": "723144625",
+    "title": "Will S&P 500 close below $7,340 before November 7, 2026?",
+    "category": "Macro & Economy",
+    "endTimeUtc": "2026-11-07T23:59:59.000Z",
+    "tx": "0x5b54a50df9ce1fb33c1781619ba6cd5dd4fe22b1507b4cdd31f98cabbf4381cb"
+  },
+  "727853175": {
+    "id": "727853175",
+    "title": "Will Nasdaq Composite close above $26,250 before November 30, 2026?",
+    "category": "Macro & Economy",
+    "endTimeUtc": "2026-11-30T23:59:59.000Z",
+    "tx": null
+  },
+  "723452638": {
+    "id": "723452638",
+    "title": "Will PAX Gold trade above $3,990 before November 1 2026, 03:00 UTC?",
+    "category": "Macro & Economy",
+    "endTimeUtc": "2026-11-01T03:00:00.000Z",
+    "tx": "0x2c19ae03648826e493736550508ea0143ce950487aeacb920723b3026d623803"
+  },
+  "726426093": {
+    "id": "726426093",
+    "title": "Will any G7 country launch a retail CBDC pilot before December 31, 2026?",
+    "tx": "0xbd0fda26b988580fe0e92510a1d3bc658d50ff2e9f7e0e499204c68b4fe661d3",
+    "openedAt": "2026-10-31T02:16:42.707105+00:00"
+  },
+  "726658131": {
+    "id": "726658131",
+    "title": "Will Base sequencer revenue exceed Ethereum L1 fees in a single week before December 31, 2026?",
+    "tx": "0x32dc387b0c274768486d9d5c5a742f4b39451f839d52cd1bca00038963c01420",
+    "openedAt": "2026-10-31T02:16:43.450679+00:00"
+  },
+  "726882744": {
+    "id": "726882744",
+    "title": "Will the Fed's target range be at or below 3.75% before December 31, 2026?",
+    "tx": "0x7f56540c3b6d4ab6b7c4a4ba9a9a80a962fd81653819c2a11c00c2676b744a7a",
+    "openedAt": "2026-10-31T02:16:44.170932+00:00"
+  },
+  "727538868": {
+    "id": "727538868",
+    "title": "Will Base TVL cross $7.00B before December 31, 2026?",
+    "tx": "0xe52d62d0003d9c807b1207b3ee22bfe78dc901fe828047742eeccd07d72d17e1",
+    "openedAt": "2026-10-31T02:16:44.865585+00:00"
+  },
+  "727791039": {
+    "id": "727791039",
+    "title": "Will the CFTC be granted statutory authority over spot crypto markets before December 31, 2026?",
+    "tx": "0x4db5640041cb510ab55f951fb312c8cbe46b10e497fce86694bdc0d3c15e5c65",
+    "openedAt": "2026-10-31T02:16:45.668729+00:00"
   }
 }
