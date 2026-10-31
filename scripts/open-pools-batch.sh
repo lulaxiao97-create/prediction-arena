@@ -93,29 +93,40 @@ echo "[$(date -Is)] candidates=$TOTAL (registry ${REGISTRY})"
 if [ "$TOTAL" -eq 0 ]; then echo "nothing to open"; exit 0; fi
 if [ "$DRY_RUN" = "1" ]; then cut -f1,4 /tmp/pa-batch.tsv; exit 0; fi
 
-NONCE=$(cast nonce "$SIGNER" --rpc-url "$RPC" --block pending)
+NEXT=$(cast nonce "$SIGNER" --rpc-url "$RPC" --block pending </dev/null)
 : > /tmp/pa-batch-sent.tsv
 
 # ── broadcast: asynchronous, explicit nonce per pool ────────────────────────────────
-i=0
+# The nonce is tracked locally and only re-read when a broadcast is rejected: another sender (or a
+# slow mine) can consume the nonce between our read and our send, which is exactly what killed the
+# first run with "nonce too low" — and a stale nonce must not abort the rest of the batch.
 while IFS=$'\t' read -r pid ts cat title; do
   [ -z "$pid" ] && continue
-  n=$((NONCE + i))
-  tx=$(cast send "$ARENA" "createPool(uint256,string,string,uint256)" "$pid" "$title" "$cat" "$ts" \
-        --private-key "$PRIVATE_KEY" --rpc-url "$RPC" --gas-limit 300000 \
-        --nonce "$n" --async --json 2>/dev/null | tr -d '\r\n" ')
-  # `--async --json` prints the hash either raw or JSON-quoted depending on the Foundry build, so
-  # validate the shape instead of parsing it.
-  if ! [[ "$tx" =~ ^0x[0-9a-fA-F]{64}$ ]]; then tx=""; fi
+  tx=""
+  attempt=0
+  while [ -z "$tx" ] && [ "$attempt" -lt 3 ]; do
+    tx=$(cast send "$ARENA" "createPool(uint256,string,string,uint256)" "$pid" "$title" "$cat" "$ts" \
+          --private-key "$PRIVATE_KEY" --rpc-url "$RPC" --gas-limit 300000 \
+          --nonce "$NEXT" --async --json </dev/null 2>/tmp/pa-nonce.err | tr -d '\r\n" ')
+    # `--async --json` prints the hash either raw or JSON-quoted depending on the Foundry build, so
+    # validate the shape instead of parsing it.
+    if ! [[ "$tx" =~ ^0x[0-9a-fA-F]{64}$ ]]; then
+      tx=""
+      attempt=$((attempt + 1))
+      fresh=$(cast nonce "$SIGNER" --rpc-url "$RPC" --block pending </dev/null)
+      if [ "$fresh" -gt "$NEXT" ]; then NEXT="$fresh"; fi
+      sleep 2
+    fi
+  done
   if [ -n "$tx" ]; then
-    printf '%s\t%s\t%s\t%s\n' "$pid" "$tx" "$n" "$title" >> /tmp/pa-batch-sent.tsv
-    echo "  sent  id=$pid nonce=$n tx=$tx"
+    printf '%s\t%s\t%s\t%s\n' "$pid" "$tx" "$NEXT" "$title" >> /tmp/pa-batch-sent.tsv
+    echo "  sent  id=$pid nonce=$NEXT tx=$tx"
+    NEXT=$((NEXT + 1))
   else
-    echo "  FAILED to broadcast id=$pid nonce=$n" >&2
-    # a failed broadcast at nonce n leaves a gap: every later nonce would stall, so stop here
+    echo "  FAILED to broadcast id=$pid nonce=$NEXT: $(tail -1 /tmp/pa-nonce.err 2>/dev/null | cut -c1-120)" >&2
+    # A nonce we could not use leaves a gap that would stall every later transaction, so stop.
     break
   fi
-  i=$((i + 1))
 done < /tmp/pa-batch.tsv
 
 # ── confirm in parallel (the chain decides the order, not this loop) ────────────────
