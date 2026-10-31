@@ -1,0 +1,36 @@
+{
+  "day": "2026-10-31",
+  "posts": [
+    {
+      "id": "722708723",
+      "title": "Will Brett trade above $0.00461 before November 1 2026, 04:00 UTC?",
+      "pick": "tribal",
+      "tweet": "🏴 Will Brett trade above $0.00461 before November 1 2026, 04:00 U…\n\nYES ████░░░░ 44% → 2.3×\nNO  ████░░░░ 56% → 1.8×\n\n320 already picked a side. 13h left. The wrong side pays the right side.\n\nhttps://predictionarena.online/market/722708723?utm_source=x&utm_medium=social&utm_campaign=auto_market&utm_content=722708723&ref=x\n@Predict065",
+      "tweetWeight": 227,
+      "cast": "🏴 Will Brett trade above $0.00461 before November 1 2026, 04:00 UTC?\n\nYES ████░░░░ 44% · 2.3×\nNO  ████░░░░ 56% · 1.8×\n320 in · BRETT $0.004325 now\n\nhttps://predictionarena.online/market/722708723?utm_source=farcaster&utm_medium=cast&utm_campaign=auto_market&utm_content=722708723&ref=fc",
+      "castChars": 287,
+      "telegram": "🏴 DAILY BOARD — 2026-10-31\n\n🔥 Will Brett trade above $0.00461 before November 1 2026, 04:00 UTC?\nYES ████░░░░ 44% · pays 2.3×\nNO  ████░░░░ 56% · pays 1.8×\n320 traders · $85.0K liquidity · 13h left\n\nTake a side → https://predictionarena.online/market/722708723?utm_source=telegram&utm_medium=social&utm_campaign=auto_market&utm_content=722708723&ref=telegram\n\n🧑‍💼 CAPTAIN PROGRAM — copy your referral link from the portfolio drawer (Portfolio → Invite & Earn),\nshare this market, and automatically earn a cut of the 4% platform fee on-chain.\nMechanically: the arena credits the referrer 30% of that 4% rake per referred position, paid by the contract at settlement — not by us, and not out of anyone's stake.\n\nOnly official links: https://predictionarena.online · x.com/Predict065 · t.me/predictionarena_hq\nContract: 0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5 (Base, v3)",
+      "links": {
+        "x": "https://predictionarena.online/market/722708723?utm_source=x&utm_medium=social&utm_campaign=auto_market&utm_content=722708723&ref=x",
+        "farcaster": "https://predictionarena.online/market/722708723?utm_source=farcaster&utm_medium=cast&utm_campaign=auto_market&utm_content=722708723&ref=fc",
+        "telegram": "https://predictionarena.online/market/722708723?utm_source=telegram&utm_medium=social&utm_campaign=auto_market&utm_content=722708723&ref=telegram"
+      },
+      "tribal": {
+        "base": 10,
+        "adaptive": 0,
+        "total": 10,
+        "leader": null
+      },
+      "snapshot": {
+        "yes": 44,
+        "traders": 320,
+        "liquidityUsdc": 85000,
+        "asset": "BRETT",
+        "strikeUsd": 0.00461,
+        "spotUsd": 0.00432503,
+        "endTimeUtc": "2026-11-01T04:00:00.000Z"
+      },
+      "generatedAt": "2026-10-31T15:16:14.572Z"
+    }
+  ]
+}
