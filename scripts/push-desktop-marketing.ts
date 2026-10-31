@@ -133,6 +133,51 @@ function yesShare(pool: Pool): number {
  * has to weigh it. `tribe()` stays as a small bonus: a Base-native token travels further in the
  * comments section that actually gets read.
  */
+/**
+ * The day's three flagships: the hottest market in each of three *different* lanes.
+ *
+ * One flagship was fine on a 38-market board. On 232 markets across 19 lanes it means the same
+ * two or three crypto cards every day, and the macro / AI / entertainment audiences never see
+ * themselves. Picking one per lane, ranked by heat, keeps the daily pack varied and gives the
+ * reply deck three genuinely different comment sections to sit in.
+ */
+function pickFlagships(pools: Pool[], n = 3): Pool[] {
+  const ranked = [...pools].sort((a, b) => flagshipScore(b) - flagshipScore(a));
+  const out: Pool[] = [];
+  const lanes = new Set<string>();
+  for (const pool of ranked) {
+    const lane = String(pool.category ?? "");
+    if (lane && lanes.has(lane)) continue;
+    lanes.add(lane);
+    out.push(pool);
+    if (out.length >= n) break;
+  }
+  for (const pool of ranked) {
+    if (out.length >= n) break;
+    if (!out.includes(pool)) out.push(pool);
+  }
+  return out;
+}
+
+/** How each lane's audience actually talks — the reply has to read like it belongs in that thread. */
+const LANE_VOICE: Record<string, { contrarian: string; receipt: string; challenge: string }> = {
+  "Macro Economy": { contrarian: "The board is pricing this as a coin-flip and the dot plot disagrees", receipt: "Rates desk check", challenge: "Anyone long duration has to have a view on this" },
+  "Global Stocks": { contrarian: "The tape disagrees with the sell-side note", receipt: "Earnings-season tell", challenge: "If you own the megacaps, this is your hedge" },
+  "AI Agents & Tech": { contrarian: "Everyone is long the narrative and short the timeline", receipt: "The shipping cadence says otherwise", challenge: "Builders: this is the number that decides your roadmap" },
+  "Commodities & Metals": { contrarian: "Real rates say one thing, the futures curve says another", receipt: "Positioning is stretched", challenge: "Physical desks are on the other side of this" },
+  "Memes & Social": { contrarian: "CT is fading this and the book is thin", receipt: "Liquidity says otherwise", challenge: "Degens, the odds are not what your timeline claims" },
+  "Entertainment & Pop": { contrarian: "The industry consensus has been wrong on this three years running", receipt: "The numbers leaked early", challenge: "Culture desk, settle this" },
+  "Prediction Markets": { contrarian: "The category is pricing its own growth wrong", receipt: "Volume, not vibes", challenge: "If you trade prediction markets, this is the meta-trade" },
+  "Sports & Gaming": { contrarian: "The market is on the wrong side of the run of play", receipt: "The line moved for a reason", challenge: "Handicappers, defend the number" },
+  "US Politics & Policy": { contrarian: "Floor time, not intent — the market keeps confusing the two", receipt: "The calendar is public", challenge: "Policy people: price the procedure, not the promise" },
+  "Crypto Core": { contrarian: "The crowd is leaning the wrong way into the close", receipt: "Funding is already telling you", challenge: "Spot buyers, this is your entry question" },
+  "Degen Dials": { contrarian: "24 hours is enough to prove who is actually long", receipt: "The tape does not lie on a one-day clock", challenge: "One-day degen, no leverage excuses" },
+};
+
+function laneVoice(pool: Pool) {
+  return LANE_VOICE[String(pool.category ?? "")] ?? null;
+}
+
 function flagshipScore(pool: Pool): number {
   const controversy = pool.heat?.controversy ?? 1 - Math.abs(yesShare(pool) - 0.5) * 2;
   const volatility = pool.heat?.volatilityPct ?? 0;
@@ -249,10 +294,13 @@ function replyDeck(pools: Pool[]): { angle: string; text: string }[] {
     const subject = asset ? `${asset} at ${price(spot ?? 0)}` : `"${clipped(pool.title, 46)}"`;
     const duel = `YES ${bar(yes)} ${yes}% → ${y}× · NO ${bar(no)} ${no}% → ${n}×`;
     const footer = `${count} in · ${left} left → ${url}`;
+    // Lane voice: a macro reply under a rates account and a meme reply under a CT account cannot
+    // be the same sentence with a different ticker in it.
+    const voice = laneVoice(pool);
     const byAngle = [
-      [`The board is ${no}% NO on ${subject} and YES still pays ${y}×`, duel, footer],
-      [`${subject} → ${yes}% YES, ${count} positions already placed`, duel, `${left} left → ${url}`],
-      [`${count} people disagree about this one. ${no}% are on NO.`, `${duel} · ${left} left`, url],
+      [voice?.contrarian ?? `The board is ${no}% NO on ${subject} and YES still pays ${y}×`, duel, footer],
+      [voice ? `${voice.receipt}: ${subject} → ${yes}% YES, ${count} positions` : `${subject} → ${yes}% YES, ${count} positions already placed`, duel, `${left} left → ${url}`],
+      [voice ? `${voice.challenge}. ${count} in, ${no}% on NO.` : `${count} people disagree about this one. ${no}% are on NO.`, `${duel} · ${left} left`, url],
     ];
     // Long subjects degrade to a shorter sentence, they never get cut mid-word.
     const candidates = [
@@ -430,6 +478,17 @@ function main(): void {
 
   const tweet = flagship?.tweet ?? mainTweet(flagshipPool);
   const tweetId = flagship?.id ?? flagshipPool.id;
+  // Three lanes, three cards, three tweets. The archive tweet (if the cloud factory already wrote
+  // one today) stays the first card so the pack and the channel cannot disagree.
+  const flagships = pickFlagships(pools, 3);
+  if (flagship) {
+    const idx = flagships.findIndex((p) => String(p.id) === String(flagship.id));
+    if (idx > 0) flagships.unshift(flagships.splice(idx, 1)[0]);
+  }
+  const flagshipTweets = flagships.map((p) => ({
+    pool: p,
+    tweet: String(p.id) === String(tweetId) ? tweet : mainTweet(p),
+  }));
   const deck = replyDeck(pools);
 
   const files: Record<string, string> = {
@@ -437,6 +496,11 @@ function main(): void {
     // the bottom. Those live in meta.json where a machine reads them, not in the thing a human
     // copies while a post is three minutes old.
     "01-main-tweet.txt": `${tweet}\n`,
+    // The full day's slate: one tweet per flagship lane, so the operator can post three times
+    // instead of once and each post lands in a different audience.
+    "01-main-tweets.txt": flagshipTweets
+      .map((f, i) => `=== #${i + 1} · ${f.pool.category} · market ${f.pool.id} (card 0${i + 1}-market-card.png) ===\n${f.tweet}`)
+      .join("\n\n"),
     "02-alpha-reply-deck.txt": deck.map((r, i) => `#${i + 1}\n${r.text}\n`).join("\n"),
     "03-captain-pitch.txt": `=== EN (DM / email)\n\n${CAPTAIN_EN}\n\n\n=== 中文（TG / 微信）\n\n${CAPTAIN_ZH}\n`,
     "04-calendar.md": calendar(),
@@ -445,6 +509,16 @@ function main(): void {
       {
         generatedAt: new Date().toISOString(),
         site: SITE,
+        flagships: flagshipTweets.map((f, i) => ({
+          slot: i + 1,
+          id: f.pool.id,
+          title: f.pool.title,
+          category: f.pool.category,
+          tier: f.pool.tier ?? null,
+          weight: weight(f.tweet),
+          heat: f.pool.heat ?? null,
+          card: `0${i + 1}-market-card.png`,
+        })),
         flagship: {
           id: tweetId,
           title: flagshipPool.title,
@@ -477,7 +551,13 @@ function main(): void {
 
   // The picture ships with the copy, from the same manifest row. Best effort: a missing Chromium
   // must not cost the operator the text pack.
-  const card = renderCard(tweetId, join(dir, "01-market-card.png"), snapshotPath);
+  // One card per flagship. The first is the tweet's card; the other two are for the second and
+  // third posts, rendered from the same manifest rows so the numbers cannot disagree.
+  const cards = flagshipTweets.map((f, i) => {
+    const out = join(dir, `0${i + 1}-market-card.png`);
+    return { id: f.pool.id, out, result: renderCard(f.pool.id, out, snapshotPath) };
+  });
+  const card = cards[0]?.result ?? { ok: false, note: "no flagship" };
 
   // meta.json is rewritten once the card exists, so the file records whether the picture is really
   // there rather than whether we hoped it would be.

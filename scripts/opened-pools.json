@@ -1043,5 +1043,185 @@
     "title": "Will the CFTC be granted statutory authority over spot crypto markets before December 31, 2026?",
     "tx": "0x4db5640041cb510ab55f951fb312c8cbe46b10e497fce86694bdc0d3c15e5c65",
     "openedAt": "2026-10-31T02:16:45.668729+00:00"
+  },
+  "720066371": {
+    "id": "720066371",
+    "title": "Will dogwifhat trade above $0.1875 before November 1 2026, 04:00 UTC?",
+    "tx": "0x495876cbc07f5d2a2394ca546787e60d084d0428e9124dc39ab068fd3e6eca97",
+    "openedAt": "2026-10-31T03:11:11.430085+00:00"
+  },
+  "720171619": {
+    "id": "720171619",
+    "title": "Will Toshi trade above $0.000115 before November 1 2026, 04:00 UTC?",
+    "tx": "0x700089db4ab36d1be21aec583962b3173562e21f40a11e918c5686ffe62d2442",
+    "openedAt": "2026-10-31T03:11:12.244080+00:00"
+  },
+  "721144045": {
+    "id": "721144045",
+    "title": "Will Optimism trade above $0.1254 before November 1 2026, 04:00 UTC?",
+    "tx": "0x062725302e8a89b4ac39434ddc80c00e4987ad4d34c64de9bd478465281f2c1f",
+    "openedAt": "2026-10-31T03:11:12.954924+00:00"
+  },
+  "721188735": {
+    "id": "721188735",
+    "title": "Will Arbitrum trade above $0.1700 before November 1 2026, 04:00 UTC?",
+    "tx": "0x438dc4251f56b5b20947ca7e1e41e7ecc5e19aa11cdb2580977d62da816fad75",
+    "openedAt": "2026-10-31T03:11:13.848668+00:00"
+  },
+  "721284564": {
+    "id": "721284564",
+    "title": "Will Degen trade above $0.000932 before November 1 2026, 04:00 UTC?",
+    "tx": "0x2e5bfe7295059aa3e24750eec5ab11088435a6fe464cc1fbc7648723325babce",
+    "openedAt": "2026-10-31T03:11:14.717538+00:00"
+  },
+  "722314791": {
+    "id": "722314791",
+    "title": "Will Ondo trade above $0.4330 before November 1 2026, 04:00 UTC?",
+    "tx": "0xa6189d9ce3d176d3241ef0a2f9641f99ce34c4004ad7e7eb21755507997278dd",
+    "openedAt": "2026-10-31T03:11:15.643040+00:00"
+  },
+  "722708723": {
+    "id": "722708723",
+    "title": "Will Brett trade above $0.00461 before November 1 2026, 04:00 UTC?",
+    "tx": "0x2ac156ed2ed174703fb705acb0452926eb14b65cd74c855f40826902b91a27e9",
+    "openedAt": "2026-10-31T03:11:16.532518+00:00"
+  },
+  "723768248": {
+    "id": "723768248",
+    "title": "Will Sui trade above $0.9320 before November 1 2026, 04:00 UTC?",
+    "tx": "0x45d721d035d5bc87db8d540bccb9f09d4bbd22caeb3708256761b982bc55a358",
+    "openedAt": "2026-10-31T03:11:17.556869+00:00"
+  },
+  "724799037": {
+    "id": "724799037",
+    "title": "Will Ethena trade above $0.2025 before November 1 2026, 04:00 UTC?",
+    "tx": "0x6905eddf2409914007688490f267c6b2f14c583b86fcdeefa2a1970f1103a6d8",
+    "openedAt": "2026-10-31T03:11:18.533684+00:00"
+  },
+  "725102464": {
+    "id": "725102464",
+    "title": "Will Hyperliquid trade above $92.20 before November 1 2026, 04:00 UTC?",
+    "tx": "0xa1da804c11f006eb1be27ec6b460a753897fa8ae762311b66944601b46ec2ca3",
+    "openedAt": "2026-10-31T03:11:19.280618+00:00"
+  },
+  "726030706": {
+    "id": "726030706",
+    "title": "Will Pepe trade above $0.00000519 before November 1 2026, 04:00 UTC?",
+    "tx": "0xc5f6fffc8f0a9f191f692bbb341bb26c69d86cbdf606829b87ec4726ac12a787",
+    "openedAt": "2026-10-31T03:11:20.226685+00:00"
+  },
+  "727555278": {
+    "id": "727555278",
+    "title": "Will Mog Coin trade above $0.0000001068 before November 1 2026, 04:00 UTC?",
+    "tx": "0x846cf048bec11109883f609b5e8adb446cededf9d4bb2c82d435f98f2ce8d7d6",
+    "openedAt": "2026-10-31T03:11:21.230748+00:00"
+  },
+  "726620318": {
+    "id": "726620318",
+    "title": "Will at least three of the ten largest Base memecoins close the day green?",
+    "tx": "0x4337f596bbeab778673c95d9a3b0de8fdff0d7a27e2134a1fd4412e795866da2",
+    "openedAt": "2026-10-31T03:11:22.167480+00:00"
+  },
+  "727134294": {
+    "id": "727134294",
+    "title": "Will Microsoft close below $506.00 before November 7, 2026?",
+    "tx": "0x9be28045374a8e2a36fd4e9725d79633c7dec8ee6b9f80f4962e8343eac5217d",
+    "openedAt": "2026-10-31T03:11:23.010705+00:00"
+  },
+  "727894043": {
+    "id": "727894043",
+    "title": "Will Alphabet close above $294.00 before November 7, 2026?",
+    "tx": "0xf230f52a884cb9261cc85b2f960664c5cd4cc56199b13b7d418a2b260683dc72",
+    "openedAt": "2026-10-31T03:11:23.897630+00:00"
+  },
+  "722097693": {
+    "id": "722097693",
+    "title": "Will a top-10 Spotify artist be accused of streaming fraud this month?",
+    "tx": "0xd8a4f75bca49dd609495559440e86707a6514c82084b1f864e4027eb8619f5e5",
+    "openedAt": "2026-10-31T03:11:24.658027+00:00"
+  },
+  "723149908": {
+    "id": "723149908",
+    "title": "Will a crypto KOL's apology video exceed 1M views this month?",
+    "tx": "0x428fb90fae9b0655cf119019bf9fa6f284f7699d4989311a9ada41524cd32f95",
+    "openedAt": "2026-10-31T03:11:25.475930+00:00"
+  },
+  "723197497": {
+    "id": "723197497",
+    "title": "Will WTI crude close below $94.60 before November 30, 2026?",
+    "tx": "0xdf6edde9256de0716beb060c3a1af538c72ef4097cabae40aecd1fd8a78fa0b7",
+    "openedAt": "2026-10-31T03:11:26.507942+00:00"
+  },
+  "725538311": {
+    "id": "725538311",
+    "title": "Will Meta Platforms close above $652.00 before November 30, 2026?",
+    "tx": "0x07caa50797b5d801001db26d2cb5aa70e844aaf7611844b295c2b7ce4bc0801b",
+    "openedAt": "2026-10-31T03:11:27.348868+00:00"
+  },
+  "727046516": {
+    "id": "727046516",
+    "title": "Will COMEX silver close above $54.10 before November 30, 2026?",
+    "tx": "0xfb74b44be69b2ef26bc37f16ec1298721938ca16fcfb3b8421416be3ba46c844",
+    "openedAt": "2026-10-31T03:11:28.078836+00:00"
+  },
+  "727090875": {
+    "id": "727090875",
+    "title": "Will Japan's core CPI print above 3% in the next release?",
+    "tx": "0x18400dde138c46532d319ec71a306fd6df5ccc93efa5ee06f3055dab0bfbeaa7",
+    "openedAt": "2026-10-31T03:11:28.872864+00:00"
+  },
+  "727942349": {
+    "id": "727942349",
+    "title": "Will S&P 500 close above $7,960 before November 30, 2026?",
+    "tx": "0x334b5c97013f0210213060b959c772a44a9e039df57932491c075ac6e654903a",
+    "openedAt": "2026-10-31T03:11:29.703540+00:00"
+  },
+  "726640136": {
+    "id": "726640136",
+    "title": "Will OPEC+ announce a production cut at its next meeting?",
+    "tx": "0x30ef894a4e0d5ebdafc893dd51df5b7ab90333a6d23aff0d9d6cc7b59a065c9e",
+    "openedAt": "2026-10-31T03:11:30.528811+00:00"
+  },
+  "726569559": {
+    "id": "726569559",
+    "title": "Will India's GDP growth print above 7% in the next release?",
+    "tx": "0xf785e366b1dc14443b9b76fce835ecaf8486367b816fa44ccf8de5aee20e53d5",
+    "openedAt": "2026-10-31T03:11:31.270588+00:00"
+  },
+  "727732977": {
+    "id": "727732977",
+    "title": "Will a music award's top prize go to an artist who released an album independently?",
+    "tx": "0x11d0d5c37097c6f116dc717c17cf255b6206a737509730fbef3d684ed2a114c7",
+    "openedAt": "2026-10-31T03:11:32.086335+00:00"
+  },
+  "726153017": {
+    "id": "726153017",
+    "title": "Will a16z or Paradigm close a fund above $5B this year?",
+    "tx": "0xb0bb1b92ae6d1b77fa90e005605b5729615e3c878eb103507c149ffdb1da3e88",
+    "openedAt": "2026-10-31T03:11:32.912258+00:00"
+  },
+  "726357842": {
+    "id": "726357842",
+    "title": "Will a major franchise game cross 1M concurrent players on launch day?",
+    "tx": "0x2effcee26b49b622dced86b47e60e54b63068f7d4c83bc43371b30783e71509d",
+    "openedAt": "2026-10-31T03:11:33.755713+00:00"
+  },
+  "720082881": {
+    "id": "720082881",
+    "title": "Will restaking TVL exceed $25B before December 31, 2026?",
+    "tx": "0x7e71f8e39b8ed699c8da24f24087f85f192444c4933190f98e60c9685a4c1281",
+    "openedAt": "2026-10-31T03:11:34.690715+00:00"
+  },
+  "720112384": {
+    "id": "720112384",
+    "title": "Will Prediction Arena settle its first 100 on-chain markets before December 31, 2026?",
+    "tx": "0xaa3e6d7adede401c10d762325a1309f73574bacfeaa08a5cafa8f766f7987954",
+    "openedAt": "2026-10-31T03:11:35.490539+00:00"
+  },
+  "720164994": {
+    "id": "720164994",
+    "title": "Will the Bank of Japan raise its policy rate before December 31, 2026?",
+    "tx": "0x9f3d71866f4d7171f245a6fb77c8ec5528c62593d951dc43916f283004a1867e",
+    "openedAt": "2026-10-31T03:11:36.326736+00:00"
   }
 }

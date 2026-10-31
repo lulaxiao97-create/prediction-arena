@@ -65,14 +65,25 @@ const ID_SPAN = 8_000_000;
 const TARGET_MIN = 100;
 
 export type Lane =
-  | "Crypto & Macro"
-  | "DeFi & L2"
-  | "AI & Web3 Tech"
-  | "Memes & Culture"
-  | "Sports & Esports"
-  | "Politics & Policy"
-  | "Base Ecosystem"
-  | "Macro & Economy";
+  | "Crypto Core"
+  | "DeFi & Yield"
+  | "Layer 2 & Base"
+  | "Memes & Social"
+  | "AI Agents & Tech"
+  | "Macro Economy"
+  | "US Politics & Policy"
+  | "Global Stocks"
+  | "Commodities & Metals"
+  | "Sports & Gaming"
+  | "Entertainment & Pop"
+  | "Prediction Markets"
+  | "NFTs & Digital Art"
+  | "Web3 Infrastructure"
+  | "Real World Events"
+  | "VC & Startup Deals"
+  | "Asia & Regional"
+  | "Degen Dials"
+  | "Global Policy";
 
 type Tier = "24h" | "mid" | "long";
 
@@ -398,6 +409,27 @@ function buildBoard(snap: PriceSnapshot, now: Date, sticky: Record<string, Stick
   const sunday = nextSundayUTC(now);
   const out: Draft[] = [];
   const seen = new Set<string>();
+  // ── the 19 lanes, declared up front so the ordering of sections cannot create a TDZ ──
+  const C: Lane = "Crypto Core";
+  const D: Lane = "DeFi & Yield";
+  const B: Lane = "Layer 2 & Base";
+  const M: Lane = "Memes & Social";
+  const T: Lane = "AI Agents & Tech";
+  const E: Lane = "Macro Economy";
+  const P: Lane = "US Politics & Policy";
+  const ST: Lane = "Global Stocks";
+  const CO: Lane = "Commodities & Metals";
+  const S: Lane = "Sports & Gaming";
+  const EN: Lane = "Entertainment & Pop";
+  const PM: Lane = "Prediction Markets";
+  const NF: Lane = "NFTs & Digital Art";
+  const IN: Lane = "Web3 Infrastructure";
+  const RW: Lane = "Real World Events";
+  const VC: Lane = "VC & Startup Deals";
+  const AS: Lane = "Asia & Regional";
+  const DG: Lane = "Degen Dials";
+  const GP: Lane = "Global Policy";
+
 
   const px = (sym: string) => a[sym]?.usd ?? 0;
   const chg = (sym: string) => a[sym]?.change24h ?? null;
@@ -527,8 +559,14 @@ function buildBoard(snap: PriceSnapshot, now: Date, sticky: Record<string, Stick
     });
   };
 
+  /** Positional variant of `ed` for the long-tail lanes: 19 lanes x ~10 markets is a lot of
+   *  object literals, and one line per market is what keeps this file readable. */
+  const edp = (
+    lane: Lane, title: string, deadline: Date, p: number, source: string,
+    resolution: string, tags: string[], why?: string,
+  ) => ed({ lane, title, deadline, p, source, resolution, tags, why });
+
   /* ══ 1. Crypto & Macro — the 24h ladder is the daily-visit hook ═══════════ */
-  const C: Lane = "Crypto & Macro";
   // 24h touches: eight majors, one per name, restruck at today's spot on every rebuild.
   priceMarket({ sym: "BTC", lane: C, pct: 0.007, h: H.h24 });
   priceMarket({ sym: "ETH", lane: C, pct: 0.01, h: H.h24 });
@@ -619,7 +657,6 @@ function buildBoard(snap: PriceSnapshot, now: Date, sticky: Record<string, Stick
   });
 
   /* ══ 2. DeFi & L2 ════════════════════════════════════════════════════════ */
-  const D: Lane = "DeFi & L2";
   const baseTvl = chains.base?.tvlUsd ?? 0;
   const ethTvl = chains.ethereum?.tvlUsd ?? 0;
   const solTvl = chains.solana?.tvlUsd ?? 0;
@@ -738,20 +775,19 @@ function buildBoard(snap: PriceSnapshot, now: Date, sticky: Record<string, Stick
   });
 
   /* ══ 3. AI & Web3 Tech — model releases and the megacaps ══════════════════ */
-  const T: Lane = "AI & Web3 Tech";
-  priceMarket({ sym: "NVDA", lane: T, pct: 0.02, h: H.h24 });
-  priceMarket({ sym: "NVDA", lane: T, pct: 0.05, h: H.d7 });
-  priceMarket({ sym: "NVDA", lane: T, pct: -0.05, h: H.d7 });
-  priceMarket({ sym: "NVDA", lane: T, pct: 0.1, h: H.eom });
-  priceMarket({ sym: "AAPL", lane: T, pct: 0.04, h: H.eom });
-  priceMarket({ sym: "AAPL", lane: T, pct: -0.04, h: H.d7 });
-  priceMarket({ sym: "MSFT", lane: T, pct: 0.03, h: H.eom });
-  priceMarket({ sym: "GOOGL", lane: T, pct: -0.04, h: H.d3 });
-  priceMarket({ sym: "TSLA", lane: T, pct: 0.08, h: H.d7 });
-  priceMarket({ sym: "TSLA", lane: T, pct: -0.06, h: H.d7 });
-  priceMarket({ sym: "AMD", lane: T, pct: 0.1, h: H.eom });
-  priceMarket({ sym: "META", lane: T, pct: -0.05, h: H.d7 });
-  priceMarket({ sym: "AMD", lane: T, pct: -0.08, h: H.d3 });
+  priceMarket({ sym: "NVDA", lane: ST, pct: 0.02, h: H.h24 });
+  priceMarket({ sym: "NVDA", lane: ST, pct: 0.05, h: H.d7 });
+  priceMarket({ sym: "NVDA", lane: ST, pct: -0.05, h: H.d7 });
+  priceMarket({ sym: "NVDA", lane: ST, pct: 0.1, h: H.eom });
+  priceMarket({ sym: "AAPL", lane: ST, pct: 0.04, h: H.eom });
+  priceMarket({ sym: "AAPL", lane: ST, pct: -0.04, h: H.d7 });
+  priceMarket({ sym: "MSFT", lane: ST, pct: 0.03, h: H.eom });
+  priceMarket({ sym: "GOOGL", lane: ST, pct: -0.04, h: H.d3 });
+  priceMarket({ sym: "TSLA", lane: ST, pct: 0.08, h: H.d7 });
+  priceMarket({ sym: "TSLA", lane: ST, pct: -0.06, h: H.d7 });
+  priceMarket({ sym: "AMD", lane: ST, pct: 0.1, h: H.eom });
+  priceMarket({ sym: "META", lane: ST, pct: -0.05, h: H.d7 });
+  priceMarket({ sym: "AMD", lane: ST, pct: -0.08, h: H.d3 });
 
   ed({
     lane: T,
@@ -835,7 +871,6 @@ function buildBoard(snap: PriceSnapshot, now: Date, sticky: Record<string, Stick
   });
 
   /* ══ 4. Memes & Culture ══════════════════════════════════════════════════ */
-  const M: Lane = "Memes & Culture";
   priceMarket({ sym: "DEGEN", lane: M, pct: 0.15, h: H.h24, tags: ["Base", "Culture"] });
   priceMarket({ sym: "BRETT", lane: M, pct: 0.12, h: H.h24, tags: ["Base", "Meme"] });
   priceMarket({ sym: "TOSHI", lane: M, pct: 0.2, h: H.h24, tags: ["Base", "Meme"] });
@@ -902,7 +937,6 @@ function buildBoard(snap: PriceSnapshot, now: Date, sticky: Record<string, Stick
   });
 
   /* ══ 5. Sports & Esports ═════════════════════════════════════════════════ */
-  const S: Lane = "Sports & Esports";
   ed({
     lane: S,
     title: `Will this weekend's Premier League round produce 30 or more goals?`,
@@ -1065,7 +1099,6 @@ function buildBoard(snap: PriceSnapshot, now: Date, sticky: Record<string, Stick
   });
 
   /* ══ 6. Politics & Policy ════════════════════════════════════════════════ */
-  const P: Lane = "Politics & Policy";
   ed({
     lane: P,
     title: `Will the US Senate pass a comprehensive crypto market-structure bill before ${label(eom)}?`,
@@ -1077,7 +1110,7 @@ function buildBoard(snap: PriceSnapshot, now: Date, sticky: Record<string, Stick
     source: "congress.gov",
   });
   ed({
-    lane: P,
+    lane: GP,
     title: `Will a G20 regulator issue final stablecoin rules naming reserve composition before ${label(eom)}?`,
     deadline: eom,
     p: 0.31,
@@ -1087,7 +1120,7 @@ function buildBoard(snap: PriceSnapshot, now: Date, sticky: Record<string, Stick
     source: "Regulator official publications",
   });
   ed({
-    lane: P,
+    lane: GP,
     title: `Will the EU open an infringement procedure against a member state over MiCA implementation before ${label(eom)}?`,
     deadline: eom,
     p: 0.19,
@@ -1097,7 +1130,7 @@ function buildBoard(snap: PriceSnapshot, now: Date, sticky: Record<string, Stick
     source: "European Commission infringement register",
   });
   ed({
-    lane: P,
+    lane: GP,
     title: `Will any major jurisdiction grant a spot crypto ETF listing approval before ${label(eom)}?`,
     deadline: eom,
     p: 0.27,
@@ -1137,7 +1170,7 @@ function buildBoard(snap: PriceSnapshot, now: Date, sticky: Record<string, Stick
     source: "State legislature records",
   });
   ed({
-    lane: P,
+    lane: GP,
     title: `Will the UK FCA authorise a crypto derivatives venue for retail clients before ${label(eoq)}?`,
     deadline: eoq,
     p: 0.18,
@@ -1147,7 +1180,7 @@ function buildBoard(snap: PriceSnapshot, now: Date, sticky: Record<string, Stick
     source: "FCA register",
   });
   ed({
-    lane: P,
+    lane: GP,
     title: `Will the FATF add a jurisdiction to its grey list citing virtual-asset supervision before ${label(eoq)}?`,
     deadline: eoq,
     p: 0.29,
@@ -1187,7 +1220,7 @@ function buildBoard(snap: PriceSnapshot, now: Date, sticky: Record<string, Stick
     source: "congress.gov",
   });
   ed({
-    lane: P,
+    lane: GP,
     title: `Will India reduce its crypto trading tax before ${label(eoq)}?`,
     deadline: eoq,
     p: 0.15,
@@ -1198,7 +1231,6 @@ function buildBoard(snap: PriceSnapshot, now: Date, sticky: Record<string, Stick
   });
 
   /* ══ 7. Base Ecosystem ═══════════════════════════════════════════════════ */
-  const B: Lane = "Base Ecosystem";
   if (baseTvl) {
     const target = Math.round((baseTvl * 0.95) / 1e8) * 1e8;
     ed({
@@ -1309,7 +1341,6 @@ function buildBoard(snap: PriceSnapshot, now: Date, sticky: Record<string, Stick
   });
 
   /* ══ 8. Macro & Economy — FRED-struck, no invented levels ════════════════ */
-  const E: Lane = "Macro & Economy";
   const m = macro;
   if (m.FED_UPPER) {
     const nowRate = m.FED_UPPER.value;
@@ -1448,17 +1479,245 @@ function buildBoard(snap: PriceSnapshot, now: Date, sticky: Record<string, Stick
     });
   }
   // Macro price markets: the commodities and indices a rates desk actually watches.
-  priceMarket({ sym: "GOLD", lane: E, pct: 0.03, h: H.d7, tags: ["Gold", "Real rates"] });
-  priceMarket({ sym: "GOLD", lane: E, pct: -0.03, h: H.d7, tags: ["Gold", "Downside"] });
-  priceMarket({ sym: "GOLD", lane: E, pct: 0.06, h: H.eom, tags: ["Gold"] });
-  priceMarket({ sym: "SILVER", lane: E, pct: 0.05, h: H.d7, tags: ["Silver"] });
-  priceMarket({ sym: "OIL", lane: E, pct: 0.05, h: H.eom, tags: ["WTI", "Inflation"] });
-  priceMarket({ sym: "OIL", lane: E, pct: -0.05, h: H.eom, tags: ["WTI", "Downside"] });
+  priceMarket({ sym: "GOLD", lane: CO, pct: 0.03, h: H.d7, tags: ["Gold", "Real rates"] });
+  priceMarket({ sym: "GOLD", lane: CO, pct: -0.03, h: H.d7, tags: ["Gold", "Downside"] });
+  priceMarket({ sym: "GOLD", lane: CO, pct: 0.06, h: H.eom, tags: ["Gold"] });
+  priceMarket({ sym: "SILVER", lane: CO, pct: 0.05, h: H.d7, tags: ["Silver"] });
+  priceMarket({ sym: "OIL", lane: CO, pct: 0.05, h: H.eom, tags: ["WTI", "Inflation"] });
+  priceMarket({ sym: "OIL", lane: CO, pct: -0.05, h: H.eom, tags: ["WTI", "Downside"] });
   priceMarket({ sym: "DXY", lane: E, pct: 0.01, h: H.d7, tags: ["Dollar"] });
-  priceMarket({ sym: "SPX", lane: E, pct: 0.02, h: H.d7, tags: ["S&P 500"] });
-  priceMarket({ sym: "SPX", lane: E, pct: -0.03, h: H.d7, tags: ["S&P 500", "Downside"] });
-  priceMarket({ sym: "NDX", lane: E, pct: 0.03, h: H.eom, tags: ["Nasdaq"] });
+  priceMarket({ sym: "SPX", lane: ST, pct: 0.02, h: H.d7, tags: ["S&P 500"] });
+  priceMarket({ sym: "SPX", lane: ST, pct: -0.03, h: H.d7, tags: ["S&P 500", "Downside"] });
+  priceMarket({ sym: "NDX", lane: ST, pct: 0.03, h: H.eom, tags: ["Nasdaq"] });
   priceMarket({ sym: "PAXG", lane: E, pct: 0.02, h: H.h24, tags: ["Tokenised gold"] });
+
+
+  /* ══ 9-19. The long tail — Global Stocks, Commodities, Entertainment, Prediction Markets,
+     NFTs, Infrastructure, Real World, VC, Asia, Degen Dials, Global Policy ══════════════ */
+
+  /* ── 9. Global Stocks ─────────────────────────────────────────────────── */
+  priceMarket({ sym: "META", lane: ST, pct: 0.06, h: H.eom, tags: ["Megacap"] });
+  priceMarket({ sym: "GOOGL", lane: ST, pct: 0.05, h: H.d7, tags: ["Megacap"] });
+  priceMarket({ sym: "MSFT", lane: ST, pct: -0.03, h: H.d7, tags: ["Megacap", "Downside"] });
+  priceMarket({ sym: "NVDA", lane: ST, pct: 0.2, h: H.eoq, tags: ["AI capex", "Stretch"] });
+  priceMarket({ sym: "AAPL", lane: ST, pct: 0.08, h: H.eoq, tags: ["Megacap"] });
+  priceMarket({ sym: "SPX", lane: ST, pct: 0.05, h: H.eom, tags: ["Index"] });
+  priceMarket({ sym: "NDX", lane: ST, pct: 0.06, h: H.eoq, tags: ["Index"] });
+  edp(ST, `Will the S&P 500 print a new all-time high before ${label(eoq)}?`, eoq, 0.42, "Exchange closing prints",
+    "YES if the S&P 500 cash index closes above its prior all-time closing high on any trading day before the deadline.", ["SPX", "ATH"],
+    "A new high is the cleanest statement that the discount-rate scare is over; the level is public every session.");
+  edp(ST, `Will any mega-cap report revenue growth above 20% YoY this quarter?`, eoq, 0.55, "Company earnings releases",
+    "YES if Microsoft, Alphabet, Amazon, Meta or NVIDIA reports year-over-year revenue growth above 20% in an earnings release before the deadline.", ["Earnings", "Hyperscalers"],
+    "Twenty percent at this scale is the number that separates an AI capex cycle from a normal upgrade cycle.");
+  edp(ST, `Will a Dow Jones component be removed from the index before ${label(eoq)}?`, eoq, 0.14, "S&P Dow Jones Indices",
+    "YES if S&P Dow Jones Indices announces a change to the Dow Jones Industrial Average composition before the deadline.", ["Dow", "Index"],
+    "Index deletions are rare, announced and immediately tradeable — a clean tail bet against a sleepy market.");
+
+  /* ── 10. Commodities & Metals ────────────────────────────────────────── */
+  priceMarket({ sym: "SILVER", lane: CO, pct: 0.1, h: H.eom, tags: ["Silver"] });
+  priceMarket({ sym: "OIL", lane: CO, pct: -0.08, h: H.eom, tags: ["WTI", "Downside"] });
+  priceMarket({ sym: "GOLD", lane: CO, pct: 0.12, h: H.eoq, tags: ["Gold", "Stretch"] });
+  edp(CO, `Will gold print a new all-time high before ${label(eoq)}?`, eoq, 0.38, "COMEX front-month settlement",
+    "YES if the front-month COMEX gold contract settles above its prior all-time high settlement on any trading day before the deadline.", ["Gold", "ATH"],
+    "Gold's high is a real-rate statement, not a jewellery story: it prints when the market doubts the Fed's terminal rate.");
+  edp(CO, `Will OPEC+ announce a production cut at its next meeting?`, addDaysUTC(now, 35), 0.44, "OPEC Secretariat communiqué",
+    "YES if OPEC+ announces a reduction in aggregate production targets at its next scheduled ministerial meeting before the deadline.", ["OPEC", "Oil"],
+    "A cut is a price-support decision taken by a cartel that keeps missing its own quotas — the market prices the headline, not the barrels.");
+  edp(CO, `Will copper close above $5.50/lb before ${label(eoq)}?`, eoq, 0.31, "COMEX copper settlement",
+    "YES if the front-month COMEX copper contract settles above $5.50 per pound on any trading day before the deadline.", ["Copper", "Industrial"],
+    "Copper is the electrification trade with no narrative premium: grid, datacentres and EVs all settle through it.");
+  edp(CO, `Will the gold/silver ratio close below 75 before ${label(eoq)}?`, eoq, 0.33, "COMEX settlements",
+    "YES if the ratio of the front-month gold settlement to the front-month silver settlement prints below 75 on any trading day before the deadline.", ["Gold", "Silver", "Ratio"],
+    "The ratio is the risk appetite of the metals complex in one number: it falls when silver outperforms, which is the late-cycle tell.");
+
+  /* ── 11. Entertainment & Pop ─────────────────────────────────────────── */
+  edp(EN, `Will a single film open above $150M domestic in one weekend before ${label(eoq)}?`, eoq, 0.3, "Box Office Mojo",
+    "YES if any film reports a three-day domestic opening weekend above $150M before the deadline, per Box Office Mojo.", ["Box office", "Film"],
+    "A $150M opening is the threshold where a film becomes a cultural event rather than a release — and it is audited weekly.");
+  edp(EN, `Will a video-game release be delayed out of this quarter?`, eoq, 0.62, "Publisher announcements",
+    "YES if a publisher with a title scheduled in the current quarter announces a delay beyond the quarter before the deadline.", ["Gaming", "Delays"],
+    "Delays are the most reliably priced event in gaming: the base rate is brutal and the announcements are public.");
+  edp(EN, `Will a music award's top prize go to an artist who released an album independently?`, addDaysUTC(now, 45), 0.24, "Award body announcement",
+    "YES if the top album prize at a major music award show before the deadline goes to an artist who released the album without a major label.", ["Music", "Awards"],
+    "Independent releases have the streaming numbers but not the campaign machinery; the gap is the trade.");
+  edp(EN, `Will a top-10 Spotify artist be accused of streaming fraud this month?`, eom, 0.19, "Public reporting / platform statements",
+    "YES if a top-10 artist by monthly listeners is publicly accused (by the platform, a distributor or a rights-holder) of artificial streaming before the deadline.", ["Streaming", "Drama"],
+    "Artificial streaming is the music industry's open secret; accusations are public and specific when they land.");
+  edp(EN, `Will any streaming service raise prices before ${label(eoq)}?`, eoq, 0.57, "Provider price pages",
+    "YES if Netflix, Disney+, Max, Spotify or YouTube Premium announces a price increase in a major market before the deadline.", ["Streaming", "Pricing"],
+    "Price rises are the only lever left once subscriber growth flattens — and they are announced, not leaked.");
+  edp(EN, `Will a crypto KOL's apology video exceed 1M views this month?`, eom, 0.33, "Public view counts",
+    "YES if a video posted by a crypto influencer apologising for a promotion, token or trade exceeds 1M views on any platform before the deadline.", ["KOL", "Drama"],
+    "The apology video is the most reliable engagement event in crypto social, and the view count is public.");
+  edp(EN, `Will a major franchise game cross 1M concurrent players on launch day?`, addDaysUTC(now, 60), 0.35, "SteamDB / platform charts",
+    "YES if any game in an established franchise records 1,000,000+ concurrent players on its launch day before the deadline.", ["Gaming", "Launch"],
+    "Concurrency is the honest launch metric: refunds and review-bombs show up later, the peak does not.");
+  edp(EN, `Will a viral AI-generated track chart on a major platform this quarter?`, eoq, 0.28, "Platform charts",
+    "YES if a track credited to an AI act enters a national top-40 chart before the deadline.", ["AI music", "Charts"],
+    "AI music already has the streams; entering a chart is the point where the industry has to respond.");
+
+  /* ── 12. Prediction Markets (meta) ───────────────────────────────────── */
+  edp(PM, `Will Polymarket's monthly volume exceed $2B before ${label(eoq)}?`, eoq, 0.47, "Dune / Polymarket dashboard",
+    "YES if Polymarket reports more than $2,000,000,000 of monthly traded volume before the deadline.", ["Polymarket", "Volume"],
+    "Prediction-market volume is the category's only honest scoreboard, and it is public.");
+  edp(PM, `Will Prediction Arena settle its first 100 on-chain markets before ${label(eoq)}?`, eoq, 0.36, "On-chain settlement events",
+    "YES if 100 or more pools on this contract have settled (PoolSettled events) before the deadline.", ["Arena", "Settlement"],
+    "Settled markets, not opened ones, are the metric that matters: a market that never resolves is a promise, not a venue.");
+  edp(PM, `Will a prediction market receive a US regulated exchange licence before ${label(eoq)}?`, eoq, 0.22, "CFTC / SEC filings",
+    "YES if a prediction-market operator is granted a US regulated exchange or designated contract market licence before the deadline.", ["Regulation", "Prediction markets"],
+    "The licence is the whole ballgame for US volume: without it the product is a grey-market derivative.");
+  edp(PM, `Will a prediction market's TVL exceed $500M before ${label(eoq)}?`, eoq, 0.4, "DefiLlama",
+    "YES if any prediction-market protocol reports TVL above $500M on DefiLlama before the deadline.", ["TVL", "Prediction markets"],
+    "TVL is the measure of how much money is willing to sit in escrow for a coin-flip, which is the actual product.");
+  edp(PM, `Will total prediction-market volume across venues exceed $5B in a month before ${label(eoq)}?`, eoq, 0.35, "Dune aggregate dashboards",
+    "YES if the combined monthly volume of Polymarket, Kalshi and the largest on-chain venues exceeds $5B before the deadline.", ["Category", "Volume"],
+    "Category volume is what an advertiser or a partner actually asks about; the number is now big enough to matter.");
+  edp(PM, `Will a mainstream sportsbook list a prediction-market product this quarter?`, eoq, 0.27, "Operator announcements",
+    "YES if a top-10 sportsbook operator launches a prediction-market style product (fixed-payout event contracts) before the deadline.", ["Sportsbook", "Category"],
+    "Sportsbooks have the distribution and the licences; prediction markets have the product. The first partnership reprices the category.");
+
+  /* ── 13. NFTs & Digital Art ──────────────────────────────────────────── */
+  edp(NF, `Will BAYC's floor price close above 12 ETH before ${label(eoq)}?`, eoq, 0.34, "Blur / OpenSea floor",
+    "YES if the Bored Ape Yacht Club collection floor prints above 12 ETH on any day before the deadline, per Blur or OpenSea.", ["BAYC", "Floor"],
+    "Blue-chip floors are the NFT market's price index, and they are public to the wei.");
+  edp(NF, `Will CryptoPunks record a sale above $500k before ${label(eoq)}?`, eoq, 0.29, "On-chain sale records",
+    "YES if any CryptoPunk sells for more than $500,000 before the deadline, per on-chain settlement.", ["Punks", "Sales"],
+    "Single punk sales are the market's headline prints — rare, public, and impossible to fake on-chain.");
+  edp(NF, `Will Blur's weekly volume exceed $100M before ${label(eoq)}?`, eoq, 0.31, "Blur / Dune",
+    "YES if Blur reports weekly traded volume above $100M before the deadline.", ["Blur", "Volume"],
+    "Blur is where professional NFT flow lives; its weekly volume is the category's real liquidity number.");
+  edp(NF, `Will an NFT lending protocol cross $1B in cumulative loans before ${label(eoq)}?`, eoq, 0.26, "DefiLlama / protocol dashboards",
+    "YES if an NFT-collateralised lending protocol reports $1B or more of cumulative loan originations before the deadline.", ["NFT lending", "TVL"],
+    "NFT lending is the only NFT use case with a cash flow attached; the cumulative number is the proof of demand.");
+  edp(NF, `Will a generative-art piece sell for over $1M this quarter?`, eoq, 0.18, "Auction house results",
+    "YES if a generative or on-chain art piece sells for more than $1,000,000 at a major auction house or on-chain marketplace before the deadline.", ["Generative art", "Auctions"],
+    "Generative art's top end is thin and headline-driven, which is exactly what makes the tail priceable.");
+  edp(NF, `Will OpenSea report a profitable quarter before ${label(eoq)}?`, eoq, 0.16, "Company statements",
+    "YES if OpenSea publicly reports a profitable quarter before the deadline.", ["OpenSea", "Business"],
+    "Marketplace economics are the missing half of the NFT story: volume without take-rate is a subsidy.");
+
+  /* ── 14. Web3 Infrastructure ─────────────────────────────────────────── */
+  edp(IN, `Will Solana experience a halt longer than 30 minutes before ${label(eoq)}?`, eoq, 0.27, "Solana status page",
+    "YES if the Solana mainnet beta halts block production for more than 30 consecutive minutes before the deadline, per the official status page.", ["Solana", "Uptime"],
+    "Solana's halts are rare now, which is why the market underprices them — and they are announced on a status page.");
+  edp(IN, `Will Ethereum ship its next scheduled upgrade before ${label(eoq)}?`, eoq, 0.52, "Ethereum client releases",
+    "YES if the next scheduled Ethereum mainnet upgrade activates before the deadline, per the client teams' published fork schedule.", ["Ethereum", "Upgrade"],
+    "Upgrade dates slip for good reasons and bad; the fork schedule is public and the activation block is checkable.");
+  edp(IN, `Will Lido's share of staked ETH fall below 25% before ${label(eoq)}?`, eoq, 0.4, "Dune staking dashboards",
+    "YES if Lido's share of total staked ETH prints below 25% on any day before the deadline.", ["Lido", "Staking"],
+    "Decentralisation is a number when it is measured as one operator's share of stake; 25% is the governance-risk line.");
+  edp(IN, `Will restaking TVL exceed $25B before ${label(eoq)}?`, eoq, 0.33, "DefiLlama",
+    "YES if aggregate restaking TVL prints above $25B before the deadline.", ["Restaking", "TVL"],
+    "Restaking turned security into a yield product; the TVL is the size of the risk being layered.");
+  edp(IN, `Will a major L2 post a full day of downtime before ${label(eoq)}?`, eoq, 0.21, "L2Beat / chain status pages",
+    "YES if any top-five L2 by TVL fails to produce blocks for 24 consecutive hours before the deadline.", ["L2", "Uptime"],
+    "L2 sequencers are single points of failure by design; a day-long outage is the tail every bridge user is short.");
+  edp(IN, `Will blob fees on Ethereum exceed 0.01 gwei for a full week before ${label(eoq)}?`, eoq, 0.37, "Etherscan blob data",
+    "YES if the median blob base fee stays above 0.01 gwei for seven consecutive days before the deadline.", ["Blobs", "Fees"],
+    "Blob fees are the true cost of L2 data availability, and they only rise when L2 demand is real.");
+  edp(IN, `Will a major RPC provider suffer a multi-hour outage this quarter?`, eoq, 0.44, "Provider status pages",
+    "YES if any of Alchemy, Infura, QuickNode or Ankr reports a degradation longer than two hours before the deadline.", ["RPC", "Uptime"],
+    "RPC is the least visible single point of failure in the stack; every dApp on this board depends on one.");
+
+  /* ── 15. Real World Events ───────────────────────────────────────────── */
+  edp(RW, `Will SpaceX complete a Starship flight without a loss of vehicle before ${label(eoq)}?`, eoq, 0.46, "SpaceX mission updates",
+    "YES if SpaceX completes a Starship test flight with the vehicle intact through the planned profile before the deadline.", ["SpaceX", "Launch"],
+    "Starship cadence is the leading indicator for launch economics, and every flight is public.");
+  edp(RW, `Will a small modular reactor receive a construction permit before ${label(eoq)}?`, eoq, 0.28, "Nuclear regulator filings",
+    "YES if a nuclear regulator grants a construction permit for a small modular reactor design before the deadline.", ["Nuclear", "Energy"],
+    "Datacentre demand has made nuclear licensing the bottleneck of the AI build-out; permits are public documents.");
+  edp(RW, `Will a quantum computer solve a problem beyond classical simulation this quarter?`, eoq, 0.22, "Peer-reviewed publication",
+    "YES if a peer-reviewed paper demonstrates a quantum computation that cannot be reproduced classically within a week before the deadline.", ["Quantum", "Research"],
+    "Quantum advantage claims are the most over-claimed result in tech; the peer-reviewed version is the only one that counts.");
+  edp(RW, `Will a major AI lab publish a safety evaluation of a frontier model this quarter?`, eoq, 0.58, "Lab publications",
+    "YES if OpenAI, Anthropic, Google DeepMind or Meta publishes a third-party safety evaluation of a frontier model before the deadline.", ["AI safety", "Research"],
+    "Safety evaluations are becoming a de-facto licence to ship; the first public one sets the template.");
+  edp(RW, `Will a G20 government declare a climate emergency this quarter?`, eoq, 0.12, "Government statements",
+    "YES if a G20 national government formally declares a climate emergency before the deadline.", ["Climate", "Policy"],
+    "Declarations are cheap talk until they unlock emergency budget powers, which is why they stay rare.");
+  edp(RW, `Will a commercial fusion company report net energy gain before ${label(eoq)}?`, eoq, 0.14, "Company / peer-reviewed results",
+    "YES if a private fusion company reports a shot with scientific gain (Q>1) verified by an independent reviewer before the deadline.", ["Fusion", "Energy"],
+    "Fusion has produced Q>1 in public labs; the private-sector claim is the one that would reprice the sector.");
+  edp(RW, `Will a robotaxi service expand to a new US city this quarter?`, eoq, 0.55, "Operator announcements",
+    "YES if Waymo, Zoox or Tesla launches paid driverless service in a city where it did not operate before the deadline.", ["Robotaxi", "Autonomy"],
+    "City-by-city expansion is the only honest measure of autonomy progress; the press release is always public.");
+
+  /* ── 16. VC & Startup Deals ──────────────────────────────────────────── */
+  edp(VC, `Will a private AI company raise at a valuation above $300B before ${label(eoq)}?`, eoq, 0.33, "Reported financing rounds",
+    "YES if a private AI company completes a priced round at a post-money valuation above $300B before the deadline.", ["AI", "Valuation"],
+    "Private marks are the last unrepriced corner of the AI trade; one round at this size resets every comparable.");
+  edp(VC, `Will crypto VC funding exceed $5B in a single quarter before ${label(eoq)}?`, eoq, 0.29, "Messari / The Block funding data",
+    "YES if disclosed crypto venture funding exceeds $5B in a calendar quarter ending before the deadline.", ["Crypto VC", "Funding"],
+    "Funding is the trailing indicator that still moves token prices: it says whether the next cohort gets built.");
+  edp(VC, `Will a payments company file for IPO before ${label(eoq)}?`, eoq, 0.36, "SEC S-1 filings",
+    "YES if Stripe, Revolut or Klarna publicly files a registration statement for an IPO before the deadline.", ["IPO", "Fintech"],
+    "The IPO window is a regime indicator: one filing brings the queue.");
+  edp(VC, `Will a16z or Paradigm close a fund above $5B this year?`, addDaysUTC(now, 60), 0.31, "Fund announcements",
+    "YES if Andreessen Horowitz or Paradigm announces a new fund of $5B or more before the deadline.", ["VC", "Funds"],
+    "Fund size is the supply side of the startup cycle; it sets how many seed cheques exist next year.");
+  edp(VC, `Will an AI startup reach a $1B valuation within 12 months of founding?`, addDaysUTC(now, 90), 0.41, "Reported financings",
+    "YES if any AI company founded in the last 12 months closes a round at a $1B+ post-money valuation before the deadline.", ["AI", "Unicorns"],
+    "Time-to-unicorn has compressed from seven years to under one in AI; the base rate is the trade.");
+  edp(VC, `Will a crypto startup with no token raise above $100M this quarter?`, eoq, 0.38, "Reported financings",
+    "YES if a crypto company without a launched token closes an equity round above $100M before the deadline.", ["Crypto VC", "Equity"],
+    "Equity-only crypto rounds are the tell that the business, not the token, is being financed.");
+
+  /* ── 17. Asia & Regional ─────────────────────────────────────────────── */
+  edp(AS, `Will the Bank of Japan raise its policy rate before ${label(eoq)}?`, eoq, 0.34, "BOJ statements",
+    "YES if the Bank of Japan raises its short-term policy rate at a meeting before the deadline.", ["BOJ", "Japan"],
+    "The yen carry trade is the funding leg of every global risk position, so a BOJ hike is a global event.");
+  edp(AS, `Will China cut its one-year loan prime rate before ${label(eoq)}?`, eoq, 0.48, "PBOC announcements",
+    "YES if the People's Bank of China lowers the one-year loan prime rate before the deadline.", ["China", "Rates"],
+    "China's LPR is the cheapest stimulus signal there is, and it is published monthly.");
+  edp(AS, `Will Japan's core CPI print above 3% in the next release?`, addDaysUTC(now, 30), 0.42, "Statistics Bureau of Japan",
+    "YES if Japan's core CPI (ex fresh food) prints above 3.0% year-over-year in the next release before the deadline.", ["Japan", "CPI"],
+    "Japanese inflation is the variable that decides whether the BOJ can normalise at all.");
+  edp(AS, `Will India's GDP growth print above 7% in the next release?`, addDaysUTC(now, 45), 0.4, "MOSPI releases",
+    "YES if India's quarterly GDP growth prints above 7.0% year-over-year in the next release before the deadline.", ["India", "GDP"],
+    "India is the only large economy still compounding at 7%; the print is the whole EM growth story.");
+  edp(AS, `Will Hong Kong approve another crypto trading platform licence this quarter?`, eoq, 0.57, "SFC licence register",
+    "YES if the Hong Kong SFC grants a virtual-asset trading platform licence to a new operator before the deadline.", ["Hong Kong", "Licensing"],
+    "Hong Kong's licensing regime is slow and public; each approval is a data point on China's tolerance.");
+  edp(AS, `Will Korea pass a law allowing spot crypto ETFs this year?`, addDaysUTC(now, 90), 0.29, "National Assembly records",
+    "YES if Korea enacts legislation permitting spot crypto ETFs before the deadline.", ["Korea", "ETF"],
+    "Korean retail is the marginal buyer in every Asian crypto book; the ETF law is the gate.");
+  edp(AS, `Will China announce a new stimulus package above $200B this quarter?`, eoq, 0.31, "State Council announcements",
+    "YES if China's State Council announces fiscal stimulus of $200B or more before the deadline.", ["China", "Stimulus"],
+    "Announcement size is the number that moves industrial metals and HK equities in the same hour.");
+
+  /* ── 18. Degen Dials (24h) ───────────────────────────────────────────── */
+  priceMarket({ sym: "PEPE", lane: DG, pct: 0.05, h: H.h24, tags: ["Degen", "24h"] });
+  priceMarket({ sym: "WIF", lane: DG, pct: 0.06, h: H.h24, tags: ["Degen", "24h"] });
+  priceMarket({ sym: "MOG", lane: DG, pct: 0.08, h: H.h24, tags: ["Degen", "24h"] });
+  priceMarket({ sym: "TOSHI", lane: DG, pct: 0.08, h: H.h24, tags: ["Degen", "24h"] });
+  priceMarket({ sym: "DEGEN", lane: DG, pct: 0.06, h: H.h24, tags: ["Degen", "24h"] });
+  priceMarket({ sym: "BRETT", lane: DG, pct: 0.06, h: H.h24, tags: ["Degen", "24h"] });
+  priceMarket({ sym: "SUI", lane: DG, pct: 0.03, h: H.h24, tags: ["High beta", "24h"] });
+  priceMarket({ sym: "HYPE", lane: DG, pct: 0.03, h: H.h24, tags: ["High beta", "24h"] });
+  priceMarket({ sym: "ENA", lane: DG, pct: 0.05, h: H.h24, tags: ["High beta", "24h"] });
+  priceMarket({ sym: "ONDO", lane: DG, pct: 0.04, h: H.h24, tags: ["High beta", "24h"] });
+  priceMarket({ sym: "ARB", lane: DG, pct: 0.05, h: H.h24, tags: ["High beta", "24h"] });
+  priceMarket({ sym: "OP", lane: DG, pct: 0.06, h: H.h24, tags: ["High beta", "24h"] });
+  edp(DG, `Will at least three of the ten largest Base memecoins close the day green?`, addDaysUTC(now, 1), 0.5, "CoinGecko daily closes",
+    "YES if three or more of the ten largest Base-native memecoins by market cap close the UTC day higher than they opened.", ["Base", "Memes", "24h"],
+    "A breadth market instead of a single coin: it prices the tape, not one ticker.");
+
+  /* ── 19. Global Policy ───────────────────────────────────────────────── */
+  edp(GP, `Will the EU's AI Act trigger its first enforcement action against a model provider?`, addDaysUTC(now, 90), 0.21, "European AI Office decisions",
+    "YES if the European AI Office opens a formal enforcement action against a general-purpose AI model provider before the deadline.", ["AI Act", "EU"],
+    "The AI Act's first enforcement is the template for every jurisdiction that copies it.");
+  edp(GP, `Will a G7 country ban an AI model on national-security grounds this year?`, addDaysUTC(now, 90), 0.17, "Government orders",
+    "YES if a G7 government issues a legally binding national-security restriction on a deployed AI model before the deadline.", ["AI", "Security"],
+    "Model bans are the nuclear option of AI policy; the first one redraws the deployment map.");
+  edp(GP, `Will a G7 country adopt the OECD crypto reporting framework (CARF) into law this year?`, addDaysUTC(now, 90), 0.34, "OECD / national gazettes",
+    "YES if a G7 member enacts legislation implementing the OECD Crypto-Asset Reporting Framework before the deadline.", ["CARF", "Tax"],
+    "Automatic exchange of crypto tax data is the quietest thing that changes offshore demand.");
+  edp(GP, `Will the Basel Committee finalise bank capital rules for crypto exposures before ${label(eoq)}?`, eoq, 0.29, "BIS publications",
+    "YES if the Basel Committee publishes final (not consultative) standards for banks' crypto-asset exposures before the deadline.", ["Basel", "Banking"],
+    "Bank capital is the gate between crypto and the balance sheet; a final standard is the difference between custody and exposure.");
+  edp(GP, `Will a G20 country ban algorithmic stablecoins this year?`, addDaysUTC(now, 90), 0.16, "National legislation",
+    "YES if a G20 member enacts a ban on algorithmic or unbacked stablecoins before the deadline.", ["Stablecoins", "Ban"],
+    "Two collapses made this the easiest prohibition in crypto policy; watch for it in the next omnibus.");
 
   return out;
 }

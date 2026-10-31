@@ -3,7 +3,7 @@
   "address": "0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5",
   "chainId": 8453,
   "deployBlock": 53150166,
-  "updatedAt": "2026-10-31T03:05:18.932Z",
+  "updatedAt": "2026-10-31T03:09:31.400Z",
   "featured": "721675639",
   "dataSources": {
     "prices": "Binance /api/v3/ticker/24hr (majors) + CoinGecko /simple/price (Base tokens) + Yahoo Finance chart (equities/indices/metals/FX)",
@@ -15,14 +15,14 @@
   "stats": {
     "tvlUsdc": "0.0",
     "volume24hUsdc": null,
-    "activeMarkets": 150,
+    "activeMarkets": 232,
     "settledMarkets": 0
   },
   "pools": [
     {
       "id": "721675639",
       "title": "Will Bitcoin trade above $78,000 before November 1 2026, 03:00 UTC?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "BTC",
         "spot $77,402",
@@ -43,7 +43,7 @@
       "heat": {
         "volatilityPct": 0.11,
         "controversy": 0.69,
-        "hoursLeft": 23.9,
+        "hoursLeft": 23.8,
         "score": 41.13
       },
       "marketData": {
@@ -68,7 +68,7 @@
     {
       "id": "720652246",
       "title": "Will Ethereum trade above $2,270 before November 1 2026, 03:00 UTC?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "ETH",
         "spot $2,245",
@@ -89,7 +89,7 @@
       "heat": {
         "volatilityPct": 1.37,
         "controversy": 0.728,
-        "hoursLeft": 23.9,
+        "hoursLeft": 23.8,
         "score": 47.31
       },
       "marketData": {
@@ -114,7 +114,7 @@
     {
       "id": "725116591",
       "title": "Will Solana trade above $98.20 before November 1 2026, 03:00 UTC?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "SOL",
         "spot $96.83",
@@ -135,7 +135,7 @@
       "heat": {
         "volatilityPct": 1.15,
         "controversy": 0.722,
-        "hoursLeft": 23.9,
+        "hoursLeft": 23.8,
         "score": 46.26
       },
       "marketData": {
@@ -160,7 +160,7 @@
     {
       "id": "722318062",
       "title": "Will XRP trade above $1.27 before November 1 2026, 03:00 UTC?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "XRP",
         "spot $1.26",
@@ -181,7 +181,7 @@
       "heat": {
         "volatilityPct": 2.54,
         "controversy": 0.712,
-        "hoursLeft": 23.9,
+        "hoursLeft": 23.8,
         "score": 51.51
       },
       "marketData": {
@@ -205,7 +205,7 @@
     {
       "id": "726548712",
       "title": "Will Dogecoin trade above $0.0776 before November 1 2026, 03:00 UTC?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "DOGE",
         "spot $0.0757",
@@ -226,7 +226,7 @@
       "heat": {
         "volatilityPct": 0.88,
         "controversy": 0.862,
-        "hoursLeft": 23.9,
+        "hoursLeft": 23.8,
         "score": 49.38
       },
       "marketData": {
@@ -250,7 +250,7 @@
     {
       "id": "727117598",
       "title": "Will Chainlink trade above $11.94 before November 1 2026, 03:00 UTC?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "LINK",
         "spot $11.54",
@@ -271,7 +271,7 @@
       "heat": {
         "volatilityPct": 7.48,
         "controversy": 0.908,
-        "hoursLeft": 23.9,
+        "hoursLeft": 23.8,
         "score": 77.15
       },
       "marketData": {
@@ -295,7 +295,7 @@
     {
       "id": "724359617",
       "title": "Will BNB trade above $713.00 before November 1 2026, 03:00 UTC?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "BNB",
         "spot $705.34",
@@ -316,7 +316,7 @@
       "heat": {
         "volatilityPct": 0.91,
         "controversy": 0.82,
-        "hoursLeft": 23.9,
+        "hoursLeft": 23.8,
         "score": 48.22
       },
       "marketData": {
@@ -340,7 +340,7 @@
     {
       "id": "723830179",
       "title": "Will Avalanche trade above $8.82 before November 1 2026, 03:00 UTC?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "AVAX",
         "spot $8.62",
@@ -361,7 +361,7 @@
       "heat": {
         "volatilityPct": 3.21,
         "controversy": 0.822,
-        "hoursLeft": 23.9,
+        "hoursLeft": 23.8,
         "score": 57.5
       },
       "marketData": {
@@ -385,7 +385,7 @@
     {
       "id": "726254365",
       "title": "Will Bitcoin trade below $76,800 before November 1 2026, 03:00 UTC?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "BTC",
         "spot $77,402",
@@ -407,7 +407,7 @@
       "heat": {
         "volatilityPct": 0.11,
         "controversy": 0.692,
-        "hoursLeft": 23.9,
+        "hoursLeft": 23.8,
         "score": 41.19
       },
       "marketData": {
@@ -432,7 +432,7 @@
     {
       "id": "721588015",
       "title": "Will Bitcoin close above $79,400 before November 3, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "BTC",
         "spot $77,402",
@@ -453,7 +453,7 @@
       "heat": {
         "volatilityPct": 0.11,
         "controversy": 0.712,
-        "hoursLeft": 92.9,
+        "hoursLeft": 92.8,
         "score": 31.79
       },
       "marketData": {
@@ -478,7 +478,7 @@
     {
       "id": "722420765",
       "title": "Will Ethereum close above $2,315 before November 3, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "ETH",
         "spot $2,245",
@@ -499,7 +499,7 @@
       "heat": {
         "volatilityPct": 1.37,
         "controversy": 0.712,
-        "hoursLeft": 92.9,
+        "hoursLeft": 92.8,
         "score": 36.83
       },
       "marketData": {
@@ -524,7 +524,7 @@
     {
       "id": "723666594",
       "title": "Will Solana close above $100.80 before November 3, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "SOL",
         "spot $96.83",
@@ -545,7 +545,7 @@
       "heat": {
         "volatilityPct": 1.15,
         "controversy": 0.712,
-        "hoursLeft": 92.9,
+        "hoursLeft": 92.8,
         "score": 35.96
       },
       "marketData": {
@@ -570,7 +570,7 @@
     {
       "id": "727379888",
       "title": "Will Uniswap close below $6.77 before November 3, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "UNI",
         "spot $7.04",
@@ -591,7 +591,7 @@
       "heat": {
         "volatilityPct": 6.58,
         "controversy": 0.774,
-        "hoursLeft": 92.9,
+        "hoursLeft": 92.8,
         "score": 59.55
       },
       "marketData": {
@@ -615,7 +615,7 @@
     {
       "id": "727658260",
       "title": "Will Aave close above $138.40 before November 3, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "AAVE",
         "spot $130.98",
@@ -636,7 +636,7 @@
       "heat": {
         "volatilityPct": 7.54,
         "controversy": 0.712,
-        "hoursLeft": 92.9,
+        "hoursLeft": 92.8,
         "score": 61.51
       },
       "marketData": {
@@ -660,7 +660,7 @@
     {
       "id": "722447072",
       "title": "Will Arbitrum close above $0.1714 before November 3, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "ARB",
         "spot $0.1618",
@@ -681,7 +681,7 @@
       "heat": {
         "volatilityPct": 3.65,
         "controversy": 0.698,
-        "hoursLeft": 92.9,
+        "hoursLeft": 92.8,
         "score": 45.55
       },
       "marketData": {
@@ -705,7 +705,7 @@
     {
       "id": "724369747",
       "title": "Will Bitcoin close below $75,000 before November 7, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "BTC",
         "spot $77,402",
@@ -726,7 +726,7 @@
       "heat": {
         "volatilityPct": 0.11,
         "controversy": 0.748,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 32.87
       },
       "marketData": {
@@ -751,7 +751,7 @@
     {
       "id": "726751385",
       "title": "Will Ethereum close above $2,360 before November 7, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "ETH",
         "spot $2,245",
@@ -772,7 +772,7 @@
       "heat": {
         "volatilityPct": 1.37,
         "controversy": 0.674,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 35.69
       },
       "marketData": {
@@ -797,7 +797,7 @@
     {
       "id": "723497679",
       "title": "Will Solana close below $91.80 before November 7, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "SOL",
         "spot $96.83",
@@ -818,7 +818,7 @@
       "heat": {
         "volatilityPct": 1.15,
         "controversy": 0.73,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 36.5
       },
       "marketData": {
@@ -843,7 +843,7 @@
     {
       "id": "725419867",
       "title": "Will Ondo close above $0.4550 before November 7, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "ONDO",
         "spot $0.4162",
@@ -864,7 +864,7 @@
       "heat": {
         "volatilityPct": 9.87,
         "controversy": 0.748,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 71.93
       },
       "marketData": {
@@ -888,7 +888,7 @@
     {
       "id": "723820943",
       "title": "Will Bittensor close above $252.50 before November 7, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "TAO",
         "spot $236.90",
@@ -909,7 +909,7 @@
       "heat": {
         "volatilityPct": 1.46,
         "controversy": 0.776,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 39.1
       },
       "marketData": {
@@ -933,7 +933,7 @@
     {
       "id": "724066691",
       "title": "Will Bitcoin close above $82,200 before November 30, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "BTC",
         "spot $77,402",
@@ -954,7 +954,7 @@
       "heat": {
         "volatilityPct": 0.11,
         "controversy": 0.758,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 23.17
       },
       "marketData": {
@@ -979,7 +979,7 @@
     {
       "id": "724060529",
       "title": "Will Bitcoin close above $86,800 before November 30, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "BTC",
         "spot $77,402",
@@ -1000,7 +1000,7 @@
       "heat": {
         "volatilityPct": 0.11,
         "controversy": 0.56,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 17.23
       },
       "marketData": {
@@ -1025,7 +1025,7 @@
     {
       "id": "721369503",
       "title": "Will Ethereum close above $2,425 before November 30, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "ETH",
         "spot $2,245",
@@ -1046,7 +1046,7 @@
       "heat": {
         "volatilityPct": 1.37,
         "controversy": 0.742,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 27.73
       },
       "marketData": {
@@ -1071,7 +1071,7 @@
     {
       "id": "721905708",
       "title": "Will Solana close above $106.60 before November 30, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "SOL",
         "spot $96.83",
@@ -1092,7 +1092,7 @@
       "heat": {
         "volatilityPct": 1.15,
         "controversy": 0.754,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 27.22
       },
       "marketData": {
@@ -1117,7 +1117,7 @@
     {
       "id": "725465957",
       "title": "Will Hyperliquid close above $103.20 before November 30, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "HYPE",
         "spot $89.47",
@@ -1138,7 +1138,7 @@
       "heat": {
         "volatilityPct": 1.37,
         "controversy": 0.748,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 27.91
       },
       "marketData": {
@@ -1162,7 +1162,7 @@
     {
       "id": "722977288",
       "title": "Will Bitcoin close above $96,800 before December 31, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "BTC",
         "spot $77,402",
@@ -1183,7 +1183,7 @@
       "heat": {
         "volatilityPct": 0.11,
         "controversy": 0.428,
-        "hoursLeft": 1484.9,
+        "hoursLeft": 1484.8,
         "score": 13.27
       },
       "marketData": {
@@ -1208,7 +1208,7 @@
     {
       "id": "726142651",
       "title": "Will Ethereum close above $2,920 before December 31, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "ETH",
         "spot $2,245",
@@ -1229,7 +1229,7 @@
       "heat": {
         "volatilityPct": 1.37,
         "controversy": 0.438,
-        "hoursLeft": 1484.9,
+        "hoursLeft": 1484.8,
         "score": 18.61
       },
       "marketData": {
@@ -1254,7 +1254,7 @@
     {
       "id": "726858831",
       "title": "Will BTC dominance close above 60.2% before November 30, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "BTC.D",
         "now 59.18%",
@@ -1275,7 +1275,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.632,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 18.96
       },
       "visual": {
@@ -1291,7 +1291,7 @@
     {
       "id": "721955300",
       "title": "Will total crypto market cap reclaim $2.80T before November 30, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "Total mcap",
         "now $2.62T",
@@ -1312,7 +1312,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.64,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 19.2
       },
       "visual": {
@@ -1327,7 +1327,7 @@
     {
       "id": "727891504",
       "title": "Will the ETH/BTC ratio close above 0.0305 before November 30, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "ETH/BTC",
         "now 0.0290",
@@ -1348,7 +1348,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.662,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 19.86
       },
       "visual": {
@@ -1364,7 +1364,7 @@
     {
       "id": "722063308",
       "title": "Will a spot Bitcoin ETF record a single day of net outflows above $500M before November 30, 2026?",
-      "category": "Crypto & Macro",
+      "category": "Crypto Core",
       "tags": [
         "ETF",
         "Flows",
@@ -1385,7 +1385,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.72,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 21.6
       },
       "visual": {
@@ -1399,7 +1399,7 @@
     {
       "id": "725568699",
       "title": "Will Base TVL close above $6.10B before November 30, 2026?",
-      "category": "DeFi & L2",
+      "category": "DeFi & Yield",
       "tags": [
         "Base",
         "TVL",
@@ -1421,7 +1421,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.89,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 26.7
       },
       "visual": {
@@ -1436,7 +1436,7 @@
     {
       "id": "723121753",
       "title": "Will Ethereum TVL fall below $42.20B before November 30, 2026?",
-      "category": "DeFi & L2",
+      "category": "DeFi & Yield",
       "tags": [
         "Ethereum",
         "TVL",
@@ -1458,7 +1458,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.578,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 17.34
       },
       "visual": {
@@ -1473,7 +1473,7 @@
     {
       "id": "723338352",
       "title": "Will Base TVL overtake Solana TVL before November 30, 2026?",
-      "category": "DeFi & L2",
+      "category": "DeFi & Yield",
       "tags": [
         "Base",
         "Solana",
@@ -1495,7 +1495,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.8,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 24
       },
       "visual": {
@@ -1510,7 +1510,7 @@
     {
       "id": "726737603",
       "title": "Will Base TVL stay above Arbitrum TVL through November 30, 2026?",
-      "category": "DeFi & L2",
+      "category": "DeFi & Yield",
       "tags": [
         "Base",
         "Arbitrum",
@@ -1532,7 +1532,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.244,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 7.32
       },
       "visual": {
@@ -1547,7 +1547,7 @@
     {
       "id": "723436497",
       "title": "Will Aerodrome close above $0.7290 before November 30, 2026?",
-      "category": "DeFi & L2",
+      "category": "DeFi & Yield",
       "tags": [
         "AERO",
         "spot $0.6254",
@@ -1569,7 +1569,7 @@
       "heat": {
         "volatilityPct": 2.44,
         "controversy": 0.714,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 31.17
       },
       "marketData": {
@@ -1594,7 +1594,7 @@
     {
       "id": "722211567",
       "title": "Will Aerodrome close above $0.8240 before November 30, 2026?",
-      "category": "DeFi & L2",
+      "category": "DeFi & Yield",
       "tags": [
         "AERO",
         "spot $0.6254",
@@ -1617,7 +1617,7 @@
       "heat": {
         "volatilityPct": 2.44,
         "controversy": 0.516,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 25.23
       },
       "marketData": {
@@ -1642,7 +1642,7 @@
     {
       "id": "720011541",
       "title": "Will Aerodrome close below $0.5700 before November 7, 2026?",
-      "category": "DeFi & L2",
+      "category": "DeFi & Yield",
       "tags": [
         "AERO",
         "spot $0.6254",
@@ -1665,7 +1665,7 @@
       "heat": {
         "volatilityPct": 2.44,
         "controversy": 0.662,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 39.61
       },
       "marketData": {
@@ -1690,7 +1690,7 @@
     {
       "id": "721822858",
       "title": "Will Uniswap close above $7.76 before November 7, 2026?",
-      "category": "DeFi & L2",
+      "category": "DeFi & Yield",
       "tags": [
         "UNI",
         "spot $7.04",
@@ -1713,7 +1713,7 @@
       "heat": {
         "volatilityPct": 6.58,
         "controversy": 0.624,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 55.05
       },
       "marketData": {
@@ -1737,7 +1737,7 @@
     {
       "id": "723280206",
       "title": "Will Aave close below $121.00 before November 7, 2026?",
-      "category": "DeFi & L2",
+      "category": "DeFi & Yield",
       "tags": [
         "AAVE",
         "spot $130.98",
@@ -1760,7 +1760,7 @@
       "heat": {
         "volatilityPct": 7.54,
         "controversy": 0.708,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 61.39
       },
       "marketData": {
@@ -1784,7 +1784,7 @@
     {
       "id": "724171108",
       "title": "Will Arbitrum close above $0.1958 before November 30, 2026?",
-      "category": "DeFi & L2",
+      "category": "DeFi & Yield",
       "tags": [
         "ARB",
         "spot $0.1618",
@@ -1806,7 +1806,7 @@
       "heat": {
         "volatilityPct": 3.65,
         "controversy": 0.65,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 34.11
       },
       "marketData": {
@@ -1830,7 +1830,7 @@
     {
       "id": "725139683",
       "title": "Will Optimism close above $0.1524 before November 30, 2026?",
-      "category": "DeFi & L2",
+      "category": "DeFi & Yield",
       "tags": [
         "OP",
         "spot $0.1182",
@@ -1853,7 +1853,7 @@
       "heat": {
         "volatilityPct": 20.24,
         "controversy": 0.822,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 105.64
       },
       "marketData": {
@@ -1877,7 +1877,7 @@
     {
       "id": "726717801",
       "title": "Will the top five L2s together settle more than 100M transactions in a single day before November 30, 2026?",
-      "category": "DeFi & L2",
+      "category": "DeFi & Yield",
       "tags": [
         "Rollups",
         "Throughput",
@@ -1898,7 +1898,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.68,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 20.4
       },
       "visual": {
@@ -1912,7 +1912,7 @@
     {
       "id": "723758115",
       "title": "Will median L2 swap fees stay under $0.01 for a full week before November 30, 2026?",
-      "category": "DeFi & L2",
+      "category": "DeFi & Yield",
       "tags": [
         "Fees",
         "L2",
@@ -1933,7 +1933,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.76,
-        "hoursLeft": 356.9,
+        "hoursLeft": 356.8,
         "score": 22.8
       },
       "visual": {
@@ -1947,7 +1947,7 @@
     {
       "id": "724807328",
       "title": "Will DEX volume across Base and Solana exceed $20B in a single week before November 30, 2026?",
-      "category": "DeFi & L2",
+      "category": "DeFi & Yield",
       "tags": [
         "DEX",
         "Volume",
@@ -1968,7 +1968,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.62,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 18.6
       },
       "visual": {
@@ -1983,7 +1983,7 @@
     {
       "id": "727054391",
       "title": "Will any lending protocol on Base cross $1B in TVL before November 30, 2026?",
-      "category": "DeFi & L2",
+      "category": "DeFi & Yield",
       "tags": [
         "Base",
         "Lending",
@@ -2004,7 +2004,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.56,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 16.8
       },
       "visual": {
@@ -2018,7 +2018,7 @@
     {
       "id": "724164492",
       "title": "Will NVIDIA trade above $209.00 before November 1 2026, 03:00 UTC?",
-      "category": "AI & Web3 Tech",
+      "category": "Global Stocks",
       "tags": [
         "NVDA",
         "spot $204.64",
@@ -2028,7 +2028,7 @@
       "status": 1,
       "endTimeUtc": "2026-11-01T03:00:00.000Z",
       "liquidityUsdc": "38400",
-      "yesShare": 0.524,
+      "yesShare": 0.523,
       "volume24hUsdc": "22900",
       "traders": 287,
       "description": "NVIDIA is the single name that sets the AI capex trade; its guide, not its chart, moves the sector. Spot is $204.64 (-4.22% in 24h); the strike is +2% versus it.",
@@ -2038,9 +2038,9 @@
       "tier": "24h",
       "heat": {
         "volatilityPct": 4.22,
-        "controversy": 0.952,
-        "hoursLeft": 23.9,
-        "score": 65.45
+        "controversy": 0.954,
+        "hoursLeft": 23.8,
+        "score": 65.51
       },
       "marketData": {
         "asset": "NVDA",
@@ -2063,7 +2063,7 @@
     {
       "id": "724103432",
       "title": "Will NVIDIA close above $215.00 before November 7, 2026?",
-      "category": "AI & Web3 Tech",
+      "category": "Global Stocks",
       "tags": [
         "NVDA",
         "spot $204.64",
@@ -2084,7 +2084,7 @@
       "heat": {
         "volatilityPct": 4.22,
         "controversy": 0.678,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 47.23
       },
       "marketData": {
@@ -2108,7 +2108,7 @@
     {
       "id": "725100206",
       "title": "Will NVIDIA close below $194.00 before November 7, 2026?",
-      "category": "AI & Web3 Tech",
+      "category": "Global Stocks",
       "tags": [
         "NVDA",
         "spot $204.64",
@@ -2129,7 +2129,7 @@
       "heat": {
         "volatilityPct": 4.22,
         "controversy": 0.654,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 46.51
       },
       "marketData": {
@@ -2153,7 +2153,7 @@
     {
       "id": "722737546",
       "title": "Will NVIDIA close above $225.50 before November 30, 2026?",
-      "category": "AI & Web3 Tech",
+      "category": "Global Stocks",
       "tags": [
         "NVDA",
         "spot $204.64",
@@ -2174,7 +2174,7 @@
       "heat": {
         "volatilityPct": 4.22,
         "controversy": 0.68,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 37.29
       },
       "marketData": {
@@ -2198,7 +2198,7 @@
     {
       "id": "721997354",
       "title": "Will Apple close above $358.50 before November 30, 2026?",
-      "category": "AI & Web3 Tech",
+      "category": "Global Stocks",
       "tags": [
         "AAPL",
         "spot $344.63",
@@ -2219,7 +2219,7 @@
       "heat": {
         "volatilityPct": 1.23,
         "controversy": 0.694,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 25.73
       },
       "marketData": {
@@ -2232,18 +2232,18 @@
         "asOf": "2026-10-31T03:05:18.638Z"
       },
       "visual": {
-        "kind": "ai",
-        "photo": "ai-lab",
-        "accent": "#22D3EE",
-        "entity": "AI · WEB3",
-        "kicker": "MACHINE INTELLIGENCE",
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
         "metric": "spot $344.63"
       }
     },
     {
       "id": "723870314",
       "title": "Will Apple close below $330.50 before November 7, 2026?",
-      "category": "AI & Web3 Tech",
+      "category": "Global Stocks",
       "tags": [
         "AAPL",
         "spot $344.63",
@@ -2264,7 +2264,7 @@
       "heat": {
         "volatilityPct": 1.23,
         "controversy": 0.42,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 27.51
       },
       "marketData": {
@@ -2277,18 +2277,18 @@
         "asOf": "2026-10-31T03:05:18.638Z"
       },
       "visual": {
-        "kind": "ai",
-        "photo": "ai-lab",
-        "accent": "#22D3EE",
-        "entity": "AI · WEB3",
-        "kicker": "MACHINE INTELLIGENCE",
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
         "metric": "spot $344.63"
       }
     },
     {
       "id": "721342911",
       "title": "Will Microsoft close above $538.00 before November 30, 2026?",
-      "category": "AI & Web3 Tech",
+      "category": "Global Stocks",
       "tags": [
         "MSFT",
         "spot $521.91",
@@ -2309,7 +2309,7 @@
       "heat": {
         "volatilityPct": 1.55,
         "controversy": 0.748,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 28.65
       },
       "marketData": {
@@ -2322,18 +2322,18 @@
         "asOf": "2026-10-31T03:05:18.638Z"
       },
       "visual": {
-        "kind": "ai",
-        "photo": "ai-lab",
-        "accent": "#22D3EE",
-        "entity": "AI · WEB3",
-        "kicker": "MACHINE INTELLIGENCE",
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
         "metric": "spot $521.91"
       }
     },
     {
       "id": "720877243",
       "title": "Will Alphabet close below $268.50 before November 3, 2026?",
-      "category": "AI & Web3 Tech",
+      "category": "Global Stocks",
       "tags": [
         "GOOGL",
         "spot $279.84",
@@ -2354,7 +2354,7 @@
       "heat": {
         "volatilityPct": 1.4,
         "controversy": 0.314,
-        "hoursLeft": 92.9,
+        "hoursLeft": 92.8,
         "score": 25.03
       },
       "marketData": {
@@ -2367,18 +2367,18 @@
         "asOf": "2026-10-31T03:05:18.638Z"
       },
       "visual": {
-        "kind": "ai",
-        "photo": "ai-lab",
-        "accent": "#22D3EE",
-        "entity": "AI · WEB3",
-        "kicker": "MACHINE INTELLIGENCE",
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
         "metric": "spot $279.84"
       }
     },
     {
       "id": "725432203",
       "title": "Will Tesla close above $432.00 before November 7, 2026?",
-      "category": "AI & Web3 Tech",
+      "category": "Global Stocks",
       "tags": [
         "TSLA",
         "spot $399.81",
@@ -2399,7 +2399,7 @@
       "heat": {
         "volatilityPct": 0.86,
         "controversy": 0.498,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 28.4
       },
       "marketData": {
@@ -2412,18 +2412,18 @@
         "asOf": "2026-10-31T03:05:18.638Z"
       },
       "visual": {
-        "kind": "ai",
-        "photo": "ai-lab",
-        "accent": "#22D3EE",
-        "entity": "AI · WEB3",
-        "kicker": "MACHINE INTELLIGENCE",
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
         "metric": "spot $399.81"
       }
     },
     {
       "id": "720450727",
       "title": "Will Tesla close below $375.00 before November 7, 2026?",
-      "category": "AI & Web3 Tech",
+      "category": "Global Stocks",
       "tags": [
         "TSLA",
         "spot $399.81",
@@ -2444,7 +2444,7 @@
       "heat": {
         "volatilityPct": 0.86,
         "controversy": 0.572,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 30.62
       },
       "marketData": {
@@ -2457,18 +2457,18 @@
         "asOf": "2026-10-31T03:05:18.638Z"
       },
       "visual": {
-        "kind": "ai",
-        "photo": "ai-lab",
-        "accent": "#22D3EE",
-        "entity": "AI · WEB3",
-        "kicker": "MACHINE INTELLIGENCE",
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
         "metric": "spot $399.81"
       }
     },
     {
       "id": "726689417",
       "title": "Will AMD close above $556.00 before November 30, 2026?",
-      "category": "AI & Web3 Tech",
+      "category": "Global Stocks",
       "tags": [
         "AMD",
         "spot $504.80",
@@ -2489,7 +2489,7 @@
       "heat": {
         "volatilityPct": 10.88,
         "controversy": 0.872,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 69.68
       },
       "marketData": {
@@ -2502,18 +2502,18 @@
         "asOf": "2026-10-31T03:05:18.638Z"
       },
       "visual": {
-        "kind": "ai",
-        "photo": "ai-lab",
-        "accent": "#22D3EE",
-        "entity": "AI · WEB3",
-        "kicker": "MACHINE INTELLIGENCE",
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
         "metric": "spot $504.80"
       }
     },
     {
       "id": "726296517",
       "title": "Will Meta Platforms close below $584.00 before November 7, 2026?",
-      "category": "AI & Web3 Tech",
+      "category": "Global Stocks",
       "tags": [
         "META",
         "spot $614.99",
@@ -2534,7 +2534,7 @@
       "heat": {
         "volatilityPct": 1.53,
         "controversy": 0.47,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 30.2
       },
       "marketData": {
@@ -2547,18 +2547,18 @@
         "asOf": "2026-10-31T03:05:18.638Z"
       },
       "visual": {
-        "kind": "ai",
-        "photo": "ai-lab",
-        "accent": "#22D3EE",
-        "entity": "AI · WEB3",
-        "kicker": "MACHINE INTELLIGENCE",
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
         "metric": "spot $614.99"
       }
     },
     {
       "id": "725029511",
       "title": "Will AMD close below $464.00 before November 3, 2026?",
-      "category": "AI & Web3 Tech",
+      "category": "Global Stocks",
       "tags": [
         "AMD",
         "spot $504.80",
@@ -2568,7 +2568,7 @@
       "status": 1,
       "endTimeUtc": "2026-11-03T23:59:59.000Z",
       "liquidityUsdc": "75500",
-      "yesShare": 0.348,
+      "yesShare": 0.347,
       "volume24hUsdc": "43800",
       "traders": 271,
       "description": "AMD is the second-source AI trade: it moves on every NVIDIA print, in both directions. Spot is $504.80 (-10.88% in 24h); the strike is -8% versus it.",
@@ -2578,9 +2578,9 @@
       "tier": "mid",
       "heat": {
         "volatilityPct": 10.88,
-        "controversy": 0.696,
-        "hoursLeft": 92.9,
-        "score": 74.4
+        "controversy": 0.694,
+        "hoursLeft": 92.8,
+        "score": 74.34
       },
       "marketData": {
         "asset": "AMD",
@@ -2592,18 +2592,18 @@
         "asOf": "2026-10-31T03:05:18.638Z"
       },
       "visual": {
-        "kind": "ai",
-        "photo": "ai-lab",
-        "accent": "#22D3EE",
-        "entity": "AI · WEB3",
-        "kicker": "MACHINE INTELLIGENCE",
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
         "metric": "spot $504.80"
       }
     },
     {
       "id": "723069660",
       "title": "Will a major lab ship a model with a 2M-token context window before November 30, 2026?",
-      "category": "AI & Web3 Tech",
+      "category": "AI Agents & Tech",
       "tags": [
         "Models",
         "Context",
@@ -2624,7 +2624,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.82,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 24.6
       },
       "visual": {
@@ -2638,7 +2638,7 @@
     {
       "id": "725413485",
       "title": "Will OpenAI or Anthropic announce a new frontier model before November 30, 2026?",
-      "category": "AI & Web3 Tech",
+      "category": "AI Agents & Tech",
       "tags": [
         "OpenAI",
         "Anthropic",
@@ -2659,7 +2659,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.9,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 27
       },
       "visual": {
@@ -2673,7 +2673,7 @@
     {
       "id": "720909243",
       "title": "Will an autonomous agent complete a paid on-chain task end-to-end before November 30, 2026?",
-      "category": "AI & Web3 Tech",
+      "category": "AI Agents & Tech",
       "tags": [
         "Agents",
         "x402",
@@ -2694,7 +2694,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.74,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 22.2
       },
       "visual": {
@@ -2708,7 +2708,7 @@
     {
       "id": "722357228",
       "title": "Will AI-agent on-chain transaction volume exceed $1B in a single month before December 31, 2026?",
-      "category": "AI & Web3 Tech",
+      "category": "AI Agents & Tech",
       "tags": [
         "Agents",
         "Volume",
@@ -2729,7 +2729,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.66,
-        "hoursLeft": 1484.9,
+        "hoursLeft": 1484.8,
         "score": 19.8
       },
       "visual": {
@@ -2743,7 +2743,7 @@
     {
       "id": "720980726",
       "title": "Will inference prices for a frontier-class model fall another 30% before November 30, 2026?",
-      "category": "AI & Web3 Tech",
+      "category": "AI Agents & Tech",
       "tags": [
         "Inference",
         "Pricing"
@@ -2763,7 +2763,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.88,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 26.4
       },
       "visual": {
@@ -2777,7 +2777,7 @@
     {
       "id": "725749243",
       "title": "Will a zero-knowledge proof of an LLM inference be verified on a public chain before November 30, 2026?",
-      "category": "AI & Web3 Tech",
+      "category": "AI Agents & Tech",
       "tags": [
         "ZKML",
         "Verification",
@@ -2798,7 +2798,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.44,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 13.2
       },
       "visual": {
@@ -2812,7 +2812,7 @@
     {
       "id": "722959998",
       "title": "Will any AI-agent framework exceed 100k monthly active developers before December 31, 2026?",
-      "category": "AI & Web3 Tech",
+      "category": "AI Agents & Tech",
       "tags": [
         "Developers",
         "Adoption"
@@ -2832,7 +2832,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.6,
-        "hoursLeft": 1484.9,
+        "hoursLeft": 1484.8,
         "score": 18
       },
       "visual": {
@@ -2846,7 +2846,7 @@
     {
       "id": "722458982",
       "title": "Will a US hyperscaler disclose AI capex above $50B for the quarter before December 31, 2026?",
-      "category": "AI & Web3 Tech",
+      "category": "AI Agents & Tech",
       "tags": [
         "Capex",
         "Hyperscalers",
@@ -2867,7 +2867,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.94,
-        "hoursLeft": 1484.9,
+        "hoursLeft": 1484.8,
         "score": 28.2
       },
       "visual": {
@@ -2881,7 +2881,7 @@
     {
       "id": "723921333",
       "title": "Will Degen trade above $0.001016 before November 1 2026, 03:00 UTC?",
-      "category": "Memes & Culture",
+      "category": "Memes & Social",
       "tags": [
         "DEGEN",
         "spot $0.000878",
@@ -2904,7 +2904,7 @@
       "heat": {
         "volatilityPct": 1.86,
         "controversy": 0.336,
-        "hoursLeft": 23.9,
+        "hoursLeft": 23.8,
         "score": 37.52
       },
       "marketData": {
@@ -2929,7 +2929,7 @@
     {
       "id": "721857738",
       "title": "Will Brett trade above $0.00487 before November 1 2026, 03:00 UTC?",
-      "category": "Memes & Culture",
+      "category": "Memes & Social",
       "tags": [
         "BRETT",
         "spot $0.004345",
@@ -2952,7 +2952,7 @@
       "heat": {
         "volatilityPct": 2.03,
         "controversy": 0.476,
-        "hoursLeft": 23.9,
+        "hoursLeft": 23.8,
         "score": 42.4
       },
       "marketData": {
@@ -2977,7 +2977,7 @@
     {
       "id": "723677054",
       "title": "Will Toshi trade above $0.000128 before November 1 2026, 03:00 UTC?",
-      "category": "Memes & Culture",
+      "category": "Memes & Social",
       "tags": [
         "TOSHI",
         "spot $0.000107",
@@ -3000,7 +3000,7 @@
       "heat": {
         "volatilityPct": 5.17,
         "controversy": 0.232,
-        "hoursLeft": 23.9,
+        "hoursLeft": 23.8,
         "score": 47.66
       },
       "marketData": {
@@ -3025,7 +3025,7 @@
     {
       "id": "722016336",
       "title": "Will Mog Coin close above $0.0000001228 before November 3, 2026?",
-      "category": "Memes & Culture",
+      "category": "Memes & Social",
       "tags": [
         "MOG",
         "spot $0.0000000987",
@@ -3047,7 +3047,7 @@
       "heat": {
         "volatilityPct": 5.81,
         "controversy": 0.332,
-        "hoursLeft": 92.9,
+        "hoursLeft": 92.8,
         "score": 43.19
       },
       "marketData": {
@@ -3071,7 +3071,7 @@
     {
       "id": "722049251",
       "title": "Will Zora close above $0.00721 before November 3, 2026?",
-      "category": "Memes & Culture",
+      "category": "Memes & Social",
       "tags": [
         "ZORA",
         "spot $0.006303",
@@ -3093,7 +3093,7 @@
       "heat": {
         "volatilityPct": 6.02,
         "controversy": 0.502,
-        "hoursLeft": 92.9,
+        "hoursLeft": 92.8,
         "score": 49.14
       },
       "marketData": {
@@ -3117,7 +3117,7 @@
     {
       "id": "720494779",
       "title": "Will Pepe close above $0.00000543 before November 7, 2026?",
-      "category": "Memes & Culture",
+      "category": "Memes & Social",
       "tags": [
         "PEPE",
         "spot $0.00000494",
@@ -3128,7 +3128,7 @@
       "status": 1,
       "endTimeUtc": "2026-11-07T23:59:59.000Z",
       "liquidityUsdc": "22200",
-      "yesShare": 0.355,
+      "yesShare": 0.354,
       "volume24hUsdc": "13700",
       "traders": 313,
       "description": "PEPE is the most liquid pure meme on this board, which makes it the cleanest sentiment print. Spot is $0.00000494 (3.35% in 24h); the strike is +10% versus it.",
@@ -3138,9 +3138,9 @@
       "tier": "mid",
       "heat": {
         "volatilityPct": 3.35,
-        "controversy": 0.71,
-        "hoursLeft": 188.9,
-        "score": 44.69
+        "controversy": 0.708,
+        "hoursLeft": 188.8,
+        "score": 44.63
       },
       "marketData": {
         "asset": "PEPE",
@@ -3163,7 +3163,7 @@
     {
       "id": "727601091",
       "title": "Will dogwifhat close above $0.2030 before November 7, 2026?",
-      "category": "Memes & Culture",
+      "category": "Memes & Social",
       "tags": [
         "WIF",
         "spot $0.1767",
@@ -3186,7 +3186,7 @@
       "heat": {
         "volatilityPct": 6.32,
         "controversy": 0.586,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 52.85
       },
       "marketData": {
@@ -3211,7 +3211,7 @@
     {
       "id": "726493325",
       "title": "Will Dogecoin close above $0.0822 before November 7, 2026?",
-      "category": "Memes & Culture",
+      "category": "Memes & Social",
       "tags": [
         "DOGE",
         "spot $0.0757",
@@ -3233,7 +3233,7 @@
       "heat": {
         "volatilityPct": 0.88,
         "controversy": 0.63,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 32.42
       },
       "marketData": {
@@ -3257,7 +3257,7 @@
     {
       "id": "720256138",
       "title": "Will Degen close above $0.001236 before November 30, 2026?",
-      "category": "Memes & Culture",
+      "category": "Memes & Social",
       "tags": [
         "DEGEN",
         "spot $0.000878",
@@ -3280,7 +3280,7 @@
       "heat": {
         "volatilityPct": 1.86,
         "controversy": 0.544,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 23.76
       },
       "marketData": {
@@ -3305,7 +3305,7 @@
     {
       "id": "726646712",
       "title": "Will Brett close above $0.00587 before November 30, 2026?",
-      "category": "Memes & Culture",
+      "category": "Memes & Social",
       "tags": [
         "BRETT",
         "spot $0.004345",
@@ -3328,7 +3328,7 @@
       "heat": {
         "volatilityPct": 2.03,
         "controversy": 0.574,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 25.34
       },
       "marketData": {
@@ -3353,7 +3353,7 @@
     {
       "id": "721397007",
       "title": "Will Toshi close above $0.00016 before November 30, 2026?",
-      "category": "Memes & Culture",
+      "category": "Memes & Social",
       "tags": [
         "TOSHI",
         "spot $0.000107",
@@ -3376,7 +3376,7 @@
       "heat": {
         "volatilityPct": 5.17,
         "controversy": 0.496,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 35.58
       },
       "marketData": {
@@ -3401,7 +3401,7 @@
     {
       "id": "724790665",
       "title": "Will Mog Coin close below $0.0000000734 before November 30, 2026?",
-      "category": "Memes & Culture",
+      "category": "Memes & Social",
       "tags": [
         "MOG",
         "spot $0.0000000987",
@@ -3424,7 +3424,7 @@
       "heat": {
         "volatilityPct": 5.81,
         "controversy": 0.63,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 42.13
       },
       "marketData": {
@@ -3448,7 +3448,7 @@
     {
       "id": "721465295",
       "title": "Will Zora close below $0.00501 before November 7, 2026?",
-      "category": "Memes & Culture",
+      "category": "Memes & Social",
       "tags": [
         "ZORA",
         "spot $0.006303",
@@ -3471,7 +3471,7 @@
       "heat": {
         "volatilityPct": 6.02,
         "controversy": 0.426,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 46.86
       },
       "marketData": {
@@ -3495,7 +3495,7 @@
     {
       "id": "725509368",
       "title": "Will a Base-native meme token enter the top 200 by market cap before November 30, 2026?",
-      "category": "Memes & Culture",
+      "category": "Memes & Social",
       "tags": [
         "Base",
         "Market cap",
@@ -3516,7 +3516,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.52,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 15.6
       },
       "visual": {
@@ -3530,7 +3530,7 @@
     {
       "id": "725250525",
       "title": "Will a creator-led token out-earn a top-20 protocol token in fees this month?",
-      "category": "Memes & Culture",
+      "category": "Memes & Social",
       "tags": [
         "Creators",
         "Fees",
@@ -3551,7 +3551,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.36,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 10.8
       },
       "visual": {
@@ -3565,7 +3565,7 @@
     {
       "id": "725619293",
       "title": "Will a memecoin launched on Base reach a $100M market cap within seven days of launch before November 30, 2026?",
-      "category": "Memes & Culture",
+      "category": "Memes & Social",
       "tags": [
         "Base",
         "Launch",
@@ -3586,7 +3586,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.48,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 14.4
       },
       "visual": {
@@ -3600,7 +3600,7 @@
     {
       "id": "720714895",
       "title": "Will a top-10 crypto Twitter account be suspended over a paid promotion before November 30, 2026?",
-      "category": "Memes & Culture",
+      "category": "Memes & Social",
       "tags": [
         "CT",
         "KOL",
@@ -3621,7 +3621,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.58,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 17.4
       },
       "visual": {
@@ -3635,7 +3635,7 @@
     {
       "id": "720102914",
       "title": "Will any KOL-backed token announced this month trade below its launch price after 30 days?",
-      "category": "Memes & Culture",
+      "category": "Memes & Social",
       "tags": [
         "KOL",
         "Launches",
@@ -3656,7 +3656,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.64,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 19.2
       },
       "visual": {
@@ -3670,7 +3670,7 @@
     {
       "id": "724440203",
       "title": "Will this weekend's Premier League round produce 30 or more goals?",
-      "category": "Sports & Esports",
+      "category": "Sports & Gaming",
       "tags": [
         "Football",
         "Premier League",
@@ -3691,7 +3691,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.92,
-        "hoursLeft": 44.9,
+        "hoursLeft": 44.8,
         "score": 47.6
       },
       "visual": {
@@ -3706,7 +3706,7 @@
     {
       "id": "724697562",
       "title": "Will any Premier League side win by four goals or more this weekend?",
-      "category": "Sports & Esports",
+      "category": "Sports & Gaming",
       "tags": [
         "Football",
         "Premier League",
@@ -3727,7 +3727,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.66,
-        "hoursLeft": 44.9,
+        "hoursLeft": 44.8,
         "score": 39.8
       },
       "visual": {
@@ -3741,7 +3741,7 @@
     {
       "id": "726863915",
       "title": "Will the Champions League matchday produce a 4-goal comeback from a losing position?",
-      "category": "Sports & Esports",
+      "category": "Sports & Gaming",
       "tags": [
         "Football",
         "UCL",
@@ -3762,7 +3762,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.42,
-        "hoursLeft": 356.9,
+        "hoursLeft": 356.8,
         "score": 12.6
       },
       "visual": {
@@ -3776,7 +3776,7 @@
     {
       "id": "726185140",
       "title": "Will a Champions League matchday pass end with more than 30 goals across all fixtures?",
-      "category": "Sports & Esports",
+      "category": "Sports & Gaming",
       "tags": [
         "Football",
         "UCL",
@@ -3797,7 +3797,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.78,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 33.4
       },
       "visual": {
@@ -3811,7 +3811,7 @@
     {
       "id": "722847284",
       "title": "Will any Champions League fixture produce a hat-trick before November 30, 2026?",
-      "category": "Sports & Esports",
+      "category": "Sports & Gaming",
       "tags": [
         "Football",
         "UCL",
@@ -3832,7 +3832,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.82,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 24.6
       },
       "visual": {
@@ -3846,7 +3846,7 @@
     {
       "id": "722982145",
       "title": "Will the NBA's highest-scoring game this month break 150 points in regulation?",
-      "category": "Sports & Esports",
+      "category": "Sports & Gaming",
       "tags": [
         "Basketball",
         "NBA",
@@ -3867,7 +3867,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.58,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 17.4
       },
       "visual": {
@@ -3881,7 +3881,7 @@
     {
       "id": "722300590",
       "title": "Will any NBA quarter this week be won by 20 points or more?",
-      "category": "Sports & Esports",
+      "category": "Sports & Gaming",
       "tags": [
         "Basketball",
         "NBA",
@@ -3902,7 +3902,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.86,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 35.8
       },
       "visual": {
@@ -3916,7 +3916,7 @@
     {
       "id": "721199741",
       "title": "Will an NBA game this week be decided by a buzzer-beater?",
-      "category": "Sports & Esports",
+      "category": "Sports & Gaming",
       "tags": [
         "Basketball",
         "NBA",
@@ -3937,7 +3937,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.44,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 23.2
       },
       "visual": {
@@ -3951,7 +3951,7 @@
     {
       "id": "723490816",
       "title": "Will any NFL game this Sunday go to overtime?",
-      "category": "Sports & Esports",
+      "category": "Sports & Gaming",
       "tags": [
         "NFL",
         "Overtime",
@@ -3972,7 +3972,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.84,
-        "hoursLeft": 44.9,
+        "hoursLeft": 44.8,
         "score": 45.2
       },
       "visual": {
@@ -3986,7 +3986,7 @@
     {
       "id": "720532276",
       "title": "Will any F1 race this month be decided by under one second?",
-      "category": "Sports & Esports",
+      "category": "Sports & Gaming",
       "tags": [
         "Motorsport",
         "F1",
@@ -4007,7 +4007,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.66,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 19.8
       },
       "visual": {
@@ -4021,7 +4021,7 @@
     {
       "id": "726073251",
       "title": "Will a driver outside the top three constructors take a podium this month?",
-      "category": "Sports & Esports",
+      "category": "Sports & Gaming",
       "tags": [
         "Motorsport",
         "F1",
@@ -4042,7 +4042,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.56,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 16.8
       },
       "visual": {
@@ -4056,7 +4056,7 @@
     {
       "id": "724665836",
       "title": "Will an esports grand final go to a deciding map this month?",
-      "category": "Sports & Esports",
+      "category": "Sports & Gaming",
       "tags": [
         "Esports",
         "Finals",
@@ -4077,7 +4077,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.96,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 28.8
       },
       "visual": {
@@ -4091,7 +4091,7 @@
     {
       "id": "722583991",
       "title": "Will a reverse sweep happen in a Tier-1 esports playoff series before November 30, 2026?",
-      "category": "Sports & Esports",
+      "category": "Sports & Gaming",
       "tags": [
         "Esports",
         "Playoffs",
@@ -4112,7 +4112,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.62,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 18.6
       },
       "visual": {
@@ -4126,7 +4126,7 @@
     {
       "id": "725892943",
       "title": "Will the ATP Finals final go to a fifth set this year?",
-      "category": "Sports & Esports",
+      "category": "Sports & Gaming",
       "tags": [
         "Tennis",
         "ATP Finals",
@@ -4147,7 +4147,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.68,
-        "hoursLeft": 524.9,
+        "hoursLeft": 524.8,
         "score": 20.4
       },
       "visual": {
@@ -4161,7 +4161,7 @@
     {
       "id": "723811146",
       "title": "Will a top-four seed lose in the group stage of the ATP Finals?",
-      "category": "Sports & Esports",
+      "category": "Sports & Gaming",
       "tags": [
         "Tennis",
         "ATP Finals",
@@ -4182,7 +4182,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.9,
-        "hoursLeft": 356.9,
+        "hoursLeft": 356.8,
         "score": 27
       },
       "visual": {
@@ -4196,7 +4196,7 @@
     {
       "id": "727983015",
       "title": "Will any MLB team hit three or more home runs in an inning before November 30, 2026?",
-      "category": "Sports & Esports",
+      "category": "Sports & Gaming",
       "tags": [
         "Baseball",
         "MLB",
@@ -4217,7 +4217,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.74,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 22.2
       },
       "visual": {
@@ -4231,7 +4231,7 @@
     {
       "id": "726431631",
       "title": "Will the US Senate pass a comprehensive crypto market-structure bill before November 30, 2026?",
-      "category": "Politics & Policy",
+      "category": "US Politics & Policy",
       "tags": [
         "US",
         "Legislation",
@@ -4252,7 +4252,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.46,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 13.8
       },
       "visual": {
@@ -4266,7 +4266,7 @@
     {
       "id": "721698845",
       "title": "Will a G20 regulator issue final stablecoin rules naming reserve composition before November 30, 2026?",
-      "category": "Politics & Policy",
+      "category": "Global Policy",
       "tags": [
         "Stablecoins",
         "Regulation",
@@ -4287,7 +4287,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.62,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 18.6
       },
       "visual": {
@@ -4301,7 +4301,7 @@
     {
       "id": "724408094",
       "title": "Will the EU open an infringement procedure against a member state over MiCA implementation before November 30, 2026?",
-      "category": "Politics & Policy",
+      "category": "Global Policy",
       "tags": [
         "EU",
         "MiCA",
@@ -4322,7 +4322,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.38,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 11.4
       },
       "visual": {
@@ -4336,7 +4336,7 @@
     {
       "id": "721554368",
       "title": "Will any major jurisdiction grant a spot crypto ETF listing approval before November 30, 2026?",
-      "category": "Politics & Policy",
+      "category": "Global Policy",
       "tags": [
         "ETF",
         "Approval",
@@ -4357,7 +4357,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.54,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 16.2
       },
       "visual": {
@@ -4371,7 +4371,7 @@
     {
       "id": "720740490",
       "title": "Will the SEC drop or settle its enforcement case against a major crypto exchange before November 30, 2026?",
-      "category": "Politics & Policy",
+      "category": "US Politics & Policy",
       "tags": [
         "SEC",
         "Enforcement",
@@ -4392,7 +4392,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.84,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 25.2
       },
       "visual": {
@@ -4406,7 +4406,7 @@
     {
       "id": "726426093",
       "title": "Will any G7 country launch a retail CBDC pilot before December 31, 2026?",
-      "category": "Politics & Policy",
+      "category": "US Politics & Policy",
       "tags": [
         "CBDC",
         "G7",
@@ -4427,7 +4427,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.34,
-        "hoursLeft": 1484.9,
+        "hoursLeft": 1484.8,
         "score": 10.2
       },
       "visual": {
@@ -4441,7 +4441,7 @@
     {
       "id": "724909540",
       "title": "Will a US state enact a strategic Bitcoin reserve law before December 31, 2026?",
-      "category": "Politics & Policy",
+      "category": "US Politics & Policy",
       "tags": [
         "US",
         "States",
@@ -4462,7 +4462,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.42,
-        "hoursLeft": 1484.9,
+        "hoursLeft": 1484.8,
         "score": 12.6
       },
       "visual": {
@@ -4477,7 +4477,7 @@
     {
       "id": "725788962",
       "title": "Will the UK FCA authorise a crypto derivatives venue for retail clients before December 31, 2026?",
-      "category": "Politics & Policy",
+      "category": "Global Policy",
       "tags": [
         "UK",
         "FCA",
@@ -4498,21 +4498,21 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.36,
-        "hoursLeft": 1484.9,
+        "hoursLeft": 1484.8,
         "score": 10.8
       },
       "visual": {
-        "kind": "politics",
-        "photo": "capitol",
-        "accent": "#FB7185",
-        "entity": "POLICY",
-        "kicker": "LEGISLATION"
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
       }
     },
     {
       "id": "722338032",
       "title": "Will the FATF add a jurisdiction to its grey list citing virtual-asset supervision before December 31, 2026?",
-      "category": "Politics & Policy",
+      "category": "Global Policy",
       "tags": [
         "FATF",
         "AML",
@@ -4533,7 +4533,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.58,
-        "hoursLeft": 1484.9,
+        "hoursLeft": 1484.8,
         "score": 17.4
       },
       "visual": {
@@ -4547,7 +4547,7 @@
     {
       "id": "722086316",
       "title": "Will Congress pass a stablecoin yield ban before December 31, 2026?",
-      "category": "Politics & Policy",
+      "category": "US Politics & Policy",
       "tags": [
         "US",
         "Stablecoins",
@@ -4568,7 +4568,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.44,
-        "hoursLeft": 1484.9,
+        "hoursLeft": 1484.8,
         "score": 13.2
       },
       "visual": {
@@ -4582,7 +4582,7 @@
     {
       "id": "720518908",
       "title": "Will any jurisdiction require stablecoin issuers to hold 100% reserves in short-term Treasuries before December 31, 2026?",
-      "category": "Politics & Policy",
+      "category": "US Politics & Policy",
       "tags": [
         "Stablecoins",
         "Reserves",
@@ -4603,7 +4603,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.48,
-        "hoursLeft": 1484.9,
+        "hoursLeft": 1484.8,
         "score": 14.4
       },
       "visual": {
@@ -4617,7 +4617,7 @@
     {
       "id": "727791039",
       "title": "Will the CFTC be granted statutory authority over spot crypto markets before December 31, 2026?",
-      "category": "Politics & Policy",
+      "category": "US Politics & Policy",
       "tags": [
         "CFTC",
         "Jurisdiction",
@@ -4638,7 +4638,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.52,
-        "hoursLeft": 1484.9,
+        "hoursLeft": 1484.8,
         "score": 15.6
       },
       "visual": {
@@ -4652,7 +4652,7 @@
     {
       "id": "722230678",
       "title": "Will India reduce its crypto trading tax before December 31, 2026?",
-      "category": "Politics & Policy",
+      "category": "Global Policy",
       "tags": [
         "India",
         "Tax",
@@ -4673,21 +4673,21 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.3,
-        "hoursLeft": 1484.9,
+        "hoursLeft": 1484.8,
         "score": 9
       },
       "visual": {
-        "kind": "politics",
-        "photo": "capitol",
-        "accent": "#FB7185",
-        "entity": "POLICY",
-        "kicker": "LEGISLATION"
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
       }
     },
     {
       "id": "721352196",
       "title": "Will Base TVL hold above $5.60B through November 30, 2026?",
-      "category": "Base Ecosystem",
+      "category": "Layer 2 & Base",
       "tags": [
         "Base",
         "TVL",
@@ -4709,7 +4709,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.944,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 28.32
       },
       "visual": {
@@ -4724,7 +4724,7 @@
     {
       "id": "727538868",
       "title": "Will Base TVL cross $7.00B before December 31, 2026?",
-      "category": "Base Ecosystem",
+      "category": "Layer 2 & Base",
       "tags": [
         "Base",
         "TVL",
@@ -4746,7 +4746,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.126,
-        "hoursLeft": 1484.9,
+        "hoursLeft": 1484.8,
         "score": 3.78
       },
       "visual": {
@@ -4761,7 +4761,7 @@
     {
       "id": "726820062",
       "title": "Will Aerodrome close above $0.6850 before November 30, 2026?",
-      "category": "Base Ecosystem",
+      "category": "Layer 2 & Base",
       "tags": [
         "AERO",
         "spot $0.6254",
@@ -4783,7 +4783,7 @@
       "heat": {
         "volatilityPct": 2.44,
         "controversy": 0.826,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 34.53
       },
       "marketData": {
@@ -4808,7 +4808,7 @@
     {
       "id": "722871839",
       "title": "Will Aerodrome close above $0.7920 before November 7, 2026?",
-      "category": "Base Ecosystem",
+      "category": "Layer 2 & Base",
       "tags": [
         "AERO",
         "spot $0.6254",
@@ -4831,7 +4831,7 @@
       "heat": {
         "volatilityPct": 2.44,
         "controversy": 0.284,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 28.27
       },
       "marketData": {
@@ -4856,7 +4856,7 @@
     {
       "id": "721378844",
       "title": "Will Degen close above $0.00099 before November 30, 2026?",
-      "category": "Base Ecosystem",
+      "category": "Layer 2 & Base",
       "tags": [
         "DEGEN",
         "spot $0.000878",
@@ -4878,7 +4878,7 @@
       "heat": {
         "volatilityPct": 1.86,
         "controversy": 0.83,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 32.34
       },
       "marketData": {
@@ -4903,7 +4903,7 @@
     {
       "id": "722885569",
       "title": "Will Zora close above $0.00815 before November 30, 2026?",
-      "category": "Base Ecosystem",
+      "category": "Layer 2 & Base",
       "tags": [
         "ZORA",
         "spot $0.006303",
@@ -4925,7 +4925,7 @@
       "heat": {
         "volatilityPct": 6.02,
         "controversy": 0.646,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 43.46
       },
       "marketData": {
@@ -4949,7 +4949,7 @@
     {
       "id": "723449700",
       "title": "Will Base process more daily transactions than Ethereum every day for a week before November 30, 2026?",
-      "category": "Base Ecosystem",
+      "category": "Layer 2 & Base",
       "tags": [
         "Base",
         "Ethereum",
@@ -4970,7 +4970,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.58,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 17.4
       },
       "visual": {
@@ -4984,7 +4984,7 @@
     {
       "id": "723711545",
       "title": "Will Base settle more than 10M transactions in a single day before November 30, 2026?",
-      "category": "Base Ecosystem",
+      "category": "Layer 2 & Base",
       "tags": [
         "Base",
         "Throughput",
@@ -5005,7 +5005,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.76,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 22.8
       },
       "visual": {
@@ -5020,7 +5020,7 @@
     {
       "id": "727559844",
       "title": "Will a Base-native app cross 1M daily active addresses before November 30, 2026?",
-      "category": "Base Ecosystem",
+      "category": "Layer 2 & Base",
       "tags": [
         "Base",
         "DAU",
@@ -5041,7 +5041,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.48,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 14.4
       },
       "visual": {
@@ -5055,7 +5055,7 @@
     {
       "id": "727628812",
       "title": "Will Base sequencer revenue exceed $1M in a single week before November 30, 2026?",
-      "category": "Base Ecosystem",
+      "category": "Layer 2 & Base",
       "tags": [
         "Base",
         "Revenue",
@@ -5076,7 +5076,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.7,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 21
       },
       "visual": {
@@ -5090,7 +5090,7 @@
     {
       "id": "726658131",
       "title": "Will Base sequencer revenue exceed Ethereum L1 fees in a single week before December 31, 2026?",
-      "category": "Base Ecosystem",
+      "category": "Layer 2 & Base",
       "tags": [
         "Base",
         "Ethereum",
@@ -5111,7 +5111,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.38,
-        "hoursLeft": 1484.9,
+        "hoursLeft": 1484.8,
         "score": 11.4
       },
       "visual": {
@@ -5125,7 +5125,7 @@
     {
       "id": "722170942",
       "title": "Will Base host a top-10 DEX by weekly volume before November 30, 2026?",
-      "category": "Base Ecosystem",
+      "category": "Layer 2 & Base",
       "tags": [
         "Base",
         "DEX",
@@ -5146,7 +5146,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.88,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 26.4
       },
       "visual": {
@@ -5160,7 +5160,7 @@
     {
       "id": "722885906",
       "title": "Will Base median gas fees stay under $0.01 for a full week before November 30, 2026?",
-      "category": "Base Ecosystem",
+      "category": "Layer 2 & Base",
       "tags": [
         "Base",
         "Gas",
@@ -5181,7 +5181,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.68,
-        "hoursLeft": 356.9,
+        "hoursLeft": 356.8,
         "score": 20.4
       },
       "visual": {
@@ -5195,7 +5195,7 @@
     {
       "id": "725726043",
       "title": "Will a Base-native token be listed by a top-five centralized exchange before December 31, 2026?",
-      "category": "Base Ecosystem",
+      "category": "Layer 2 & Base",
       "tags": [
         "Base",
         "Listings",
@@ -5216,7 +5216,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.64,
-        "hoursLeft": 1484.9,
+        "hoursLeft": 1484.8,
         "score": 19.2
       },
       "visual": {
@@ -5230,7 +5230,7 @@
     {
       "id": "726882744",
       "title": "Will the Fed's target range be at or below 3.75% before December 31, 2026?",
-      "category": "Macro & Economy",
+      "category": "Macro Economy",
       "tags": [
         "Fed",
         "FOMC",
@@ -5252,7 +5252,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.92,
-        "hoursLeft": 1484.9,
+        "hoursLeft": 1484.8,
         "score": 27.6
       },
       "visual": {
@@ -5267,7 +5267,7 @@
     {
       "id": "722663566",
       "title": "Will the Fed leave its target range unchanged at 4.00% through December 31, 2026?",
-      "category": "Macro & Economy",
+      "category": "Macro Economy",
       "tags": [
         "Fed",
         "Hold",
@@ -5289,7 +5289,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.68,
-        "hoursLeft": 1484.9,
+        "hoursLeft": 1484.8,
         "score": 20.4
       },
       "visual": {
@@ -5304,7 +5304,7 @@
     {
       "id": "726360789",
       "title": "Will the Fed cut by 50bp or more in a single move before December 31, 2026?",
-      "category": "Macro & Economy",
+      "category": "Macro Economy",
       "tags": [
         "Fed",
         "Emergency",
@@ -5325,7 +5325,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.26,
-        "hoursLeft": 1484.9,
+        "hoursLeft": 1484.8,
         "score": 7.8
       },
       "visual": {
@@ -5340,7 +5340,7 @@
     {
       "id": "725041743",
       "title": "Will US CPI YoY print above 3.82% in the next release?",
-      "category": "Macro & Economy",
+      "category": "Macro Economy",
       "tags": [
         "CPI",
         "Inflation",
@@ -5361,7 +5361,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.94,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 28.2
       },
       "visual": {
@@ -5376,7 +5376,7 @@
     {
       "id": "724674453",
       "title": "Will US CPI YoY cool to 3.35% or below in the next release?",
-      "category": "Macro & Economy",
+      "category": "Macro Economy",
       "tags": [
         "CPI",
         "Disinflation",
@@ -5397,7 +5397,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.68,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 20.4
       },
       "visual": {
@@ -5412,7 +5412,7 @@
     {
       "id": "725985913",
       "title": "Will core CPI YoY stay above 2.57% in the next release?",
-      "category": "Macro & Economy",
+      "category": "Macro Economy",
       "tags": [
         "Core CPI",
         "last 2.57%",
@@ -5433,7 +5433,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 1,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 30
       },
       "visual": {
@@ -5448,7 +5448,7 @@
     {
       "id": "720437828",
       "title": "Will the 10-year Treasury yield close below 4.88% before November 30, 2026?",
-      "category": "Macro & Economy",
+      "category": "Macro Economy",
       "tags": [
         "Rates",
         "US10Y",
@@ -5470,7 +5470,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.66,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 19.8
       },
       "visual": {
@@ -5485,7 +5485,7 @@
     {
       "id": "726163684",
       "title": "Will the 10-year Treasury yield close above 5.18% before December 31, 2026?",
-      "category": "Macro & Economy",
+      "category": "Macro Economy",
       "tags": [
         "Rates",
         "US10Y",
@@ -5507,7 +5507,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.72,
-        "hoursLeft": 1484.9,
+        "hoursLeft": 1484.8,
         "score": 21.6
       },
       "visual": {
@@ -5522,7 +5522,7 @@
     {
       "id": "722422519",
       "title": "Will the 2s10s curve re-invert below 0% before December 31, 2026?",
-      "category": "Macro & Economy",
+      "category": "Macro Economy",
       "tags": [
         "Curve",
         "now 0.38pp",
@@ -5543,7 +5543,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.48,
-        "hoursLeft": 1484.9,
+        "hoursLeft": 1484.8,
         "score": 14.4
       },
       "visual": {
@@ -5558,7 +5558,7 @@
     {
       "id": "724233130",
       "title": "Will US unemployment print above 4.3% in the next report?",
-      "category": "Macro & Economy",
+      "category": "Macro Economy",
       "tags": [
         "Unemployment",
         "now 4.2%",
@@ -5579,7 +5579,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.8,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 24
       },
       "visual": {
@@ -5594,7 +5594,7 @@
     {
       "id": "727074530",
       "title": "Will the 30-year mortgage rate fall below 7.04% before November 30, 2026?",
-      "category": "Macro & Economy",
+      "category": "Macro Economy",
       "tags": [
         "Mortgage",
         "now 7.24%",
@@ -5615,7 +5615,7 @@
       "heat": {
         "volatilityPct": 0,
         "controversy": 0.6,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 18
       },
       "visual": {
@@ -5630,7 +5630,7 @@
     {
       "id": "727699806",
       "title": "Will COMEX gold close above $4,010 before November 7, 2026?",
-      "category": "Macro & Economy",
+      "category": "Commodities & Metals",
       "tags": [
         "GOLD",
         "spot $3,885",
@@ -5653,7 +5653,7 @@
       "heat": {
         "volatilityPct": 3.63,
         "controversy": 0.756,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 47.22
       },
       "marketData": {
@@ -5666,18 +5666,18 @@
         "asOf": "2026-10-31T03:05:18.638Z"
       },
       "visual": {
-        "kind": "macro",
-        "photo": "gold",
-        "accent": "#FBBF24",
-        "entity": "MARKETS",
-        "kicker": "MACRO",
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
         "metric": "spot $3,885"
       }
     },
     {
       "id": "721071159",
       "title": "Will COMEX gold close below $3,760 before November 7, 2026?",
-      "category": "Macro & Economy",
+      "category": "Commodities & Metals",
       "tags": [
         "GOLD",
         "spot $3,885",
@@ -5700,7 +5700,7 @@
       "heat": {
         "volatilityPct": 3.63,
         "controversy": 0.75,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 47.04
       },
       "marketData": {
@@ -5713,18 +5713,18 @@
         "asOf": "2026-10-31T03:05:18.638Z"
       },
       "visual": {
-        "kind": "macro",
-        "photo": "gold",
-        "accent": "#FBBF24",
-        "entity": "MARKETS",
-        "kicker": "MACRO",
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
         "metric": "spot $3,885"
       }
     },
     {
       "id": "727210676",
       "title": "Will COMEX gold close above $4,120 before November 30, 2026?",
-      "category": "Macro & Economy",
+      "category": "Commodities & Metals",
       "tags": [
         "GOLD",
         "spot $3,885",
@@ -5746,7 +5746,7 @@
       "heat": {
         "volatilityPct": 3.63,
         "controversy": 0.772,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 37.7
       },
       "marketData": {
@@ -5759,18 +5759,18 @@
         "asOf": "2026-10-31T03:05:18.638Z"
       },
       "visual": {
-        "kind": "macro",
-        "photo": "gold",
-        "accent": "#FBBF24",
-        "entity": "MARKETS",
-        "kicker": "MACRO",
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
         "metric": "spot $3,885"
       }
     },
     {
       "id": "725311504",
       "title": "Will COMEX silver close above $51.60 before November 7, 2026?",
-      "category": "Macro & Economy",
+      "category": "Commodities & Metals",
       "tags": [
         "SILVER",
         "spot $49.13",
@@ -5792,7 +5792,7 @@
       "heat": {
         "volatilityPct": 5.86,
         "controversy": 0.766,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 56.4
       },
       "marketData": {
@@ -5805,18 +5805,18 @@
         "asOf": "2026-10-31T03:05:18.638Z"
       },
       "visual": {
-        "kind": "macro",
-        "photo": "gold",
-        "accent": "#FBBF24",
-        "entity": "MARKETS",
-        "kicker": "MACRO",
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
         "metric": "spot $49.13"
       }
     },
     {
       "id": "723209197",
       "title": "Will WTI crude close above $108.20 before November 30, 2026?",
-      "category": "Macro & Economy",
+      "category": "Commodities & Metals",
       "tags": [
         "OIL",
         "spot $102.95",
@@ -5839,7 +5839,7 @@
       "heat": {
         "volatilityPct": 0.93,
         "controversy": 0.722,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 25.38
       },
       "marketData": {
@@ -5863,7 +5863,7 @@
     {
       "id": "724134160",
       "title": "Will WTI crude close below $97.80 before November 30, 2026?",
-      "category": "Macro & Economy",
+      "category": "Commodities & Metals",
       "tags": [
         "OIL",
         "spot $102.95",
@@ -5886,7 +5886,7 @@
       "heat": {
         "volatilityPct": 0.93,
         "controversy": 0.712,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 25.08
       },
       "marketData": {
@@ -5899,18 +5899,18 @@
         "asOf": "2026-10-31T03:05:18.638Z"
       },
       "visual": {
-        "kind": "macro",
-        "photo": "gold",
-        "accent": "#FBBF24",
-        "entity": "MARKETS",
-        "kicker": "MACRO",
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
         "metric": "spot $102.95"
       }
     },
     {
       "id": "721306235",
       "title": "Will US dollar index close above $103.00 before November 7, 2026?",
-      "category": "Macro & Economy",
+      "category": "Macro Economy",
       "tags": [
         "DXY",
         "spot $101.96",
@@ -5932,7 +5932,7 @@
       "heat": {
         "volatilityPct": 0.07,
         "controversy": 0.48,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 24.7
       },
       "marketData": {
@@ -5956,7 +5956,7 @@
     {
       "id": "723593397",
       "title": "Will S&P 500 close above $7,740 before November 7, 2026?",
-      "category": "Macro & Economy",
+      "category": "Global Stocks",
       "tags": [
         "SPX",
         "spot $7,580",
@@ -5978,7 +5978,7 @@
       "heat": {
         "volatilityPct": 1.82,
         "controversy": 0.684,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 37.79
       },
       "marketData": {
@@ -5991,18 +5991,18 @@
         "asOf": "2026-10-31T03:05:18.638Z"
       },
       "visual": {
-        "kind": "macro",
-        "photo": "gold",
-        "accent": "#FBBF24",
-        "entity": "MARKETS",
-        "kicker": "MACRO",
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
         "metric": "spot $7,580"
       }
     },
     {
       "id": "723144625",
       "title": "Will S&P 500 close below $7,340 before November 7, 2026?",
-      "category": "Macro & Economy",
+      "category": "Global Stocks",
       "tags": [
         "SPX",
         "spot $7,580",
@@ -6025,7 +6025,7 @@
       "heat": {
         "volatilityPct": 1.82,
         "controversy": 0.534,
-        "hoursLeft": 188.9,
+        "hoursLeft": 188.8,
         "score": 33.29
       },
       "marketData": {
@@ -6038,18 +6038,18 @@
         "asOf": "2026-10-31T03:05:18.638Z"
       },
       "visual": {
-        "kind": "macro",
-        "photo": "gold",
-        "accent": "#FBBF24",
-        "entity": "MARKETS",
-        "kicker": "MACRO",
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
         "metric": "spot $7,580"
       }
     },
     {
       "id": "727853175",
       "title": "Will Nasdaq Composite close above $26,250 before November 30, 2026?",
-      "category": "Macro & Economy",
+      "category": "Global Stocks",
       "tags": [
         "NDX",
         "spot $25,437",
@@ -6071,7 +6071,7 @@
       "heat": {
         "volatilityPct": 2.86,
         "controversy": 0.842,
-        "hoursLeft": 740.9,
+        "hoursLeft": 740.8,
         "score": 36.68
       },
       "marketData": {
@@ -6084,18 +6084,18 @@
         "asOf": "2026-10-31T03:05:18.638Z"
       },
       "visual": {
-        "kind": "macro",
-        "photo": "gold",
-        "accent": "#FBBF24",
-        "entity": "MARKETS",
-        "kicker": "MACRO",
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
         "metric": "spot $25,437"
       }
     },
     {
       "id": "723452638",
       "title": "Will PAX Gold trade above $3,990 before November 1 2026, 03:00 UTC?",
-      "category": "Macro & Economy",
+      "category": "Macro Economy",
       "tags": [
         "PAXG",
         "spot $3,899",
@@ -6117,7 +6117,7 @@
       "heat": {
         "volatilityPct": 2.57,
         "controversy": 0.694,
-        "hoursLeft": 23.9,
+        "hoursLeft": 23.8,
         "score": 51.1
       },
       "marketData": {
@@ -6136,6 +6136,3088 @@
         "entity": "MARKETS",
         "kicker": "MACRO",
         "metric": "spot $3,899"
+      }
+    },
+    {
+      "id": "725538311",
+      "title": "Will Meta Platforms close above $652.00 before November 30, 2026?",
+      "category": "Global Stocks",
+      "tags": [
+        "META",
+        "spot $614.99",
+        "+6% strike",
+        "Megacap"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-30T23:59:59.000Z",
+      "liquidityUsdc": "24200",
+      "yesShare": 0.338,
+      "volume24hUsdc": "15400",
+      "traders": 238,
+      "description": "Meta is the capex-versus-buyback argument in one ticker. Spot is $614.99 (-1.53% in 24h); the strike is +6% versus it.",
+      "resolution": "YES if the META/USDT daily candle on the primary US listing (Yahoo Finance) closes at or above $652.00 on any day up to and including 2026-11-30 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
+      "dataSource": "Yahoo Finance META",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 1.53,
+        "controversy": 0.676,
+        "hoursLeft": 740.8,
+        "score": 26.38
+      },
+      "marketData": {
+        "asset": "META",
+        "spotUsd": 614.99,
+        "strikeUsd": 652,
+        "direction": "above",
+        "windowDays": 31,
+        "source": "Yahoo Finance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
+        "metric": "spot $614.99"
+      }
+    },
+    {
+      "id": "727894043",
+      "title": "Will Alphabet close above $294.00 before November 7, 2026?",
+      "category": "Global Stocks",
+      "tags": [
+        "GOOGL",
+        "spot $279.84",
+        "+5% strike",
+        "Megacap"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-07T23:59:59.000Z",
+      "liquidityUsdc": "32300",
+      "yesShare": 0.197,
+      "volume24hUsdc": "16600",
+      "traders": 124,
+      "description": "Alphabet trades on the search-versus-agents question, which is the same question this venue asks. Spot is $279.84 (-1.40% in 24h); the strike is +5% versus it.",
+      "resolution": "YES if the GOOGL/USDT daily candle on the primary US listing (Yahoo Finance) closes at or above $294.00 on any day up to and including 2026-11-07 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
+      "dataSource": "Yahoo Finance GOOGL",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "mid",
+      "heat": {
+        "volatilityPct": 1.4,
+        "controversy": 0.394,
+        "hoursLeft": 188.8,
+        "score": 27.43
+      },
+      "marketData": {
+        "asset": "GOOGL",
+        "spotUsd": 279.84,
+        "strikeUsd": 294,
+        "direction": "above",
+        "windowDays": 8,
+        "source": "Yahoo Finance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
+        "metric": "spot $279.84"
+      }
+    },
+    {
+      "id": "727134294",
+      "title": "Will Microsoft close below $506.00 before November 7, 2026?",
+      "category": "Global Stocks",
+      "tags": [
+        "MSFT",
+        "spot $521.91",
+        "-3% strike",
+        "Megacap",
+        "Downside"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-07T23:59:59.000Z",
+      "liquidityUsdc": "61300",
+      "yesShare": 0.261,
+      "volume24hUsdc": "20800",
+      "traders": 101,
+      "description": "Microsoft is the enterprise-AI proxy; Azure capex guidance is the number that matters. Spot is $521.91 (-1.55% in 24h); the strike is -3% versus it.",
+      "resolution": "YES if the MSFT/USDT daily candle on the primary US listing (Yahoo Finance) closes at or below $506.00 on any day up to and including 2026-11-07 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
+      "dataSource": "Yahoo Finance MSFT",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "mid",
+      "heat": {
+        "volatilityPct": 1.55,
+        "controversy": 0.522,
+        "hoursLeft": 188.8,
+        "score": 31.87
+      },
+      "marketData": {
+        "asset": "MSFT",
+        "spotUsd": 521.91,
+        "strikeUsd": 506,
+        "direction": "below",
+        "windowDays": 8,
+        "source": "Yahoo Finance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
+        "metric": "spot $521.91"
+      }
+    },
+    {
+      "id": "727998490",
+      "title": "Will NVIDIA close above $246.00 before December 31, 2026?",
+      "category": "Global Stocks",
+      "tags": [
+        "NVDA",
+        "spot $204.64",
+        "+20% strike",
+        "AI capex",
+        "Stretch"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "21800",
+      "yesShare": 0.292,
+      "volume24hUsdc": "9800",
+      "traders": 151,
+      "description": "NVIDIA is the single name that sets the AI capex trade; its guide, not its chart, moves the sector. Spot is $204.64 (-4.22% in 24h); the strike is +20% versus it.",
+      "resolution": "YES if the NVDA/USDT daily candle on the primary US listing (Yahoo Finance) closes at or above $246.00 on any day up to and including 2026-12-31 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
+      "dataSource": "Yahoo Finance NVDA",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 4.22,
+        "controversy": 0.584,
+        "hoursLeft": 1484.8,
+        "score": 34.41
+      },
+      "marketData": {
+        "asset": "NVDA",
+        "spotUsd": 204.64,
+        "strikeUsd": 246,
+        "direction": "above",
+        "windowDays": 62,
+        "source": "Yahoo Finance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "ai",
+        "photo": "ai-lab",
+        "accent": "#22D3EE",
+        "entity": "AI · COMPUTE",
+        "kicker": "MACHINE INTELLIGENCE",
+        "metric": "spot $204.64"
+      }
+    },
+    {
+      "id": "720372898",
+      "title": "Will Apple close above $372.50 before December 31, 2026?",
+      "category": "Global Stocks",
+      "tags": [
+        "AAPL",
+        "spot $344.63",
+        "+8% strike",
+        "Megacap"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "66400",
+      "yesShare": 0.293,
+      "volume24hUsdc": "36100",
+      "traders": 215,
+      "description": "Apple is the defensive leg of the megacap trade: it works when rates fall and AI does not. Spot is $344.63 (-1.23% in 24h); the strike is +8% versus it.",
+      "resolution": "YES if the AAPL/USDT daily candle on the primary US listing (Yahoo Finance) closes at or above $372.50 on any day up to and including 2026-12-31 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
+      "dataSource": "Yahoo Finance AAPL",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 1.23,
+        "controversy": 0.586,
+        "hoursLeft": 1484.8,
+        "score": 22.49
+      },
+      "marketData": {
+        "asset": "AAPL",
+        "spotUsd": 344.63,
+        "strikeUsd": 372.5,
+        "direction": "above",
+        "windowDays": 62,
+        "source": "Yahoo Finance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
+        "metric": "spot $344.63"
+      }
+    },
+    {
+      "id": "727942349",
+      "title": "Will S&P 500 close above $7,960 before November 30, 2026?",
+      "category": "Global Stocks",
+      "tags": [
+        "SPX",
+        "spot $7,580",
+        "+5% strike",
+        "Index"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-30T23:59:59.000Z",
+      "liquidityUsdc": "17100",
+      "yesShare": 0.315,
+      "volume24hUsdc": "3300",
+      "traders": 308,
+      "description": "The S&P is the discount-rate trade; it does not need a catalyst to move 2%. Spot is $7,580 (-1.82% in 24h); the strike is +5% versus it.",
+      "resolution": "YES if the SPX/USDT daily candle on the primary US listing (Yahoo Finance) closes at or above $7,960 on any day up to and including 2026-11-30 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
+      "dataSource": "Yahoo Finance SPX",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 1.82,
+        "controversy": 0.63,
+        "hoursLeft": 740.8,
+        "score": 26.17
+      },
+      "marketData": {
+        "asset": "SPX",
+        "spotUsd": 7580.07,
+        "strikeUsd": 7960,
+        "direction": "above",
+        "windowDays": 31,
+        "source": "Yahoo Finance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
+        "metric": "spot $7,580"
+      }
+    },
+    {
+      "id": "721208415",
+      "title": "Will Nasdaq Composite close above $27,000 before December 31, 2026?",
+      "category": "Global Stocks",
+      "tags": [
+        "NDX",
+        "spot $25,437",
+        "+6% strike",
+        "Index"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "77400",
+      "yesShare": 0.395,
+      "volume24hUsdc": "45300",
+      "traders": 188,
+      "description": "The Nasdaq Composite is where the AI capex trade actually sits. Spot is $25,437 (-2.86% in 24h); the strike is +6% versus it.",
+      "resolution": "YES if the NDX/USDT daily candle on the primary US listing (Yahoo Finance) closes at or above $27,000 on any day up to and including 2026-12-31 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
+      "dataSource": "Yahoo Finance NDX",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 2.86,
+        "controversy": 0.79,
+        "hoursLeft": 1484.8,
+        "score": 35.12
+      },
+      "marketData": {
+        "asset": "NDX",
+        "spotUsd": 25436.998,
+        "strikeUsd": 27000,
+        "direction": "above",
+        "windowDays": 62,
+        "source": "Yahoo Finance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
+        "metric": "spot $25,437"
+      }
+    },
+    {
+      "id": "725091416",
+      "title": "Will the S&P 500 print a new all-time high before December 31, 2026?",
+      "category": "Global Stocks",
+      "tags": [
+        "SPX",
+        "ATH"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "70900",
+      "yesShare": 0.42,
+      "volume24hUsdc": "38400",
+      "traders": 213,
+      "description": "A new high is the cleanest statement that the discount-rate scare is over; the level is public every session.",
+      "resolution": "YES if the S&P 500 cash index closes above its prior all-time closing high on any trading day before the deadline.",
+      "dataSource": "Exchange closing prints",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.84,
+        "hoursLeft": 1484.8,
+        "score": 25.2
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "721843413",
+      "title": "Will any mega-cap report revenue growth above 20% YoY this quarter?",
+      "category": "Global Stocks",
+      "tags": [
+        "Earnings",
+        "Hyperscalers"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "26100",
+      "yesShare": 0.55,
+      "volume24hUsdc": "12900",
+      "traders": 311,
+      "description": "Twenty percent at this scale is the number that separates an AI capex cycle from a normal upgrade cycle.",
+      "resolution": "YES if Microsoft, Alphabet, Amazon, Meta or NVIDIA reports year-over-year revenue growth above 20% in an earnings release before the deadline.",
+      "dataSource": "Company earnings releases",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.9,
+        "hoursLeft": 1484.8,
+        "score": 27
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "727491917",
+      "title": "Will a Dow Jones component be removed from the index before December 31, 2026?",
+      "category": "Global Stocks",
+      "tags": [
+        "Dow",
+        "Index"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "27300",
+      "yesShare": 0.14,
+      "volume24hUsdc": "8700",
+      "traders": 127,
+      "description": "Index deletions are rare, announced and immediately tradeable — a clean tail bet against a sleepy market.",
+      "resolution": "YES if S&P Dow Jones Indices announces a change to the Dow Jones Industrial Average composition before the deadline.",
+      "dataSource": "S&P Dow Jones Indices",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.28,
+        "hoursLeft": 1484.8,
+        "score": 8.4
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "727046516",
+      "title": "Will COMEX silver close above $54.10 before November 30, 2026?",
+      "category": "Commodities & Metals",
+      "tags": [
+        "SILVER",
+        "spot $49.13",
+        "+10% strike",
+        "Silver"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-30T23:59:59.000Z",
+      "liquidityUsdc": "74700",
+      "yesShare": 0.384,
+      "volume24hUsdc": "48400",
+      "traders": 180,
+      "description": "Silver is gold with an industrial beta, which makes it twice as violent. Spot is $49.13 (-5.86% in 24h); the strike is +10% versus it.",
+      "resolution": "YES if the SILVER/USDT daily candle on the primary US listing (Yahoo Finance) closes at or above $54.10 on any day up to and including 2026-11-30 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
+      "dataSource": "Yahoo Finance SILVER",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 5.86,
+        "controversy": 0.768,
+        "hoursLeft": 740.8,
+        "score": 46.46
+      },
+      "marketData": {
+        "asset": "SILVER",
+        "spotUsd": 49.135,
+        "strikeUsd": 54.1,
+        "direction": "above",
+        "windowDays": 31,
+        "source": "Yahoo Finance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
+        "metric": "spot $49.13"
+      }
+    },
+    {
+      "id": "723197497",
+      "title": "Will WTI crude close below $94.60 before November 30, 2026?",
+      "category": "Commodities & Metals",
+      "tags": [
+        "OIL",
+        "spot $102.95",
+        "-8% strike",
+        "WTI",
+        "Downside"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-30T23:59:59.000Z",
+      "liquidityUsdc": "45500",
+      "yesShare": 0.274,
+      "volume24hUsdc": "7900",
+      "traders": 202,
+      "description": "WTI is the inflation input the Fed cannot ignore. Spot is $102.95 (0.93% in 24h); the strike is -8% versus it.",
+      "resolution": "YES if the OIL/USDT daily candle on the primary US listing (Yahoo Finance) closes at or below $94.60 on any day up to and including 2026-11-30 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
+      "dataSource": "Yahoo Finance OIL",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0.93,
+        "controversy": 0.548,
+        "hoursLeft": 740.8,
+        "score": 20.16
+      },
+      "marketData": {
+        "asset": "OIL",
+        "spotUsd": 102.95,
+        "strikeUsd": 94.60000000000001,
+        "direction": "below",
+        "windowDays": 31,
+        "source": "Yahoo Finance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
+        "metric": "spot $102.95"
+      }
+    },
+    {
+      "id": "724959438",
+      "title": "Will COMEX gold close above $4,360 before December 31, 2026?",
+      "category": "Commodities & Metals",
+      "tags": [
+        "GOLD",
+        "spot $3,885",
+        "+12% strike",
+        "Gold",
+        "Stretch"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "50000",
+      "yesShare": 0.344,
+      "volume24hUsdc": "25900",
+      "traders": 191,
+      "description": "Gold is the real-rate mirror: it rallies when the Fed is expected to cut faster than inflation falls. Spot is $3,885 (-3.63% in 24h); the strike is +12% versus it.",
+      "resolution": "YES if the GOLD/USDT daily candle on the primary US listing (Yahoo Finance) closes at or above $4,360 on any day up to and including 2026-12-31 23:59 UTC. A print at the level intraday without a daily close resolves NO.",
+      "dataSource": "Yahoo Finance GOLD",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 3.63,
+        "controversy": 0.688,
+        "hoursLeft": 1484.8,
+        "score": 35.18
+      },
+      "marketData": {
+        "asset": "GOLD",
+        "spotUsd": 3884.9,
+        "strikeUsd": 4360,
+        "direction": "above",
+        "windowDays": 62,
+        "source": "Yahoo Finance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
+        "metric": "spot $3,885"
+      }
+    },
+    {
+      "id": "722881547",
+      "title": "Will gold print a new all-time high before December 31, 2026?",
+      "category": "Commodities & Metals",
+      "tags": [
+        "Gold",
+        "ATH"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "64400",
+      "yesShare": 0.38,
+      "volume24hUsdc": "26500",
+      "traders": 103,
+      "description": "Gold's high is a real-rate statement, not a jewellery story: it prints when the market doubts the Fed's terminal rate.",
+      "resolution": "YES if the front-month COMEX gold contract settles above its prior all-time high settlement on any trading day before the deadline.",
+      "dataSource": "COMEX front-month settlement",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.76,
+        "hoursLeft": 1484.8,
+        "score": 22.8
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "726640136",
+      "title": "Will OPEC+ announce a production cut at its next meeting?",
+      "category": "Commodities & Metals",
+      "tags": [
+        "OPEC",
+        "Oil"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-05T23:59:59.000Z",
+      "liquidityUsdc": "26800",
+      "yesShare": 0.44,
+      "volume24hUsdc": "5200",
+      "traders": 201,
+      "description": "A cut is a price-support decision taken by a cartel that keeps missing its own quotas — the market prices the headline, not the barrels.",
+      "resolution": "YES if OPEC+ announces a reduction in aggregate production targets at its next scheduled ministerial meeting before the deadline.",
+      "dataSource": "OPEC Secretariat communiqué",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.88,
+        "hoursLeft": 860.8,
+        "score": 26.4
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "727678585",
+      "title": "Will copper close above $5.50/lb before December 31, 2026?",
+      "category": "Commodities & Metals",
+      "tags": [
+        "Copper",
+        "Industrial"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "64100",
+      "yesShare": 0.31,
+      "volume24hUsdc": "39000",
+      "traders": 93,
+      "description": "Copper is the electrification trade with no narrative premium: grid, datacentres and EVs all settle through it.",
+      "resolution": "YES if the front-month COMEX copper contract settles above $5.50 per pound on any trading day before the deadline.",
+      "dataSource": "COMEX copper settlement",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.62,
+        "hoursLeft": 1484.8,
+        "score": 18.6
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "724622191",
+      "title": "Will the gold/silver ratio close below 75 before December 31, 2026?",
+      "category": "Commodities & Metals",
+      "tags": [
+        "Gold",
+        "Silver",
+        "Ratio"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "81900",
+      "yesShare": 0.33,
+      "volume24hUsdc": "53900",
+      "traders": 138,
+      "description": "The ratio is the risk appetite of the metals complex in one number: it falls when silver outperforms, which is the late-cycle tell.",
+      "resolution": "YES if the ratio of the front-month gold settlement to the front-month silver settlement prints below 75 on any trading day before the deadline.",
+      "dataSource": "COMEX settlements",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.66,
+        "hoursLeft": 1484.8,
+        "score": 19.8
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "722593143",
+      "title": "Will a single film open above $150M domestic in one weekend before December 31, 2026?",
+      "category": "Entertainment & Pop",
+      "tags": [
+        "Box office",
+        "Film"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "35500",
+      "yesShare": 0.3,
+      "volume24hUsdc": "21300",
+      "traders": 156,
+      "description": "A $150M opening is the threshold where a film becomes a cultural event rather than a release — and it is audited weekly.",
+      "resolution": "YES if any film reports a three-day domestic opening weekend above $150M before the deadline, per Box Office Mojo.",
+      "dataSource": "Box Office Mojo",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.6,
+        "hoursLeft": 1484.8,
+        "score": 18
+      },
+      "visual": {
+        "kind": "ai",
+        "photo": "ai-lab",
+        "accent": "#22D3EE",
+        "entity": "AI · WEB3",
+        "kicker": "MACHINE INTELLIGENCE"
+      }
+    },
+    {
+      "id": "726203310",
+      "title": "Will a video-game release be delayed out of this quarter?",
+      "category": "Entertainment & Pop",
+      "tags": [
+        "Gaming",
+        "Delays"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "28000",
+      "yesShare": 0.62,
+      "volume24hUsdc": "6300",
+      "traders": 120,
+      "description": "Delays are the most reliably priced event in gaming: the base rate is brutal and the announcements are public.",
+      "resolution": "YES if a publisher with a title scheduled in the current quarter announces a delay beyond the quarter before the deadline.",
+      "dataSource": "Publisher announcements",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.76,
+        "hoursLeft": 1484.8,
+        "score": 22.8
+      },
+      "visual": {
+        "kind": "ai",
+        "photo": "ai-lab",
+        "accent": "#22D3EE",
+        "entity": "AI · WEB3",
+        "kicker": "MACHINE INTELLIGENCE"
+      }
+    },
+    {
+      "id": "727732977",
+      "title": "Will a music award's top prize go to an artist who released an album independently?",
+      "category": "Entertainment & Pop",
+      "tags": [
+        "Music",
+        "Awards"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-15T23:59:59.000Z",
+      "liquidityUsdc": "59200",
+      "yesShare": 0.24,
+      "volume24hUsdc": "33000",
+      "traders": 187,
+      "description": "Independent releases have the streaming numbers but not the campaign machinery; the gap is the trade.",
+      "resolution": "YES if the top album prize at a major music award show before the deadline goes to an artist who released the album without a major label.",
+      "dataSource": "Award body announcement",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.48,
+        "hoursLeft": 1100.8,
+        "score": 14.4
+      },
+      "visual": {
+        "kind": "ai",
+        "photo": "ai-lab",
+        "accent": "#22D3EE",
+        "entity": "AI · WEB3",
+        "kicker": "MACHINE INTELLIGENCE"
+      }
+    },
+    {
+      "id": "722097693",
+      "title": "Will a top-10 Spotify artist be accused of streaming fraud this month?",
+      "category": "Entertainment & Pop",
+      "tags": [
+        "Streaming",
+        "Drama"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-30T23:59:59.000Z",
+      "liquidityUsdc": "35100",
+      "yesShare": 0.19,
+      "volume24hUsdc": "15000",
+      "traders": 232,
+      "description": "Artificial streaming is the music industry's open secret; accusations are public and specific when they land.",
+      "resolution": "YES if a top-10 artist by monthly listeners is publicly accused (by the platform, a distributor or a rights-holder) of artificial streaming before the deadline.",
+      "dataSource": "Public reporting / platform statements",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.38,
+        "hoursLeft": 740.8,
+        "score": 11.4
+      },
+      "visual": {
+        "kind": "ai",
+        "photo": "ai-lab",
+        "accent": "#22D3EE",
+        "entity": "AI · WEB3",
+        "kicker": "MACHINE INTELLIGENCE"
+      }
+    },
+    {
+      "id": "727913059",
+      "title": "Will any streaming service raise prices before December 31, 2026?",
+      "category": "Entertainment & Pop",
+      "tags": [
+        "Streaming",
+        "Pricing"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "83700",
+      "yesShare": 0.57,
+      "volume24hUsdc": "35800",
+      "traders": 103,
+      "description": "Price rises are the only lever left once subscriber growth flattens — and they are announced, not leaked.",
+      "resolution": "YES if Netflix, Disney+, Max, Spotify or YouTube Premium announces a price increase in a major market before the deadline.",
+      "dataSource": "Provider price pages",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.86,
+        "hoursLeft": 1484.8,
+        "score": 25.8
+      },
+      "visual": {
+        "kind": "ai",
+        "photo": "ai-lab",
+        "accent": "#22D3EE",
+        "entity": "AI · WEB3",
+        "kicker": "MACHINE INTELLIGENCE"
+      }
+    },
+    {
+      "id": "723149908",
+      "title": "Will a crypto KOL's apology video exceed 1M views this month?",
+      "category": "Entertainment & Pop",
+      "tags": [
+        "KOL",
+        "Drama"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-30T23:59:59.000Z",
+      "liquidityUsdc": "28400",
+      "yesShare": 0.33,
+      "volume24hUsdc": "11300",
+      "traders": 163,
+      "description": "The apology video is the most reliable engagement event in crypto social, and the view count is public.",
+      "resolution": "YES if a video posted by a crypto influencer apologising for a promotion, token or trade exceeds 1M views on any platform before the deadline.",
+      "dataSource": "Public view counts",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.66,
+        "hoursLeft": 740.8,
+        "score": 19.8
+      },
+      "visual": {
+        "kind": "ai",
+        "photo": "ai-lab",
+        "accent": "#22D3EE",
+        "entity": "AI · WEB3",
+        "kicker": "MACHINE INTELLIGENCE"
+      }
+    },
+    {
+      "id": "726357842",
+      "title": "Will a major franchise game cross 1M concurrent players on launch day?",
+      "category": "Entertainment & Pop",
+      "tags": [
+        "Gaming",
+        "Launch"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-30T23:59:59.000Z",
+      "liquidityUsdc": "43600",
+      "yesShare": 0.35,
+      "volume24hUsdc": "27500",
+      "traders": 125,
+      "description": "Concurrency is the honest launch metric: refunds and review-bombs show up later, the peak does not.",
+      "resolution": "YES if any game in an established franchise records 1,000,000+ concurrent players on its launch day before the deadline.",
+      "dataSource": "SteamDB / platform charts",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.7,
+        "hoursLeft": 1460.8,
+        "score": 21
+      },
+      "visual": {
+        "kind": "ai",
+        "photo": "ai-lab",
+        "accent": "#22D3EE",
+        "entity": "AI · WEB3",
+        "kicker": "MACHINE INTELLIGENCE"
+      }
+    },
+    {
+      "id": "727900084",
+      "title": "Will a viral AI-generated track chart on a major platform this quarter?",
+      "category": "Entertainment & Pop",
+      "tags": [
+        "AI music",
+        "Charts"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "39100",
+      "yesShare": 0.28,
+      "volume24hUsdc": "23200",
+      "traders": 244,
+      "description": "AI music already has the streams; entering a chart is the point where the industry has to respond.",
+      "resolution": "YES if a track credited to an AI act enters a national top-40 chart before the deadline.",
+      "dataSource": "Platform charts",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.56,
+        "hoursLeft": 1484.8,
+        "score": 16.8
+      },
+      "visual": {
+        "kind": "ai",
+        "photo": "ai-lab",
+        "accent": "#22D3EE",
+        "entity": "AI · COMPUTE",
+        "kicker": "MACHINE INTELLIGENCE"
+      }
+    },
+    {
+      "id": "724373021",
+      "title": "Will Polymarket's monthly volume exceed $2B before December 31, 2026?",
+      "category": "Prediction Markets",
+      "tags": [
+        "Polymarket",
+        "Volume"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "66200",
+      "yesShare": 0.47,
+      "volume24hUsdc": "42900",
+      "traders": 249,
+      "description": "Prediction-market volume is the category's only honest scoreboard, and it is public.",
+      "resolution": "YES if Polymarket reports more than $2,000,000,000 of monthly traded volume before the deadline.",
+      "dataSource": "Dune / Polymarket dashboard",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.94,
+        "hoursLeft": 1484.8,
+        "score": 28.2
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "720112384",
+      "title": "Will Prediction Arena settle its first 100 on-chain markets before December 31, 2026?",
+      "category": "Prediction Markets",
+      "tags": [
+        "Arena",
+        "Settlement"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "80000",
+      "yesShare": 0.36,
+      "volume24hUsdc": "45300",
+      "traders": 257,
+      "description": "Settled markets, not opened ones, are the metric that matters: a market that never resolves is a promise, not a venue.",
+      "resolution": "YES if 100 or more pools on this contract have settled (PoolSettled events) before the deadline.",
+      "dataSource": "On-chain settlement events",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.72,
+        "hoursLeft": 1484.8,
+        "score": 21.6
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "ON-CHAIN",
+        "kicker": "DEFI · L2"
+      }
+    },
+    {
+      "id": "723858149",
+      "title": "Will a prediction market receive a US regulated exchange licence before December 31, 2026?",
+      "category": "Prediction Markets",
+      "tags": [
+        "Regulation",
+        "Prediction markets"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "53400",
+      "yesShare": 0.22,
+      "volume24hUsdc": "30200",
+      "traders": 255,
+      "description": "The licence is the whole ballgame for US volume: without it the product is a grey-market derivative.",
+      "resolution": "YES if a prediction-market operator is granted a US regulated exchange or designated contract market licence before the deadline.",
+      "dataSource": "CFTC / SEC filings",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.44,
+        "hoursLeft": 1484.8,
+        "score": 13.2
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "723045296",
+      "title": "Will a prediction market's TVL exceed $500M before December 31, 2026?",
+      "category": "Prediction Markets",
+      "tags": [
+        "TVL",
+        "Prediction markets"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "29600",
+      "yesShare": 0.4,
+      "volume24hUsdc": "14500",
+      "traders": 239,
+      "description": "TVL is the measure of how much money is willing to sit in escrow for a coin-flip, which is the actual product.",
+      "resolution": "YES if any prediction-market protocol reports TVL above $500M on DefiLlama before the deadline.",
+      "dataSource": "DefiLlama",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.8,
+        "hoursLeft": 1484.8,
+        "score": 24
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "ON-CHAIN",
+        "kicker": "DEFI · L2"
+      }
+    },
+    {
+      "id": "723562358",
+      "title": "Will total prediction-market volume across venues exceed $5B in a month before December 31, 2026?",
+      "category": "Prediction Markets",
+      "tags": [
+        "Category",
+        "Volume"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "23500",
+      "yesShare": 0.35,
+      "volume24hUsdc": "5500",
+      "traders": 117,
+      "description": "Category volume is what an advertiser or a partner actually asks about; the number is now big enough to matter.",
+      "resolution": "YES if the combined monthly volume of Polymarket, Kalshi and the largest on-chain venues exceeds $5B before the deadline.",
+      "dataSource": "Dune aggregate dashboards",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.7,
+        "hoursLeft": 1484.8,
+        "score": 21
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "727445796",
+      "title": "Will a mainstream sportsbook list a prediction-market product this quarter?",
+      "category": "Prediction Markets",
+      "tags": [
+        "Sportsbook",
+        "Category"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "40900",
+      "yesShare": 0.27,
+      "volume24hUsdc": "23100",
+      "traders": 120,
+      "description": "Sportsbooks have the distribution and the licences; prediction markets have the product. The first partnership reprices the category.",
+      "resolution": "YES if a top-10 sportsbook operator launches a prediction-market style product (fixed-payout event contracts) before the deadline.",
+      "dataSource": "Operator announcements",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.54,
+        "hoursLeft": 1484.8,
+        "score": 16.2
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "722920331",
+      "title": "Will BAYC's floor price close above 12 ETH before December 31, 2026?",
+      "category": "NFTs & Digital Art",
+      "tags": [
+        "BAYC",
+        "Floor"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "74300",
+      "yesShare": 0.34,
+      "volume24hUsdc": "34700",
+      "traders": 85,
+      "description": "Blue-chip floors are the NFT market's price index, and they are public to the wei.",
+      "resolution": "YES if the Bored Ape Yacht Club collection floor prints above 12 ETH on any day before the deadline, per Blur or OpenSea.",
+      "dataSource": "Blur / OpenSea floor",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.68,
+        "hoursLeft": 1484.8,
+        "score": 20.4
+      },
+      "visual": {
+        "kind": "token",
+        "photo": "macro",
+        "accent": "#8A9BFF",
+        "entity": "ETH",
+        "kicker": "MARKET",
+        "mark": "Ξ"
+      }
+    },
+    {
+      "id": "727777770",
+      "title": "Will CryptoPunks record a sale above $500k before December 31, 2026?",
+      "category": "NFTs & Digital Art",
+      "tags": [
+        "Punks",
+        "Sales"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "34200",
+      "yesShare": 0.29,
+      "volume24hUsdc": "19000",
+      "traders": 266,
+      "description": "Single punk sales are the market's headline prints — rare, public, and impossible to fake on-chain.",
+      "resolution": "YES if any CryptoPunk sells for more than $500,000 before the deadline, per on-chain settlement.",
+      "dataSource": "On-chain sale records",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.58,
+        "hoursLeft": 1484.8,
+        "score": 17.4
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "726644138",
+      "title": "Will Blur's weekly volume exceed $100M before December 31, 2026?",
+      "category": "NFTs & Digital Art",
+      "tags": [
+        "Blur",
+        "Volume"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "67400",
+      "yesShare": 0.31,
+      "volume24hUsdc": "19700",
+      "traders": 225,
+      "description": "Blur is where professional NFT flow lives; its weekly volume is the category's real liquidity number.",
+      "resolution": "YES if Blur reports weekly traded volume above $100M before the deadline.",
+      "dataSource": "Blur / Dune",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.62,
+        "hoursLeft": 1484.8,
+        "score": 18.6
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "722146102",
+      "title": "Will an NFT lending protocol cross $1B in cumulative loans before December 31, 2026?",
+      "category": "NFTs & Digital Art",
+      "tags": [
+        "NFT lending",
+        "TVL"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "20100",
+      "yesShare": 0.26,
+      "volume24hUsdc": "4000",
+      "traders": 304,
+      "description": "NFT lending is the only NFT use case with a cash flow attached; the cumulative number is the proof of demand.",
+      "resolution": "YES if an NFT-collateralised lending protocol reports $1B or more of cumulative loan originations before the deadline.",
+      "dataSource": "DefiLlama / protocol dashboards",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.52,
+        "hoursLeft": 1484.8,
+        "score": 15.6
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "ON-CHAIN",
+        "kicker": "DEFI · L2"
+      }
+    },
+    {
+      "id": "720636606",
+      "title": "Will a generative-art piece sell for over $1M this quarter?",
+      "category": "NFTs & Digital Art",
+      "tags": [
+        "Generative art",
+        "Auctions"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "27700",
+      "yesShare": 0.18,
+      "volume24hUsdc": "16500",
+      "traders": 137,
+      "description": "Generative art's top end is thin and headline-driven, which is exactly what makes the tail priceable.",
+      "resolution": "YES if a generative or on-chain art piece sells for more than $1,000,000 at a major auction house or on-chain marketplace before the deadline.",
+      "dataSource": "Auction house results",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.36,
+        "hoursLeft": 1484.8,
+        "score": 10.8
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "727914190",
+      "title": "Will OpenSea report a profitable quarter before December 31, 2026?",
+      "category": "NFTs & Digital Art",
+      "tags": [
+        "OpenSea",
+        "Business"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "54800",
+      "yesShare": 0.16,
+      "volume24hUsdc": "22200",
+      "traders": 91,
+      "description": "Marketplace economics are the missing half of the NFT story: volume without take-rate is a subsidy.",
+      "resolution": "YES if OpenSea publicly reports a profitable quarter before the deadline.",
+      "dataSource": "Company statements",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.32,
+        "hoursLeft": 1484.8,
+        "score": 9.6
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "727856968",
+      "title": "Will Solana experience a halt longer than 30 minutes before December 31, 2026?",
+      "category": "Web3 Infrastructure",
+      "tags": [
+        "Solana",
+        "Uptime"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "40300",
+      "yesShare": 0.27,
+      "volume24hUsdc": "9000",
+      "traders": 97,
+      "description": "Solana's halts are rare now, which is why the market underprices them — and they are announced on a status page.",
+      "resolution": "YES if the Solana mainnet beta halts block production for more than 30 consecutive minutes before the deadline, per the official status page.",
+      "dataSource": "Solana status page",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.54,
+        "hoursLeft": 1484.8,
+        "score": 16.2
+      },
+      "visual": {
+        "kind": "token",
+        "photo": "macro",
+        "accent": "#14F195",
+        "entity": "SOL",
+        "kicker": "MARKET",
+        "mark": "◎"
+      }
+    },
+    {
+      "id": "721977353",
+      "title": "Will Ethereum ship its next scheduled upgrade before December 31, 2026?",
+      "category": "Web3 Infrastructure",
+      "tags": [
+        "Ethereum",
+        "Upgrade"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "55400",
+      "yesShare": 0.52,
+      "volume24hUsdc": "22600",
+      "traders": 211,
+      "description": "Upgrade dates slip for good reasons and bad; the fork schedule is public and the activation block is checkable.",
+      "resolution": "YES if the next scheduled Ethereum mainnet upgrade activates before the deadline, per the client teams' published fork schedule.",
+      "dataSource": "Ethereum client releases",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.96,
+        "hoursLeft": 1484.8,
+        "score": 28.8
+      },
+      "visual": {
+        "kind": "token",
+        "photo": "macro",
+        "accent": "#8A9BFF",
+        "entity": "ETH",
+        "kicker": "MARKET",
+        "mark": "Ξ"
+      }
+    },
+    {
+      "id": "724680035",
+      "title": "Will Lido's share of staked ETH fall below 25% before December 31, 2026?",
+      "category": "Web3 Infrastructure",
+      "tags": [
+        "Lido",
+        "Staking"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "36000",
+      "yesShare": 0.4,
+      "volume24hUsdc": "12400",
+      "traders": 275,
+      "description": "Decentralisation is a number when it is measured as one operator's share of stake; 25% is the governance-risk line.",
+      "resolution": "YES if Lido's share of total staked ETH prints below 25% on any day before the deadline.",
+      "dataSource": "Dune staking dashboards",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.8,
+        "hoursLeft": 1484.8,
+        "score": 24
+      },
+      "visual": {
+        "kind": "token",
+        "photo": "macro",
+        "accent": "#8A9BFF",
+        "entity": "ETH",
+        "kicker": "MARKET",
+        "mark": "Ξ"
+      }
+    },
+    {
+      "id": "720082881",
+      "title": "Will restaking TVL exceed $25B before December 31, 2026?",
+      "category": "Web3 Infrastructure",
+      "tags": [
+        "Restaking",
+        "TVL"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "31300",
+      "yesShare": 0.33,
+      "volume24hUsdc": "12200",
+      "traders": 132,
+      "description": "Restaking turned security into a yield product; the TVL is the size of the risk being layered.",
+      "resolution": "YES if aggregate restaking TVL prints above $25B before the deadline.",
+      "dataSource": "DefiLlama",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.66,
+        "hoursLeft": 1484.8,
+        "score": 19.8
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "ON-CHAIN",
+        "kicker": "DEFI · L2"
+      }
+    },
+    {
+      "id": "723049736",
+      "title": "Will a major L2 post a full day of downtime before December 31, 2026?",
+      "category": "Web3 Infrastructure",
+      "tags": [
+        "L2",
+        "Uptime"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "17900",
+      "yesShare": 0.21,
+      "volume24hUsdc": "5400",
+      "traders": 136,
+      "description": "L2 sequencers are single points of failure by design; a day-long outage is the tail every bridge user is short.",
+      "resolution": "YES if any top-five L2 by TVL fails to produce blocks for 24 consecutive hours before the deadline.",
+      "dataSource": "L2Beat / chain status pages",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.42,
+        "hoursLeft": 1484.8,
+        "score": 12.6
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "ON-CHAIN",
+        "kicker": "DEFI · L2"
+      }
+    },
+    {
+      "id": "721693720",
+      "title": "Will blob fees on Ethereum exceed 0.01 gwei for a full week before December 31, 2026?",
+      "category": "Web3 Infrastructure",
+      "tags": [
+        "Blobs",
+        "Fees"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "76000",
+      "yesShare": 0.37,
+      "volume24hUsdc": "33100",
+      "traders": 248,
+      "description": "Blob fees are the true cost of L2 data availability, and they only rise when L2 demand is real.",
+      "resolution": "YES if the median blob base fee stays above 0.01 gwei for seven consecutive days before the deadline.",
+      "dataSource": "Etherscan blob data",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.74,
+        "hoursLeft": 1484.8,
+        "score": 22.2
+      },
+      "visual": {
+        "kind": "token",
+        "photo": "macro",
+        "accent": "#8A9BFF",
+        "entity": "ETH",
+        "kicker": "MARKET",
+        "mark": "Ξ"
+      }
+    },
+    {
+      "id": "723258447",
+      "title": "Will a major RPC provider suffer a multi-hour outage this quarter?",
+      "category": "Web3 Infrastructure",
+      "tags": [
+        "RPC",
+        "Uptime"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "37800",
+      "yesShare": 0.44,
+      "volume24hUsdc": "20300",
+      "traders": 113,
+      "description": "RPC is the least visible single point of failure in the stack; every dApp on this board depends on one.",
+      "resolution": "YES if any of Alchemy, Infura, QuickNode or Ankr reports a degradation longer than two hours before the deadline.",
+      "dataSource": "Provider status pages",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.88,
+        "hoursLeft": 1484.8,
+        "score": 26.4
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "722780405",
+      "title": "Will SpaceX complete a Starship flight without a loss of vehicle before December 31, 2026?",
+      "category": "Real World Events",
+      "tags": [
+        "SpaceX",
+        "Launch"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "23200",
+      "yesShare": 0.46,
+      "volume24hUsdc": "13200",
+      "traders": 169,
+      "description": "Starship cadence is the leading indicator for launch economics, and every flight is public.",
+      "resolution": "YES if SpaceX completes a Starship test flight with the vehicle intact through the planned profile before the deadline.",
+      "dataSource": "SpaceX mission updates",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.92,
+        "hoursLeft": 1484.8,
+        "score": 27.6
+      },
+      "visual": {
+        "kind": "space",
+        "photo": "space",
+        "accent": "#A78BFA",
+        "entity": "SCIENCE",
+        "kicker": "SPACE & RESEARCH"
+      }
+    },
+    {
+      "id": "727375254",
+      "title": "Will a small modular reactor receive a construction permit before December 31, 2026?",
+      "category": "Real World Events",
+      "tags": [
+        "Nuclear",
+        "Energy"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "40400",
+      "yesShare": 0.28,
+      "volume24hUsdc": "13000",
+      "traders": 143,
+      "description": "Datacentre demand has made nuclear licensing the bottleneck of the AI build-out; permits are public documents.",
+      "resolution": "YES if a nuclear regulator grants a construction permit for a small modular reactor design before the deadline.",
+      "dataSource": "Nuclear regulator filings",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.56,
+        "hoursLeft": 1484.8,
+        "score": 16.8
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "721676571",
+      "title": "Will a quantum computer solve a problem beyond classical simulation this quarter?",
+      "category": "Real World Events",
+      "tags": [
+        "Quantum",
+        "Research"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "14300",
+      "yesShare": 0.22,
+      "volume24hUsdc": "4300",
+      "traders": 254,
+      "description": "Quantum advantage claims are the most over-claimed result in tech; the peer-reviewed version is the only one that counts.",
+      "resolution": "YES if a peer-reviewed paper demonstrates a quantum computation that cannot be reproduced classically within a week before the deadline.",
+      "dataSource": "Peer-reviewed publication",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.44,
+        "hoursLeft": 1484.8,
+        "score": 13.2
+      },
+      "visual": {
+        "kind": "neural",
+        "photo": "neural",
+        "accent": "#C084FC",
+        "entity": "AI RESEARCH",
+        "kicker": "VERIFICATION"
+      }
+    },
+    {
+      "id": "722324587",
+      "title": "Will a major AI lab publish a safety evaluation of a frontier model this quarter?",
+      "category": "Real World Events",
+      "tags": [
+        "AI safety",
+        "Research"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "52800",
+      "yesShare": 0.58,
+      "volume24hUsdc": "27300",
+      "traders": 216,
+      "description": "Safety evaluations are becoming a de-facto licence to ship; the first public one sets the template.",
+      "resolution": "YES if OpenAI, Anthropic, Google DeepMind or Meta publishes a third-party safety evaluation of a frontier model before the deadline.",
+      "dataSource": "Lab publications",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.84,
+        "hoursLeft": 1484.8,
+        "score": 25.2
+      },
+      "visual": {
+        "kind": "neural",
+        "photo": "neural",
+        "accent": "#C084FC",
+        "entity": "AI RESEARCH",
+        "kicker": "VERIFICATION"
+      }
+    },
+    {
+      "id": "727488838",
+      "title": "Will a G20 government declare a climate emergency this quarter?",
+      "category": "Real World Events",
+      "tags": [
+        "Climate",
+        "Policy"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "43200",
+      "yesShare": 0.12,
+      "volume24hUsdc": "10900",
+      "traders": 146,
+      "description": "Declarations are cheap talk until they unlock emergency budget powers, which is why they stay rare.",
+      "resolution": "YES if a G20 national government formally declares a climate emergency before the deadline.",
+      "dataSource": "Government statements",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.24,
+        "hoursLeft": 1484.8,
+        "score": 7.2
+      },
+      "visual": {
+        "kind": "eu",
+        "photo": "eu",
+        "accent": "#4F8CFF",
+        "entity": "G20 REGULATORS",
+        "kicker": "REGULATION"
+      }
+    },
+    {
+      "id": "726972738",
+      "title": "Will a commercial fusion company report net energy gain before December 31, 2026?",
+      "category": "Real World Events",
+      "tags": [
+        "Fusion",
+        "Energy"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "28900",
+      "yesShare": 0.14,
+      "volume24hUsdc": "11300",
+      "traders": 273,
+      "description": "Fusion has produced Q>1 in public labs; the private-sector claim is the one that would reprice the sector.",
+      "resolution": "YES if a private fusion company reports a shot with scientific gain (Q>1) verified by an independent reviewer before the deadline.",
+      "dataSource": "Company / peer-reviewed results",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.28,
+        "hoursLeft": 1484.8,
+        "score": 8.4
+      },
+      "visual": {
+        "kind": "space",
+        "photo": "space",
+        "accent": "#A78BFA",
+        "entity": "SCIENCE",
+        "kicker": "SPACE & RESEARCH"
+      }
+    },
+    {
+      "id": "726424071",
+      "title": "Will a robotaxi service expand to a new US city this quarter?",
+      "category": "Real World Events",
+      "tags": [
+        "Robotaxi",
+        "Autonomy"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "65700",
+      "yesShare": 0.55,
+      "volume24hUsdc": "30700",
+      "traders": 223,
+      "description": "City-by-city expansion is the only honest measure of autonomy progress; the press release is always public.",
+      "resolution": "YES if Waymo, Zoox or Tesla launches paid driverless service in a city where it did not operate before the deadline.",
+      "dataSource": "Operator announcements",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.9,
+        "hoursLeft": 1484.8,
+        "score": 27
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "726107330",
+      "title": "Will a private AI company raise at a valuation above $300B before December 31, 2026?",
+      "category": "VC & Startup Deals",
+      "tags": [
+        "AI",
+        "Valuation"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "73200",
+      "yesShare": 0.33,
+      "volume24hUsdc": "16800",
+      "traders": 175,
+      "description": "Private marks are the last unrepriced corner of the AI trade; one round at this size resets every comparable.",
+      "resolution": "YES if a private AI company completes a priced round at a post-money valuation above $300B before the deadline.",
+      "dataSource": "Reported financing rounds",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.66,
+        "hoursLeft": 1484.8,
+        "score": 19.8
+      },
+      "visual": {
+        "kind": "ai",
+        "photo": "ai-lab",
+        "accent": "#22D3EE",
+        "entity": "AI · COMPUTE",
+        "kicker": "MACHINE INTELLIGENCE"
+      }
+    },
+    {
+      "id": "727415662",
+      "title": "Will crypto VC funding exceed $5B in a single quarter before December 31, 2026?",
+      "category": "VC & Startup Deals",
+      "tags": [
+        "Crypto VC",
+        "Funding"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "50700",
+      "yesShare": 0.29,
+      "volume24hUsdc": "26000",
+      "traders": 304,
+      "description": "Funding is the trailing indicator that still moves token prices: it says whether the next cohort gets built.",
+      "resolution": "YES if disclosed crypto venture funding exceeds $5B in a calendar quarter ending before the deadline.",
+      "dataSource": "Messari / The Block funding data",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.58,
+        "hoursLeft": 1484.8,
+        "score": 17.4
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "727817120",
+      "title": "Will a payments company file for IPO before December 31, 2026?",
+      "category": "VC & Startup Deals",
+      "tags": [
+        "IPO",
+        "Fintech"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "41200",
+      "yesShare": 0.36,
+      "volume24hUsdc": "19400",
+      "traders": 273,
+      "description": "The IPO window is a regime indicator: one filing brings the queue.",
+      "resolution": "YES if Stripe, Revolut or Klarna publicly files a registration statement for an IPO before the deadline.",
+      "dataSource": "SEC S-1 filings",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.72,
+        "hoursLeft": 1484.8,
+        "score": 21.6
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "726153017",
+      "title": "Will a16z or Paradigm close a fund above $5B this year?",
+      "category": "VC & Startup Deals",
+      "tags": [
+        "VC",
+        "Funds"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-30T23:59:59.000Z",
+      "liquidityUsdc": "48700",
+      "yesShare": 0.31,
+      "volume24hUsdc": "28800",
+      "traders": 104,
+      "description": "Fund size is the supply side of the startup cycle; it sets how many seed cheques exist next year.",
+      "resolution": "YES if Andreessen Horowitz or Paradigm announces a new fund of $5B or more before the deadline.",
+      "dataSource": "Fund announcements",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.62,
+        "hoursLeft": 1460.8,
+        "score": 18.6
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "727706304",
+      "title": "Will an AI startup reach a $1B valuation within 12 months of founding?",
+      "category": "VC & Startup Deals",
+      "tags": [
+        "AI",
+        "Unicorns"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2027-01-29T23:59:59.000Z",
+      "liquidityUsdc": "67700",
+      "yesShare": 0.41,
+      "volume24hUsdc": "42100",
+      "traders": 185,
+      "description": "Time-to-unicorn has compressed from seven years to under one in AI; the base rate is the trade.",
+      "resolution": "YES if any AI company founded in the last 12 months closes a round at a $1B+ post-money valuation before the deadline.",
+      "dataSource": "Reported financings",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.82,
+        "hoursLeft": 2180.8,
+        "score": 24.6
+      },
+      "visual": {
+        "kind": "ai",
+        "photo": "ai-lab",
+        "accent": "#22D3EE",
+        "entity": "AI · COMPUTE",
+        "kicker": "MACHINE INTELLIGENCE"
+      }
+    },
+    {
+      "id": "727524814",
+      "title": "Will a crypto startup with no token raise above $100M this quarter?",
+      "category": "VC & Startup Deals",
+      "tags": [
+        "Crypto VC",
+        "Equity"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "63500",
+      "yesShare": 0.38,
+      "volume24hUsdc": "32700",
+      "traders": 263,
+      "description": "Equity-only crypto rounds are the tell that the business, not the token, is being financed.",
+      "resolution": "YES if a crypto company without a launched token closes an equity round above $100M before the deadline.",
+      "dataSource": "Reported financings",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.76,
+        "hoursLeft": 1484.8,
+        "score": 22.8
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "720164994",
+      "title": "Will the Bank of Japan raise its policy rate before December 31, 2026?",
+      "category": "Asia & Regional",
+      "tags": [
+        "BOJ",
+        "Japan"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "85600",
+      "yesShare": 0.34,
+      "volume24hUsdc": "31900",
+      "traders": 188,
+      "description": "The yen carry trade is the funding leg of every global risk position, so a BOJ hike is a global event.",
+      "resolution": "YES if the Bank of Japan raises its short-term policy rate at a meeting before the deadline.",
+      "dataSource": "BOJ statements",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.68,
+        "hoursLeft": 1484.8,
+        "score": 20.4
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "726082278",
+      "title": "Will China cut its one-year loan prime rate before December 31, 2026?",
+      "category": "Asia & Regional",
+      "tags": [
+        "China",
+        "Rates"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "26300",
+      "yesShare": 0.48,
+      "volume24hUsdc": "8000",
+      "traders": 253,
+      "description": "China's LPR is the cheapest stimulus signal there is, and it is published monthly.",
+      "resolution": "YES if the People's Bank of China lowers the one-year loan prime rate before the deadline.",
+      "dataSource": "PBOC announcements",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.96,
+        "hoursLeft": 1484.8,
+        "score": 28.8
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "727090875",
+      "title": "Will Japan's core CPI print above 3% in the next release?",
+      "category": "Asia & Regional",
+      "tags": [
+        "Japan",
+        "CPI"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-30T23:59:59.000Z",
+      "liquidityUsdc": "45800",
+      "yesShare": 0.42,
+      "volume24hUsdc": "24900",
+      "traders": 209,
+      "description": "Japanese inflation is the variable that decides whether the BOJ can normalise at all.",
+      "resolution": "YES if Japan's core CPI (ex fresh food) prints above 3.0% year-over-year in the next release before the deadline.",
+      "dataSource": "Statistics Bureau of Japan",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.84,
+        "hoursLeft": 740.8,
+        "score": 25.2
+      },
+      "visual": {
+        "kind": "macro",
+        "photo": "gold",
+        "accent": "#FBBF24",
+        "entity": "MACRO",
+        "kicker": "RATES & INFLATION"
+      }
+    },
+    {
+      "id": "726569559",
+      "title": "Will India's GDP growth print above 7% in the next release?",
+      "category": "Asia & Regional",
+      "tags": [
+        "India",
+        "GDP"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-15T23:59:59.000Z",
+      "liquidityUsdc": "43900",
+      "yesShare": 0.4,
+      "volume24hUsdc": "8900",
+      "traders": 186,
+      "description": "India is the only large economy still compounding at 7%; the print is the whole EM growth story.",
+      "resolution": "YES if India's quarterly GDP growth prints above 7.0% year-over-year in the next release before the deadline.",
+      "dataSource": "MOSPI releases",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.8,
+        "hoursLeft": 1100.8,
+        "score": 24
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "721524197",
+      "title": "Will Hong Kong approve another crypto trading platform licence this quarter?",
+      "category": "Asia & Regional",
+      "tags": [
+        "Hong Kong",
+        "Licensing"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "43400",
+      "yesShare": 0.57,
+      "volume24hUsdc": "10500",
+      "traders": 205,
+      "description": "Hong Kong's licensing regime is slow and public; each approval is a data point on China's tolerance.",
+      "resolution": "YES if the Hong Kong SFC grants a virtual-asset trading platform licence to a new operator before the deadline.",
+      "dataSource": "SFC licence register",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.86,
+        "hoursLeft": 1484.8,
+        "score": 25.8
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "724908319",
+      "title": "Will Korea pass a law allowing spot crypto ETFs this year?",
+      "category": "Asia & Regional",
+      "tags": [
+        "Korea",
+        "ETF"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2027-01-29T23:59:59.000Z",
+      "liquidityUsdc": "75200",
+      "yesShare": 0.29,
+      "volume24hUsdc": "23200",
+      "traders": 213,
+      "description": "Korean retail is the marginal buyer in every Asian crypto book; the ETF law is the gate.",
+      "resolution": "YES if Korea enacts legislation permitting spot crypto ETFs before the deadline.",
+      "dataSource": "National Assembly records",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.58,
+        "hoursLeft": 2180.8,
+        "score": 17.4
+      },
+      "visual": {
+        "kind": "eu",
+        "photo": "eu",
+        "accent": "#4F8CFF",
+        "entity": "GLOBAL REGULATORS",
+        "kicker": "POLICY"
+      }
+    },
+    {
+      "id": "720655156",
+      "title": "Will China announce a new stimulus package above $200B this quarter?",
+      "category": "Asia & Regional",
+      "tags": [
+        "China",
+        "Stimulus"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "37800",
+      "yesShare": 0.31,
+      "volume24hUsdc": "6300",
+      "traders": 281,
+      "description": "Announcement size is the number that moves industrial metals and HK equities in the same hour.",
+      "resolution": "YES if China's State Council announces fiscal stimulus of $200B or more before the deadline.",
+      "dataSource": "State Council announcements",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.62,
+        "hoursLeft": 1484.8,
+        "score": 18.6
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA"
+      }
+    },
+    {
+      "id": "726030706",
+      "title": "Will Pepe trade above $0.00000519 before November 1 2026, 04:00 UTC?",
+      "category": "Degen Dials",
+      "tags": [
+        "PEPE",
+        "spot $0.00000494",
+        "+5% strike",
+        "Degen",
+        "24h"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-01T04:00:00.000Z",
+      "liquidityUsdc": "56200",
+      "yesShare": 0.505,
+      "volume24hUsdc": "16000",
+      "traders": 133,
+      "description": "PEPE is the most liquid pure meme on this board, which makes it the cleanest sentiment print. Spot is $0.00000494 (3.35% in 24h); the strike is +5% versus it.",
+      "resolution": "YES if the PEPE/USDT pair on Binance prints at or above $0.00000519 at any moment before November 1 2026, 04:00 UTC. A print counts; no close is required.",
+      "dataSource": "Binance PEPEUSDT",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "24h",
+      "heat": {
+        "volatilityPct": 3.35,
+        "controversy": 0.99,
+        "hoursLeft": 24.8,
+        "score": 63.09
+      },
+      "marketData": {
+        "asset": "PEPE",
+        "spotUsd": 0.00000494,
+        "strikeUsd": 0.00000519,
+        "direction": "above",
+        "windowDays": 1,
+        "source": "Binance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "token",
+        "photo": "meme",
+        "accent": "#A855F7",
+        "entity": "DEGEN",
+        "kicker": "BINANCE",
+        "metric": "$0.00000494",
+        "mark": "D"
+      }
+    },
+    {
+      "id": "720066371",
+      "title": "Will dogwifhat trade above $0.1875 before November 1 2026, 04:00 UTC?",
+      "category": "Degen Dials",
+      "tags": [
+        "WIF",
+        "spot $0.1767",
+        "+6% strike",
+        "Degen",
+        "24h"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-01T04:00:00.000Z",
+      "liquidityUsdc": "31600",
+      "yesShare": 0.455,
+      "volume24hUsdc": "12200",
+      "traders": 214,
+      "description": "WIF is a Solana attention vehicle: fat tails, thin support. Spot is $0.1767 (6.32% in 24h); the strike is +6% versus it.",
+      "resolution": "YES if the WIF/USDT pair on Binance prints at or above $0.1875 at any moment before November 1 2026, 04:00 UTC. A print counts; no close is required.",
+      "dataSource": "Binance WIFUSDT",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "24h",
+      "heat": {
+        "volatilityPct": 6.32,
+        "controversy": 0.91,
+        "hoursLeft": 24.8,
+        "score": 72.57
+      },
+      "marketData": {
+        "asset": "WIF",
+        "spotUsd": 0.1767,
+        "strikeUsd": 0.1875,
+        "direction": "above",
+        "windowDays": 1,
+        "source": "Binance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "token",
+        "photo": "meme",
+        "accent": "#A855F7",
+        "entity": "DEGEN",
+        "kicker": "BINANCE",
+        "metric": "$0.1767",
+        "mark": "D"
+      }
+    },
+    {
+      "id": "727555278",
+      "title": "Will Mog Coin trade above $0.0000001068 before November 1 2026, 04:00 UTC?",
+      "category": "Degen Dials",
+      "tags": [
+        "MOG",
+        "spot $0.0000000987",
+        "+8% strike",
+        "Degen",
+        "24h"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-01T04:00:00.000Z",
+      "liquidityUsdc": "18300",
+      "yesShare": 0.431,
+      "volume24hUsdc": "8000",
+      "traders": 307,
+      "description": "MOG is a pure attention asset with no cash flow to anchor it. Spot is $0.0000000987 (5.81% in 24h); the strike is +8% versus it.",
+      "resolution": "YES if the MOG/USDT pair on Binance prints at or above $0.0000001068 at any moment before November 1 2026, 04:00 UTC. A print counts; no close is required.",
+      "dataSource": "Binance MOGUSDT",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "24h",
+      "heat": {
+        "volatilityPct": 5.81,
+        "controversy": 0.862,
+        "hoursLeft": 24.8,
+        "score": 69.09
+      },
+      "marketData": {
+        "asset": "MOG",
+        "spotUsd": 9.8749e-8,
+        "strikeUsd": 1.068e-7,
+        "direction": "above",
+        "windowDays": 1,
+        "source": "Binance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "token",
+        "photo": "meme",
+        "accent": "#A855F7",
+        "entity": "DEGEN",
+        "kicker": "BINANCE",
+        "metric": "$9.87e-8",
+        "mark": "D"
+      }
+    },
+    {
+      "id": "720171619",
+      "title": "Will Toshi trade above $0.000115 before November 1 2026, 04:00 UTC?",
+      "category": "Degen Dials",
+      "tags": [
+        "TOSHI",
+        "spot $0.000107",
+        "+8% strike",
+        "Degen",
+        "24h"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-01T04:00:00.000Z",
+      "liquidityUsdc": "74300",
+      "yesShare": 0.417,
+      "volume24hUsdc": "15700",
+      "traders": 208,
+      "description": "TOSHI is the long tail of Base memes: it lives or dies on a single week of attention. Spot is $0.000107 (5.17% in 24h); the strike is +8% versus it.",
+      "resolution": "YES if the TOSHI/USDT pair on Binance prints at or above $0.000115 at any moment before November 1 2026, 04:00 UTC. A print counts; no close is required.",
+      "dataSource": "Binance TOSHIUSDT",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "24h",
+      "heat": {
+        "volatilityPct": 5.17,
+        "controversy": 0.834,
+        "hoursLeft": 24.8,
+        "score": 65.72
+      },
+      "marketData": {
+        "asset": "TOSHI",
+        "spotUsd": 0.00010654,
+        "strikeUsd": 0.0001152,
+        "direction": "above",
+        "windowDays": 1,
+        "source": "Binance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "token",
+        "photo": "meme",
+        "accent": "#A855F7",
+        "entity": "DEGEN",
+        "kicker": "BINANCE",
+        "metric": "$0.000107",
+        "mark": "D"
+      }
+    },
+    {
+      "id": "721284564",
+      "title": "Will Degen trade above $0.000932 before November 1 2026, 04:00 UTC?",
+      "category": "Degen Dials",
+      "tags": [
+        "DEGEN",
+        "spot $0.000878",
+        "+6% strike",
+        "Degen",
+        "24h"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-01T04:00:00.000Z",
+      "liquidityUsdc": "72200",
+      "yesShare": 0.484,
+      "volume24hUsdc": "40000",
+      "traders": 116,
+      "description": "DEGEN is Base's culture token; its price is the read on whether on-chain tipping still has a bid. Spot is $0.000878 (1.86% in 24h); the strike is +6% versus it.",
+      "resolution": "YES if the DEGEN/USDT pair on Binance prints at or above $0.000932 at any moment before November 1 2026, 04:00 UTC. A print counts; no close is required.",
+      "dataSource": "Binance DEGENUSDT",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "24h",
+      "heat": {
+        "volatilityPct": 1.86,
+        "controversy": 0.968,
+        "hoursLeft": 24.8,
+        "score": 56.48
+      },
+      "marketData": {
+        "asset": "DEGEN",
+        "spotUsd": 0.00087811,
+        "strikeUsd": 0.000932,
+        "direction": "above",
+        "windowDays": 1,
+        "source": "Binance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "token",
+        "photo": "meme",
+        "accent": "#A855F7",
+        "entity": "DEGEN",
+        "kicker": "BINANCE",
+        "metric": "$0.000878",
+        "mark": "D"
+      }
+    },
+    {
+      "id": "722708723",
+      "title": "Will Brett trade above $0.00461 before November 1 2026, 04:00 UTC?",
+      "category": "Degen Dials",
+      "tags": [
+        "BRETT",
+        "spot $0.004345",
+        "+6% strike",
+        "Degen",
+        "24h"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-01T04:00:00.000Z",
+      "liquidityUsdc": "85000",
+      "yesShare": 0.471,
+      "volume24hUsdc": "27100",
+      "traders": 320,
+      "description": "Meme liquidity on Base rotates faster than anywhere else; a strike this far out filters rotation from accumulation. Spot is $0.004345 (2.03% in 24h); the strike is +6% versus it.",
+      "resolution": "YES if the BRETT/USDT pair on Binance prints at or above $0.00461 at any moment before November 1 2026, 04:00 UTC. A print counts; no close is required.",
+      "dataSource": "Binance BRETTUSDT",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "24h",
+      "heat": {
+        "volatilityPct": 2.03,
+        "controversy": 0.942,
+        "hoursLeft": 24.8,
+        "score": 56.38
+      },
+      "marketData": {
+        "asset": "BRETT",
+        "spotUsd": 0.00434479,
+        "strikeUsd": 0.00461,
+        "direction": "above",
+        "windowDays": 1,
+        "source": "Binance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "token",
+        "photo": "meme",
+        "accent": "#A855F7",
+        "entity": "DEGEN",
+        "kicker": "BINANCE",
+        "metric": "$0.00434",
+        "mark": "D"
+      }
+    },
+    {
+      "id": "723768248",
+      "title": "Will Sui trade above $0.9320 before November 1 2026, 04:00 UTC?",
+      "category": "Degen Dials",
+      "tags": [
+        "SUI",
+        "spot $0.9031",
+        "+3% strike",
+        "High beta",
+        "24h"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-01T04:00:00.000Z",
+      "liquidityUsdc": "24800",
+      "yesShare": 0.577,
+      "volume24hUsdc": "4900",
+      "traders": 168,
+      "description": "SUI is the highest-beta major L1 on this board; a 5% strike is a normal week. Spot is $0.9031 (4.07% in 24h); the strike is +3% versus it.",
+      "resolution": "YES if the SUI/USDT pair on Binance prints at or above $0.9320 at any moment before November 1 2026, 04:00 UTC. A print counts; no close is required.",
+      "dataSource": "Binance SUIUSDT",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "24h",
+      "heat": {
+        "volatilityPct": 4.07,
+        "controversy": 0.846,
+        "hoursLeft": 24.8,
+        "score": 61.65
+      },
+      "marketData": {
+        "asset": "SUI",
+        "spotUsd": 0.9031,
+        "strikeUsd": 0.932,
+        "direction": "above",
+        "windowDays": 1,
+        "source": "Binance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
+        "metric": "spot $0.9031"
+      }
+    },
+    {
+      "id": "725102464",
+      "title": "Will Hyperliquid trade above $92.20 before November 1 2026, 04:00 UTC?",
+      "category": "Degen Dials",
+      "tags": [
+        "HYPE",
+        "spot $89.47",
+        "+3% strike",
+        "High beta",
+        "24h"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-01T04:00:00.000Z",
+      "liquidityUsdc": "58200",
+      "yesShare": 0.586,
+      "volume24hUsdc": "25200",
+      "traders": 182,
+      "description": "HYPE is a perp-venue token, so its price is a read on its own volume. Spot is $89.47 (-1.37% in 24h); the strike is +3% versus it.",
+      "resolution": "YES if the HYPE/USDT pair on Binance prints at or above $92.20 at any moment before November 1 2026, 04:00 UTC. A print counts; no close is required.",
+      "dataSource": "Binance HYPEUSDT",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "24h",
+      "heat": {
+        "volatilityPct": 1.37,
+        "controversy": 0.828,
+        "hoursLeft": 24.8,
+        "score": 50.31
+      },
+      "marketData": {
+        "asset": "HYPE",
+        "spotUsd": 89.47,
+        "strikeUsd": 92.2,
+        "direction": "above",
+        "windowDays": 1,
+        "source": "Binance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
+        "metric": "spot $89.47"
+      }
+    },
+    {
+      "id": "724799037",
+      "title": "Will Ethena trade above $0.2025 before November 1 2026, 04:00 UTC?",
+      "category": "Degen Dials",
+      "tags": [
+        "ENA",
+        "spot $0.1927",
+        "+5% strike",
+        "High beta",
+        "24h"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-01T04:00:00.000Z",
+      "liquidityUsdc": "73300",
+      "yesShare": 0.504,
+      "volume24hUsdc": "23400",
+      "traders": 190,
+      "description": "ENA is a funding-rate proxy: it only works while perp basis is positive. Spot is $0.1927 (6.35% in 24h); the strike is +5% versus it.",
+      "resolution": "YES if the ENA/USDT pair on Binance prints at or above $0.2025 at any moment before November 1 2026, 04:00 UTC. A print counts; no close is required.",
+      "dataSource": "Binance ENAUSDT",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "24h",
+      "heat": {
+        "volatilityPct": 6.35,
+        "controversy": 0.992,
+        "hoursLeft": 24.8,
+        "score": 75.15
+      },
+      "marketData": {
+        "asset": "ENA",
+        "spotUsd": 0.1927,
+        "strikeUsd": 0.2025,
+        "direction": "above",
+        "windowDays": 1,
+        "source": "Binance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
+        "metric": "spot $0.1927"
+      }
+    },
+    {
+      "id": "722314791",
+      "title": "Will Ondo trade above $0.4330 before November 1 2026, 04:00 UTC?",
+      "category": "Degen Dials",
+      "tags": [
+        "ONDO",
+        "spot $0.4162",
+        "+4% strike",
+        "High beta",
+        "24h"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-01T04:00:00.000Z",
+      "liquidityUsdc": "43100",
+      "yesShare": 0.574,
+      "volume24hUsdc": "21200",
+      "traders": 148,
+      "description": "ONDO is the tokenised-Treasury trade, so it moves with yields as much as with crypto. Spot is $0.4162 (9.87% in 24h); the strike is +4% versus it.",
+      "resolution": "YES if the ONDO/USDT pair on Binance prints at or above $0.4330 at any moment before November 1 2026, 04:00 UTC. A print counts; no close is required.",
+      "dataSource": "Binance ONDOUSDT",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "24h",
+      "heat": {
+        "volatilityPct": 9.87,
+        "controversy": 0.852,
+        "hoursLeft": 24.8,
+        "score": 85.05
+      },
+      "marketData": {
+        "asset": "ONDO",
+        "spotUsd": 0.4162,
+        "strikeUsd": 0.433,
+        "direction": "above",
+        "windowDays": 1,
+        "source": "Binance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
+        "metric": "spot $0.4162"
+      }
+    },
+    {
+      "id": "721188735",
+      "title": "Will Arbitrum trade above $0.1700 before November 1 2026, 04:00 UTC?",
+      "category": "Degen Dials",
+      "tags": [
+        "ARB",
+        "spot $0.1618",
+        "+5% strike",
+        "High beta",
+        "24h"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-01T04:00:00.000Z",
+      "liquidityUsdc": "79700",
+      "yesShare": 0.455,
+      "volume24hUsdc": "39600",
+      "traders": 141,
+      "description": "ARB is an L2 with a token that trades on emissions and unlocks more than on usage. Spot is $0.1618 (3.65% in 24h); the strike is +5% versus it.",
+      "resolution": "YES if the ARB/USDT pair on Binance prints at or above $0.1700 at any moment before November 1 2026, 04:00 UTC. A print counts; no close is required.",
+      "dataSource": "Binance ARBUSDT",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "24h",
+      "heat": {
+        "volatilityPct": 3.65,
+        "controversy": 0.91,
+        "hoursLeft": 24.8,
+        "score": 61.91
+      },
+      "marketData": {
+        "asset": "ARB",
+        "spotUsd": 0.1618,
+        "strikeUsd": 0.17,
+        "direction": "above",
+        "windowDays": 1,
+        "source": "Binance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
+        "metric": "spot $0.1618"
+      }
+    },
+    {
+      "id": "721144045",
+      "title": "Will Optimism trade above $0.1254 before November 1 2026, 04:00 UTC?",
+      "category": "Degen Dials",
+      "tags": [
+        "OP",
+        "spot $0.1182",
+        "+6% strike",
+        "High beta",
+        "24h"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-01T04:00:00.000Z",
+      "liquidityUsdc": "38600",
+      "yesShare": 0.624,
+      "volume24hUsdc": "9500",
+      "traders": 90,
+      "description": "OP trades on the Superchain narrative, which is a governance story more than a fee story. Spot is $0.1182 (20.24% in 24h); the strike is +6% versus it.",
+      "resolution": "YES if the OP/USDT pair on Binance prints at or above $0.1254 at any moment before November 1 2026, 04:00 UTC. A print counts; no close is required.",
+      "dataSource": "Binance OPUSDT",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "24h",
+      "heat": {
+        "volatilityPct": 20.24,
+        "controversy": 0.752,
+        "hoursLeft": 24.8,
+        "score": 123.54
+      },
+      "marketData": {
+        "asset": "OP",
+        "spotUsd": 0.1182,
+        "strikeUsd": 0.1254,
+        "direction": "above",
+        "windowDays": 1,
+        "source": "Binance",
+        "asOf": "2026-10-31T03:05:18.638Z"
+      },
+      "visual": {
+        "kind": "chain",
+        "photo": "chain",
+        "accent": "#38BDF8",
+        "entity": "MARKET",
+        "kicker": "PREDICTION ARENA",
+        "metric": "spot $0.1182"
+      }
+    },
+    {
+      "id": "726620318",
+      "title": "Will at least three of the ten largest Base memecoins close the day green?",
+      "category": "Degen Dials",
+      "tags": [
+        "Base",
+        "Memes",
+        "24h"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-11-01T23:59:59.000Z",
+      "liquidityUsdc": "53100",
+      "yesShare": 0.5,
+      "volume24hUsdc": "13900",
+      "traders": 189,
+      "description": "A breadth market instead of a single coin: it prices the tape, not one ticker.",
+      "resolution": "YES if three or more of the ten largest Base-native memecoins by market cap close the UTC day higher than they opened.",
+      "dataSource": "CoinGecko daily closes",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "24h",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 1,
+        "hoursLeft": 44.8,
+        "score": 50
+      },
+      "visual": {
+        "kind": "meme",
+        "photo": "meme",
+        "accent": "#E879F9",
+        "entity": "BASE MEMES",
+        "kicker": "CULTURE",
+        "metric": "24h"
+      }
+    },
+    {
+      "id": "724301327",
+      "title": "Will the EU's AI Act trigger its first enforcement action against a model provider?",
+      "category": "Global Policy",
+      "tags": [
+        "AI Act",
+        "EU"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2027-01-29T23:59:59.000Z",
+      "liquidityUsdc": "36400",
+      "yesShare": 0.21,
+      "volume24hUsdc": "10900",
+      "traders": 215,
+      "description": "The AI Act's first enforcement is the template for every jurisdiction that copies it.",
+      "resolution": "YES if the European AI Office opens a formal enforcement action against a general-purpose AI model provider before the deadline.",
+      "dataSource": "European AI Office decisions",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.42,
+        "hoursLeft": 2180.8,
+        "score": 12.6
+      },
+      "visual": {
+        "kind": "eu",
+        "photo": "eu",
+        "accent": "#4F8CFF",
+        "entity": "EUROPEAN UNION",
+        "kicker": "REGULATION"
+      }
+    },
+    {
+      "id": "727934377",
+      "title": "Will a G7 country ban an AI model on national-security grounds this year?",
+      "category": "Global Policy",
+      "tags": [
+        "AI",
+        "Security"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2027-01-29T23:59:59.000Z",
+      "liquidityUsdc": "85000",
+      "yesShare": 0.17,
+      "volume24hUsdc": "40300",
+      "traders": 120,
+      "description": "Model bans are the nuclear option of AI policy; the first one redraws the deployment map.",
+      "resolution": "YES if a G7 government issues a legally binding national-security restriction on a deployed AI model before the deadline.",
+      "dataSource": "Government orders",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.34,
+        "hoursLeft": 2180.8,
+        "score": 10.2
+      },
+      "visual": {
+        "kind": "eu",
+        "photo": "eu",
+        "accent": "#4F8CFF",
+        "entity": "G7 POLICY",
+        "kicker": "REGULATION"
+      }
+    },
+    {
+      "id": "726403268",
+      "title": "Will a G7 country adopt the OECD crypto reporting framework (CARF) into law this year?",
+      "category": "Global Policy",
+      "tags": [
+        "CARF",
+        "Tax"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2027-01-29T23:59:59.000Z",
+      "liquidityUsdc": "71800",
+      "yesShare": 0.34,
+      "volume24hUsdc": "41000",
+      "traders": 202,
+      "description": "Automatic exchange of crypto tax data is the quietest thing that changes offshore demand.",
+      "resolution": "YES if a G7 member enacts legislation implementing the OECD Crypto-Asset Reporting Framework before the deadline.",
+      "dataSource": "OECD / national gazettes",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.68,
+        "hoursLeft": 2180.8,
+        "score": 20.4
+      },
+      "visual": {
+        "kind": "eu",
+        "photo": "eu",
+        "accent": "#4F8CFF",
+        "entity": "G7 POLICY",
+        "kicker": "REGULATION"
+      }
+    },
+    {
+      "id": "725858955",
+      "title": "Will the Basel Committee finalise bank capital rules for crypto exposures before December 31, 2026?",
+      "category": "Global Policy",
+      "tags": [
+        "Basel",
+        "Banking"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2026-12-31T23:59:59.000Z",
+      "liquidityUsdc": "36100",
+      "yesShare": 0.29,
+      "volume24hUsdc": "16700",
+      "traders": 95,
+      "description": "Bank capital is the gate between crypto and the balance sheet; a final standard is the difference between custody and exposure.",
+      "resolution": "YES if the Basel Committee publishes final (not consultative) standards for banks' crypto-asset exposures before the deadline.",
+      "dataSource": "BIS publications",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.58,
+        "hoursLeft": 1484.8,
+        "score": 17.4
+      },
+      "visual": {
+        "kind": "politics",
+        "photo": "capitol",
+        "accent": "#FB7185",
+        "entity": "US SENATE",
+        "kicker": "LEGISLATION"
+      }
+    },
+    {
+      "id": "725836946",
+      "title": "Will a G20 country ban algorithmic stablecoins this year?",
+      "category": "Global Policy",
+      "tags": [
+        "Stablecoins",
+        "Ban"
+      ],
+      "source": "demo",
+      "status": 1,
+      "endTimeUtc": "2027-01-29T23:59:59.000Z",
+      "liquidityUsdc": "41000",
+      "yesShare": 0.16,
+      "volume24hUsdc": "24900",
+      "traders": 233,
+      "description": "Two collapses made this the easiest prohibition in crypto policy; watch for it in the next omnibus.",
+      "resolution": "YES if a G20 member enacts a ban on algorithmic or unbacked stablecoins before the deadline.",
+      "dataSource": "National legislation",
+      "dataAsOf": "2026-10-31T03:05:18.638Z",
+      "tier": "long",
+      "heat": {
+        "volatilityPct": 0,
+        "controversy": 0.32,
+        "hoursLeft": 2180.8,
+        "score": 9.6
+      },
+      "visual": {
+        "kind": "eu",
+        "photo": "eu",
+        "accent": "#4F8CFF",
+        "entity": "G20 REGULATORS",
+        "kicker": "REGULATION"
       }
     }
   ]

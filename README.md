@@ -24,6 +24,8 @@
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](#license)
 [![Autonomous CGO](https://img.shields.io/badge/Agent-24%2F7%20autonomous-FF2D55?style=for-the-badge)](#the-autonomous-cgo-agent)
 [![Zero human](https://img.shields.io/badge/Human%20in%20the%20loop-none-lightgrey?style=for-the-badge)](#the-autonomous-cgo-agent)
+[![E2E](https://img.shields.io/badge/E2E-23%2F23%20passed-16C784?style=for-the-badge&logo=playwright&logoColor=white)](#quick-start)
+[![Markets](https://img.shields.io/badge/Markets-232%20live%20%C2%B7%2019%20sectors-FBBF24?style=for-the-badge)](#the-board)
 [![Stars welcome](https://img.shields.io/github/stars/lulaxiao97-create/prediction-arena?style=for-the-badge&logo=github&label=Stars)](https://github.com/lulaxiao97-create/prediction-arena/stargazers)
 
 <br />
@@ -37,6 +39,48 @@
 </div>
 
 ---
+
+## The loop, end to end
+
+```mermaid
+graph TD
+    A["Live data<br/>Binance · CoinGecko · DefiLlama · Yahoo · FRED"] -->|every 30 min| B["gen-board.ts<br/>232 markets · 19 sectors<br/>3 horizons · sticky strikes"]
+    B --> C["pools.json<br/>+ prices.json"]
+    B -->|open-pools-batch.sh<br/>nonce-safe, 30/tick| D["PredictionArena V3<br/>Base mainnet 8453<br/>USDC escrow · 4% rake"]
+    D -->|BetPlaced / PoolSettled| E["Attribution<br/>referrer · channel · weight"]
+    E -->|30% of the 4% rake| F["Telegram captain<br/>@predictaing_bot<br/>wallet → ref link → group copy"]
+    E --> G["X interceptor<br/>reply deck · settlement receipts"]
+    D --> H["Next.js 16 app<br/>Farcaster Frame · OG cards<br/>6 languages · PWA"]
+    F --> H
+    G --> H
+    H -->|markets + odds| A
+```
+
+*Every edge is a cron job or an on-chain event. Nothing in this diagram needs a human at 3am.*
+
+## Quick start (60 seconds)
+
+```bash
+git clone https://github.com/lulaxiao97-create/prediction-arena
+cd prediction-arena
+
+# 1. the board, offline: live feeds → 232 markets with strikes and odds
+export HTTPS_PROXY=http://127.0.0.1:7890      # optional, only if your egress needs it
+node --experimental-strip-types scripts/fetch-prices.ts
+node --experimental-strip-types scripts/gen-board.ts
+
+# 2. the app
+cd frontend && bun install && bun run dev     # http://localhost:3000
+
+# 3. the money path (fork, no real funds)
+cd .. && cp .env.example .env                 # PRIVATE_KEY / BASE_RPC_URL / ARENA_ADDRESS
+bun run e2e:local                             # deploy → open pool → bet → settle, on anvil
+```
+
+`gen-board` refuses to write a board under 100 markets and refuses to invent a price: if the
+snapshot is older than three hours it exits non-zero instead of shipping a number it cannot read.
+That constraint is the product.
+
 
 ## Overview
 
