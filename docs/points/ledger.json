@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "generatedAt": "2026-11-02T06:31:23.117Z",
+  "generatedAt": "2026-11-02T07:00:43.752Z",
   "rules": {
     "perUsd": 10,
     "riskRange": [
@@ -20,7 +20,9 @@
     "wallets": 0,
     "points": 0,
     "bets": 0,
-    "volumeUsd": 0
+    "volumeUsd": 0,
+    "grants": 0,
+    "grantsCount": 0
   },
   "holders": {},
   "top": []

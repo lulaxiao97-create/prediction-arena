@@ -67,11 +67,11 @@ for (const p of manifest.pools ?? []) {
   pools.set(String(p.id), { yesShare: Number(p.yesShare ?? 0.5), endTime: Number.isFinite(end) ? end : 0 });
 }
 
-type Row = { points: number; fromBets: number; fromReferrals: number; bets: number; volumeUsd: number; lastBetAt: string | null };
+type Row = { points: number; fromBets: number; fromReferrals: number; fromGrants: number; bets: number; volumeUsd: number; lastBetAt: string | null };
 const ledger = new Map<string, Row>();
 const bump = (addr: string, patch: Partial<Row>) => {
   const key = addr.toLowerCase();
-  const row = ledger.get(key) ?? { points: 0, fromBets: 0, fromReferrals: 0, bets: 0, volumeUsd: 0, lastBetAt: null };
+  const row = ledger.get(key) ?? { points: 0, fromBets: 0, fromReferrals: 0, fromGrants: 0, bets: 0, volumeUsd: 0, lastBetAt: null };
   ledger.set(key, { ...row, ...patch, points: row.points + (patch.points ?? 0) });
 };
 
@@ -138,6 +138,30 @@ for (let from = Number(FROM); from <= head; ) {
   if (scanned % 10 === 0) console.log(`  … ${from}/${head} (${Number(CHUNK)}-block window)`);
 }
 
+/**
+ * Crew grants — points for work that does not touch the chain (a called shot that landed, a thread
+ * that brought ten new wallets, a translation). They are real points, so they are read from a
+ * committed file and added here: anyone can diff docs/points/grants.json against the ledger, and a
+ * grant can never be quietly minted by the operator because it has to exist in git first.
+ */
+type Grant = { address: string; points: number; reason: string; date: string; ref?: string };
+const GRANTS_FILE = join(ROOT, "docs", "points", "grants.json");
+let grantsTotal = 0;
+let grantsCount = 0;
+if (existsSync(GRANTS_FILE)) {
+  try {
+    const rows = JSON.parse(readFileSync(GRANTS_FILE, "utf8")) as Grant[];
+    for (const g of rows) {
+      if (!/^0x[0-9a-fA-F]{40}$/.test(g.address) || !Number.isFinite(g.points) || g.points <= 0) continue;
+      bump(g.address, { points: Math.floor(g.points), fromGrants: Math.floor(g.points) });
+      grantsTotal += Math.floor(g.points);
+      grantsCount += 1;
+    }
+  } catch (err) {
+    console.warn(`grants.json unreadable (${(err as Error).message}) — ledger continues without grants`);
+  }
+}
+
 const holders = Object.fromEntries(
   [...ledger.entries()]
     .filter(([, v]) => v.points > 0)
@@ -154,7 +178,7 @@ const payload = {
   generatedAt: new Date().toISOString(),
   rules: POINT_RULES,
   disclaimer: POINTS_DISCLAIMER,
-  totals: { wallets: Object.keys(holders).length, points: totalPoints, bets, volumeUsd: Number(volumeUsd.toFixed(2)) },
+  totals: { wallets: Object.keys(holders).length, points: totalPoints, bets, volumeUsd: Number(volumeUsd.toFixed(2)), grants: grantsTotal, grantsCount },
   holders,
   top,
 };

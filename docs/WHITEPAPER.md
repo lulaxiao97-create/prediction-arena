@@ -183,6 +183,9 @@ volume on its own.
 - **Unlosable**: no migration, no backup, no "we lost the snapshot". The chain is the backup.
 - **Anti-sybil by cost**: the only way to score is to stake USDC on-chain. Follows and likes are worth zero,
   because they cost zero.
+- **Grants are files, not favours**: work that never touches the chain (a called shot, a translation, a
+  thread that brought ten wallets) is credited from `docs/points/grants.json` — committed before it
+  counts, replayed into the same ledger. Likes and reposts earn nothing; they cost nothing.
 - **Composable**: the same replay feeds `/api/points`, the daily captain leaderboard, and the projected
   genesis slice shown in the wallet card — one number, three surfaces.
 
