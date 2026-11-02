@@ -76,7 +76,25 @@ Start-Sleep -Milliseconds 250
 [System.Windows.Forms.SendKeys]::SendWait("^v")
 Start-Sleep -Milliseconds 2000
 
+# Optional image: put the PNG on the clipboard and paste it into the composer. X accepts a pasted
+# bitmap the same way it accepts a picked file, and this avoids the Win32 file dialog entirely
+# (which needs its own coordinates and steals focus from the page).
+if ($Image -ne "") {
+  if (-not (Test-Path $Image)) { Write-Output ("image_missing: " + $Image); exit 5 }
+  Add-Type -AssemblyName System.Drawing
+  $img = [System.Drawing.Image]::FromFile($Image)
+  [System.Windows.Forms.Clipboard]::SetImage($img)
+  $img.Dispose()
+  Start-Sleep -Milliseconds 400
+  Click-At ([int]($r.Left + $w * 0.367)) ([int]($r.Top + $h * 0.28))
+  Start-Sleep -Milliseconds 300
+  [System.Windows.Forms.SendKeys]::SendWait("^v")
+  Start-Sleep -Milliseconds 6000   # upload + preview
+  Write-Output "image_pasted"
+}
+
 if ($DryRun) { Write-Output "dry_run: text is in the composer"; exit 0 }
+if ($ComposeOnly) { Write-Output "composed: text + image waiting for the Post click"; exit 0 }
 
 # 3. Publish. The button sits at the composer's bottom-right, not at a fixed height: an empty
 # composer puts it at ~0.40h, a five-line post with a link card at ~0.67h. Measured 2026-11-02 on a

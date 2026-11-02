@@ -1763,5 +1763,11 @@
     "title": "Will Ethereum TVL fall below $42.70B before November 30, 2026?",
     "tx": "0xdc57ff4dee74edb5bdf35a27eecac606c990f61217664a89d7c2718c82814e1d",
     "openedAt": "2026-11-02T05:40:07.076217+00:00"
+  },
+  "722749847": {
+    "id": "722749847",
+    "title": "Will Ethereum TVL fall below $42.80B before November 30, 2026?",
+    "tx": "0x101ce7669c5b123ed1eaa10de3b69e8df66b0077edcb1a6c07dc55cd2d6bfe44",
+    "openedAt": "2026-11-02T08:10:07.725661+00:00"
   }
 }

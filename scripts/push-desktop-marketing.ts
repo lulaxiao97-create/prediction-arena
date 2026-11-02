@@ -557,6 +557,39 @@ function agentPitchDeck(): string {
   return `=== EN (3 lines, DM / quote-tweet) ===\n\n${en}\n\n\n=== 中文（3 行，私信 / 群公告） ===\n\n${zh}\n`;
 }
 
+
+/**
+ * The crew post (11): what a reader gets for following, replying, reposting, joining.
+ *
+ * Every line is a mechanism that exists: channel membership is verified by the bot (`getChatMember`),
+ * the "3 best takes" are grants written to docs/points/grants.json, and the repost cut is the
+ * contract's `REFERRAL_SHARE_BPS`. Nothing here promises a price, and follow is described as what it
+ * actually is — a feed, not a payout.
+ */
+function crewPost(): string {
+  const en = [
+    "Free to join, free to earn:",
+    "",
+    "📣 Join t.me/predictionarena_hq → 500 points",
+    "💬 Reply with your call → 3 best takes/day get 1,000",
+    "🔁 Repost with your ?ref= link → 30% of the fee, on-chain",
+    "👀 Follow → daily board + settlement receipts",
+    "",
+    "Logged in points.json, 1:1 into $ARENA at genesis.",
+  ].join("\n");
+  const zh = [
+    "免费参与，免费拿分：",
+    "",
+    "📣 加入频道 t.me/predictionarena_hq → 500 分",
+    "💬 在盘口回复判断 → 每天 3 条最佳，各 1,000 分",
+    "🔁 用 ?ref= 链接转发 → 每笔下注拿手续费的 30%，链上结算",
+    "👀 关注 → 每日盘口 + 结算回执",
+    "",
+    "全部分数写进 points.json，创世时 1:1 兑换 $ARENA。",
+  ].join("\n");
+  return `=== EN (attach a market card) ===\n\n${en}\n\n\n=== 中文（配盘口卡） ===\n\n${zh}\n`;
+}
+
 const CAPTAIN_EN = `Subject: 30–50% of our platform fee, on-chain, for the markets you already post
 
 Hi — quick one, no deck.
@@ -657,6 +690,7 @@ WHAT IS IN HERE
   09-agent-pitch-deck.txt  3-line agent pitch (EN + 中文) — DM / quote-tweet
   10-airdrop-pinned.txt    the pinned airdrop post (EN + 中文) — attach 06-whitepaper-card.png
   00-hot-5.txt             five paste-ready replies, one per sector, regenerated every pack
+  11-crew-post.txt         the crew hook: channel 500 / best takes 1,000 / repost 30% (EN + 中文)
   meta.json                the numbers behind all of the copy, with timestamps
   archive/<date>/          a frozen copy of each day's pack
 
@@ -779,6 +813,7 @@ function main(): void {
       `weight: EN ${weight(pinned.en)}/280 · 中文 ${weight(pinned.zh)}/280`,
     ].join("\n"),
     "00-hot-5.txt": hotFive(pools),
+    "11-crew-post.txt": crewPost(),
     "09-agent-pitch-deck.txt": agentPitchDeck(),
     "07-captain-airdrop-pitch.txt": captainAirdropPitch(),
     "08-hacker-news-pitch.txt": hackerPitch(),

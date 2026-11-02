@@ -183,6 +183,7 @@ const HELP: Outgoing = {
     "/captain — get your referral link (30% of the 4% fee, paid on-chain)",
     "/link — resend the link for the wallet you already gave me",
     "/markets — where to find today's board",
+    "/crew — join the channel, claim 500 Arena Points (verified by me, not by a screenshot)",
     "/help — this message",
     "",
     "No sign-up, no KYC, no custody. The contract pays the address you give me, at settlement.",
@@ -273,6 +274,31 @@ function respond(
       ],
     });
     return { replies, session: { ...session, awaitingWallet: true } };
+  }
+
+  if (lower === "/crew") {
+    replies.push(
+      session.wallet
+        ? {
+            text: [
+              "🎟 Crew 通道 — 加入频道就能领 500 Arena Points（我会自己核验，不用你截图）。",
+              "",
+              `第一步：进频道 ${CREW_CHANNEL}`,
+              "第二步：回来发一次 /crew，我查成员名单后直接记账。",
+              "",
+              "分数写进公开账本（points.json），创世时 1:1 兑换 $ARENA。",
+            ].join("\n"),
+            buttons: [
+              [{ text: "📣 加入频道", url: "https://t.me/predictionarena_hq" }],
+              [{ text: "✅ 我已加入，核验", command: "/crew" }],
+            ],
+          }
+        : {
+            text: "先给我你的 Base 收款地址（0x + 40 位），我再把频道奖励记到你名下。",
+            buttons: [[{ text: "开始绑定", command: "/start captain" }]],
+          },
+    );
+    return { replies, session };
   }
 
   if (lower === "/copy") {
@@ -635,6 +661,48 @@ async function leaderboardPush(opts: { api: string | null; dryRun: boolean }): P
   return { sent, skipped: null, failed };
 }
 
+
+/**
+ * Crew: channel membership → points.
+ *
+ * The one engagement reward this bot can verify by itself. `getChatMember` answers for a user id in
+ * a channel the bot administers, so "joined the channel" is a fact, not a claim — everything else
+ * (follow, repost, a good reply) is judged by a human and written to docs/points/grants.json with a
+ * reason attached. Both paths land in the same public ledger.
+ */
+const CREW_CHANNEL = process.env.CREW_CHANNEL ?? "@predictionarena_hq";
+const CREW_POINTS = Number(process.env.CREW_POINTS ?? 500);
+
+async function channelMember(api: string, userId: number): Promise<boolean> {
+  try {
+    const res = await fetch(`${api}/getChatMember?chat_id=${encodeURIComponent(CREW_CHANNEL)}&user_id=${userId}`);
+    if (!res.ok) return false;
+    const body = (await res.json()) as { ok?: boolean; result?: { status?: string } };
+    const status = body.result?.status;
+    return Boolean(body.ok) && (status === "member" || status === "administrator" || status === "creator");
+  } catch {
+    return false;
+  }
+}
+
+/** Append-only, deduped: one channel grant per wallet, forever. */
+function crewGrant(address: string, points: number, reason: string): { granted: boolean; note: string } {
+  const file = join(ROOT, "docs", "points", "grants.json");
+  let rows: { address: string; points: number; reason: string; date: string; ref?: string }[] = [];
+  try {
+    rows = JSON.parse(readFileSync(file, "utf8"));
+  } catch {
+    rows = [];
+  }
+  const key = address.toLowerCase();
+  if (rows.some((g) => g.address.toLowerCase() === key && g.reason.startsWith("crew:"))) {
+    return { granted: false, note: "already granted" };
+  }
+  rows.push({ address, points, reason, date: new Date().toISOString().slice(0, 10) });
+  writeFileSync(file, `${JSON.stringify(rows, null, 2)}\n`);
+  return { granted: true, note: `${points} points → ${address.slice(0, 6)}…${address.slice(-4)}` };
+}
+
 async function selfTest(): Promise<void> {
   const sessions = new Map<number, Session>();
   const chat = { id: 1, type: "private", username: "captain" };
@@ -747,7 +815,42 @@ async function handleUpdate(api: string, update: Update, sessions: Map<number, S
 
   const chatId = msg.chat.id;
   const username = (update.message?.from ?? callback?.from)?.username;
-  const out = respond(text, sessions.get(chatId) ?? { awaitingWallet: false }, { username, chatType: msg.chat.type });
+  const session = sessions.get(chatId) ?? { awaitingWallet: false };
+
+  // /crew is the one command that needs the network: membership in the channel is checked against
+  // Telegram itself, so the grant is a fact rather than a screenshot from the user.
+  if (text.trim().toLowerCase() === "/crew") {
+    const wallet = session.wallet ?? store().captains[String(chatId)]?.wallet;
+    if (!wallet) {
+      await send(api, chatId, {
+        text: "先发 /start captain 绑定你的 Base 收款地址，我再把频道奖励记到你名下。",
+        buttons: [[{ text: "开始绑定", command: "/start captain" }]],
+      });
+      return;
+    }
+    const member = await channelMember(api, chatId);
+    if (!member) {
+      await send(api, chatId, {
+        text: `还查不到你在 ${CREW_CHANNEL} 的成员身份。先点下面加入频道，再回来发一次 /crew。`,
+        buttons: [
+          [{ text: "📣 加入频道", url: `https://t.me/${CREW_CHANNEL.replace(/^@/, "")}` }],
+          [{ text: "✅ 再核验一次", command: "/crew" }],
+        ],
+      });
+      return;
+    }
+    const result = crewGrant(wallet, CREW_POINTS, `crew:channel ${CREW_CHANNEL}`);
+    await send(api, chatId, {
+      text: result.granted
+        ? `✅ 已核验：你在 ${CREW_CHANNEL}。\n\n+${CREW_POINTS} Arena Points 已写入公开账本（points.json），创世时 1:1 兑换 $ARENA。\n\n顺带：回复任何盘口留下判断，当天 3 条最佳再拿 1,000 分。`
+        : `你已经在名单里了（每个钱包只发一次）。\n\n想继续攒：回复盘口留下判断（每日 3 条最佳各 1,000 分），或把带 ?ref= 的链接发出去（每笔下注 30% 手续费）。`,
+      buttons: [[{ text: "🏴 今天的盘口", url: SITE }], [WHITEPAPER_BTN]],
+    });
+    console.log(`[${new Date().toISOString()}] crew grant: chat ${chatId} → ${result.note}`);
+    return;
+  }
+
+  const out = respond(text, session, { username, chatType: msg.chat.type });
   sessions.set(chatId, out.session);
   for (const reply of out.replies) await send(api, chatId, reply);
 
