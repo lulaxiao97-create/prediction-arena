@@ -590,6 +590,55 @@ function crewPost(): string {
   return `=== EN (attach a market card) ===\n\n${en}\n\n\n=== 中文（配盘口卡） ===\n\n${zh}\n`;
 }
 
+
+/**
+ * The funnel thread (12) — the "three steps" post the acquisition plan asks for.
+ *
+ * It is a thread, not one tweet, because the full funnel is ~600 characters and X stops at 280 for
+ * this account. Tweet 1 sells the airdrop and the market, tweet 2 is the three steps, tweet 3 is the
+ * proof link and the hashtags. The handle is @Predict065 — the account that actually posts; writing
+ * "@PredictionArena" here would point 100% of the traffic at a handle we do not own.
+ *
+ * The wallet step says "reply with it OR DM the bot": asking people to publish an address in a
+ * comment section is exactly the behaviour address-poisoning bots farm, and the bot has to see the
+ * address anyway to bind the payout. Same funnel, one safer lane.
+ */
+function funnelThread(pool: Pool): { tweets: string[]; reply: string } {
+  const yes = Math.round(yesShare(pool) * 100);
+  const { y, n } = bothOdds(yes);
+  const left = timeLeft(pool.endTimeUtc);
+  const market = `${pool.title} — YES ${yes}% → ${y}× · NO ${100 - yes}% → ${n}× · ${left} left`;
+  const tweets = [
+    [
+      "🚀 $ARENA Genesis Airdrop — Season 1 is LIVE.",
+      "",
+      "42% of supply to early believers. Fair launch: zero team, zero VC, no presale.",
+      "",
+      `${clipped(pool.title, 70)} YES ${yes}% → ${y}× · NO ${100 - yes}% → ${n}×`,
+      "",
+      "3 steps to claim 👇",
+    ].join("\n"),
+    [
+      "🪂 How to claim:",
+      "",
+      `1️⃣ Follow ${X_HANDLE}`,
+      "2️⃣ Reply with your Base wallet (or DM @predictaing_bot)",
+      "3️⃣ Join t.me/predictionarena_hq → send /crew → +500 points",
+      "",
+      "Points are public (points.json), 1:1 at genesis.",
+    ].join("\n"),
+    [
+      `🔗 Whitepaper + live markets: ${SITE}/whitepaper`,
+      "",
+      "⏰ Earlier = higher multiplier: 10 pts per $1, ×2 contrarian, ×1.5 under 48h.",
+      "",
+      "#Base #Airdrop #PredictionArena #Crypto",
+    ].join("\n"),
+  ];
+  const reply = `🪂 $ARENA genesis: follow, drop your Base address (or DM @predictaing_bot), join t.me/predictionarena_hq and send /crew → +500 points. ${SITE}/whitepaper`;
+  return { tweets, reply };
+}
+
 const CAPTAIN_EN = `Subject: 30–50% of our platform fee, on-chain, for the markets you already post
 
 Hi — quick one, no deck.
@@ -691,6 +740,7 @@ WHAT IS IN HERE
   10-airdrop-pinned.txt    the pinned airdrop post (EN + 中文) — attach 06-whitepaper-card.png
   00-hot-5.txt             five paste-ready replies, one per sector, regenerated every pack
   11-crew-post.txt         the crew hook: channel 500 / best takes 1,000 / repost 30% (EN + 中文)
+  12-funnel-thread.txt     the 3-tweet airdrop funnel (follow / wallet / channel + /crew 500)
   meta.json                the numbers behind all of the copy, with timestamps
   archive/<date>/          a frozen copy of each day's pack
 
@@ -814,6 +864,7 @@ function main(): void {
     ].join("\n"),
     "00-hot-5.txt": hotFive(pools),
     "11-crew-post.txt": crewPost(),
+    "12-funnel-thread.txt": funnelThread(flagshipTweets[0].pool).tweets.map((t, i) => `=== TWEET ${i + 1} (${weight(t)}/280) ===\n${t}`).join("\n\n") + `\n\n=== REPLY POINTER ===\n${funnelThread(flagshipTweets[0].pool).reply}\n`,
     "09-agent-pitch-deck.txt": agentPitchDeck(),
     "07-captain-airdrop-pitch.txt": captainAirdropPitch(),
     "08-hacker-news-pitch.txt": hackerPitch(),
