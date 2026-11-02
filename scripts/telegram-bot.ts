@@ -557,7 +557,7 @@ async function leaderboardPush(opts: { api: string | null; dryRun: boolean }): P
       `全站：${(ledger.totals?.wallets ?? 0)} 个钱包、${total.toLocaleString("en-US")} 分、${(ledger.totals?.bets ?? 0)} 笔下注。`,
       "",
       AIRDROP_CN,
-      "想涨分：把带 ?ref= 的链接发到群里，每一笔团员下注都给你加 20%。",
+      "你的团员积分将在创世时 1:1 兑换 $ARENA 代币；把专属 Ref 链接转发到群里，团员每笔下注再给你 20% 算力加成。",
       "",
       `你的链接：${refLink(captain.wallet)}`,
       "（积分是对早期参与的记录，暂无代币、不可购买、不承诺价值；上线时按 1:1 兑换。）",
@@ -575,7 +575,19 @@ async function leaderboardPush(opts: { api: string | null; dryRun: boolean }): P
     const res = await fetch(`${opts.api}/sendMessage`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ chat_id: captain.chatId, text, parse_mode: "HTML", disable_web_page_preview: true }),
+      body: JSON.stringify({
+        chat_id: captain.chatId,
+        text,
+        parse_mode: "HTML",
+        disable_web_page_preview: true,
+        // Two taps from the daily report: read the rules, or forward the link that pays.
+        reply_markup: {
+          inline_keyboard: [
+            [WHITEPAPER_BTN],
+            [{ text: "🔗 我的专属链接", url: refLink(captain.wallet) }],
+          ],
+        },
+      }),
     });
     if (res.ok) sent += 1;
     else {

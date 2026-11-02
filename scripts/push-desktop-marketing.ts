@@ -197,6 +197,9 @@ function flagshipScore(pool: Pool): number {
  */
 const AIRDROP_TAG = "🔥 Arena Points genesis airdrop live — bet or refer, earn $ARENA";
 
+/** The closing line of every reply: same claim everywhere, short enough to fit under a duel. */
+const REPLY_HOOK = "🎁 Every $1 bet earns genesis $ARENA points — 1:1 at launch";
+
 const TRIBES = ["aero", "degen", "toshi", "brett", "mog", "zora"];
 
 function tribe(pool: Pool): string | null {
@@ -258,32 +261,37 @@ function mainTweet(pool: Pool): string {
  * does not belong in the file.
  */
 function replyDeck(pools: Pool[]): { angle: string; text: string }[] {
-  // Tribe first, then crowd. A reply under a Base-native post has to be about a token that account's
-  // readers already hold; the biggest market on the board last week was a Premier League match, and
-  // nobody in a DeFi comment section cares how many people took the over.
-  const ranked = [...pools].sort(
-    (a, b) => Number(Boolean(tribe(b))) - Number(Boolean(tribe(a))) || flagshipScore(b) - flagshipScore(a),
-  );
-  // One market per tribe first (three AERO replies is a broken deck), then one per lane, then
-  // fill from the ranking. On a 150-market board the deck should not be three crypto cards when
-  // the board also carries the Fed, NVIDIA and the Champions League.
+  // Which market is worth a reply is a scoring problem, not a taste one: reply-worthy means the crowd
+  // is genuinely split, the tape is moving, and the lane has an audience that argues. The lane pull
+  // is what keeps the deck from being three crypto markets under three crypto posts — a stocks desk,
+  // an AI timeline and a CT thread are three different rooms, and each gets its own number.
+  const LANE_PULL: Record<string, number> = {
+    "Global Stocks": 7,
+    "AI Agents & Tech": 7,
+    "Memes & Social": 6,
+    "US Politics & Policy": 5,
+    "Crypto Core": 4,
+  };
+  const score = (pool: Pool): number => {
+    const controversy = pool.heat?.controversy ?? 1 - Math.abs(yesShare(pool) - 0.5) * 2;
+    const volatility = pool.heat?.volatilityPct ?? 0;
+    const crowd = Math.min(1, (pool.traders ?? 0) / 320) * 8;
+    const hoursLeft = pool.endTimeUtc ? (Date.parse(pool.endTimeUtc) - Date.now()) / 3.6e6 : 999;
+    const urgency = hoursLeft <= 48 ? 8 : 0;
+    return controversy * 40 + volatility * 3 + crowd + urgency + (LANE_PULL[String(pool.category ?? "")] ?? 0);
+  };
+  const ranked = [...pools].sort((a, b) => score(b) - score(a));
+
+  // One market per sector first: two NVIDIA replies under one thread read like a bot, and a deck
+  // that only covers crypto cannot be dropped under a rates or an AI account.
   const picks: Pool[] = [];
-  const usedTribes = new Set<string>();
   const usedCategories = new Set<string>();
-  for (const pass of [0, 1] as const) {
-    for (const pool of ranked) {
-      if (picks.length >= 3) break;
-      if (picks.includes(pool)) continue;
-      const t = tribe(pool);
-      if (pass === 0 && (!t || usedTribes.has(t))) continue;
-      if (pass === 1) {
-        const c = String(pool.category ?? "");
-        if (c && usedCategories.has(c)) continue;
-        usedCategories.add(c);
-      }
-      if (t) usedTribes.add(t);
-      picks.push(pool);
-    }
+  for (const pool of ranked) {
+    if (picks.length >= 3) break;
+    const category = String(pool.category ?? "");
+    if (category && usedCategories.has(category)) continue;
+    usedCategories.add(category);
+    picks.push(pool);
   }
   for (const pool of ranked) {
     if (picks.length >= 3) break;
@@ -303,21 +311,18 @@ function replyDeck(pools: Pool[]): { angle: string; text: string }[] {
     const spot = pool.marketData?.spotUsd;
     const subject = asset ? `${asset} at ${price(spot ?? 0)}` : `"${clipped(pool.title, 46)}"`;
     const duel = `YES ${bar(yes)} ${yes}% → ${y}× · NO ${bar(no)} ${no}% → ${n}×`;
-    const footer = `${count} in · ${left} left → ${url}`;
-    // Lane voice: a macro reply under a rates account and a meme reply under a CT account cannot
-    // be the same sentence with a different ticker in it.
     const voice = laneVoice(pool);
-    const byAngle = [
-      [voice?.contrarian ?? `The board is ${no}% NO on ${subject} and YES still pays ${y}×`, duel, footer],
-      [voice ? `${voice.receipt}: ${subject} → ${yes}% YES, ${count} positions` : `${subject} → ${yes}% YES, ${count} positions already placed`, duel, `${left} left → ${url}`],
-      [voice ? `${voice.challenge}. ${count} in, ${no}% on NO.` : `${count} people disagree about this one. ${no}% are on NO.`, `${duel} · ${left} left`, url],
+    const claims = [
+      voice?.contrarian ?? `The board is ${no}% NO on ${subject} and YES still pays ${y}×`,
+      voice ? `${voice.receipt}: ${subject} → ${yes}% YES, ${count} positions` : `${subject} → ${yes}% YES, ${count} positions already placed`,
+      voice ? `${voice.challenge}. ${count} in, ${no}% on NO.` : `${count} people disagree about this one. ${no}% are on NO.`,
     ];
-    // Long subjects degrade to a shorter sentence, they never get cut mid-word.
-    // Only the first reply carries the airdrop line: three of them in one deck reads like spam and
-    // gets the account muted, which is a worse outcome than a quieter first reply.
+    // The shape is fixed for every reply: claim → duel → link → airdrop hook. The hook is on all
+    // three, not just the first: a reply without it is a free market update for someone else's post.
     const candidates = [
-      (i === 0 ? [...byAngle[i], AIRDROP_TAG] : byAngle[i]).join("\n"),
-      [byAngle[i][0].slice(0, 90), `${yes}% YES → ${y}× · ${no}% NO → ${n}×`, url].join("\n"),
+      [claims[i], duel, `${count} in · ${left} left → ${url}`, REPLY_HOOK].join("\n"),
+      [clipped(claims[i], 88), duel, `${url} · ${left} left`, REPLY_HOOK].join("\n"),
+      [`${duel} · ${left} left`, url, REPLY_HOOK].join("\n"),
     ];
     const text = candidates.find((c) => weight(c) <= 275) ?? candidates[candidates.length - 1];
     return { angle: angles[i], text };
@@ -347,6 +352,204 @@ function whitepaperComments(): { angle: string; text: string }[] {
     { angle: "points are checkable", text: `Arena Points are not a spreadsheet. 10 points per $1 staked, ×2 for contrarian sides, ×1.5 for 48h markets, and captains take 20% of their referees. Rebuild the ledger with one command.\n\n${url}` },
     { angle: "no presale", text: `No presale. No private round. No team allocation. 42% of supply goes to the people who actually traded, 25% into a locked Aerodrome pool, and the buyback only spends fees the venue really earned.\n\n${url}` },
   ];
+}
+
+/**
+ * The public pinned post: the airdrop, not a market.
+ *
+ * The market tweets are transient; this one has to survive a week pinned to the profile, so it
+ * carries only claims a reader can verify in a browser (supply split, whitepaper, contract) and the
+ * one thing a stranger actually wants — a reason to place a bet today.
+ */
+function pinnedAirdropPost(): { en: string; zh: string } {
+  const drafts = [
+    [
+      "🔥 $ARENA genesis airdrop — pre-mining is live.",
+      "",
+      "232 markets · 19 sectors · USDC escrow on Base. Every $1 bet earns genesis points, converted 1:1 into $ARENA at launch.",
+      "",
+      "42% of supply to the community. Zero team allocation. No presale. Every number on-chain.",
+      "",
+      `Whitepaper → ${SITE}/whitepaper`,
+    ].join("\n"),
+    [
+      "🔥 $ARENA genesis airdrop — pre-mining is live.",
+      "",
+      "232 markets · 19 sectors · USDC escrow. Every $1 bet earns genesis points, 1:1 into $ARENA at launch.",
+      "",
+      "42% to the community, zero team allocation, no presale.",
+      "",
+      `Whitepaper → ${SITE}/whitepaper`,
+    ].join("\n"),
+  ];
+  // Pinned tweets get read on a phone in a profile header: if the long draft does not fit 280, the
+  // short one goes out instead of a truncated URL.
+  const en = drafts.find((d) => weight(d) <= 275) ?? drafts[drafts.length - 1];
+  const zh = [
+    "🔥 $ARENA 创世空投预热 —— 积分预挖进行中。",
+    "",
+    "232 个盘口 · 19 个板块 · Base 主网 USDC 托管结算。每 $1 下注即得创世积分，上线时 1:1 兑换 $ARENA。",
+    "",
+    "42% 总量归社区，零团队预留，无预售、无私募；所有数字链上可查。",
+    "",
+    `白皮书 → ${SITE}/whitepaper`,
+  ].join("\n");
+  return { en, zh };
+}
+
+/**
+ * The group-owner pitch (07).
+ *
+ * Written for someone who runs a 5k-member Telegram group and has been offered a "partnership" by
+ * every project in the space: no deck, no token grant, no lock-up story — just the fee split, paid
+ * by the contract at settlement, and the points their members keep.
+ */
+function captainAirdropPitch(): string {
+  const en = [
+    `Subject: your group's bets pay you 30–50% of the fee, on-chain, starting today`,
+    "",
+    "Hi — no deck, one page.",
+    "",
+    "Prediction Arena is a prediction market on Base: 232 live markets across 19 sectors, USDC escrow,",
+    "settlement on-chain. We are opening the captain programme to group owners before the genesis airdrop.",
+    "",
+    "What you get",
+    "  · 30% of the 4% platform fee on every bet your link brings — escrowed by the contract at bet time,",
+    "    claimable per pool after settlement. Stake 50% of what you earn for 90 days and it becomes 50%.",
+    "  · 20% of your members' Arena Points. Points convert 1:1 into $ARENA at genesis (42% of supply is",
+    "    reserved for points; zero team allocation, no presale).",
+    "  · A per-captain link and a daily points report for your group, no spreadsheet from us.",
+    "",
+    "What it costs",
+    "  Nothing. No exclusivity, no deposit, no custody, no KYC. You keep posting whatever you already post.",
+    "",
+    "How to start (2 minutes)",
+    `  1. Open ${SITE} and connect the wallet you want to be paid to.`,
+    `  2. Message @predictaing_bot: /start captain → send that address → it replies with your ref link.`,
+    "  3. Post the link once. Every bet it brings is attributed on-chain, not by us.",
+    "",
+    "Verify before you commit: the fee split is in the contract (REFERRAL_SHARE_BPS = 3000), the scoring",
+    `rules are one file, and the whitepaper is public — ${SITE}/whitepaper`,
+  ].join("\n");
+
+  const zh = [
+    "【零成本挂名团长 · 拿 30%~50% 链上纯手续费分润 + 20% 团员空投积分算力】",
+    "",
+    "群主你好，不套近乎，直接说钱怎么分。",
+    "",
+    "Prediction Arena 是跑在 Base 主网的预测市场：232 个盘口、19 个板块、USDC 托管、链上结算。",
+    "创世空投前开放团长名额，给已经在带群的人。",
+    "",
+    "你拿什么",
+    "  · 手续费 30%：你链接带来的每一笔下注，4% 手续费里的 30% 在下注瞬间由合约托管，结算后可提；",
+    "    把已赚积分的 50% 锁 90 天，分润升到 50%。",
+    "  · 积分 20%：团员下注产生的 Arena Points，你再拿 20%；创世时积分 1:1 兑换 $ARENA",
+    "    （42% 总量留给积分，零团队预留、无预售、无私募）。",
+    "  · 专属链接 + 每日战报，不用你记账。",
+    "",
+    "你要付出什么",
+    "  零。不签独家、不交押金、不托管资金、不要 KYC；你继续发你原本要发的内容。",
+    "",
+    "两步开跑",
+    `  1. 打开 ${SITE}，连上你要收钱的 Base 钱包；`,
+    "  2. 私聊 @predictaing_bot：/start captain → 发地址 → 它回你专属 ref 链接。",
+    "",
+    "发之前先自己验：分润比例写在合约里（REFERRAL_SHARE_BPS = 3000），计分规则是一个文件，",
+    `白皮书公开：${SITE}/whitepaper`,
+  ].join("\n");
+
+  return `=== EN (DM / email / group owner intro) ===\n\n${en}\n\n\n=== 中文（TG / 微信群主） ===\n\n${zh}\n`;
+}
+
+/**
+ * The build-in-public pitch (08).
+ *
+ * HN and r/web3dev punish marketing and reward specifics: what it does, what is actually deployed,
+ * what is *not* built. Every number here is checkable from the repo or the chain, and the token
+ * section says plainly that no token exists yet.
+ */
+function hackerPitch(): string {
+  const hn = [
+    "Show HN: Autonomous 24/7 Web3 Prediction Agent with Zero-Team Tokenomics on Base",
+    "",
+    "Hi HN — I built a prediction market that runs itself, and I am posting the whole thing, including",
+    "the parts that are held together with cron.",
+    "",
+    "What it is: 232 binary markets across 19 sectors (crypto, macro, equities, AI, sports, policy),",
+    "generated every 30 minutes from public feeds (Binance, CoinGecko, DefiLlama, Yahoo, FRED), opened",
+    "on Base mainnet as USDC-escrowed pools, settled with an IPFS content hash per pool.",
+    "",
+    "The interesting part is not the market, it is the operating model. There is no ops team. Market",
+    "generation, strike selection, pool opening, settlement accounting, copywriting and referral",
+    "attribution are cron jobs over on-chain state. The board is a build artifact: pools.json is what",
+    "the app renders and what the pool opener submits, so the card and the contract cannot disagree.",
+    "",
+    "Points are a pure function of chain history. scripts/sync-points.ts replays BetPlaced logs:",
+    "10 points per $1 net stake, 1 + 2|p−0.5| for contrarian sides (capped 2×), 1.5× for markets under",
+    "48h, and 20% of a referee's points to the referrer from the on-chain referrer field. No table, no",
+    "migration, no admin edit — rebuild it and diff.",
+    "",
+    "Tokenomics, such as they are: no token exists. If one launches, 42% goes to points holders 1:1,",
+    "25% into a 24-month locked Aerodrome pool, 33% to a community-governed ecosystem reserve. Zero",
+    "team/advisor/VC allocation — the operator is paid from the 4% fee, not from a token bag.",
+    "",
+    "Boring engineering details people ask about:",
+    "  · 232/232 e2e green (Playwright against a production build, mocked wallet + mocked RPC)",
+    "  · pools opened in nonce-safe batches of 30; sticky strikes so an id never re-points",
+    "  · cancelled pools refund stake + fee in full; `onlyOwner` can settle but cannot touch stakes",
+    "  · contract: 0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5 (Base)",
+    "",
+    "What is not built: no token, no mobile app, no order book (it is pari-mutuel), and the cron box is",
+    "single-machine — if it dies, markets stop opening (settlement is unaffected).",
+    "",
+    `Code: https://github.com/lulaxiao97-create/prediction-arena`,
+    `Site: ${SITE}`,
+    `Whitepaper: ${SITE}/whitepaper`,
+    "",
+    "Happy to answer anything about the settlement path, the points replay or why I think an autonomous",
+    "venue is the only kind that can price 200 markets without a payroll.",
+  ].join("\n");
+
+  const reddit = [
+    `r/web3dev — title: "I built a self-running prediction market on Base: 232 markets, 19 sectors, zero ops team"`,
+    "",
+    "The stack: Next.js 16 + wagmi/viem frontend, Solidity 0.8.20 contract (no proxy), a Bun cron box that",
+    "regenerates the board every 30 min and opens pools in batches of 30, and a points ledger derived",
+    "entirely from BetPlaced events. Comparison point for anyone building agents: the agent here does not",
+    "chat, it does bookkeeping — which is the part that actually has to be correct.",
+    "",
+    "One thing I would do differently: I started with a hand-curated market list and it rotted within a",
+    "week. The generator plus sticky strikes (a market's strike/id is frozen at creation) was the fix.",
+    "",
+    "Repo + whitepaper in the comments. Feedback on the settlement design very welcome.",
+  ].join("\n");
+
+  const v2ex = [
+    "V2EX / 开源社区 — 标题：做了一个自己跑起来的预测市场：232 个盘口、19 个板块、零运营团队",
+    "",
+    "技术栈：Next.js 16 + viem/wagmi，Solidity 0.8.20（无代理、不可升级），Bun cron 每 30 分钟重建盘口、",
+    "每批 30 个开池；积分不存数据库，全部由链上 BetPlaced 事件重放得出，一条命令可重算。",
+    "",
+    "有意思的地方是「运营」这件事被删掉了：建盘、定价、开池、结算记账、写文案、归因全是跑在链上状态上的",
+    "定时任务。盘口是构建产物：pools.json 同时喂给前端和开池脚本，所以卡片上的数字和合约里的池子不会打架。",
+    "",
+    "代币目前不存在；如果发行，42% 给积分持有者 1:1 兑换、25% 进锁 24 个月的 Aerodrome 池、33% 归社区治理的",
+    "生态池，团队/顾问/VC 份额为零——运营成本由 4% 手续费支付。",
+    "",
+    `开源地址：https://github.com/lulaxiao97-create/prediction-arena  白皮书：${SITE}/whitepaper`,
+  ].join("\n");
+
+  return [
+    "=== HACKER NEWS (Show HN) ===",
+    hn,
+    "",
+    "=== REDDIT (/r/web3dev · /r/Base) ===",
+    reddit,
+    "",
+    "=== V2EX / 中文开源社区 ===",
+    v2ex,
+    "",
+  ].join("\n");
 }
 
 const CAPTAIN_EN = `Subject: 30% of our platform fee, on-chain, for the markets you already post
@@ -438,8 +641,11 @@ WHAT IS IN HERE
   02-alpha-reply-deck.txt  three replies to drop under someone else's post, different angles
   03-captain-pitch.txt     the DM/enquiry script for a TG owner or KOL — 30% of the 4% fee
   04-calendar.md           every market featured so far, for planning the week
-  05-whitepaper-launch.txt the whitepaper launch post + three thread comments (pin this one)
+  05-whitepaper-launch.txt the whitepaper launch post + three thread comments
   06-whitepaper-card.png   1200x630 whitepaper OG card — attach it to the launch post
+  07-captain-airdrop-pitch.txt  group-owner pitch: 30–50% of the fee + 20% of members' points
+  08-hacker-news-pitch.txt Show HN + Reddit + V2EX posts, written for developers
+  09-airdrop-pinned.txt    the pinned airdrop post (EN + 中文) — attach 06-whitepaper-card.png
   meta.json                the numbers behind all of the copy, with timestamps
   archive/<date>/          a frozen copy of each day's pack
 
@@ -529,6 +735,7 @@ function main(): void {
     tweet: String(p.id) === String(tweetId) ? tweet : mainTweet(p),
   }));
   const deck = replyDeck(pools);
+  const pinned = pinnedAirdropPost();
 
   const files: Record<string, string> = {
     // Paste-ready means paste-ready: no weight watermark, no source note, no "how to use" tell at
@@ -550,6 +757,18 @@ function main(): void {
       "=== THREAD COMMENTS ===",
       ...whitepaperComments().map((c, i) => `#${i + 1} · ${c.angle}\n${c.text}`),
     ].join("\n"),
+    // The airdrop post itself: pinned to the profile, not rotated with the daily market.
+    "09-airdrop-pinned.txt": [
+      "=== PINNED POST — EN (attach 06-whitepaper-card.png) ===",
+      pinned.en,
+      "",
+      "=== PINNED POST — 中文（TG / 微博 / 微信群） ===",
+      pinned.zh,
+      "",
+      `weight: EN ${weight(pinned.en)}/280 · 中文 ${weight(pinned.zh)}/280`,
+    ].join("\n"),
+    "07-captain-airdrop-pitch.txt": captainAirdropPitch(),
+    "08-hacker-news-pitch.txt": hackerPitch(),
     "04-calendar.md": calendar(),
     "README.txt": readme(dir),
     "meta.json": JSON.stringify(

@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
   BadgeCheck,
@@ -53,6 +53,25 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("ending");
   const [selected, setSelected] = useState<{ pool: ArenaPool; option: 0 | 1 } | null>(null);
+
+  // Stable identity so memoised cards do not re-render on every keystroke in the search box.
+  const handleBet = useCallback((pool: ArenaPool, option: 0 | 1) => setSelected({ pool, option }), []);
+
+  /**
+   * Big lists paint in slices.
+   *
+   * 232 cards is the honest size of the board, and mounting all of them on a tab switch is a ~400ms
+   * main-thread stall on a laptop. The first slice paints immediately; the rest land one animation
+   * frame at a time while the browser is idle, so the click feels instant and the list is complete
+   * before a thumb reaches the bottom. Filtering/searching resets the slice, because the result set
+   * is a different list, not a scroll position.
+   */
+  const FIRST_SLICE = 72;
+  const SLICE = 64;
+  const [visibleCount, setVisibleCount] = useState(FIRST_SLICE);
+  useEffect(() => {
+    setVisibleCount(FIRST_SLICE);
+  }, [category, query, sort]);
 
   const { pools, stats, featured, loading } = useMarkets();
 
@@ -106,6 +125,16 @@ export default function Home() {
     });
     return sorted;
   }, [pools, category, query, sort, mounted]);
+
+  // Never render past the result set; grow by one slice per frame until the list is whole.
+  const visible = filtered.slice(0, Math.min(visibleCount, filtered.length));
+  useEffect(() => {
+    if (visibleCount >= filtered.length) return;
+    const id = requestAnimationFrame(() =>
+      setVisibleCount((n) => Math.min(filtered.length, n + SLICE)),
+    );
+    return () => cancelAnimationFrame(id);
+  }, [visibleCount, filtered.length, SLICE]);
 
   /**
    * Hero resolution.
@@ -235,7 +264,7 @@ export default function Home() {
               identical rows of pills 200px apart. Search + sort is all this row needs to be. */}
 
           <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-            {filtered.map((pool, index) => (
+            {visible.map((pool, index) => (
               // 100+ cards are mounted at once (search/filter works across the whole board, so
               // pagination would hide markets rather than help). `content-visibility: auto` keeps
               // off-screen cards out of layout and paint — the board scrolls at the same speed
@@ -244,7 +273,7 @@ export default function Home() {
                 key={String(pool.id)}
                 style={{ contentVisibility: "auto", containIntrinsicSize: "auto 320px" }}
               >
-                <MarketCard pool={pool} index={index} onBet={(p, option) => setSelected({ pool: p, option })} />
+                <MarketCard pool={pool} index={index} onBet={handleBet} />
               </div>
             ))}
           </div>

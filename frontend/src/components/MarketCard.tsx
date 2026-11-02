@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAccount } from "wagmi";
@@ -40,7 +40,7 @@ import {
   usePendingRewards,
 } from "@/hooks/usePredictionArena";
 
-export function MarketCard({
+function MarketCardImpl({
   pool,
   onBet,
   index = 0,
@@ -344,3 +344,14 @@ export function MarketCard({
     </article>
   );
 }
+
+/**
+ * The board mounts every market at once (search works across the whole board), so a tab switch
+ * re-renders the grid. A card whose pool object is unchanged has nothing new to say — memo keeps a
+ * 232-card re-render down to the cards that actually entered or left the lane. `onBet` must stay
+ * referentially stable in the parent (it is a `useCallback` there) or this comparison never hits.
+ */
+export const MarketCard = memo(
+  MarketCardImpl,
+  (a, b) => a.pool === b.pool && a.index === b.index && a.onBet === b.onBet,
+);

@@ -76,6 +76,14 @@ const ALIASES: Record<string, ResolvedCategory> = {
   "dex": "defi",
   "lending": "defi",
   "aerodrome": "defi",
+  // "Layer 2 & Base" is the generator's lane string; without these it resolved to "other", which
+  // left the L2 tab permanently empty and hid 14 live markets from every lane view.
+  "layer 2": "l2",
+  "layer 2 & base": "l2",
+  "layer2": "l2",
+  "l2": "l2",
+  "rollup": "l2",
+  "sequencer": "l2",
   "memes": "memes",
   "meme": "memes",
   "memes & social": "memes",
