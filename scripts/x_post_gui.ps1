@@ -1,6 +1,8 @@
 param(
   [Parameter(Mandatory = $true)][string]$TextFile,
-  [switch]$DryRun
+  [string]$Image = "",
+  [switch]$DryRun,
+  [switch]$ComposeOnly
 )
 
 # Post to X through the signed-in Chrome window — no relaunch, no new tab beyond the composer.
@@ -96,7 +98,11 @@ if ($Image -ne "") {
 if ($DryRun) { Write-Output "dry_run: text is in the composer"; exit 0 }
 if ($ComposeOnly) { Write-Output "composed: text + image waiting for the Post click"; exit 0 }
 
-# 3. Publish. The button sits at the composer's bottom-right, not at a fixed height: an empty
+# 3. Publish. The composer is TALLER than a 1056px window once a link card + image are in it: the
+#    footer (and the Post button) end up below the visible edge, and a click at those coordinates
+#    lands on the taskbar or on the page behind. Measured 2026-11-02: the fix is to compose in the
+#    inline Home composer and scroll the page, or to zoom out until the footer is inside the viewport.
+#    The button sits at the composer's bottom-right, not at a fixed height: an empty
 # composer puts it at ~0.40h, a five-line post with a link card at ~0.67h. Measured 2026-11-02 on a
 # 1936x1056 window: 0.625/0.672 hit it, 0.63/0.63 and 0.63/0.872 both missed (which is how a draft
 # gets "saved" instead of posted). Try the measured spot first, then the two older fallbacks.

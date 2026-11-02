@@ -568,7 +568,7 @@ function agentPitchDeck(): string {
  */
 function crewPost(): string {
   const en = [
-    "Free to join, free to earn:",
+    "Free to earn:",
     "",
     "📣 Join t.me/predictionarena_hq → 500 points",
     "💬 Reply with your call → 3 best takes/day get 1,000",
