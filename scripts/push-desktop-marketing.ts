@@ -198,7 +198,7 @@ function flagshipScore(pool: Pool): number {
 const AIRDROP_TAG = "🔥 Arena Points genesis airdrop live — bet or refer, earn $ARENA";
 
 /** The closing line of every reply: same claim everywhere, short enough to fit under a duel. */
-const REPLY_HOOK = "🎁 Every $1 bet earns genesis $ARENA points — 1:1 at launch";
+const REPLY_HOOK = "🎁 Bet now — every $1 earns genesis $ARENA points (1:1 at launch)";
 
 const TRIBES = ["aero", "degen", "toshi", "brett", "mog", "zora"];
 
