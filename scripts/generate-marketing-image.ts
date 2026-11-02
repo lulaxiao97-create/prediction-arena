@@ -256,7 +256,7 @@ function html(pool: Pool, qrSvg: string, trackedUrl: string): string {
     <div class="right">
       <div class="qrbox">${qrSvg}</div>
       <div class="domain">predictionarena.online</div>
-      <div class="airdrop">🔥 ARENA POINTS · GENESIS AIRDROP</div>
+      <div class="airdrop">🔥 GENESIS AIRDROP · 30% REF</div>
       <div class="handle">@Predict065 · t.me/predictionarena_hq</div>
     </div>
   </div>
