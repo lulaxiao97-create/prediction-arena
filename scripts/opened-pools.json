@@ -1757,5 +1757,11 @@
     "title": "Will the ETH/BTC ratio close above 0.0308 before November 30, 2026?",
     "tx": "0x8047c47d2d90325a91b045997bc4c834b2d163e324af49402168e01b8463e57c",
     "openedAt": "2026-11-02T03:40:08.604218+00:00"
+  },
+  "726930142": {
+    "id": "726930142",
+    "title": "Will Ethereum TVL fall below $42.70B before November 30, 2026?",
+    "tx": "0xdc57ff4dee74edb5bdf35a27eecac606c990f61217664a89d7c2718c82814e1d",
+    "openedAt": "2026-11-02T05:40:07.076217+00:00"
   }
 }

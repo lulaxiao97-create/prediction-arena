@@ -5,6 +5,13 @@ param(
 
 # Post to X through the signed-in Chrome window — no relaunch, no new tab beyond the composer.
 #
+# Encoding: the copy files are UTF-8 without BOM. `Get-Content -Raw` alone decodes them as ANSI on
+# Windows PowerShell 5.1, so emoji and arrows reach the composer as mojibake ("🔥" → "鍞戞暩").
+# Always pass -Encoding UTF8.
+#
+# Duplicate guard: X refuses identical text with "Whoops! You already said that." — if the composer
+# stays open with that toast, the earlier attempt already published. Check the profile before retrying.
+#
 # What was measured on this machine (2026-10-30), because each of these cost an attempt:
 #   · Chrome must be the *running* session; launching it with --remote-debugging-port on the default
 #     profile is refused by Chrome 136+, and launching it at all drops the X session, so this script
@@ -71,10 +78,16 @@ Start-Sleep -Milliseconds 2000
 
 if ($DryRun) { Write-Output "dry_run: text is in the composer"; exit 0 }
 
-# 3. Publish. Two heights, because a link card changes the layout mid-flight.
-Click-At ([int]($r.Left + $w * 0.63)) ([int]($r.Top + $h * 0.63))
-Start-Sleep -Milliseconds 6000
-Click-At ([int]($r.Left + $w * 0.63)) ([int]($r.Top + $h * 0.872))
-Start-Sleep -Milliseconds 6000
+# 3. Publish. The button sits at the composer's bottom-right, not at a fixed height: an empty
+# composer puts it at ~0.40h, a five-line post with a link card at ~0.67h. Measured 2026-11-02 on a
+# 1936x1056 window: 0.625/0.672 hit it, 0.63/0.63 and 0.63/0.872 both missed (which is how a draft
+# gets "saved" instead of posted). Try the measured spot first, then the two older fallbacks.
+Click-At ([int]($r.Left + $w * 0.625)) ([int]($r.Top + $h * 0.672))
+Start-Sleep -Milliseconds 8000
+# One click only. The old script clicked three times "to be safe"; after a successful post those
+# extra clicks land on whatever is under the cursor in the timeline (a tweet, a follow button).
+# A missed click leaves a draft, which is recoverable; a stray click is not.
 
+# If X answers "Whoops! You already said that.", the earlier attempt published: check the profile
+# before retrying. A photo/file attach is still manual — this script only drives text + link cards.
 Write-Output "posted_attempted"
