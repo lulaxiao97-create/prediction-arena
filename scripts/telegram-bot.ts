@@ -158,7 +158,7 @@ function groupTemplate(address: string): string {
     "",
     "今天可以站队的盘口 → " + link,
     "",
-    "（我在拿他们的手续费分成，用这个链接下注，结算时合约会分我 30% 的手续费——不影响你的赔付。）",
+    "（我在拿他们的手续费分成：结算时合约分我 30%，把已赚积分锁 50% 满 90 天可升到 50%——不影响你的赔付。）",
   ].join("\n");
 }
 
@@ -171,8 +171,8 @@ function groupTemplateEn(address: string): string {
     "",
     "Take a side → " + link,
     "",
-    "(I get 30% of the protocol fee on positions from this link, paid by the contract at settlement.",
-    "It comes out of the fee, not out of your payout.)",
+    "(I get 30% of the protocol fee from this link at settlement; lock 50% of earned points for 90",
+    "days and it rises to 50%. It comes out of the fee, not out of your payout.)",
   ].join("\n");
 }
 
@@ -260,7 +260,7 @@ function respond(
       text: [
         AIRDROP_CN,
         "",
-        "🧑‍💼 团长计划 — 平台 4% 手续费的 30%，结算时由合约直接付给你。",
+        "🧑‍💼 团长计划 — 平台 4% 手续费的 30%，结算时由合约直接付给你；把已赚积分的 50% 锁 90 天，分润升到 50%（创世后开启）。",
         "",
         "要做的事：把你群里的盘口链接换成你的专属链接。",
         "",
@@ -528,6 +528,34 @@ function readPointsLedger(): PointsLedger {
   }
 }
 
+
+/**
+ * The market the daily report leads with.
+ *
+ * Same three signals the desktop pack uses — a split crowd, a moving tape, a deadline inside a week
+ * — but computed here so the DM never depends on a file some other script may not have written.
+ */
+type HotPool = { id: string | number; title: string; category?: string; yesShare?: number; traders?: number; endTimeUtc?: string; status?: number };
+
+function hottestMarket(): HotPool | null {
+  try {
+    const board = JSON.parse(readFileSync(join(ROOT, "frontend", "public", "pools.json"), "utf8")) as { pools?: HotPool[] };
+    const pools = (board.pools ?? []).filter((p) => (p.status ?? 1) === 1);
+    if (!pools.length) return null;
+    const score = (p: HotPool) => {
+      const yes = Number(p.yesShare ?? 0.5);
+      const controversy = 1 - Math.abs(yes - 0.5) * 2;
+      const hoursLeft = p.endTimeUtc ? (Date.parse(p.endTimeUtc) - Date.now()) / 3.6e6 : 999;
+      const urgency = hoursLeft <= 48 ? 0.3 : hoursLeft <= 24 * 7 ? 0.15 : 0;
+      const crowd = Math.min(1, (p.traders ?? 0) / 320) * 0.2;
+      return controversy + urgency + crowd;
+    };
+    return [...pools].sort((a, b) => score(b) - score(a))[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
 async function leaderboardPush(opts: { api: string | null; dryRun: boolean }): Promise<BroadcastResult> {
   const store = loadStore();
   const captains = Object.values(store.captains);
@@ -547,6 +575,7 @@ async function leaderboardPush(opts: { api: string | null; dryRun: boolean }): P
     const points = row?.points ?? 0;
     const rank = ranked.indexOf(key) + 1;
     const est = total > 0 ? Math.floor((points / total) * 420_000_000) : 0;
+    const hot = hottestMarket();
     const text = [
       "📊 <b>Arena Points · 24h 战报</b>",
       "",
@@ -556,6 +585,14 @@ async function leaderboardPush(opts: { api: string | null; dryRun: boolean }): P
       "",
       `全站：${(ledger.totals?.wallets ?? 0)} 个钱包、${total.toLocaleString("en-US")} 分、${(ledger.totals?.bets ?? 0)} 笔下注。`,
       "",
+      ...(hot
+        ? [
+            `🔥 今日最热：${hot.title}`,
+            `YES ${Math.round(Number(hot.yesShare ?? 0.5) * 100)}% · ${hot.traders ?? 0} 人已站队 → 转发这条给你的群：`,
+            `${SITE}/market/${hot.id}?ref=${captain.wallet}&utm_source=telegram&utm_medium=referral&utm_campaign=daily`,
+            "",
+          ]
+        : []),
       AIRDROP_CN,
       "你的团员积分将在创世时 1:1 兑换 $ARENA 代币；把专属 Ref 链接转发到群里，团员每笔下注再给你 20% 算力加成。",
       "",

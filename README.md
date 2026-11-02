@@ -29,6 +29,7 @@
 [![Markets](https://img.shields.io/badge/Markets-232%20live%20%C2%B7%2019%20sectors-FBBF24?style=for-the-badge)](#the-board)
 [![Whitepaper](https://img.shields.io/badge/Whitepaper-v1.0%20%C2%B7%20live-FBBF24?style=for-the-badge&logo=readthedocs&logoColor=black)](docs/WHITEPAPER.md)
 [![Points](https://img.shields.io/badge/Arena%20Points-genesis%20airdrop-FF2D55?style=for-the-badge)](https://predictionarena.online/whitepaper#3-arena-points-system)
+[![Discussions](https://img.shields.io/badge/Discussions-open-8957E5?style=for-the-badge&logo=github)](https://github.com/lulaxiao97-create/prediction-arena/discussions)
 [![Stars welcome](https://img.shields.io/github/stars/lulaxiao97-create/prediction-arena?style=for-the-badge&logo=github&label=Stars)](https://github.com/lulaxiao97-create/prediction-arena/stargazers)
 
 <br />

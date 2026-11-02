@@ -26,6 +26,7 @@
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { heatScore, pickContrarian } from "./lib/hot";
 import { SITE, X_HANDLE, bar, bothOdds, clipped, price, shortTrackedUrl, timeLeft, trackedUrl, weight } from "./lib/copy-kit";
 
 const ROOT = join(import.meta.dir, "..");
@@ -261,42 +262,9 @@ function mainTweet(pool: Pool): string {
  * does not belong in the file.
  */
 function replyDeck(pools: Pool[]): { angle: string; text: string }[] {
-  // Which market is worth a reply is a scoring problem, not a taste one: reply-worthy means the crowd
-  // is genuinely split, the tape is moving, and the lane has an audience that argues. The lane pull
-  // is what keeps the deck from being three crypto markets under three crypto posts — a stocks desk,
-  // an AI timeline and a CT thread are three different rooms, and each gets its own number.
-  const LANE_PULL: Record<string, number> = {
-    "Global Stocks": 7,
-    "AI Agents & Tech": 7,
-    "Memes & Social": 6,
-    "US Politics & Policy": 5,
-    "Crypto Core": 4,
-  };
-  const score = (pool: Pool): number => {
-    const controversy = pool.heat?.controversy ?? 1 - Math.abs(yesShare(pool) - 0.5) * 2;
-    const volatility = pool.heat?.volatilityPct ?? 0;
-    const crowd = Math.min(1, (pool.traders ?? 0) / 320) * 8;
-    const hoursLeft = pool.endTimeUtc ? (Date.parse(pool.endTimeUtc) - Date.now()) / 3.6e6 : 999;
-    const urgency = hoursLeft <= 48 ? 8 : 0;
-    return controversy * 40 + volatility * 3 + crowd + urgency + (LANE_PULL[String(pool.category ?? "")] ?? 0);
-  };
-  const ranked = [...pools].sort((a, b) => score(b) - score(a));
-
-  // One market per sector first: two NVIDIA replies under one thread read like a bot, and a deck
-  // that only covers crypto cannot be dropped under a rates or an AI account.
-  const picks: Pool[] = [];
-  const usedCategories = new Set<string>();
-  for (const pool of ranked) {
-    if (picks.length >= 3) break;
-    const category = String(pool.category ?? "");
-    if (category && usedCategories.has(category)) continue;
-    usedCategories.add(category);
-    picks.push(pool);
-  }
-  for (const pool of ranked) {
-    if (picks.length >= 3) break;
-    if (!picks.includes(pool)) picks.push(pool);
-  }
+  // Which market is worth a reply is a scoring problem, not a taste one — and the scoring lives in
+  // scripts/lib/hot.ts so the reply deck, the hot board and the Telegram daily report cannot drift.
+  const picks = pickContrarian(pools, 3);
 
   const angles = ["contrarian number", "receipt", "open challenge"];
 
@@ -552,6 +520,43 @@ function hackerPitch(): string {
   ].join("\n");
 }
 
+
+/**
+ * The hot five — the paste-ready board for someone who wants to reply now, not read a deck.
+ * Same selector as the deck (`pickContrarian`), five lanes instead of three.
+ */
+function hotFive(pools: Pool[]): string {
+  const picks = pickContrarian(pools, 5);
+  const rows = picks.map((pool, i) => {
+    const yes = Math.round(yesShare(pool) * 100);
+    const { y, n } = bothOdds(yes);
+    const duel = `YES ${bar(yes)} ${yes}% → ${y}× · NO ${bar(100 - yes)} ${100 - yes}% → ${n}×`;
+    const url = shortTrackedUrl(pool.id, "x");
+    return `## ${i + 1} · ${pool.category ?? "other"} · ${timeLeft(pool.endTimeUtc)} left\n${pool.title}\n${duel}\n${url}\n${REPLY_HOOK}`;
+  });
+  return ["# hot five · regenerated with every pack", "# one per sector — paste, do not rewrite the numbers", "", ...rows].join("\n\n") + "\n";
+}
+
+/**
+ * The three-line agent pitch (09).
+ *
+ * A group owner reads this in a DM preview, standing in a queue. Every line has one job: what they
+ * get, what they do, what they can check. No adjectives, no roadmap.
+ */
+function agentPitchDeck(): string {
+  const en = [
+    `Your group already argues about markets — get 30–50% of our 4% fee when they bet through your link (paid by the contract at settlement), plus 20% of their genesis airdrop points.`,
+    `Two minutes: open ${SITE} → connect the Base wallet you want paid → message @predictaing_bot /start captain → post the link it gives you.`,
+    `No deposit, no exclusivity, no KYC. Check the split yourself: REFERRAL_SHARE_BPS = 3000 in the contract, whitepaper at ${SITE}/whitepaper`,
+  ].join("\n\n");
+  const zh = [
+    "你群里本来就在吵的那些盘口，用你的链接下注，你拿我们 4% 手续费的 30%（质押后 50%），结算时由合约直接付。",
+    "两步：打开网站连上你要收钱的 Base 钱包 → 私聊 @predictaing_bot 发 /start captain → 把它回你的链接发群里。",
+    "不用押金、不签独家、不要 KYC；分成比例写在合约里（REFERRAL_SHARE_BPS = 3000），白皮书公开可查。",
+  ].join("\n\n");
+  return `=== EN (3 lines, DM / quote-tweet) ===\n\n${en}\n\n\n=== 中文（3 行，私信 / 群公告） ===\n\n${zh}\n`;
+}
+
 const CAPTAIN_EN = `Subject: 30–50% of our platform fee, on-chain, for the markets you already post
 
 Hi — quick one, no deck.
@@ -649,7 +654,9 @@ WHAT IS IN HERE
   06-whitepaper-card.png   1200x630 whitepaper OG card — attach it to the launch post
   07-captain-airdrop-pitch.txt  group-owner pitch: 30–50% of the fee + 20% of members' points
   08-hacker-news-pitch.txt Show HN + Reddit + V2EX posts, written for developers
-  09-airdrop-pinned.txt    the pinned airdrop post (EN + 中文) — attach 06-whitepaper-card.png
+  09-agent-pitch-deck.txt  3-line agent pitch (EN + 中文) — DM / quote-tweet
+  10-airdrop-pinned.txt    the pinned airdrop post (EN + 中文) — attach 06-whitepaper-card.png
+  00-hot-5.txt             five paste-ready replies, one per sector, regenerated every pack
   meta.json                the numbers behind all of the copy, with timestamps
   archive/<date>/          a frozen copy of each day's pack
 
@@ -762,7 +769,7 @@ function main(): void {
       ...whitepaperComments().map((c, i) => `#${i + 1} · ${c.angle}\n${c.text}`),
     ].join("\n"),
     // The airdrop post itself: pinned to the profile, not rotated with the daily market.
-    "09-airdrop-pinned.txt": [
+    "10-airdrop-pinned.txt": [
       "=== PINNED POST — EN (attach 06-whitepaper-card.png) ===",
       pinned.en,
       "",
@@ -771,6 +778,8 @@ function main(): void {
       "",
       `weight: EN ${weight(pinned.en)}/280 · 中文 ${weight(pinned.zh)}/280`,
     ].join("\n"),
+    "00-hot-5.txt": hotFive(pools),
+    "09-agent-pitch-deck.txt": agentPitchDeck(),
     "07-captain-airdrop-pitch.txt": captainAirdropPitch(),
     "08-hacker-news-pitch.txt": hackerPitch(),
     "04-calendar.md": calendar(),
