@@ -53,6 +53,9 @@ export function SiteFooter() {
                 <Link href="/docs" className="text-muted transition-colors hover:text-ink">
                   {t("nav.docs")}
                 </Link>
+                <Link href="/whitepaper" className="text-muted transition-colors hover:text-ink">
+                  📄 {t("nav.whitepaper")}
+                </Link>
               </li>
               <li>
                 <Link href="/docs/security" className="text-muted transition-colors hover:text-ink">

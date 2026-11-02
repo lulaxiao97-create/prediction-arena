@@ -46,6 +46,9 @@ const CONTACT = "@Predict065";
  */
 const AIRDROP_CN =
   "🔥 <b>Arena Points 创世空投季</b> — 每一笔下注、每一个通过你链接进来的人，都在给你累积积分；积分在创世时 1:1 兑换 $ARENA。";
+/** The whitepaper entry point, in one place: every captain-facing menu links to the same URL. */
+const WHITEPAPER_BTN = { text: "📄 查看代币白皮书", url: `${SITE}/whitepaper` };
+
 const AIRDROP_EN =
   "🔥 <b>Arena Points genesis airdrop</b> — every bet and every referral earns points; points convert 1:1 into $ARENA at genesis.";
 
@@ -184,7 +187,7 @@ const HELP: Outgoing = {
     "",
     "No sign-up, no KYC, no custody. The contract pays the address you give me, at settlement.",
   ].join("\n"),
-  buttons: [[{ text: "🏴 Open today's board", url: SITE }]],
+  buttons: [[{ text: "🏴 Open today's board", url: SITE }], [WHITEPAPER_BTN]],
 };
 
 /**
@@ -229,6 +232,7 @@ function respond(
       ].join("\n"),
       buttons: [
         [{ text: "🏴 看今天的盘口", url: SITE }],
+        [WHITEPAPER_BTN],
         [{ text: "📈 查看链上归因", url: SITE }],
       ],
       parseMode: "HTML",
@@ -248,7 +252,7 @@ function respond(
           "",
           "要换收款地址，直接把新地址发给我（0x + 40 位）。",
         ].join("\n"),
-        buttons: [[{ text: "🏴 今天的盘口", url: SITE }]],
+        buttons: [[{ text: "🏴 今天的盘口", url: SITE }], [WHITEPAPER_BTN]],
       });
       return { replies, session };
     }
@@ -287,7 +291,7 @@ function respond(
     if (session.wallet) {
       replies.push({
         text: `你的链接（收款人 ${session.wallet}）：\n\n${refLink(session.wallet)}`,
-        buttons: [[{ text: "🏴 今天的盘口", url: SITE }]],
+        buttons: [[{ text: "🏴 今天的盘口", url: SITE }], [WHITEPAPER_BTN]],
       });
     } else {
       replies.push({
@@ -301,7 +305,7 @@ function respond(
   if (lower === "/markets") {
     replies.push({
       text: "盘口每 30 分钟用实时行情重建一次。今天的盘口都在这里：",
-      buttons: [[{ text: "🏴 打开盘口看板", url: SITE }]],
+      buttons: [[{ text: "🏴 打开盘口看板", url: SITE }], [WHITEPAPER_BTN]],
     });
     return { replies, session };
   }

@@ -324,6 +324,31 @@ function replyDeck(pools: Pool[]): { angle: string; text: string }[] {
   });
 }
 
+/**
+ * The whitepaper launch post.
+ *
+ * A separate asset from the daily market tweet: this one is about the venue, not a market, so it is
+ * posted once and pinned rather than rotated. It carries the three claims a reader can verify in a
+ * browser (232 markets, on-chain settlement, the points rule) and nothing that reads like a price
+ * promise.
+ */
+function whitepaperLaunch(): string {
+  const drafts = [
+    `📄 Whitepaper v1.0 is live. Points pre-mining is open.\n\n232 markets · 19 sectors · 100% on-chain USDC on Base.\n\nBet or refer: every point converts 1:1 into $ARENA at genesis. 42% of supply, zero team allocation, nothing for sale.\n\n${SITE}/whitepaper`,
+    `📄 Whitepaper v1.0 — the whole venue in one doc: 232 markets, 19 sectors, a points ledger rebuilt from chain history, 42% genesis airdrop and 25% locked liquidity. No presale, no team bag.\n\n${SITE}/whitepaper`,
+  ];
+  return drafts.find((d) => weight(d) <= 275) ?? drafts[drafts.length - 1];
+}
+
+function whitepaperComments(): { angle: string; text: string }[] {
+  const url = `${SITE}/whitepaper`;
+  return [
+    { angle: "why it is different", text: `Most "prediction market" decks describe a product that does not exist. This one documents one that does: 232 markets, every pool on Basescan, every number rebuildable from BetPlaced logs.\n\n${url}` },
+    { angle: "points are checkable", text: `Arena Points are not a spreadsheet. 10 points per $1 staked, ×2 for contrarian sides, ×1.5 for 48h markets, and captains take 20% of their referees. Rebuild the ledger with one command.\n\n${url}` },
+    { angle: "no presale", text: `No presale. No private round. No team allocation. 42% of supply goes to the people who actually traded, 25% into a locked Aerodrome pool, and the buyback only spends fees the venue really earned.\n\n${url}` },
+  ];
+}
+
 const CAPTAIN_EN = `Subject: 30% of our platform fee, on-chain, for the markets you already post
 
 Hi — quick one, no deck.
@@ -413,6 +438,8 @@ WHAT IS IN HERE
   02-alpha-reply-deck.txt  three replies to drop under someone else's post, different angles
   03-captain-pitch.txt     the DM/enquiry script for a TG owner or KOL — 30% of the 4% fee
   04-calendar.md           every market featured so far, for planning the week
+  05-whitepaper-launch.txt the whitepaper launch post + three thread comments (pin this one)
+  06-whitepaper-card.png   1200x630 whitepaper OG card — attach it to the launch post
   meta.json                the numbers behind all of the copy, with timestamps
   archive/<date>/          a frozen copy of each day's pack
 
@@ -515,6 +542,14 @@ function main(): void {
       .join("\n\n"),
     "02-alpha-reply-deck.txt": deck.map((r, i) => `#${i + 1}\n${r.text}\n`).join("\n"),
     "03-captain-pitch.txt": `=== EN (DM / email)\n\n${CAPTAIN_EN}\n\n\n=== 中文（TG / 微信）\n\n${CAPTAIN_ZH}\n`,
+    // Whitepaper launch: one post about the venue itself, plus three comments for the thread.
+    "05-whitepaper-launch.txt": [
+      "=== PINNED POST (attach 06-whitepaper-card.png) ===",
+      whitepaperLaunch(),
+      "",
+      "=== THREAD COMMENTS ===",
+      ...whitepaperComments().map((c, i) => `#${i + 1} · ${c.angle}\n${c.text}`),
+    ].join("\n"),
     "04-calendar.md": calendar(),
     "README.txt": readme(dir),
     "meta.json": JSON.stringify(
@@ -571,12 +606,23 @@ function main(): void {
   });
   const card = cards[0]?.result ?? { ok: false, note: "no flagship" };
 
+  // The whitepaper card is a build artifact of the app (`/whitepaper/opengraph-image`), committed to
+  // public/ so the pack never drifts from the site's own link preview.
+  let whiteCard = { ok: false, note: "frontend/public/whitepaper-og.png missing — run the web build" };
+  try {
+    copyFileSync(join(ROOT, "frontend", "public", "whitepaper-og.png"), join(dir, "06-whitepaper-card.png"));
+    whiteCard = { ok: true, note: "1200x630" };
+  } catch {
+    /* text-only pack still ships */
+  }
+
   // meta.json is rewritten once the card exists, so the file records whether the picture is really
   // there rather than whether we hoped it would be.
   try {
     const metaPath = join(dir, "meta.json");
     const meta = JSON.parse(readFileSync(metaPath, "utf8")) as Record<string, unknown>;
     meta.card = { file: "01-market-card.png", size: "1200x675", generated: card.ok, note: card.note };
+    meta.whitepaperCard = { file: "06-whitepaper-card.png", size: "1200x630", generated: whiteCard.ok, note: whiteCard.note };
     writeFileSync(metaPath, `${JSON.stringify(meta, null, 2)}\n`, "utf8");
   } catch {
     /* the text pack is what matters; a missing meta line must not fail the run */
@@ -595,6 +641,7 @@ function main(): void {
   console.log(`  reply deck: ${deck.map((r) => `${r.angle} (${weight(r.text)}/280)`).join(" · ")}`);
   console.log(`  captain pitch: EN + 中文 · ${pools.length} open markets available`);
   console.log(`  01-market-card.png: ${card.ok ? "1200x675 rendered" : `skipped — ${card.note}`}`);
+  console.log(`  06-whitepaper-card.png: ${whiteCard.ok ? "1200x630 copied" : `skipped — ${whiteCard.note}`}`);
 }
 
 main();

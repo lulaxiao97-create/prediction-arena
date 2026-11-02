@@ -40,6 +40,9 @@ jobs:
           bun-version: latest
       - name: Install
         run: bun install --frozen-lockfile
+      - name: Whitepaper export matches docs/WHITEPAPER.md
+        working-directory: ${{ github.workspace }}
+        run: bun scripts/export-whitepaper.ts && git diff --exit-code -- frontend/src/content/whitepaper.ts frontend/public/WHITEPAPER.md
       - name: Lint
         run: bun run lint
       - name: Build

@@ -114,6 +114,7 @@ export const EXTRA: Record<string, ExtraDict> = {
     nav: {
       markets: "Markets",
       docs: "Docs",
+      whitepaper: "Whitepaper",
       security: "Security",
       poweredBy: "Powered by Vigilo Network",
     },
@@ -311,6 +312,7 @@ export const EXTRA: Record<string, ExtraDict> = {
     nav: {
       markets: "市場",
       docs: "文件",
+      whitepaper: "白皮書",
       security: "安全",
       poweredBy: "由 Vigilo Network 驅動",
     },
@@ -428,7 +430,7 @@ export const EXTRA: Record<string, ExtraDict> = {
       demoBadgeBody: "Preise aus den Live-Feeds von Binance und DefiLlama. Die USDC-Spur auf Base ist offen — Einsatz, Pool und Auszahlung rechnen mit echten On-Chain-Beständen.",
       demoTag: "PRE",
     },
-    nav: { markets: "Märkte", docs: "Docs", security: "Sicherheit", poweredBy: "Powered by Vigilo Network" },
+    nav: { markets: "Märkte", docs: "Docs", whitepaper: "Whitepaper", security: "Sicherheit", poweredBy: "Powered by Vigilo Network" },
     docs: {
       sidebarTitle: "Dokumentation",
       onThisPage: "Auf dieser Seite",
@@ -543,7 +545,7 @@ export const EXTRA: Record<string, ExtraDict> = {
       demoBadgeBody: "Prix issus des flux Binance et DefiLlama. Le rail USDC sur Base est ouvert — mise, pool et paiement se règlent sur des soldes on-chain réels.",
       demoTag: "SIM",
     },
-    nav: { markets: "Marchés", docs: "Docs", security: "Sécurité", poweredBy: "Propulsé par Vigilo Network" },
+    nav: { markets: "Marchés", docs: "Docs", whitepaper: "Livre blanc", security: "Sécurité", poweredBy: "Propulsé par Vigilo Network" },
     docs: {
       sidebarTitle: "Documentation",
       onThisPage: "Sur cette page",
@@ -658,7 +660,7 @@ export const EXTRA: Record<string, ExtraDict> = {
       demoBadgeBody: "Binance と DefiLlama のライブフィードで価格を算出。Base の USDC レールは有効で、ステーク・プール・支払いはすべてオンチェーンの実残高で決済されます。",
       demoTag: "シミュ",
     },
-    nav: { markets: "マーケット", docs: "ドキュメント", security: "セキュリティ", poweredBy: "Powered by Vigilo Network" },
+    nav: { markets: "マーケット", docs: "ドキュメント", whitepaper: "ホワイトペーパー", security: "セキュリティ", poweredBy: "Powered by Vigilo Network" },
     docs: {
       sidebarTitle: "ドキュメント",
       onThisPage: "このページ",
@@ -770,7 +772,7 @@ export const EXTRA: Record<string, ExtraDict> = {
       demoBadgeBody: "Binance와 DefiLlama 라이브 피드로 가격을 산출합니다. Base의 USDC 레일은 열려 있으며 스테이크·풀·지급은 모두 온체인 실잔액으로 정산됩니다.",
       demoTag: "시뮬",
     },
-    nav: { markets: "마켓", docs: "문서", security: "보안", poweredBy: "Powered by Vigilo Network" },
+    nav: { markets: "마켓", docs: "문서", whitepaper: "백서", security: "보안", poweredBy: "Powered by Vigilo Network" },
     docs: {
       sidebarTitle: "문서",
       onThisPage: "이 페이지",

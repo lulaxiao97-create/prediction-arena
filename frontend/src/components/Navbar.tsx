@@ -10,7 +10,7 @@ const PortfolioDrawer = dynamic(
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Activity, BarChart3, BookOpen, Briefcase, ShieldCheck } from "lucide-react";
+import { Activity, BarChart3, BookOpen, Briefcase, ShieldCheck, FileText } from "lucide-react";
 import { cn } from "@/lib/format";
 import { CATEGORY_TABS, type MarketCategory } from "@/lib/categories";
 import { useI18n } from "@/components/LocaleProvider";
@@ -59,6 +59,7 @@ export function Navbar({
     { href: "/", label: t("nav.markets"), Icon: BarChart3, active: onMarkets },
     { href: "/docs", label: t("nav.docs"), Icon: BookOpen, active: onDocs && !pathname?.startsWith("/docs/security") },
     { href: "/docs/security", label: t("nav.security"), Icon: ShieldCheck, active: Boolean(pathname?.startsWith("/docs/security")) },
+    { href: "/whitepaper", label: t("nav.whitepaper"), Icon: FileText, active: Boolean(pathname?.startsWith("/whitepaper")) },
   ];
 
   return (
