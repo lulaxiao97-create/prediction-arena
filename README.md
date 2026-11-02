@@ -24,7 +24,7 @@
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](#license)
 [![Autonomous CGO](https://img.shields.io/badge/Agent-24%2F7%20autonomous-FF2D55?style=for-the-badge)](#the-autonomous-cgo-agent)
 [![Zero human](https://img.shields.io/badge/Human%20in%20the%20loop-none-lightgrey?style=for-the-badge)](#the-autonomous-cgo-agent)
-[![E2E](https://img.shields.io/badge/E2E-25%2F25%20passed-16C784?style=for-the-badge&logo=playwright&logoColor=white)](#quick-start)
+[![E2E](https://img.shields.io/badge/E2E-26%2F26%20passed-16C784?style=for-the-badge&logo=playwright&logoColor=white)](#quick-start)
 [![Markets](https://img.shields.io/badge/Markets-232%20live%20%C2%B7%2019%20sectors-FBBF24?style=for-the-badge)](#the-board)
 [![Whitepaper](https://img.shields.io/badge/Whitepaper-v1.0%20%C2%B7%20live-FBBF24?style=for-the-badge&logo=readthedocs&logoColor=black)](docs/WHITEPAPER.md)
 [![Points](https://img.shields.io/badge/Arena%20Points-genesis%20airdrop-FF2D55?style=for-the-badge)](https://predictionarena.online/whitepaper#3-arena-points-system)

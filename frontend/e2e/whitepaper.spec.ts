@@ -50,3 +50,17 @@ test("the whitepaper is reachable from the nav and the footer", async ({ page })
   const footerLink = page.getByRole("contentinfo").getByRole("link", { name: /Whitepaper/i }).first();
   await expect(footerLink).toBeVisible();
 });
+
+test.describe("whitepaper on a phone", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("tables scroll inside their frame instead of widening the page", async ({ page }) => {
+    await page.goto("/whitepaper", { waitUntil: "domcontentloaded" });
+
+    await expect(page.getByRole("heading", { name: "4. $ARENA Tokenomics", exact: true })).toBeVisible();
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow, "the whitepaper must not push the page past 390px").toBeLessThanOrEqual(1);
+  });
+});
