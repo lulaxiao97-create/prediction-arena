@@ -39,7 +39,9 @@
     "x:post": "bash scripts/x-post.sh",
     "x:reply-plan": "bun scripts/x-reply-plan.ts",
     "x:receipts": "bun scripts/x-settlement-post.ts",
-    "x:header": "node scripts/x_header.js"
+    "x:header": "node scripts/x_header.js",
+    "adapter:check": "bun scripts/defillama-adapter.ts",
+    "adapter:json": "bun scripts/defillama-adapter.ts --json"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.8",

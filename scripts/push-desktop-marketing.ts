@@ -639,6 +639,108 @@ function funnelThread(pool: Pool): { tweets: string[]; reply: string } {
   return { tweets, reply };
 }
 
+
+/**
+ * The launch pack (10) — Show HN / Reddit / Product Hunt.
+ *
+ * Written for three different rooms: HN wants the architecture and the failure modes, r/Base wants to
+ * know what it means for their chain, Product Hunt wants one sentence and a screenshot. Every claim
+ * here is one a reader can check from the repo or Basescan; the token line says plainly that no token
+ * exists yet, because a launch post that implies otherwise is the fastest way to lose the room.
+ */
+function showHnLaunch(): string {
+  const hn = [
+    "Show HN: A prediction market that runs itself — 232 markets, no ops team, on Base",
+    "",
+    "I built a pari-mutuel prediction venue where the operator is a cron file. 232 binary markets across",
+    "19 sectors (crypto, macro, equities, AI, sports, policy) are generated every 30 minutes from public",
+    "feeds, opened on Base mainnet as USDC-escrowed pools, and settled with an IPFS content hash per pool.",
+    "",
+    "The design constraints I set myself:",
+    "  · No human picks numbers. Strike selection, pool opening, settlement accounting, copywriting and",
+    "    referral attribution are cron jobs over on-chain state.",
+    "  · The board is a build artifact. pools.json feeds both the app and the pool opener, so the card and",
+    "    the contract cannot disagree; a market's strike and id are frozen at creation (sticky strikes).",
+    "  · Points are a pure function of chain history. scripts/sync-points.ts replays BetPlaced logs:",
+    "    10 pts per $1 net stake, 1 + 2|p−0.5| for contrarian sides (cap 2×), 1.5× under 48h, 20% of a",
+    "    referee's points to the referrer. Rebuild it and diff — there is no table to edit.",
+    "  · Tokenomics, such as they are: no token exists. If one launches, 42% goes to points holders 1:1,",
+    "    25% into a 24-month locked Aerodrome pool, 33% to a community-governed reserve, and zero to a",
+    "    team or VC. The operator is paid from the 4% fee, not from a token bag.",
+    "",
+    "What is deliberately unfinished: no order book (it is pari-mutuel), no mobile app, and the cron box",
+    "is a single machine — if it dies markets stop opening, though settlement is unaffected. TVL is $0",
+    "today because nobody has bet yet; the adapter reports that honestly rather than a mock number.",
+    "",
+    "Contract: 0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5 (Base) · e2e: 27/27",
+    `Repo: https://github.com/lulaxiao97-create/prediction-arena · Site: ${SITE}`,
+    "",
+    "Happy to go deep on the settlement path, the points replay, or why an autonomous venue is the only",
+    "kind that can price 200+ markets without a payroll.",
+  ].join("\n");
+
+  const redditBase = [
+    "Title: 232 markets, 19 sectors, one cron box — a self-running prediction market on Base",
+    "",
+    "Built this over the last few weeks. Everything settles in native USDC on Base, no proxy, no upgrade",
+    "admin over user funds, refunds are 100% (stake + fee) if a pool is cancelled.",
+    "",
+    "Base-specific bits: pools are opened in nonce-safe batches of 30 per tick so a stuck nonce cannot",
+    "strand half a board; the app reads pools.json for copy and the chain for money, so a hostile frontend",
+    "can lie about text but never about balances.",
+    "",
+    "Points are replayed from BetPlaced logs — 10 per $1, ×2 for contrarian sides, ×1.5 under 48h, 20% of",
+    "a referee's points to the referrer — and there is no token yet. If one launches, 42% is allocated to",
+    "points 1:1 with zero team allocation.",
+    "",
+    "Feedback welcome, especially on the settlement design.",
+  ].join("\n");
+
+  const redditCrypto = [
+    "Title: No presale, no team allocation — the airdrop is 42% of supply to people who actually bet",
+    "",
+    "Most 'fair launch' claims die on inspection. This one has a rule you can check: the entire points",
+    "ledger is derived from BetPlaced events on Base, so the only way to earn is to stake USDC on-chain.",
+    "Follows, likes and reposts earn nothing because they cost nothing.",
+    "",
+    "42% of supply is reserved for those points, 25% goes into a 24-month locked Aerodrome pool, 33% to a",
+    "community-governed ecosystem reserve. No token exists yet — that is the point of publishing the rule",
+    "before the token.",
+  ].join("\n");
+
+  const ph = [
+    "Tagline (60 chars):",
+    "24/7 prediction markets on Base, run by agents",
+    "",
+    "Description:",
+    "232 binary markets across 19 sectors, rebuilt every 30 minutes from public data and settled on-chain",
+    "in USDC. No sign-up, no custodian, no ops team — every position, payout and referral cut is a",
+    "transaction you can look up. Arena Points replay from chain history and convert 1:1 at genesis; 42%",
+    "of supply is reserved for them with zero team allocation.",
+    "",
+    "First comment (maker comment):",
+    "Why this exists: a prediction market is only as good as its resolution, so we built backwards from",
+    "settlement. Every market names its data source and the timestamp it was read at; every payout is a",
+    "transaction; the board is regenerated by cron, not by an editor. Ask me anything about the escrow,",
+    "the points replay, or the parts that are still held together with duct tape.",
+  ].join("\n");
+
+  return [
+    "=== HACKER NEWS (Show HN) ===",
+    hn,
+    "",
+    "=== REDDIT /r/Base ===",
+    redditBase,
+    "",
+    "=== REDDIT /r/CryptoCurrency ===",
+    redditCrypto,
+    "",
+    "=== PRODUCT HUNT ===",
+    ph,
+    "",
+  ].join("\n");
+}
+
 const CAPTAIN_EN = `Subject: 30–50% of our platform fee, on-chain, for the markets you already post
 
 Hi — quick one, no deck.
@@ -737,7 +839,8 @@ WHAT IS IN HERE
   07-captain-airdrop-pitch.txt  group-owner pitch: 30–50% of the fee + 20% of members' points
   08-hacker-news-pitch.txt Show HN + Reddit + V2EX posts, written for developers
   09-agent-pitch-deck.txt  3-line agent pitch (EN + 中文) — DM / quote-tweet
-  10-airdrop-pinned.txt    the pinned airdrop post (EN + 中文) — attach 06-whitepaper-card.png
+  10-show-hn-launch.txt    Show HN + r/Base + r/CryptoCurrency + Product Hunt launch copy
+  13-airdrop-pinned.txt    the pinned airdrop post (EN + 中文) — attach 06-whitepaper-card.png
   00-hot-5.txt             five paste-ready replies, one per sector, regenerated every pack
   11-crew-post.txt         the crew hook: channel 500 / best takes 1,000 / repost 30% (EN + 中文)
   12-funnel-thread.txt     the 3-tweet airdrop funnel (follow / wallet / channel + /crew 500)
@@ -853,7 +956,7 @@ function main(): void {
       ...whitepaperComments().map((c, i) => `#${i + 1} · ${c.angle}\n${c.text}`),
     ].join("\n"),
     // The airdrop post itself: pinned to the profile, not rotated with the daily market.
-    "10-airdrop-pinned.txt": [
+    "13-airdrop-pinned.txt": [
       "=== PINNED POST — EN (attach 06-whitepaper-card.png) ===",
       pinned.en,
       "",
@@ -863,6 +966,7 @@ function main(): void {
       `weight: EN ${weight(pinned.en)}/280 · 中文 ${weight(pinned.zh)}/280`,
     ].join("\n"),
     "00-hot-5.txt": hotFive(pools),
+    "10-show-hn-launch.txt": showHnLaunch(),
     "11-crew-post.txt": crewPost(),
     "12-funnel-thread.txt": funnelThread(flagshipTweets[0].pool).tweets.map((t, i) => `=== TWEET ${i + 1} (${weight(t)}/280) ===\n${t}`).join("\n\n") + `\n\n=== REPLY POINTER ===\n${funnelThread(flagshipTweets[0].pool).reply}\n`,
     "09-agent-pitch-deck.txt": agentPitchDeck(),
