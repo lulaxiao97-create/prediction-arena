@@ -1060,7 +1060,7 @@ const RAKEBACK: Record<string, Record<string, string>> = {
   en: {
     rakeTitle: "Earn 30% Rakeback",
     rakeBody: "Share your referral link from Portfolio, earn automatic USDC fees on-chain.",
-    rakeTag: "30% of the 4% rake · paid by the contract at settlement",
+    rakeTag: "30% of the 4% rake · up to 50% with genesis staking · paid by the contract at settlement",
     rakeCta: "Open Portfolio",
     rakeCopy: "Copy my link",
     rakeCopied: "Link copied",
@@ -1071,7 +1071,7 @@ const RAKEBACK: Record<string, Record<string, string>> = {
   "zh-TW": {
     rakeTitle: "赚取 30% 手续费返还",
     rakeBody: "在 Portfolio 里复制你的推荐链接，链上自动获取 USDC 手续费分成。",
-    rakeTag: "4% 手续费的 30% · 结算时由合约支付",
+    rakeTag: "4% 手续费的 30% · 创世质押后最高 50% · 结算时由合约支付",
     rakeCta: "打开 Portfolio",
     rakeCopy: "复制我的链接",
     rakeCopied: "已复制链接",
@@ -1082,7 +1082,7 @@ const RAKEBACK: Record<string, Record<string, string>> = {
   de: {
     rakeTitle: "30% Rakeback verdienen",
     rakeBody: "Teile deinen Empfehlungslink aus dem Portfolio und erhalte automatisch USDC-Gebühren on-chain.",
-    rakeTag: "30% der 4% Gebühr · vom Vertrag bei der Abrechnung gezahlt",
+    rakeTag: "30% der 4% Gebühr · bis zu 50% mit Genesis-Staking · vom Vertrag gezahlt",
     rakeCta: "Portfolio öffnen",
     rakeCopy: "Meinen Link kopieren",
     rakeCopied: "Link kopiert",
@@ -1093,7 +1093,7 @@ const RAKEBACK: Record<string, Record<string, string>> = {
   fr: {
     rakeTitle: "Gagnez 30% de rakeback",
     rakeBody: "Partagez votre lien de parrainage depuis le Portfolio et touchez automatiquement des frais en USDC on-chain.",
-    rakeTag: "30% des 4% de frais · payés par le contrat au règlement",
+    rakeTag: "30% des 4% de frais · jusqu'à 50% avec le staking genesis · payés par le contrat",
     rakeCta: "Ouvrir le Portfolio",
     rakeCopy: "Copier mon lien",
     rakeCopied: "Lien copié",
@@ -1104,7 +1104,7 @@ const RAKEBACK: Record<string, Record<string, string>> = {
   ja: {
     rakeTitle: "30% レーキバックを獲得",
     rakeBody: "Portfolio から紹介リンクを共有すると、USDC の手数料がオンチェーンで自動的に入ります。",
-    rakeTag: "4% 手数料の 30% · 精算時にコントラクトが支払います",
+    rakeTag: "4% 手数料の 30% · ジェネシスステーキングで最大 50% · 精算時に支払",
     rakeCta: "Portfolio を開く",
     rakeCopy: "自分のリンクをコピー",
     rakeCopied: "リンクをコピーしました",
@@ -1115,7 +1115,7 @@ const RAKEBACK: Record<string, Record<string, string>> = {
   ko: {
     rakeTitle: "30% 레이크백 받기",
     rakeBody: "Portfolio에서 추천 링크를 공유하면 USDC 수수료가 온체인으로 자동 지급됩니다.",
-    rakeTag: "4% 수수료의 30% · 정산 시 컨트랙트가 지급",
+    rakeTag: "4% 수수료의 30% · 제네시스 스테이킹 시 최대 50% · 정산 시 지급",
     rakeCta: "Portfolio 열기",
     rakeCopy: "내 링크 복사",
     rakeCopied: "링크 복사됨",

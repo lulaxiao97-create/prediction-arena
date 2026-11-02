@@ -552,7 +552,7 @@ function hackerPitch(): string {
   ].join("\n");
 }
 
-const CAPTAIN_EN = `Subject: 30% of our platform fee, on-chain, for the markets you already post
+const CAPTAIN_EN = `Subject: 30–50% of our platform fee, on-chain, for the markets you already post
 
 Hi — quick one, no deck.
 
@@ -561,6 +561,8 @@ not pay for ads, so the whole growth budget goes to the people who bring the bet
 
   · You share a market link with your own address in ?ref=
   · Every position placed through it credits you 30% of the 4% platform fee, at settlement
+  · Stake 50% of what you earn for 90 days and that share rises to 50% (genesis)
+  · 20% of your referees' Arena Points, which convert 1:1 into $ARENA at genesis
   · The contract pays it out of the fee, not out of the bettor's stake, and not out of our pocket
   · No sign-up, no KYC, no custody, no minimum volume, nothing to install
 
@@ -576,7 +578,7 @@ Contract: 0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5 (Base, v3)
 If you want the numbers behind it before you post anything, ask and I will send the on-chain
 attribution readout for the last window — bets, referred bets, who earned what.`;
 
-const CAPTAIN_ZH = `主题：你已经在发的盘口，可以拿我们 4% 手续费的 30%（链上自动结算）
+const CAPTAIN_ZH = `主题：你已经在发的盘口，可以拿我们 4% 手续费的 30%~50%（链上自动结算）
 
 你好，直说，不发 PPT。
 
@@ -585,6 +587,8 @@ Prediction Arena 是基于 Base 的二元预测市场（USDC 托管、非托管�
 
   · 你用带自己地址的 ?ref= 链接分享盘口
   · 通过该链接下的每一笔仓位，结算时把平台 4% 手续费的 30% 记给你
+  · 把已赚积分的 50% 锁 90 天，分润升到 50%（创世后开启）
+  · 团员积分的 20% 归你，创世时 1:1 兑换 $ARENA
   · 这笔钱由合约从手续费里付，不动下注者的本金，也不从我们账上出
   · 不需要注册、不需要 KYC、不托管资金、没有最低量、不用装任何东西
 
