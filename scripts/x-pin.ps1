@@ -44,8 +44,13 @@ function Find-Name([string]$name, [int]$minY, [switch]$Like) {
   $cond = New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::NameProperty, $name)
   $all = $root.FindAll([System.Windows.Automation.TreeScope]::Descendants, $cond)
   if ($Like) {
-    $btn = New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::ControlTypeProperty, [System.Windows.Automation.ControlType]::Button)
-    $all = $root.FindAll([System.Windows.Automation.TreeScope]::Descendants, $btn) | Where-Object { $_.Current.Name -like "*$name*" }
+    # Menus in X are MenuItem controls; earlier builds exposed them as buttons. Search both.
+    $out = @()
+    foreach ($ct in @([System.Windows.Automation.ControlType]::MenuItem, [System.Windows.Automation.ControlType]::Button)) {
+      $c = New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::ControlTypeProperty, $ct)
+      $out += $root.FindAll([System.Windows.Automation.TreeScope]::Descendants, $c) | Where-Object { $_.Current.Name -like "*$name*" }
+    }
+    $all = $out
   }
   $best = $null; $bestY = 1e9
   foreach ($el in $all) {
@@ -53,6 +58,9 @@ function Find-Name([string]$name, [int]$minY, [switch]$Like) {
     $r = $el.Current.BoundingRectangle
     if ($r.Width -lt 8 -or $r.Height -lt 8) { continue }
     if ($r.Y -lt $minY) { continue }
+    # The left navigation has a "More" entry too (y~386, x~210). Only the per-post overflow button
+    # lives in the timeline column, so anything left of the rail is rejected.
+    if ($r.X -lt 400) { continue }
     if ($r.Y -lt $bestY) { $best = $el; $bestY = $r.Y }
   }
   return $best
@@ -89,7 +97,22 @@ Start-Sleep -Seconds 2
 $pin = Find-Name -name "Pin to your profile" -minY 0
 if (-not $pin) { $pin = Find-Name -name "Pin to profile" -minY 0 }
 if (-not $pin) { $pin = Find-Name -name "Pin" -minY 0 -Like }
-if (-not $pin) { Write-Output "no_pin_menu_item"; exit 6 }
+if (-not $pin) {
+  # Dump what the menu actually offers, so the next run is a fix rather than another guess.
+  $items = @()
+  foreach ($ct in @([System.Windows.Automation.ControlType]::MenuItem, [System.Windows.Automation.ControlType]::Button)) {
+    $c = New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::ControlTypeProperty, $ct)
+    foreach ($el in [System.Windows.Automation.AutomationElement]::RootElement.FindAll([System.Windows.Automation.TreeScope]::Descendants, $c)) {
+      if ($el.Current.IsOffscreen) { continue }
+      $rr = $el.Current.BoundingRectangle
+      if ($rr.Y -lt 200) { continue }
+      if ($el.Current.Name) { $items += ($el.Current.ControlType.ProgrammaticName.Replace("ControlType.", "") + ":" + $el.Current.Name) }
+    }
+    if ($items.Count -ge 24) { break }
+  }
+  Write-Output ("no_pin_menu_item · menu: " + (($items | Select-Object -Unique) -join " | "))
+  exit 6
+}
 [void](Click-Center $pin)
 Start-Sleep -Seconds 2
 

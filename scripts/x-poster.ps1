@@ -19,6 +19,12 @@ using System;
 using System.Runtime.InteropServices;
 public class PW {
   [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
+  [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
+  [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr h, int cmd);
+  [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
+  [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h, IntPtr pid);
+  [DllImport("user32.dll")] public static extern bool AttachThreadInput(uint a, uint b, bool f);
+  [DllImport("kernel32.dll")] public static extern uint GetCurrentThreadId();
   [DllImport("user32.dll")] public static extern bool SetCursorPos(int x, int y);
   [DllImport("user32.dll")] public static extern void mouse_event(uint f, uint dx, uint dy, uint d, IntPtr e);
 }
@@ -46,8 +52,19 @@ function Click-Center([System.Windows.Automation.AutomationElement]$el) {
 $chrome = Get-Process chrome -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -ne "" } | Select-Object -First 1
 if (-not $chrome) { Write-Output "no_chrome"; exit 2 }
 $ws = New-Object -ComObject WScript.Shell
+# AppActivate alone is unreliable: Windows only lets the foreground process hand focus over, and this
+# powershell was launched from a terminal that is itself in front. AttachThreadInput to the current
+# foreground window first, then SetForegroundWindow, is what actually moves focus.
 [void]$ws.AppActivate([int]$chrome.Id)
-Start-Sleep -Milliseconds 800
+Start-Sleep -Milliseconds 500
+$fg = [PW]::GetForegroundWindow()
+$fgThread = [PW]::GetWindowThreadProcessId($fg, [IntPtr]::Zero)
+$me = [PW]::GetCurrentThreadId()
+[void][PW]::AttachThreadInput($me, $fgThread, $true)
+[void][PW]::ShowWindow($chrome.MainWindowHandle, 9)   # SW_RESTORE
+[void][PW]::SetForegroundWindow($chrome.MainWindowHandle)
+[void][PW]::AttachThreadInput($me, $fgThread, $false)
+Start-Sleep -Milliseconds 900
 
 if ([bool](Get-Process LogonUI -ErrorAction SilentlyContinue)) { Write-Output "locked"; exit 3 }
 
@@ -56,18 +73,42 @@ if ([string]::IsNullOrWhiteSpace($text)) { Write-Output "empty_text"; exit 4 }
 
 $root = [System.Windows.Automation.AutomationElement]::RootElement
 
-# 1. Open the composer with 'n'.
-$ws.SendKeys("n")
-Start-Sleep -Seconds 3
+# 1. Get to a known page first. The 'n' shortcut only works when the app is focused on a page that
+#    owns the key handler; after another script left the browser on a profile with text selected, it
+#    silently does nothing and the composer never opens (that is the "no_post_button" failure).
+[void]$ws.AppActivate([int]$chrome.Id)
+Start-Sleep -Milliseconds 400
+[System.Windows.Forms.SendKeys]::SendWait("{ESC}")
+Start-Sleep -Milliseconds 200
+$ws.SendKeys("^l")
+Start-Sleep -Milliseconds 350
+Set-Clipboard -Value "https://x.com/home"
+Start-Sleep -Milliseconds 200
+[System.Windows.Forms.SendKeys]::SendWait("^v")
+Start-Sleep -Milliseconds 250
+[System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
+Start-Sleep -Seconds 7
+[System.Windows.Forms.SendKeys]::SendWait("{ESC}")
 
-# 2. Focus the editor.
+# 2. Open the composer with 'n', and fall back to the nav Post button when the shortcut is swallowed.
 $editorCond = New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::NameProperty, "Post text")
 $editor = $root.FindFirst([System.Windows.Automation.TreeScope]::Descendants, $editorCond)
 if (-not $editor) {
-  Start-Sleep -Seconds 2
+  $ws.SendKeys("n")
+  Start-Sleep -Seconds 3
   $editor = $root.FindFirst([System.Windows.Automation.TreeScope]::Descendants, $editorCond)
 }
-if ($editor) { [void](Click-Center $editor) } else { $ws.SendKeys("^a") }
+if (-not $editor) {
+  $postNavCond = New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::NameProperty, "Post")
+  foreach ($el in $root.FindAll([System.Windows.Automation.TreeScope]::Descendants, $postNavCond)) {
+    $rr = $el.Current.BoundingRectangle
+    if ($rr.Width -gt 160 -and $rr.Width -lt 400 -and $el.Current.IsEnabled) { [void](Click-Center $el); break }
+  }
+  Start-Sleep -Seconds 3
+  $editor = $root.FindFirst([System.Windows.Automation.TreeScope]::Descendants, $editorCond)
+}
+if (-not $editor) { Start-Sleep -Seconds 2; $editor = $root.FindFirst([System.Windows.Automation.TreeScope]::Descendants, $editorCond) }
+if ($editor) { [void](Click-Center $editor) } else { Write-Output "no_editor"; exit 8 }
 Start-Sleep -Milliseconds 400
 
 # 3. Paste, then wait for X to expand the link card (the Post button moves when it does).
@@ -75,7 +116,12 @@ Set-Clipboard -Value $text
 Start-Sleep -Milliseconds 300
 [System.Windows.Forms.SendKeys]::SendWait("^v")
 Start-Sleep -Milliseconds $PreviewWaitMs
-[System.Windows.Forms.SendKeys]::SendWait("{ESC}")   # dismiss the @mention typeahead
+# Do NOT send ESC here. In this X build ESC closes the whole composer and raises "Discard post?",
+# which then covers the Post button and the run fails with no_post_button while the draft sits behind
+# a modal. A space + backspace collapses the @mention typeahead without touching the composer.
+[System.Windows.Forms.SendKeys]::SendWait(" ")
+Start-Sleep -Milliseconds 150
+[System.Windows.Forms.SendKeys]::SendWait("{BACKSPACE}")
 Start-Sleep -Milliseconds 800
 
 if ($DryRun) { Write-Output "dry_run: text is in the composer"; exit 0 }

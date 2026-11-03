@@ -2033,5 +2033,17 @@
     "title": "Will total crypto market cap reclaim $2.70T before November 30, 2026?",
     "tx": "0x51c650d3d36abfd33737a13000aa72489a180da9a568377ae27e575f6c54ce90",
     "openedAt": "2026-11-03T03:10:10.304530+00:00"
+  },
+  "721805068": {
+    "id": "721805068",
+    "title": "Will the ETH/BTC ratio close above 0.0309 before November 30, 2026?",
+    "tx": "0xe885b120476b4421505c81aa155a24613e3d4b2d4066b50bef2c8e948da78153",
+    "openedAt": "2026-11-03T08:10:06.192631+00:00"
+  },
+  "721617020": {
+    "id": "721617020",
+    "title": "Will BTC dominance close above 60.9% before November 30, 2026?",
+    "tx": "0x9b422a47b97371c8beddf22b0bde0487b5f4dba9e08bceed54b08898d5729e82",
+    "openedAt": "2026-11-03T08:40:06.014099+00:00"
   }
 }

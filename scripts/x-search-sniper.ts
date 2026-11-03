@@ -34,8 +34,8 @@ const QUERIES = (process.env.SNIPE_QUERIES ??
   .map((q) => q.trim())
   .filter(Boolean);
 
-const FRESH_MS = Number(process.env.SNIPE_FRESH_MIN ?? 45) * 60_000;
-const MAX_PER_SWEEP = Number(process.env.SNIPE_MAX ?? 3);
+const FRESH_MS = Number(process.env.SNIPE_FRESH_MIN ?? 12) * 60_000;
+const MAX_PER_SWEEP = Number(process.env.SNIPE_MAX ?? 4);
 const dry = process.argv.includes("--dry");
 
 type State = Record<string, string>; // tweetId -> queuedAt
