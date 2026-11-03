@@ -1,6 +1,7 @@
 param(
   [Parameter(Mandatory = $true)][string]$TweetUrl,
   [Parameter(Mandatory = $true)][string]$TextFile,
+  [string]$ImagePath = "",
   [switch]$DryRun
 )
 
@@ -33,6 +34,7 @@ public class RW {
 Add-Type -AssemblyName UIAutomationClient
 Add-Type -AssemblyName UIAutomationTypes
 Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
 
 function Click-Center([System.Windows.Automation.AutomationElement]$el) {
   $r = $el.Current.BoundingRectangle
@@ -133,6 +135,25 @@ Start-Sleep -Milliseconds 150
 Start-Sleep -Seconds 6
 [System.Windows.Forms.SendKeys]::SendWait("{ESC}")   # dismiss the @mention typeahead
 Start-Sleep -Milliseconds 800
+
+# 3b. Attach the market card when one is handed over. The clipboard image is pasted into the same
+#     editor; X uploads it and the text stays. A failed attach is not fatal - the reply is still worth
+#     posting without a picture, so this only reports and continues.
+if ($ImagePath -and (Test-Path $ImagePath)) {
+  try {
+    $img = [System.Drawing.Image]::FromFile($ImagePath)
+    [System.Windows.Forms.Clipboard]::SetImage($img)
+    Start-Sleep -Milliseconds 400
+    [void](Click-Center $editor)
+    Start-Sleep -Milliseconds 300
+    [System.Windows.Forms.SendKeys]::SendWait("^v")
+    Start-Sleep -Seconds 5
+    $img.Dispose()
+    Write-Output "image_pasted"
+  } catch {
+    Write-Output ("image_failed: " + $_.Exception.Message)
+  }
+}
 
 if ($DryRun) { Write-Output "dry_run: reply text is in the modal, not submitted"; exit 0 }
 

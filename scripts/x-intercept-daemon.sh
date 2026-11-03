@@ -136,7 +136,12 @@ while true; do
           BEFORE="$(tweet_replies "$ID")"
           say "reply → @$HANDLE $ID (replies before=$BEFORE)"
 
-          RESULT="$(powershell.exe -NoProfile -STA -ExecutionPolicy Bypass -File "$REPLY_PS1" -TweetUrl "$URL" -TextFile "$WIN_TXT" 2>&1 | tr -d '\r' | tail -3)"
+          # The reply carries today's card: a reply with a picture gets read, a bare link does not.
+          CARD="marketing/PredictionArena_Marketing/01-market-card.png"
+          CARD_ARG=()
+          if [[ -f "$CARD" ]]; then CARD_ARG=(-ImagePath "$(wslpath -w "$CARD")"); fi
+
+          RESULT="$(powershell.exe -NoProfile -STA -ExecutionPolicy Bypass -File "$REPLY_PS1" -TweetUrl "$URL" -TextFile "$WIN_TXT" "${CARD_ARG[@]}" 2>&1 | tr -d '\r' | tail -3)"
           say "poster: $(echo "$RESULT" | tr '\n' ' ')"
 
           if echo "$RESULT" | grep -q "posted_attempted"; then

@@ -113,6 +113,19 @@ function hottest(market?: { title: string; yes?: number }): { title: string; yes
   return { title: p.title.replace(/\?$/, "").replace(/^Will /, ""), yes: p.yes ?? 50 };
 }
 
+/**
+ * The short form a reply needs: "Ethena above $0.1782", not the whole question with a date in it.
+ * Clipping the raw title at a word budget leaves "Ethena trade…", which reads like a bug.
+ */
+function shortMarket(title: string): string {
+  const t = title.replace(/\?$/, "");
+  const m = t.match(/^Will (.+?) (?:trade|close) (above|below) (\$[\d.,]+)/i);
+  if (m) return `${m[1]} ${m[2]} ${m[3]}`;
+  const c = t.match(/^Will (.+?) close (above|below) (\$[\d.,]+)/i);
+  if (c) return `${c[1]} ${c[2]} ${c[3]}`;
+  return t.replace(/^Will /, "");
+}
+
 /** Trim a market title at a word boundary, dropping a dangling preposition so the cut reads clean. */
 function clipTitle(title: string, budget: number): string {
   if (weighted(title) <= budget) return title;
@@ -136,8 +149,9 @@ function clipTitle(title: string, budget: number): string {
  */
 function replyText(variant: "a" | "b"): string {
   const m = hottest();
+  const short = shortMarket(m.title);
   for (let budget = 90; budget >= 24; budget -= 6) {
-    const head = `${clipTitle(m.title, budget)} · YES ${m.yes}% / NO ${100 - m.yes}%`;
+    const head = `${clipTitle(short, budget)} · YES ${m.yes}% / NO ${100 - m.yes}%`;
     const text =
       variant === "a"
         ? [
