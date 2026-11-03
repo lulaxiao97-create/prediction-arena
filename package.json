@@ -20,6 +20,8 @@
     "intercept:probe": "bun scripts/active-x-interceptor.ts --probe",
     "intercept:selftest": "bun scripts/active-x-interceptor.ts --self-test",
     "intercept:sweep": "bun scripts/x-intercept-monitor.ts",
+    "vampire": "bun scripts/vampire-hijack.ts --once",
+    "vampire:dry": "bun scripts/vampire-hijack.ts --dry",
     "intercept:cold": "bash scripts/x-intercept-daemon.sh",
     "clean:queues": "bun scripts/clean-expired-queues.ts",
     "llama:watch": "bun scripts/llama-pr-watch.ts",

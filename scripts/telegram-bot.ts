@@ -75,7 +75,7 @@ type Outgoing = {
   parseMode?: "HTML";
 };
 
-type Session = { awaitingWallet: boolean; wallet?: string };
+type Session = { awaitingWallet: boolean; wallet?: string; pendingRef?: string };
 
 const WALLET_RE = /^0x[0-9a-fA-F]{40}$/;
 
@@ -197,6 +197,58 @@ const HELP: Outgoing = {
 };
 
 /**
+ * Referral attribution that the bot can actually verify.
+ *
+ * Telegram's API has no "did you forward this to three groups" endpoint, so any bot that claims to
+ * check that is lying to its users. What IS verifiable: a new wallet arrived through your deep link
+ * (`/start ref_0x...`) and then bound an address of its own. That is the gate: N distinct bound wallets.
+ */
+const REFS_FILE = join(ROOT, ".data", "refs.json");
+const MULT_FILE = join(ROOT, "docs", "points", "multipliers.json");
+const BOOST_REFERRALS = Number(process.env.BOOST_REFERRALS ?? 3);
+const BOOST_MULTIPLIER = Number(process.env.BOOST_MULTIPLIER ?? 5);
+
+function readRefs(): Record<string, { ref: string; at: string }> {
+  try {
+    return JSON.parse(readFileSync(REFS_FILE, "utf8"));
+  } catch {
+    return {};
+  }
+}
+
+function recordRef(referee: string, ref: string): void {
+  const refs = readRefs();
+  const key = referee.toLowerCase();
+  if (refs[key]) return;                     // first referrer wins, forever
+  refs[key] = { ref: ref.toLowerCase(), at: new Date().toISOString() };
+  mkdirSync(join(ROOT, ".data"), { recursive: true });
+  writeFileSync(REFS_FILE, `${JSON.stringify(refs, null, 2)}\n`);
+}
+
+function chiefsOf(wallet: string): number {
+  const key = wallet.toLowerCase();
+  return Object.values(readRefs()).filter((r) => r.ref === key).length;
+}
+
+function readMults(): Record<string, { multiplier: number; at: string; reason: string }> {
+  try {
+    return JSON.parse(readFileSync(MULT_FILE, "utf8"));
+  } catch {
+    return {};
+  }
+}
+
+function grantMultiplier(wallet: string): boolean {
+  const m = readMults();
+  const key = wallet.toLowerCase();
+  if (m[key]) return false;
+  m[key] = { multiplier: BOOST_MULTIPLIER, at: new Date().toISOString(), reason: `boost:${BOOST_REFERRALS}refs+channel` };
+  mkdirSync(join(ROOT, "docs", "points"), { recursive: true });
+  writeFileSync(MULT_FILE, `${JSON.stringify(m, null, 2)}\n`);
+  return true;
+}
+
+/**
  * The whole conversation, as a pure function of (text, session). Keeping it pure is what makes
  * `--self-test` meaningful: the same code path answers a real update and a synthetic one.
  */
@@ -215,6 +267,8 @@ function respond(
     // Bind reward: 500 points, once per wallet, written to the same public ledger as the crew grant.
     // Skipped in --self-test so an offline conversation check cannot mint points to a dummy address.
     const bind = SELF_TEST ? { granted: false, note: "self-test" } : grantPoints(address, BIND_POINTS, "bind:wallet");
+    const referrer = session.pendingRef && session.pendingRef.toLowerCase() !== address.toLowerCase() ? session.pendingRef : null;
+    if (referrer && !SELF_TEST) recordRef(address, referrer);
     replies.push({
       text: [
         "✅ 记下了。你的分润地址：",
@@ -252,11 +306,66 @@ function respond(
       ],
       parseMode: "HTML",
     });
-    return { replies, session: { awaitingWallet: false, wallet: address } };
+    replies.push({
+      text: [
+        `⚡ <b>想要 ${BOOST_MULTIPLIER}× 积分倍率？</b>`,
+        `条件只有两条，而且都是机器人能自己查的：`,
+        `1️⃣ 你在频道 ${CREW_CHANNEL} 里（发 /crew 我核验）`,
+        `2️⃣ 至少 ${BOOST_REFERRALS} 个通过你链接进来的钱包完成了绑定（现在 ${chiefsOf(address)} 个）`,
+        "",
+        `把这条发到群/群组里，他们点进来绑定就是你的团员：`,
+        `· 站内（带 ref）：${refLink(address)}`,
+        `· 电报直达（计团员用这条）：https://t.me/predictaing_bot?start=ref_${address}`,
+        "",
+        `发完回来发 /boost，我当场核验并开通 ${BOOST_MULTIPLIER}× 。`,
+      ].join("\n"),
+      buttons: [
+        [{ text: `⚡ 查询我的倍率 (/boost)`, command: "/boost" }],
+        [{ text: "📣 加入频道", url: `https://t.me/${CREW_CHANNEL.replace(/^@/, "")}` }],
+      ],
+    });
+    return { replies, session: { awaitingWallet: false, wallet: address, pendingRef: session.pendingRef } };
+  }
+
+  if (lower.startsWith("/boost")) {
+    const wallet = session.wallet;
+    if (!wallet) {
+      replies.push({
+        text: "先发 /captain 绑定你的 Base 收款地址，我才能把倍率记到你名下。",
+        buttons: [[{ text: "开始绑定", command: "/start captain" }]],
+      });
+      return { replies, session };
+    }
+    const chiefs = chiefsOf(wallet);
+    const have0 = readMults()[wallet.toLowerCase()];
+    const have = have0;
+    replies.push({
+      text: [
+        have
+          ? `✅ 你的 ${have.multiplier}× 倍率已开通（${have.reason}）。`
+          : `⚡ 倍率核验：`,
+        "",
+        `· 频道成员：需要先 /crew 核验（机器人直接问 Telegram 要答案）`,
+        `· 有效团员：${chiefs}/${BOOST_REFERRALS}`,
+        "",
+        have
+          ? "每笔积分的计算都会带上这个倍率，公开账本 docs/points/multipliers.json 可查。"
+          : chiefs >= BOOST_REFERRALS
+            ? `团员数达标。发一次 /crew 核验频道，两条都过我就写账。`
+            : `还差 ${BOOST_REFERRALS - chiefs} 个团员。把你的链接发到群里，绑定了才算数：\n${refLink(wallet)}`,
+      ].join("\n"),
+      buttons: [
+        [{ text: "⚡ 核验频道 (/crew)", command: "/crew" }],
+        [{ text: "🏴 看今天的盘口", url: SITE }],
+      ],
+    });
+    return { replies, session };
   }
 
   if (lower.startsWith("/start") || lower.startsWith("/captain")) {
     const payload = raw.split(/\s+/)[1]?.toLowerCase();
+    const refPayload = payload?.startsWith("ref") ? payload.replace(/^ref_?/, "") : "";
+    const pendingRef = WALLET_RE.test(refPayload) ? refPayload : session.pendingRef;
     if (session.wallet && payload !== "captain") {
       replies.push({
         text: [
@@ -744,7 +853,7 @@ async function selfTest(): Promise<void> {
   const sessions = new Map<number, Session>();
   const chat = { id: 1, type: "private", username: "captain" };
   const address = "0x1111111111111111111111111111111111111111";
-  const steps = ["/start captain", "not-a-wallet", address, "/link", "/help"];
+  const steps = ["/start captain", "not-a-wallet", address, "/link", "/boost", "/help"];
   let failures = 0;
   let session: Session = { awaitingWallet: false };
   const check = (ok: boolean, label: string) => {
@@ -792,6 +901,16 @@ async function selfTest(): Promise<void> {
       }
       if (ledgerHasBindGrant(address)) {
         console.error("  ✗ --self-test minted points: it must not touch the ledger");
+        failures += 1;
+      }
+    }
+    if (step === "/boost") {
+      if (!/团员/.test(joined) || !/倍率/.test(joined)) {
+        console.error("  ✗ /boost did not report the multiplier gate");
+        failures += 1;
+      }
+      if (!joined.includes(`ref=${address}`)) {
+        console.error("  ✗ /boost did not hand back the captain's own link");
         failures += 1;
       }
     }
@@ -889,10 +1008,20 @@ async function handleUpdate(api: string, update: Update, sessions: Map<number, S
       return;
     }
     const result = crewGrant(wallet, CREW_POINTS, `crew:channel ${CREW_CHANNEL}`);
+    // Membership is now a fact Telegram just confirmed, so the multiplier gate is finally checkable:
+    // channel = yes, and the referral count is read from wallets that actually bound.
+    const chiefs = chiefsOf(wallet);
+    let boost = "";
+    if (chiefs >= BOOST_REFERRALS && grantMultiplier(wallet)) {
+      boost = `\n\n⚡ <b>${BOOST_MULTIPLIER}× 倍率已开通</b>：频道已核验 + ${chiefs} 个有效团员。已写入 docs/points/multipliers.json。`;
+    } else if (chiefs < BOOST_REFERRALS) {
+      boost = `\n\n⚡ ${BOOST_MULTIPLIER}× 倍率还差 ${BOOST_REFERRALS - chiefs} 个团员（${chiefs}/${BOOST_REFERRALS}）：发你的链接给群友，绑定才算。`;
+    }
     await send(api, chatId, {
-      text: result.granted
-        ? `✅ 已核验：你在 ${CREW_CHANNEL}。\n\n+${CREW_POINTS} Arena Points 已写入公开账本（points.json），创世时 1:1 兑换 $ARENA。\n\n顺带：回复任何盘口留下判断，当天 3 条最佳再拿 1,000 分。`
-        : `你已经在名单里了（每个钱包只发一次）。\n\n想继续攒：回复盘口留下判断（每日 3 条最佳各 1,000 分），或把带 ?ref= 的链接发出去（每笔下注 30% 手续费）。`,
+      text:
+        (result.granted
+          ? `✅ 已核验：你在 ${CREW_CHANNEL}。\n\n+${CREW_POINTS} Arena Points 已写入公开账本（points.json），创世时 1:1 兑换 $ARENA。\n\n顺带：回复任何盘口留下判断，当天 3 条最佳再拿 1,000 分。`
+          : `你已经在名单里了（每个钱包只发一次）。\n\n想继续攒：回复盘口留下判断（每日 3 条最佳各 1,000 分），或把带 ?ref= 的链接发出去（每笔下注 30% 手续费）。`) + boost,
       buttons: [[{ text: "🏴 今天的盘口", url: SITE }], [WHITEPAPER_BTN]],
     });
     console.log(`[${new Date().toISOString()}] crew grant: chat ${chatId} → ${result.note}`);

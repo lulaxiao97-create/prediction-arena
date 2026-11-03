@@ -34,7 +34,7 @@ STATE_DIR=".data/intercept"
 QUEUE="$STATE_DIR/reply-queue"
 TMP="tmp/reply"
 STATUS="$STATE_DIR/status.json"
-SWEEP_INTERVAL="${SWEEP_INTERVAL:-60}"
+SWEEP_INTERVAL="${SWEEP_INTERVAL:-20}"
 MIN_GAP="${MIN_GAP:-240}"
 MAX_HOUR="${MAX_HOUR:-6}"
 MAX_DAY="${MAX_DAY:-20}"
@@ -96,7 +96,7 @@ write_status() {
   "lastReplyAt": "${last:-}",
   "repliesLastHour": $(recent_count 3600),
   "repliesToday": $(recent_count 86400),
-  "note": "reads nitter.kareem.one rss · posts via UIA on the signed-in Chrome · verified by fxtwitter reply count"
+  "note": "vampire lane: nitter rss every ${SWEEP_INTERVAL}s · posts via UIA on the signed-in Chrome · verified by fxtwitter reply count"
 }
 EOF
 }
@@ -108,7 +108,7 @@ while true; do
   # no reply at all, and the check is a JSON read (no network).
   "$BUN" scripts/clean-expired-queues.ts >>"$LOG" 2>&1
 
-  OUT="$("$BUN" scripts/x-intercept-monitor.ts 2>&1)"
+  OUT="$("$BUN" scripts/vampire-hijack.ts --once 2>&1)"
   echo "$OUT" >>"$LOG"
 
   JOBS=$(ls -1 "$QUEUE"/*.json 2>/dev/null | wc -l | tr -d ' ')

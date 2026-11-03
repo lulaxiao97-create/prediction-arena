@@ -159,3 +159,45 @@ export function buildReply(m: Market | null, variant: "a" | "b"): string {
     `${SITE}/?ref=x`,
   ].join("\n");
 }
+
+/**
+ * The vampire lane's copy: blunt, DeGen, no brand voice. Same funnel, same facts, one opening line
+ * that names the thing the reader is actually doing (chasing dead memes) instead of describing us.
+ *
+ * Every number is the same checkable set as the rest of the file. The only claim that changed is the
+ * verb: "Genesis S1 is live" refers to the points season, which really is live and really does grant
+ * 500 on bind — not to a token, which does not exist.
+ */
+export function buildVampire(marketId: string | null): string {
+  const core =
+    "Still chasing dead memes? Prediction Arena Genesis S1 is live on Base: 42% of $ARENA supply for early points holders, zero team allocation. Drop your Base wallet & join " +
+    TG_BOT +
+    " to claim 500 points now 👇";
+  const link = marketId ? `${SITE}/market/${marketId}?ref=x` : `${SITE}/?ref=x`;
+  const withMarket = marketId ? `🏴 ${shortMarket(marketTitle(marketId) ?? "")}` : "";
+
+  const candidates = [
+    [withMarket, core, link],
+    [core, link],
+  ];
+  for (const parts of candidates) {
+    const text = parts.filter(Boolean).join("\n");
+    // Two characters of headroom: X's own count and ours disagree at the margin (variation selectors),
+    // and a post that fails the limit fails silently in the composer.
+    if (weighted(text) <= X_LIMIT - 2) return text;
+  }
+  return `${core.slice(0, 200)}… ${link}`;
+}
+
+/** Title for a pool id, read from the hot board (the only place we keep a live shortlist). */
+function marketTitle(id: string): string | null {
+  try {
+    const hot = JSON.parse(readFileSync(join(ROOT, ".data", "hot.json"), "utf8")) as {
+      hot?: { id: string | number; title: string }[];
+    };
+    const p = (hot.hot ?? []).find((x) => String(x.id) === String(id));
+    return p ? String(p.title) : null;
+  } catch {
+    return null;
+  }
+}

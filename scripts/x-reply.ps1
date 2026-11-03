@@ -61,10 +61,15 @@ function Invoke-Or-Click([System.Windows.Automation.AutomationElement]$el) {
   }
 }
 
-function Find-ByName([string]$name, [int]$minY, [int]$maxWidth) {
+function Find-ByName([string]$name, [int]$minY, [int]$maxWidth, [switch]$Like) {
   $root = [System.Windows.Automation.AutomationElement]::RootElement
   $cond = New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::NameProperty, $name)
   $all = $root.FindAll([System.Windows.Automation.TreeScope]::Descendants, $cond)
+  if ($Like) {
+    # X renames controls between builds ("Reply", "Reply to …"); a substring match survives that.
+    $cond2 = New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::ControlTypeProperty, [System.Windows.Automation.ControlType]::Button)
+    $all = $root.FindAll([System.Windows.Automation.TreeScope]::Descendants, $cond2) | Where-Object { $_.Current.Name -like "*$name*" }
+  }
   $best = $null
   $bestY = 1e9
   foreach ($el in $all) {
@@ -103,12 +108,29 @@ Start-Sleep -Milliseconds 300
 Start-Sleep -Seconds 9
 
 # 2. The tweet's own Reply button. Page action bars start below the sticky header (~y 150).
-$replyBtn = Find-ByName -name "Reply" -minY 150 -maxWidth 200
-if (-not $replyBtn) {
-  Start-Sleep -Seconds 4
+# The page can take 15-20s on a cold profile or a slow RPC-backed timeline; a fixed 9s wait is why the
+# first real attempt logged "no_reply_button" and stopped. Poll up to ~28s, exact name first, then a
+# substring match, and if it still fails dump what buttons ARE on screen so the next run is diagnosable.
+$replyBtn = $null
+for ($i = 0; $i -lt 10; $i++) {
   $replyBtn = Find-ByName -name "Reply" -minY 150 -maxWidth 200
+  if ($replyBtn) { break }
+  Start-Sleep -Seconds 2
 }
-if (-not $replyBtn) { Write-Output "no_reply_button"; exit 5 }
+if (-not $replyBtn) {
+  $replyBtn = Find-ByName -name "Reply" -minY 150 -maxWidth 260 -Like
+}
+if (-not $replyBtn) {
+  $root0 = [System.Windows.Automation.AutomationElement]::RootElement
+  $btnType = New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::ControlTypeProperty, [System.Windows.Automation.ControlType]::Button)
+  $names = @()
+  foreach ($b in $root0.FindAll([System.Windows.Automation.TreeScope]::Descendants, $btnType)) {
+    if ($b.Current.Name) { $names += $b.Current.Name }
+    if ($names.Count -ge 18) { break }
+  }
+  Write-Output ("no_reply_button · visible buttons: " + ($names -join " | "))
+  exit 5
+}
 $rb = $replyBtn.Current.BoundingRectangle
 Write-Output ("reply_button at " + [int]$rb.X + "," + [int]$rb.Y)
 $how = Invoke-Or-Click $replyBtn

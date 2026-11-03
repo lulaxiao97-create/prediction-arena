@@ -1,0 +1,12 @@
+{
+  "_comment": "Vampire lane targets, ordered by how much reach a first-row reply buys. Handles verified live via api.fxtwitter.com (2026-11-03); base_eth / AerodromeFi are 404 and degenbot has 3 followers, so none of them are here.",
+  "targets": [
+    { "handle": "base", "why": "official Base account, 1.55M followers" },
+    { "handle": "jessepollak", "why": "Base founder, 356k" },
+    { "handle": "Polymarket", "why": "the category leader, 2.04M" },
+    { "handle": "VitalikButerin", "why": "7.93M, every reply thread is a stage" },
+    { "handle": "brian_armstrong", "why": "Coinbase CEO, 3.96M" },
+    { "handle": "Uniswap", "why": "1.48M, DeFi-native audience" },
+    { "handle": "Bankless", "why": "411k, crypto-native media" }
+  ]
+}
