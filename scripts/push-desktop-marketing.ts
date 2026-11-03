@@ -1,5 +1,5 @@
 /**
- * Desktop marketing pack — the zero-budget distribution arm.
+ * Marketing pack — the zero-budget distribution arm. Written to <repo>/marketing/, never the desktop.
  *
  * The X API is a paid gate we do not pay; a folder of paste-ready copy on the operator's desktop
  * costs nothing. Once a day (and on demand) this script writes:
@@ -820,7 +820,7 @@ function calendar(): string {
 }
 
 function readme(dir: string): string {
-  return `Prediction Arena — desktop marketing pack
+  return `Prediction Arena — marketing pack (lives in the project, not on the desktop)
 generated: ${new Date().toISOString()}
 
 WHAT IS IN HERE

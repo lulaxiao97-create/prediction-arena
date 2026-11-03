@@ -29,7 +29,19 @@ say() { echo "[$(date -Is)] $*" >>"$LOG"; }
 
 # Single instance (flock: the pgrep variant matches the wrapper that launched it).
 exec 9>".data/x-daemon.lock"
-if ! flock -n 9; then echo "x daemon already running"; exit 0; fi
+if ! flock -n 9; then
+  # Same trap as the marketing engine: a killed daemon leaves a child `sleep` holding the inherited
+  # lock fd, and then every cron tick says "already running" while nothing posts. Reclaim only when
+  # the holder is that orphaned sleep, never when it is a live daemon.
+  HOLDER="$(fuser ".data/x-daemon.lock" 2>/dev/null | tr -s ' ' '\n' | grep -E '^[0-9]+$' | head -1)"
+  if [[ -n "${HOLDER:-}" ]] && ps -o cmd= -p "$HOLDER" 2>/dev/null | grep -q '^sleep '; then
+    say "reclaiming stale lock from orphaned sleep pid=$HOLDER"
+    kill "$HOLDER" 2>/dev/null || true
+    sleep 1
+  fi
+  if ! flock -n 9; then echo "x daemon already running"; exit 0; fi
+fi
+trap 'pkill -P $$ 2>/dev/null; exit 0' TERM INT
 
 say "x daemon start pid=$$ (idle≥${IDLE_REQUIRED}s)"
 
@@ -46,18 +58,13 @@ while true; do
     continue
   fi
 
-  READY="$(powershell.exe -NoProfile -Command "
-    Add-Type @'
-using System; using System.Runtime.InteropServices;
-public class IDLE { [StructLayout(LayoutKind.Sequential)] public struct LASTINPUTINFO { public uint cbSize; public uint dwTime; }
-  [DllImport(\"user32.dll\")] public static extern bool GetLastInputInfo(ref LASTINPUTINFO p);
-  [DllImport(\"kernel32.dll\")] public static extern uint GetTickCount(); }
-'@
-    \$i = New-Object IDLE+LASTINPUTINFO; \$i.cbSize = [uint32]8; [void][IDLE]::GetLastInputInfo([ref]\$i)
-    \$idle = ([IDLE]::GetTickCount() - \$i.dwTime) / 1000
-    \$locked = [bool](Get-Process LogonUI -ErrorAction SilentlyContinue)
-    Write-Output (\$(if(\$locked){'locked'}elseif(\$idle -lt $IDLE_REQUIRED){'busy'}else{'ready'}))
-  " 2>/dev/null | tr -d '\r' | tail -1)"
+  READY="$(powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:\\Users\\Administrator\\prediction-arena\\scripts\\desk-ready.ps1" -IdleRequired "$IDLE_REQUIRED" 2>/dev/null | tr -d '\r' | grep -E '^(ready|busy|locked|unknown)$' | tail -1)"
+
+  if [[ -z "$READY" ]]; then
+    say "skip: desk-ready.ps1 returned nothing (powershell failure) — not touching the desk"
+    sleep 300
+    continue
+  fi
 
   if [[ "$READY" != "ready" ]]; then
     say "skip: $READY"
