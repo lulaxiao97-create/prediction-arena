@@ -21,8 +21,19 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 export PATH="$HOME/.local/bin:$HOME/.bun/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 
-mkdir -p logs
+mkdir -p logs .data
 LOG="logs/ops-daemon.log"
+
+# One tick at a time. Cron fires this hourly and a manual run can overlap; two ticks racing the same
+# manifest and the same pool-opening path is how the board got published twice in one minute.
+exec 7>".data/ops-daemon.lock"
+if ! flock -n 7; then
+  echo "[$(date -Is)] another ops tick is running — skipping" | tee -a "$LOG"
+  exit 0
+fi
+# A hung RPC (429 from the public Base endpoint) must not wedge the tick forever: the hardhat child
+# would sit in do_wait for an hour, and every later tick would then be skipped by the lock above.
+HARDHAT_TIMEOUT="${HARDHAT_TIMEOUT:-900}"
 STAMP="$(date -Is)"
 say() { echo "[$STAMP] $*" | tee -a "$LOG"; }
 
@@ -48,7 +59,7 @@ else
 fi
 
 # ── 1. refresh ───────────────────────────────────────────────────────────────
-if "$HARDHAT" run scripts/ops-refresh.ts --network "$NETWORK" >> "$LOG" 2>&1; then
+if timeout "$HARDHAT_TIMEOUT" $HARDHAT run scripts/ops-refresh.ts --network "$NETWORK" >> "$LOG" 2>&1; then
   say "refresh ok: $(grep -o '"id"' logs/ops-refresh.json 2>/dev/null | wc -l | tr -d ' ') pool rows"
 else
   say "WARN refresh failed (RPC?) — continuing, manifest left as-is"
@@ -124,7 +135,7 @@ fi
 rm -f "$OPEN_OUT"
 
 # ── 4. refresh again so the new pool lands in the manifest immediately ───────
-"$HARDHAT" run scripts/ops-refresh.ts --network "$NETWORK" >> "$LOG" 2>&1 && \
+timeout "$HARDHAT_TIMEOUT" $HARDHAT run scripts/ops-refresh.ts --network "$NETWORK" >> "$LOG" 2>&1 && \
   say "post-open refresh ok" || say "WARN post-open refresh failed"
 
 say "── tick end ──────────────────────────────────────────────────────"
