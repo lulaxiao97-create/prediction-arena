@@ -50,9 +50,9 @@ const SELF_TEST = process.argv.includes("--self-test");
  * and the disclaimer in docs/TOKENOMICS.md is the long version of that.
  */
 const AIRDROP_CN =
-  "🔥 <b>Arena Points 创世空投季</b> — 每一笔下注、每一个通过你链接进来的人，都在给你累积积分；积分在创世时 1:1 兑换 $ARENA。";
+  "🔥 <b>Arena Points - genesis season</b> — every bet and every wallet that comes in through your link stacks points for you; at genesis they convert 1:1 into $ARENA.";
 /** The whitepaper entry point, in one place: every captain-facing menu links to the same URL. */
-const WHITEPAPER_BTN = { text: "📄 查看代币白皮书", url: `${SITE}/whitepaper` };
+const WHITEPAPER_BTN = { text: "📄 Token whitepaper", url: `${SITE}/whitepaper` };
 
 const AIRDROP_EN =
   "🔥 <b>Arena Points genesis airdrop</b> — every bet and every referral earns points; points convert 1:1 into $ARENA at genesis.";
@@ -157,13 +157,13 @@ function refLink(address: string): string {
 function groupTemplate(address: string): string {
   const link = refLink(address);
   return [
-    "🧑‍💼 群里每天吵的那个盘口，现在可以押了（Base 主网，USDC）",
+    "🧑‍💼 That market your group argues about every day? You can trade it now (Base mainnet, USDC)",
     "",
-    "Prediction Arena 二元预测市场：赢的一边拿走输的一边的仓位，合约托管，4% 手续费，不碰你的本金。",
+    "Prediction Arena is a binary prediction market: the winning side takes the losing side's stake, contract escrow, 4% fee, your principal is never touched.",
     "",
-    "今天可以站队的盘口 → " + link,
+    "Take a side on today's board → " + link,
     "",
-    "（我在拿他们的手续费分成：结算时合约分我 30%，把已赚积分锁 50% 满 90 天可升到 50%——不影响你的赔付。）",
+    "(I take a cut of the fee: the contract pays me 30% at settlement, and locking 50% of earned points for 90 days lifts it to 50% - it never touches your payout.)",
   ].join("\n");
 }
 
@@ -271,57 +271,57 @@ function respond(
     if (referrer && !SELF_TEST) recordRef(address, referrer);
     replies.push({
       text: [
-        "✅ 记下了。你的分润地址：",
+        "✅ Locked in. Your payout address:",
         `\`${address}\``,
         "",
-        ...(bind.granted ? [`🎁 <b>+${BIND_POINTS} Arena Points 已入账</b>（绑定奖励，公开账本 docs/points/grants.json 可查）`, ""] : []),
-        "你的专属链接（这个地址就是链上收款人）：",
+        ...(bind.granted ? [`🎁 <b>+${BIND_POINTS} Arena Points credited</b> (bind bonus, public ledger at docs/points/grants.json)`, ""] : []),
+        "Your personal link (this address is the on-chain payee):",
         refLink(address),
         "",
-        "📣 <b>把这条 Ref 链接发给好友，或贴进加密群</b>：",
-        "· 每带一个有效团员，你的团长积分 +20%（算力加成）",
-        "· 团员每一次结算，合约把平台 4% 手续费里的 30% 直接付到你上面这个地址（锁 90 天升到 50%）",
-        "· 这不是我们转账——是合约在结算时付的，Basescan 上每一笔都能查",
+        "📣 <b>Send this ref link to friends, or drop it in your crypto groups</b>:",
+        "· Every active crew member you bring adds +20% to your captain points (hashpower boost)",
+        "· On every one of their settlements the contract pays 30% of the platform's 4% fee straight to the address above (50% if you lock for 90 days)",
+        "· Not us wiring you money - the contract pays it at settlement, every tx is on Basescan",
         "",
         AIRDROP_CN,
         "",
-        "规则很简单：通过这个链接进来的每一笔仓位，结算时合约把平台 4% 手续费的 30% 记给你。",
-        "积分规则：每 $1 下注 10 分，冷门方向 ×2，48 小时内到期的盘口 ×1.5；你的团长积分 = 团员积分的 20%。",
-        "不是我们转账给你，是合约直接付——所以不用信任任何人，Basescan 上能看到。",
+        "Simple rules: every position that comes in through this link pays you 30% of the platform's 4% fee at settlement.",
+        "Points: 10 per $1 bet, ×2 on the underdog, ×1.5 on markets closing within 48h; your captain points = 20% of your crew's points.",
+        "No transfer from us - the contract pays directly, so you don't have to trust anyone. It's all visible on Basescan.",
         "",
-        "下面是给群主/群聊用的话术，直接复制发群：",
+        "Here's the copy for group owners / group chats - paste it straight in:",
         "——————",
         groupTemplate(address),
         "——————",
         "",
-        "英文版（发给海外群）：",
+        "Shorter version (same links, less text):",
         "——————",
         groupTemplateEn(address),
         "——————",
       ].join("\n"),
       buttons: [
-        [{ text: "🏴 看今天的盘口", url: SITE }],
+        [{ text: "🏴 See today's board", url: SITE }],
         [WHITEPAPER_BTN],
-        [{ text: "📈 查看链上归因", url: SITE }],
+        [{ text: "📈 On-chain attribution", url: SITE }],
       ],
       parseMode: "HTML",
     });
     replies.push({
       text: [
-        `⚡ <b>想要 ${BOOST_MULTIPLIER}× 积分倍率？</b>`,
-        `条件只有两条，而且都是机器人能自己查的：`,
-        `1️⃣ 你在频道 ${CREW_CHANNEL} 里（发 /crew 我核验）`,
-        `2️⃣ 至少 ${BOOST_REFERRALS} 个通过你链接进来的钱包完成了绑定（现在 ${chiefsOf(address)} 个）`,
+        `⚡ <b>Want the ${BOOST_MULTIPLIER}× points multiplier?</b>`,
+        `Two conditions, and the bot checks both itself:`,
+        `1️⃣ You're in ${CREW_CHANNEL} (send /crew and I verify it)`,
+        `2️⃣ At least ${BOOST_REFERRALS} wallets that came in through your link have bound an address (you have ${chiefsOf(address)})`,
         "",
-        `把这条发到群/群组里，他们点进来绑定就是你的团员：`,
-        `· 站内（带 ref）：${refLink(address)}`,
-        `· 电报直达（计团员用这条）：https://t.me/predictaing_bot?start=ref_${address}`,
+        `Post this in your groups - anyone who taps in and binds is your crew:`,
+        `· On-site (with ref): ${refLink(address)}`,
+        `· Straight into Telegram (this one counts crew): https://t.me/predictaing_bot?start=ref_${address}`,
         "",
-        `发完回来发 /boost，我当场核验并开通 ${BOOST_MULTIPLIER}× 。`,
+        `Then send /boost - I verify on the spot and switch on ${BOOST_MULTIPLIER}×.`,
       ].join("\n"),
       buttons: [
-        [{ text: `⚡ 查询我的倍率 (/boost)`, command: "/boost" }],
-        [{ text: "📣 加入频道", url: `https://t.me/${CREW_CHANNEL.replace(/^@/, "")}` }],
+        [{ text: `⚡ Check my multiplier (/boost)`, command: "/boost" }],
+        [{ text: "📣 Join the channel", url: `https://t.me/${CREW_CHANNEL.replace(/^@/, "")}` }],
       ],
     });
     return { replies, session: { awaitingWallet: false, wallet: address, pendingRef: session.pendingRef } };
@@ -331,8 +331,8 @@ function respond(
     const wallet = session.wallet;
     if (!wallet) {
       replies.push({
-        text: "先发 /captain 绑定你的 Base 收款地址，我才能把倍率记到你名下。",
-        buttons: [[{ text: "开始绑定", command: "/start captain" }]],
+        text: "Send /captain and bind your Base payout address first - then I can put the multiplier on your name.",
+        buttons: [[{ text: "Start binding", command: "/start captain" }]],
       });
       return { replies, session };
     }
@@ -342,21 +342,21 @@ function respond(
     replies.push({
       text: [
         have
-          ? `✅ 你的 ${have.multiplier}× 倍率已开通（${have.reason}）。`
-          : `⚡ 倍率核验：`,
+          ? `✅ Your ${have.multiplier}× multiplier is live (${have.reason}).`
+          : `⚡ Multiplier check:`,
         "",
-        `· 频道成员：需要先 /crew 核验（机器人直接问 Telegram 要答案）`,
-        `· 有效团员：${chiefs}/${BOOST_REFERRALS}`,
+        `· Channel member: verify with /crew first (the bot asks Telegram directly)`,
+        `· Active crew: ${chiefs}/${BOOST_REFERRALS}`,
         "",
         have
-          ? "每笔积分的计算都会带上这个倍率，公开账本 docs/points/multipliers.json 可查。"
+          ? "Every points calculation carries this multiplier; public ledger at docs/points/multipliers.json."
           : chiefs >= BOOST_REFERRALS
-            ? `团员数达标。发一次 /crew 核验频道，两条都过我就写账。`
-            : `还差 ${BOOST_REFERRALS - chiefs} 个团员。把你的链接发到群里，绑定了才算数：\n${refLink(wallet)}`,
+            ? `Crew count clears the gate. Send /crew once to verify the channel - both pass and I write it to the ledger.`
+            : `You're ${BOOST_REFERRALS - chiefs} crew short. Post your link in a group - only bound wallets count:\n${refLink(wallet)}`,
       ].join("\n"),
       buttons: [
-        [{ text: "⚡ 核验频道 (/crew)", command: "/crew" }],
-        [{ text: "🏴 看今天的盘口", url: SITE }],
+        [{ text: "⚡ Verify channel (/crew)", command: "/crew" }],
+        [{ text: "🏴 See today's board", url: SITE }],
       ],
     });
     return { replies, session };
@@ -369,14 +369,14 @@ function respond(
     if (session.wallet && payload !== "captain") {
       replies.push({
         text: [
-          `你已经绑定过 ${session.wallet.slice(0, 6)}…${session.wallet.slice(-4)}。`,
+          `You're already bound to ${session.wallet.slice(0, 6)}…${session.wallet.slice(-4)}.`,
           "",
-          "链接：",
+          "Link:",
           refLink(session.wallet),
           "",
-          "要换收款地址，直接把新地址发给我（0x + 40 位）。",
+          "To switch payout addresses, just send me the new one (0x + 40 chars).",
         ].join("\n"),
-        buttons: [[{ text: "🏴 今天的盘口", url: SITE }], [WHITEPAPER_BTN]],
+        buttons: [[{ text: "🏴 Today's board", url: SITE }], [WHITEPAPER_BTN]],
       });
       return { replies, session };
     }
@@ -384,16 +384,16 @@ function respond(
       text: [
         AIRDROP_CN,
         "",
-        "🧑‍💼 团长计划 — 平台 4% 手续费的 30%，结算时由合约直接付给你；把已赚积分的 50% 锁 90 天，分润升到 50%（创世后开启）。",
+        "🧑‍💼 Captain program - 30% of the platform's 4% fee, paid by the contract at settlement; lock 50% of earned points for 90 days and your cut rises to 50% (opens after genesis).",
         "",
-        "要做的事：把你群里的盘口链接换成你的专属链接。",
+        "The job: swap the market links in your group for your own.",
         "",
-        "第一步：把你收款的 **Base 钱包地址** 发给我（0x 开头，40 位十六进制）。",
-        "不需要注册、不需要 KYC、不托管资金；地址只用来收款。",
+        "Step 1: send me the **Base wallet address** you want to be paid to (0x + 40 hex chars).",
+        "No sign-up, no KYC, no custody of funds; the address is only used to get paid.",
       ].join("\n"),
       buttons: [
-        [{ text: "先看盘口", url: SITE }],
-        [{ text: "怎么收款？", command: "/how" }],
+        [{ text: "See the board", url: SITE }],
+        [{ text: "How do I get paid?", command: "/how" }],
       ],
     });
     return { replies, session: { ...session, awaitingWallet: true } };
@@ -404,21 +404,21 @@ function respond(
       session.wallet
         ? {
             text: [
-              "🎟 Crew 通道 — 加入频道就能领 500 Arena Points（我会自己核验，不用你截图）。",
+              "🎟 Crew pass - join the channel and claim 500 Arena Points (I verify it myself, no screenshots).",
               "",
-              `第一步：进频道 ${CREW_CHANNEL}`,
-              "第二步：回来发一次 /crew，我查成员名单后直接记账。",
+              `Step 1: join ${CREW_CHANNEL}`,
+              "Step 2: come back and send /crew - I check the member list and credit it.",
               "",
-              "分数写进公开账本（points.json），创世时 1:1 兑换 $ARENA。",
+              "Points go into the public ledger (points.json) and convert 1:1 into $ARENA at genesis.",
             ].join("\n"),
             buttons: [
-              [{ text: "📣 加入频道", url: "https://t.me/predictionarena_hq" }],
-              [{ text: "✅ 我已加入，核验", command: "/crew" }],
+              [{ text: "📣 Join the channel", url: "https://t.me/predictionarena_hq" }],
+              [{ text: "✅ I've joined - verify", command: "/crew" }],
             ],
           }
         : {
-            text: "先给我你的 Base 收款地址（0x + 40 位），我再把频道奖励记到你名下。",
-            buttons: [[{ text: "开始绑定", command: "/start captain" }]],
+            text: "Send me your Base payout address first (0x + 40), then I'll credit the channel reward to you.",
+            buttons: [[{ text: "Start binding", command: "/start captain" }]],
           },
     );
     return { replies, session };
@@ -428,10 +428,10 @@ function respond(
     replies.push(
       session.wallet
         ? {
-            text: ["直接复制发群（里面是你的链接）：", "——————", groupTemplate(session.wallet), "——————"].join("\n"),
-            buttons: [[{ text: "🏴 打开盘口", url: refLink(session.wallet) }]],
+            text: ["Copy-paste for your group (your link is inside):", "——————", groupTemplate(session.wallet), "——————"].join("\n"),
+            buttons: [[{ text: "🏴 Open the board", url: refLink(session.wallet) }]],
           }
-        : { text: "先发 /captain 绑定收款地址，我再给你群发话术。", buttons: [[{ text: "开始绑定", command: "/captain" }]] },
+        : { text: "Send /captain to bind your payout address first, then I'll hand you the group copy.", buttons: [[{ text: "Start binding", command: "/captain" }]] },
     );
     return { replies, session };
   }
@@ -439,13 +439,13 @@ function respond(
   if (lower === "/link") {
     if (session.wallet) {
       replies.push({
-        text: `你的链接（收款人 ${session.wallet}）：\n\n${refLink(session.wallet)}`,
-        buttons: [[{ text: "🏴 今天的盘口", url: SITE }], [WHITEPAPER_BTN]],
+        text: `Your link (payee ${session.wallet}):\n\n${refLink(session.wallet)}`,
+        buttons: [[{ text: "🏴 Today's board", url: SITE }], [WHITEPAPER_BTN]],
       });
     } else {
       replies.push({
-        text: "还没有绑定钱包。发 /captain，然后把 0x 开头的收款地址发给我。",
-        buttons: [[{ text: "开始", command: "/captain" }]],
+        text: "No wallet bound yet. Send /captain, then send me the payout address starting with 0x.",
+        buttons: [[{ text: "Start", command: "/captain" }]],
       });
     }
     return { replies, session };
@@ -453,8 +453,8 @@ function respond(
 
   if (lower === "/markets") {
     replies.push({
-      text: "盘口每 30 分钟用实时行情重建一次。今天的盘口都在这里：",
-      buttons: [[{ text: "🏴 打开盘口看板", url: SITE }], [WHITEPAPER_BTN]],
+      text: "The board is rebuilt from live prices every 30 minutes. Today's markets are all here:",
+      buttons: [[{ text: "🏴 Open the board", url: SITE }], [WHITEPAPER_BTN]],
     });
     return { replies, session };
   }
@@ -462,16 +462,16 @@ function respond(
   if (lower === "/how" || lower.includes("怎么收") || lower.includes("how do i get paid")) {
     replies.push({
       text: [
-        "收款是怎么发生的（没有中间人）：",
+        "How the payout happens (no middleman):",
         "",
-        "1. 下注时合约会记下 `referrer` 这个地址；",
-        "2. 4% 手续费进该盘口的托管；",
-        "3. 盘口结算时，其中 30% 直接记到 referrer 名下，可领取。",
+        "1. When someone bets, the contract records that address as `referrer`;",
+        "2. The 4% fee goes into that market's escrow;",
+        "3. At settlement, 30% of it is credited to the referrer and is claimable.",
         "",
-        "所以：地址必须是你能控制的 Base 钱包；换地址就重新发给我，之后的下注跟新地址走。",
-        "金额取决于你带来的下注量——没有任何保底，这也是我们不承诺收入的原因。",
+        "So: the address must be a Base wallet you control; to change it, send me the new one and future bets follow it.",
+        "The amount depends on the volume you bring in - there is no floor, which is why we don't promise an income.",
       ].join("\n"),
-      buttons: [[{ text: "绑定地址", command: "/captain" }]],
+      buttons: [[{ text: "Bind address", command: "/captain" }]],
     });
     return { replies, session };
   }
@@ -483,9 +483,9 @@ function respond(
 
   replies.push({
     text: session.awaitingWallet
-      ? "我需要一个 Base 钱包地址（0x + 40 位十六进制）才能生成你的分润链接。直接贴地址就行。"
-      : "没看懂这条。发 /captain 拿分润链接，或 /help 看能做什么。",
-    buttons: [[{ text: "团长计划", command: "/captain" }]],
+      ? "I need a Base wallet address (0x + 40 hex chars) to build your referral link. Just paste it."
+      : "Didn't catch that. Send /captain for your referral link, or /help to see what I do.",
+    buttons: [[{ text: "Captain program", command: "/captain" }]],
   });
   return { replies, session };
 }
@@ -586,16 +586,16 @@ function blastText(wallet: string, pool: Pool): string {
   const no = 100 - yes;
   const left = hoursLeft(pool.endTimeUtc);
   return [
-    `🏴 新盘口：${pool.title}`,
+    `🏴 New market — ${pool.title}`,
     "",
     `YES ${cells(yes)} ${yes}% → ${odds(yes)}×`,
     `NO  ${cells(no)} ${no}% → ${odds(no)}×`,
     "",
-    `${pool.traders ?? 0} 人已经站队${left ? ` · ${left} 后结束` : ""}`,
+    `${pool.traders ?? 0} already took a side${left ? ` · closes in ${left}` : ""}`,
     "",
-    `押这里 → ${marketRefLink(wallet, pool.id)}`,
+    `Bet here → ${marketRefLink(wallet, pool.id)}`,
     "",
-    "（赢的一边拿走输的一边的仓位，4% 手续费，合约托管。这个链接是我自己的，通过它下的仓位，结算时合约把手续费里的 30% 记给我——不影响你的赔付。）",
+    "(The winning side takes the losing side's stake, 4% fee, contract escrow. This link is mine - positions that come through it pay me 30% of the fee at settlement, and it never touches your payout.)",
   ].join("\n");
 }
 
@@ -603,8 +603,8 @@ function blastOutgoing(wallet: string, pool: Pool): Outgoing {
   return {
     text: blastText(wallet, pool),
     buttons: [
-      [{ text: "🏴 直接下注", url: marketRefLink(wallet, pool.id) }],
-      [{ text: "复制群发话术", command: "/copy" }],
+      [{ text: "🏴 Trade it now", url: marketRefLink(wallet, pool.id) }],
+      [{ text: "Copy group post", command: "/copy" }],
     ],
   };
 }
@@ -726,27 +726,27 @@ async function leaderboardPush(opts: { api: string | null; dryRun: boolean }): P
     const est = total > 0 ? Math.floor((points / total) * 420_000_000) : 0;
     const hot = hottestMarket();
     const text = [
-      "📊 <b>Arena Points · 24h 战报</b>",
+      "📊 <b>Arena Points · 24h report</b>",
       "",
-      `你的积分：<b>${points.toLocaleString("en-US")}</b>${rank > 0 ? `（第 ${rank} 名 / 共 ${ranked.length} 人）` : ""}`,
-      `其中来自团员的 20% 分润：${(row?.fromReferrals ?? 0).toLocaleString("en-US")}`,
-      `预估创世份额：<b>${est.toLocaleString("en-US")} $ARENA</b>`,
+      `Your points: <b>${points.toLocaleString("en-US")}</b>${rank > 0 ? ` (rank ${rank} of ${ranked.length})` : ""}`,
+      `Of which 20% from your crew: ${(row?.fromReferrals ?? 0).toLocaleString("en-US")}`,
+      `Projected genesis share: <b>${est.toLocaleString("en-US")} $ARENA</b>`,
       "",
-      `全站：${(ledger.totals?.wallets ?? 0)} 个钱包、${total.toLocaleString("en-US")} 分、${(ledger.totals?.bets ?? 0)} 笔下注。`,
+      `Sitewide: ${(ledger.totals?.wallets ?? 0)} wallets, ${total.toLocaleString("en-US")} points, ${(ledger.totals?.bets ?? 0)} bets.`,
       "",
       ...(hot
         ? [
-            `🔥 今日最热：${hot.title}`,
-            `YES ${Math.round(Number(hot.yesShare ?? 0.5) * 100)}% · ${hot.traders ?? 0} 人已站队 → 转发这条给你的群：`,
+            `🔥 Hottest today: ${hot.title}`,
+            `YES ${Math.round(Number(hot.yesShare ?? 0.5) * 100)}% · ${hot.traders ?? 0} in → forward this to your group:`,
             `${SITE}/market/${hot.id}?ref=${captain.wallet}&utm_source=telegram&utm_medium=referral&utm_campaign=daily`,
             "",
           ]
         : []),
       AIRDROP_CN,
-      "你的团员积分将在创世时 1:1 兑换 $ARENA 代币；把专属 Ref 链接转发到群里，团员每笔下注再给你 20% 算力加成。",
+      "Your crew's points convert 1:1 into $ARENA at genesis; forward your ref link to your groups - every bet your crew places adds another 20% hashpower boost.",
       "",
-      `你的链接：${refLink(captain.wallet)}`,
-      "（积分是对早期参与的记录，暂无代币、不可购买、不承诺价值；上线时按 1:1 兑换。）",
+      `Your link: ${refLink(captain.wallet)}`,
+      "(Points are a record of early participation - no token yet, not for sale, no value promised; 1:1 at launch.)",
     ].join("\n");
 
     if (opts.dryRun) {
@@ -770,7 +770,7 @@ async function leaderboardPush(opts: { api: string | null; dryRun: boolean }): P
         reply_markup: {
           inline_keyboard: [
             [WHITEPAPER_BTN],
-            [{ text: "🔗 我的专属链接", url: refLink(captain.wallet) }],
+            [{ text: "🔗 My ref link", url: refLink(captain.wallet) }],
           ],
         },
       }),
@@ -870,11 +870,11 @@ async function selfTest(): Promise<void> {
       if (reply.buttons) console.log("  buttons: " + reply.buttons.flat().map((b) => b.text).join(" | "));
     }
     const joined = out.replies.map((r) => r.text).join("\n");
-    if (step === "/start captain" && !/Base 钱包|wallet/i.test(joined)) {
+    if (step === "/start captain" && !/Base wallet|wallet/i.test(joined)) {
       console.error("  ✗ did not ask for a wallet");
       failures += 1;
     }
-    if (step === "not-a-wallet" && !/0x|地址/.test(joined)) {
+    if (step === "not-a-wallet" && !/0x|address/i.test(joined)) {
       console.error("  ✗ did not re-ask for an address");
       failures += 1;
     }
@@ -887,11 +887,11 @@ async function selfTest(): Promise<void> {
         console.error("  ✗ did not state the 30% cut");
         failures += 1;
       }
-      if (!/群/.test(joined)) {
+      if (!/group/i.test(joined) || !joined.includes("——————")) {
         console.error("  ✗ did not include a group template");
         failures += 1;
       }
-      if (!/20%/.test(joined) || !/算力/.test(joined)) {
+      if (!/20%/.test(joined) || !/hashpower|boost/i.test(joined)) {
         console.error("  ✗ did not state the 20% referral boost");
         failures += 1;
       }
@@ -905,7 +905,7 @@ async function selfTest(): Promise<void> {
       }
     }
     if (step === "/boost") {
-      if (!/团员/.test(joined) || !/倍率/.test(joined)) {
+      if (!/crew/i.test(joined) || !/multiplier/i.test(joined)) {
         console.error("  ✗ /boost did not report the multiplier gate");
         failures += 1;
       }
@@ -947,12 +947,12 @@ async function selfTest(): Promise<void> {
   check(/YES █|░/.test(blast) && /NO/.test(blast), "the DM shows both sides with bars");
   check(blast.includes(`/market/${pool.id}?ref=${address}`), "the DM links the promoted market with this captain's ref, not the home page");
   check(!/weight:|source:|ref:|market:/.test(blast.replace(/ref=/g, "")), "no operator noise in the forwarded text");
-  check(!blast.includes("我要") && !blast.includes("我们承诺"), "no revenue promise in the forwarded text");
+  check(!/guaranteed|we promise|\bI'?ll earn\b/i.test(blast), "no revenue promise in the forwarded text");
 
   const copy = respond("/copy", { awaitingWallet: false, wallet: address }, {});
   check(copy.replies[0].text.includes(`ref=${address}`), "/copy hands back a paste-ready group post");
   const copyUnbound = respond("/copy", { awaitingWallet: false }, {});
-  check(/绑定|captain/.test(copyUnbound.replies[0].text), "/copy without a wallet asks to bind first");
+  check(/bind|captain/i.test(copyUnbound.replies[0].text), "/copy without a wallet asks to bind first");
 
   sessions.clear();
   console.log(
@@ -991,18 +991,18 @@ async function handleUpdate(api: string, update: Update, sessions: Map<number, S
     const wallet = session.wallet ?? store().captains[String(chatId)]?.wallet;
     if (!wallet) {
       await send(api, chatId, {
-        text: "先发 /start captain 绑定你的 Base 收款地址，我再把频道奖励记到你名下。",
-        buttons: [[{ text: "开始绑定", command: "/start captain" }]],
+        text: "Send /start captain to bind your Base payout address first, then I'll credit the channel reward.",
+        buttons: [[{ text: "Start binding", command: "/start captain" }]],
       });
       return;
     }
     const member = await channelMember(api, chatId);
     if (!member) {
       await send(api, chatId, {
-        text: `还查不到你在 ${CREW_CHANNEL} 的成员身份。先点下面加入频道，再回来发一次 /crew。`,
+        text: `Can't see your membership in ${CREW_CHANNEL} yet. Tap below to join, then send /crew again.`,
         buttons: [
-          [{ text: "📣 加入频道", url: `https://t.me/${CREW_CHANNEL.replace(/^@/, "")}` }],
-          [{ text: "✅ 再核验一次", command: "/crew" }],
+          [{ text: "📣 Join the channel", url: `https://t.me/${CREW_CHANNEL.replace(/^@/, "")}` }],
+          [{ text: "✅ Check again", command: "/crew" }],
         ],
       });
       return;
@@ -1013,16 +1013,16 @@ async function handleUpdate(api: string, update: Update, sessions: Map<number, S
     const chiefs = chiefsOf(wallet);
     let boost = "";
     if (chiefs >= BOOST_REFERRALS && grantMultiplier(wallet)) {
-      boost = `\n\n⚡ <b>${BOOST_MULTIPLIER}× 倍率已开通</b>：频道已核验 + ${chiefs} 个有效团员。已写入 docs/points/multipliers.json。`;
+      boost = `\n\n⚡ <b>${BOOST_MULTIPLIER}× multiplier unlocked</b>: channel verified + ${chiefs} active crew. Written to docs/points/multipliers.json.`;
     } else if (chiefs < BOOST_REFERRALS) {
-      boost = `\n\n⚡ ${BOOST_MULTIPLIER}× 倍率还差 ${BOOST_REFERRALS - chiefs} 个团员（${chiefs}/${BOOST_REFERRALS}）：发你的链接给群友，绑定才算。`;
+      boost = `\n\n⚡ ${BOOST_MULTIPLIER}× needs ${BOOST_REFERRALS - chiefs} more crew (${chiefs}/${BOOST_REFERRALS}): send your link to group chats - only bound wallets count.`;
     }
     await send(api, chatId, {
       text:
         (result.granted
-          ? `✅ 已核验：你在 ${CREW_CHANNEL}。\n\n+${CREW_POINTS} Arena Points 已写入公开账本（points.json），创世时 1:1 兑换 $ARENA。\n\n顺带：回复任何盘口留下判断，当天 3 条最佳再拿 1,000 分。`
-          : `你已经在名单里了（每个钱包只发一次）。\n\n想继续攒：回复盘口留下判断（每日 3 条最佳各 1,000 分），或把带 ?ref= 的链接发出去（每笔下注 30% 手续费）。`) + boost,
-      buttons: [[{ text: "🏴 今天的盘口", url: SITE }], [WHITEPAPER_BTN]],
+          ? `✅ Verified: you're in ${CREW_CHANNEL}.\n\n+${CREW_POINTS} Arena Points written to the public ledger (points.json), 1:1 into $ARENA at genesis.\n\nAlso: reply to any market with your take - the 3 best each day get 1,000 points.`
+          : `You're already on the list (one grant per wallet).\n\nKeep stacking: reply to a market with your take (3 best per day, 1,000 each), or post a link with ?ref= (30% of the fee on every bet).`) + boost,
+      buttons: [[{ text: "🏴 Today's board", url: SITE }], [WHITEPAPER_BTN]],
     });
     console.log(`[${new Date().toISOString()}] crew grant: chat ${chatId} → ${result.note}`);
     return;

@@ -522,25 +522,25 @@ export function pitchZh(person: Person, pool: Pool): string {
   const q = quote(person.snippet, "zh");
   const openers = quotable(person.snippet)
     ? [
-        `你好 —— 在 @${person.via} 看到你聊「${q}」，这个正好有个盘口在给它定价：`,
-        `刚才看 @${person.via} 在聊「${q}」—— 我们盘口今天就在给这件事定价：`,
-        `你好，@${person.via} 那条「${q}」我留意到了，正好有个能押的盘口：`,
+        `Hey - saw you on @${person.via} talking about "${q}", and we already have a market pricing exactly that:`,
+        `Just read @${person.via} on "${q}" - our board is pricing it today:`,
+        `Hi @${person.via} - caught your "${q}" post, and there's a market you can actually bet on:`,
       ]
     : [
-        `你好 —— 我一直在看 @${person.via}。有件事正好跟你们的读者有关：`,
-        `你好，冒昧打扰。@${person.via} 的内容我常看，说个和你们读者直接相关的事：`,
+        `Hey - I've been reading @${person.via}. One thing that fits your audience directly:`,
+        `Hi - sorry for the cold DM. I read @${person.via} often, and there's something your readers can trade:`,
       ];
   return [
     openers[hash(person.username) % openers.length],
     "",
     `${pool.title}`,
-    `YES ${bar(yes)} ${yes}% → ${y}× · NO ${no}% · ${pool.traders ?? 0} 人在里面 · ${timeLeft(pool.endTimeUtc)}后结束`,
+    `YES ${bar(yes)} ${yes}% → ${y}× · NO ${no}% · ${pool.traders ?? 0} in the book · closes in ${timeLeft(pool.endTimeUtc)}`,
     "",
-    "我们是 Base 上的二元预测市场（USDC 托管、合约已验证）。给你一个直接变现的位置：你发一条带自己地址的链接，通过它下的仓位，结算时合约把平台 4% 手续费的 30% 记给你 —— 链上可查，不需要 KYC，也不托管你的钱。",
+    "We run a binary prediction market on Base (USDC escrow, verified contract). Here's a slot that pays you directly: post a market link with your own address in ?ref=, and at settlement the contract credits you 30% of the 4% platform fee - verifiable on-chain, no KYC, no custody of your money.",
     "",
-    `30 秒能配好：@${BOT} → /captain → 发收款地址，链接 + 中英两版群发文案我直接给你。`,
+    `Takes 30 seconds: @${BOT} → /captain → send the wallet you want to be paid to. You get the link plus a ready-to-post group message.`,
     "",
-    "不感兴趣就忽略这条，不会有第二次打扰。",
+    "Ignore this if it's not for you - one message, no follow-up spam.",
   ].join("\n");
 }
 
@@ -844,7 +844,7 @@ function selfTest(): void {
   check(matched?.pool.id === "700011", "the pitch picks the market their post is about");
   const zh = pitch(person, pools[0]);
   const en = pitch({ ...person, lang: "en", snippet: "AERO emissions vote goes live tonight" }, pools[0]);
-  check(zh.includes("@DegenSeals"), "the Chinese DM names the channel they were seen in");
+  check(zh.includes("@DegenSeals"), "the zh-locale DM names the channel they were seen in");
   check(/排放投票/.test(zh), "and quotes what they actually posted");
   check(zh.includes(BOT) && /30%/.test(zh), "the DM carries the bot handle and the 30% terms");
   check(/→ \d+\.\d×/.test(zh), "the DM carries a payout number");

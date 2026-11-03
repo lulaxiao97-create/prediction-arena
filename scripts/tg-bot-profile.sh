@@ -31,16 +31,17 @@ API="https://api.telegram.org/bot${TOKEN}"
 post() { curl -sS -m 20 -X POST "$API/$1" -H 'content-type: application/json' -d "$2"; echo; }
 
 post setMyCommands '{"commands":[
-  {"command":"captain","description":"拿专属链接 · 平台手续费 30%"},
-  {"command":"link","description":"补发我的分润链接"},
-  {"command":"copy","description":"群发话术（复制即可发群）"},
-  {"command":"markets","description":"今天的盘口"},
-  {"command":"how","description":"30% 怎么结算"},
-  {"command":"help","description":"能做什么"}
+  {"command":"captain","description":"Your ref link · 30% of the 4% fee"},
+  {"command":"boost","description":"Check your points multiplier"},
+  {"command":"link","description":"Resend my payout link"},
+  {"command":"copy","description":"Paste-ready group post"},
+  {"command":"markets","description":"Today markets"},
+  {"command":"how","description":"How the 30% is paid"},
+  {"command":"help","description":"What this bot does"}
 ]}'
 
-post setMyShortDescription '{"short_description":"拿平台 4% 手续费的 30%：绑定钱包 → 专属链接 → 群发文案，合约结算时直接付给你。"}'
+post setMyShortDescription '{"short_description":"Take 30% of the platform 4% fee: bind your Base wallet, get your own link, the contract pays you at settlement."}'
 
-post setMyDescription '{"description":"Prediction Arena 团长计划。\n\n发 /captain，把收款钱包发给我，立刻拿到：\n· 带你自己地址的专属链接（?ref=0x…）\n· 中英两版群发话术，直接复制到你的群\n\n分成口径：通过你的链接下的每一笔仓位，结算时合约把平台 4% 手续费的 30% 记给你。不是我们转账，是合约直接付，Basescan 可查。没有注册、没有 KYC、不托管资金、没有保底承诺。"}'
+post setMyDescription '{"description":"Prediction Arena captains.\n\nSend /captain, give me the Base wallet you want to be paid at, and you get:\n- your own link with that address as the on-chain payee (?ref=0x...)\n- a paste-ready group post in plain English\n\nHow the cut works: every position that comes through your link pays 30% of the platform 4% fee to your address at settlement. It is paid by the contract, not by us - check it on Basescan. No sign-up, no KYC, no custody, no promises of revenue."}' 
 
 curl -sS -m 20 "$API/getMyCommands" | head -c 400; echo

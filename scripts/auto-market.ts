@@ -114,7 +114,7 @@ function closeIn(pool: Pool): string {
  * Signals, weighted by what actually moved traffic on Farcaster:
  *   +4  head-to-head framing (vs / flip / overtake / surpass / higher than)
  *   +3  a token whose tribe exists (DEGEN, TOSHI, BRETT, AERO, MOG…) — matched against the title
- *   +2  price/市值 style binary with a tight strike (a coin flip is a fight)
+ *   +2  price/market-cap style binary with a tight strike (a coin flip is a fight)
  *   +1  deep trailing liquidity per trader (a crowded room)
  *   -3  macro/politics framing (nobody tribes up over a CPI print)
  */
