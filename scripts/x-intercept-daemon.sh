@@ -102,11 +102,20 @@ EOF
 }
 
 LAST_REPLY=0
+CYCLE=0
 
 while true; do
   # Kill expired jobs before anything can be typed: a reply advertising a dead market is worse than
   # no reply at all, and the check is a JSON read (no network).
   "$BUN" scripts/clean-expired-queues.ts >>"$LOG" 2>&1
+
+  CYCLE=$((CYCLE + 1))
+  # Every fifth cycle (~100s) also sweep search: the fixed account list runs dry long before the
+  # rate limit does, and the people talking about airdrops right now are the ones worth answering.
+  if (( CYCLE % 5 == 1 )); then
+    SEARCH_OUT="$("$BUN" scripts/x-search-sniper.ts 2>&1)"
+    echo "$SEARCH_OUT" >>"$LOG"
+  fi
 
   OUT="$("$BUN" scripts/vampire-hijack.ts --once 2>&1)"
   echo "$OUT" >>"$LOG"
