@@ -62,11 +62,15 @@ if (!body) {
   console.log("metrics: fetch failed (mirror or network)");
   process.exit(1);
 }
-let user: { followers?: number; following?: number; tweets?: number };
+let user: { followers?: number; following?: number; tweets?: number } | undefined;
 try {
-  user = (JSON.parse(body) as { user?: typeof user }).user ?? {};
-} catch {
-  console.log("metrics: unparseable response");
+  const parsed = JSON.parse(body) as { code?: number; user?: { followers?: number; following?: number; tweets?: number } };
+  if (parsed.code !== 200 || !parsed.user) throw new Error(`code ${parsed.code}`);
+  user = parsed.user;
+} catch (e) {
+  // Never write a zero sample on a bad fetch: a false "followers 3 -> 0" in the series is worse than a
+  // gap, and it makes the dashboard look like the account died.
+  console.log(`metrics: skipped (${(e as Error).message})`);
   process.exit(1);
 }
 
