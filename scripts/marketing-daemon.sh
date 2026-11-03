@@ -81,6 +81,17 @@ while true; do
     fi
   fi
 
+  # Log hygiene: nothing on this box should grow without a ceiling. Anything past 2 MB keeps its last
+  # 2,000 lines in logs/archive/ and is truncated, so a crash-loop cannot fill the disk over a weekend.
+  for f in logs/*.log; do
+    [[ -f "$f" ]] || continue
+    if (( $(stat -c %s "$f" 2>/dev/null || echo 0) > 2097152 )); then
+      tail -n 2000 "$f" > "logs/archive/$(basename "$f").$(date +%Y%m%d%H%M)" 2>/dev/null
+      : > "$f"
+      say "rotated $f (kept last 2000 lines in logs/archive/)"
+    fi
+  done
+
   # TTL collector: a market that has ended must not survive in the funnel, the pack or the reply queue.
   # It runs before the copy is rebuilt, so the rebuild always starts from a live board.
   if "$BUN" scripts/clean-expired-queues.ts >>"$LOG" 2>&1; then

@@ -1,0 +1,15 @@
+{
+  "poolId": "724440203",
+  "title": "Will this weekend's Premier League round produce 30 or more goals?",
+  "endTime": 1793577599,
+  "endedHoursAgo": 30,
+  "onChain": {
+    "option0": 0,
+    "option1": 0,
+    "raw": "[(\"Will this weekend's Premier League round produce 30 or more goals?\", \"Sports & Esports\", 1793577599 [1.793e9], 0, 1, 0, 0, 0, 0x0000000000000000000000000000000000000000000000000000000000000000)]"
+  },
+  "action": "cancel",
+  "why": "both sides empty: settle() would revert NoWinningStake, so the pool is voided instead",
+  "decidedAt": "2026-11-03T06:02:01.744Z",
+  "note": "Voided. No stake was ever placed, so there is no winner to pay and no result is being asserted."
+}
