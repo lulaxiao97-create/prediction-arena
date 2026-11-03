@@ -37,6 +37,11 @@ const ROOT = join(import.meta.dir, "..");
 const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://predictionarena.online").replace(/\/+$/, "");
 const CONTACT = "@Predict065";
 
+/** Points minted for a first-time wallet bind - the hook the 3-step funnel promises (+500). */
+const BIND_POINTS = Number(process.env.BIND_POINTS ?? 500);
+/** `--self-test` must not touch the ledger: an offline conversation check cannot mint points. */
+const SELF_TEST = process.argv.includes("--self-test");
+
 /**
  * The one line every captain message carries while the genesis season is open.
  *
@@ -207,13 +212,22 @@ function respond(
   // A bare address is the answer to the wallet question, whatever else is in the message.
   if (WALLET_RE.test(raw)) {
     const address = raw;
+    // Bind reward: 500 points, once per wallet, written to the same public ledger as the crew grant.
+    // Skipped in --self-test so an offline conversation check cannot mint points to a dummy address.
+    const bind = SELF_TEST ? { granted: false, note: "self-test" } : grantPoints(address, BIND_POINTS, "bind:wallet");
     replies.push({
       text: [
         "✅ 记下了。你的分润地址：",
         `\`${address}\``,
         "",
+        ...(bind.granted ? [`🎁 <b>+${BIND_POINTS} Arena Points 已入账</b>（绑定奖励，公开账本 docs/points/grants.json 可查）`, ""] : []),
         "你的专属链接（这个地址就是链上收款人）：",
         refLink(address),
+        "",
+        "📣 <b>把这条 Ref 链接发给好友，或贴进加密群</b>：",
+        "· 每带一个有效团员，你的团长积分 +20%（算力加成）",
+        "· 团员每一次结算，合约把平台 4% 手续费里的 30% 直接付到你上面这个地址（锁 90 天升到 50%）",
+        "· 这不是我们转账——是合约在结算时付的，Basescan 上每一笔都能查",
         "",
         AIRDROP_CN,
         "",
@@ -685,8 +699,13 @@ async function channelMember(api: string, userId: number): Promise<boolean> {
   }
 }
 
-/** Append-only, deduped: one channel grant per wallet, forever. */
-function crewGrant(address: string, points: number, reason: string): { granted: boolean; note: string } {
+/**
+ * Append-only, deduped points grants: one grant per (wallet, reason family) forever.
+ *
+ * The family is the part of the reason before the colon, so "bind:wallet" and "crew:channel" are
+ * independent one-shots — a user can get the bind bonus AND the channel bonus, but not either twice.
+ */
+function grantPoints(address: string, points: number, reason: string): { granted: boolean; note: string } {
   const file = join(ROOT, "docs", "points", "grants.json");
   let rows: { address: string; points: number; reason: string; date: string; ref?: string }[] = [];
   try {
@@ -695,12 +714,30 @@ function crewGrant(address: string, points: number, reason: string): { granted: 
     rows = [];
   }
   const key = address.toLowerCase();
-  if (rows.some((g) => g.address.toLowerCase() === key && g.reason.startsWith("crew:"))) {
+  const family = `${reason.split(":")[0]}:`;
+  if (rows.some((g) => g.address.toLowerCase() === key && g.reason.startsWith(family))) {
     return { granted: false, note: "already granted" };
   }
   rows.push({ address, points, reason, date: new Date().toISOString().slice(0, 10) });
+  mkdirSync(join(ROOT, "docs", "points"), { recursive: true });
   writeFileSync(file, `${JSON.stringify(rows, null, 2)}\n`);
   return { granted: true, note: `${points} points → ${address.slice(0, 6)}…${address.slice(-4)}` };
+}
+
+/** Channel-membership grant: the one reward this bot can verify by itself. */
+const crewGrant = (address: string, points: number, reason: string) => grantPoints(address, points, reason);
+
+/** Does the public ledger already carry a bind grant for this address? Used by --self-test. */
+function ledgerHasBindGrant(address: string): boolean {
+  try {
+    const rows = JSON.parse(readFileSync(join(ROOT, "docs", "points", "grants.json"), "utf8")) as {
+      address: string;
+      reason: string;
+    }[];
+    return rows.some((g) => g.address.toLowerCase() === address.toLowerCase() && g.reason.startsWith("bind:"));
+  } catch {
+    return false;
+  }
 }
 
 async function selfTest(): Promise<void> {
@@ -743,6 +780,18 @@ async function selfTest(): Promise<void> {
       }
       if (!/群/.test(joined)) {
         console.error("  ✗ did not include a group template");
+        failures += 1;
+      }
+      if (!/20%/.test(joined) || !/算力/.test(joined)) {
+        console.error("  ✗ did not state the 20% referral boost");
+        failures += 1;
+      }
+      if (!/30%/.test(joined) || !/50%/.test(joined)) {
+        console.error("  ✗ did not state the 30%→50% on-chain fee cut");
+        failures += 1;
+      }
+      if (ledgerHasBindGrant(address)) {
+        console.error("  ✗ --self-test minted points: it must not touch the ledger");
         failures += 1;
       }
     }

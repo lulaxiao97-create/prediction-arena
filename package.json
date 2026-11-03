@@ -19,6 +19,9 @@
     "intercept": "bun scripts/active-x-interceptor.ts",
     "intercept:probe": "bun scripts/active-x-interceptor.ts --probe",
     "intercept:selftest": "bun scripts/active-x-interceptor.ts --self-test",
+    "intercept:sweep": "bun scripts/x-intercept-monitor.ts",
+    "intercept:cold": "bash scripts/x-intercept-daemon.sh",
+    "intercept:reply": "bash scripts/x-intercept-daemon.sh",
     "cast": "bun scripts/farcaster-auto-cast.ts",
     "cast:selftest": "bun scripts/farcaster-auto-cast.ts --self-test",
     "bot:broadcast": "bun scripts/telegram-bot.ts --broadcast",
@@ -41,7 +44,9 @@
     "x:receipts": "bun scripts/x-settlement-post.ts",
     "x:header": "node scripts/x_header.js",
     "adapter:check": "bun scripts/defillama-adapter.ts",
-    "adapter:json": "bun scripts/defillama-adapter.ts --json"
+    "adapter:json": "bun scripts/defillama-adapter.ts --json",
+    "build": "cd frontend && bun run build",
+    "test:e2e": "cd frontend && bun run test:e2e"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.8",

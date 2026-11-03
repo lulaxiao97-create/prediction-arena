@@ -1,13 +1,13 @@
 {
-  "_comment": "Accounts whose posts carry a Base-native audience. A cashtag anywhere in a post of theirs is enough to route a reply to that tribe's market; nothing here is a paid placement.",
+  "_comment": "Accounts the cold-start interceptor watches, read through Nitter mirrors (x.com refuses this host). Handles verified live via api.fxtwitter.com on 2026-11-03; the ones that came back 404 (base_eth, AerodromeFi) and the ones with a handful of followers (degenbot, aerodrome) are deliberately NOT here — replying under a dead or junk account buys nothing.",
   "accounts": [
-    "AerodromeFi",
-    "degenbot",
-    "jessepollak",
     "base",
-    "base_eth",
-    "Bankless",
-    "Uniswap"
+    "Polymarket",
+    "VitalikButerin",
+    "jessepollak",
+    "brian_armstrong",
+    "Uniswap",
+    "Bankless"
   ],
   "queries": ["$AERO", "$DEGEN", "$TOSHI"]
 }

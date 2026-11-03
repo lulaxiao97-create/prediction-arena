@@ -1769,5 +1769,257 @@
     "title": "Will Ethereum TVL fall below $42.80B before November 30, 2026?",
     "tx": "0x101ce7669c5b123ed1eaa10de3b69e8df66b0077edcb1a6c07dc55cd2d6bfe44",
     "openedAt": "2026-11-02T08:10:07.725661+00:00"
+  },
+  "720021705": {
+    "id": "720021705",
+    "title": "Will Avalanche trade above $8.56 before November 4 2026, 03:00 UTC?",
+    "tx": "0x1cbd294d2ff090672e0440515b7ae3088a01fdaf9d4e9c0987bae5c94d9dd60d",
+    "openedAt": "2026-11-03T02:11:16.557095+00:00"
+  },
+  "720186584": {
+    "id": "720186584",
+    "title": "Will Optimism trade above $0.1152 before November 4 2026, 03:00 UTC?",
+    "tx": "0x3bdcadbd102f0d1825cabf4b8fcfd1913ec638a4bcaf4e8d598263ee052fcf90",
+    "openedAt": "2026-11-03T02:11:17.327080+00:00"
+  },
+  "720335789": {
+    "id": "720335789",
+    "title": "Will Brett trade above $0.00463 before November 4 2026, 03:00 UTC?",
+    "tx": "0x7c91d4649fbc23f83de67cd9286f338d61154bc879b0aaf7de35bf456097b6ed",
+    "openedAt": "2026-11-03T02:11:18.090445+00:00"
+  },
+  "720626416": {
+    "id": "720626416",
+    "title": "Will Arbitrum trade above $0.1606 before November 4 2026, 03:00 UTC?",
+    "tx": "0xa0f38a7eed94fd0954d8c3f0f69aeb1e442d119f020ca8ebc5ecffe76e8ed0e2",
+    "openedAt": "2026-11-03T02:11:18.918841+00:00"
+  },
+  "721233697": {
+    "id": "721233697",
+    "title": "Will Chainlink trade above $11.38 before November 4 2026, 03:00 UTC?",
+    "tx": "0x1c6836494286c805f374d8eea44885df82eedef2ac381644dd9e6b6e3236949a",
+    "openedAt": "2026-11-03T02:11:19.686135+00:00"
+  },
+  "721526008": {
+    "id": "721526008",
+    "title": "Will Bitcoin trade below $76,400 before November 4 2026, 03:00 UTC?",
+    "tx": "0x91ddb93bb198e5811826e67a8ca034615555c0ee016ec1e057c795245570151e",
+    "openedAt": "2026-11-03T02:11:20.500028+00:00"
+  },
+  "721694357": {
+    "id": "721694357",
+    "title": "Will Solana trade above $93.80 before November 4 2026, 03:00 UTC?",
+    "tx": "0x1634daa52e9acebfb8f56202ac1faf79252c4122d4342fa3d3260fda880ca20a",
+    "openedAt": "2026-11-03T02:11:21.274060+00:00"
+  },
+  "722418679": {
+    "id": "722418679",
+    "title": "Will XRP trade above $1.27 before November 4 2026, 03:00 UTC?",
+    "tx": "0xb995375f4001cbcbbb49596ed4c361af1a363c1ecf578b6d4d82a1c59227913c",
+    "openedAt": "2026-11-03T02:11:22.124596+00:00"
+  },
+  "722760834": {
+    "id": "722760834",
+    "title": "Will Ethena trade above $0.1782 before November 4 2026, 03:00 UTC?",
+    "tx": "0x6979c04926db8792968f461559bb0698570531fb6098a08f3f7b1ee6d0d3de6f",
+    "openedAt": "2026-11-03T02:11:22.987690+00:00"
+  },
+  "722835953": {
+    "id": "722835953",
+    "title": "Will Dogecoin trade above $0.0758 before November 4 2026, 03:00 UTC?",
+    "tx": "0xbbea244de261e3d100ef9603f5b23745fac4f6a0a1950cbb7871b9fdc5e1701b",
+    "openedAt": "2026-11-03T02:11:23.769673+00:00"
+  },
+  "723623798": {
+    "id": "723623798",
+    "title": "Will Mog Coin trade above $0.0000001006 before November 4 2026, 03:00 UTC?",
+    "tx": "0x3f46dc34372c177987ad5102079ec54516e289ac1f3f5dfa343ba939f8268384",
+    "openedAt": "2026-11-03T02:11:24.691806+00:00"
+  },
+  "723715383": {
+    "id": "723715383",
+    "title": "Will Toshi trade above $0.00012 before November 4 2026, 03:00 UTC?",
+    "tx": "0x970b301fc4c0b7e855ab482d5ef1d81fd97369380763fa507123f6581504f32f",
+    "openedAt": "2026-11-03T02:11:25.507080+00:00"
+  },
+  "723923906": {
+    "id": "723923906",
+    "title": "Will PAX Gold trade above $4,040 before November 4 2026, 03:00 UTC?",
+    "tx": "0xc24f8bef4be0de51f250463e2d4558e84195492cd596bf0f016fbcc0da8da72a",
+    "openedAt": "2026-11-03T02:11:26.243241+00:00"
+  },
+  "724158057": {
+    "id": "724158057",
+    "title": "Will Hyperliquid trade above $86.60 before November 4 2026, 03:00 UTC?",
+    "tx": "0x3f5651576cdd16081fbe66584928ccfed8aaf1925e0c233633f0c83221e5a3ac",
+    "openedAt": "2026-11-03T02:11:26.998845+00:00"
+  },
+  "725223332": {
+    "id": "725223332",
+    "title": "Will Degen trade above $0.000886 before November 4 2026, 03:00 UTC?",
+    "tx": "0xfede7b579188ce0753c4598826a1442c7f9da1c42479d74ca10924b95e2128c6",
+    "openedAt": "2026-11-03T02:11:27.712642+00:00"
+  },
+  "725241252": {
+    "id": "725241252",
+    "title": "Will dogwifhat trade above $0.1788 before November 4 2026, 03:00 UTC?",
+    "tx": "0xc1131521b45905e0713e8246bf0c717b77fdc8f438c5bed8c4efc0f6dd57f12d",
+    "openedAt": "2026-11-03T02:11:28.423741+00:00"
+  },
+  "725323041": {
+    "id": "725323041",
+    "title": "Will Ondo trade above $0.4000 before November 4 2026, 03:00 UTC?",
+    "tx": "0xb8153ae3b659d5c7707f6c44a05735dc91969ba467ebef6238fde641da7cefda",
+    "openedAt": "2026-11-03T02:11:29.299350+00:00"
+  },
+  "725873915": {
+    "id": "725873915",
+    "title": "Will BNB trade above $705.00 before November 4 2026, 03:00 UTC?",
+    "tx": "0x2f33a823da673813e5b364f77415d94ac0a5a45e2d16c5aae03c94dd0cac75da",
+    "openedAt": "2026-11-03T02:11:30.081726+00:00"
+  },
+  "726040179": {
+    "id": "726040179",
+    "title": "Will NVIDIA trade above $206.50 before November 4 2026, 03:00 UTC?",
+    "tx": "0x84372540c8b8ba1dac6584d18d3724a85d3596b3d3233b1769d1b9828e358ded",
+    "openedAt": "2026-11-03T02:11:30.838221+00:00"
+  },
+  "726151927": {
+    "id": "726151927",
+    "title": "Will Pepe trade above $0.00000503 before November 4 2026, 03:00 UTC?",
+    "tx": "0x6ade4c07235717541895b0867ace0043913d2ef68b1c1f856be1b18e3e807811",
+    "openedAt": "2026-11-03T02:11:31.544906+00:00"
+  },
+  "726228551": {
+    "id": "726228551",
+    "title": "Will Ethereum trade above $2,285 before November 4 2026, 03:00 UTC?",
+    "tx": "0x1dfc25fd9c76aab237392adfadc858f8df1816a1c6666aadc1c7f27ce7d81826",
+    "openedAt": "2026-11-03T02:11:32.395744+00:00"
+  },
+  "726434913": {
+    "id": "726434913",
+    "title": "Will Bitcoin trade above $77,800 before November 4 2026, 03:00 UTC?",
+    "tx": "0xe021fcafa4c6812d4d913cd726f1ef4989f69f7e5ede5476d267be64b02726c5",
+    "openedAt": "2026-11-03T02:11:33.174484+00:00"
+  },
+  "727024467": {
+    "id": "727024467",
+    "title": "Will Degen trade above $0.000962 before November 4 2026, 03:00 UTC?",
+    "tx": "0x898cb5cdd6b61715c0ec901516cec2f444f127cdeeb3266571db2b95cc1b93ac",
+    "openedAt": "2026-11-03T02:11:34.108973+00:00"
+  },
+  "727211669": {
+    "id": "727211669",
+    "title": "Will Toshi trade above $0.000108 before November 4 2026, 03:00 UTC?",
+    "tx": "0xcd502fdc3775039cdb9e3330a2c901b6be404a1dc210d9f51c4b97058249593e",
+    "openedAt": "2026-11-03T02:11:34.989207+00:00"
+  },
+  "727263725": {
+    "id": "727263725",
+    "title": "Will Brett trade above $0.00438 before November 4 2026, 03:00 UTC?",
+    "tx": "0x6e72fd4da3918e2737cf4b422d3c78edf18a31d9c08805683694183b0134e63c",
+    "openedAt": "2026-11-03T02:11:35.862846+00:00"
+  },
+  "727772611": {
+    "id": "727772611",
+    "title": "Will Sui trade above $0.8980 before November 4 2026, 03:00 UTC?",
+    "tx": "0x4ed581a37bd5ea4db3cc3f0eb81a3a0ebd629c9ae15bc1a936fb1dc0f2d460f0",
+    "openedAt": "2026-11-03T02:11:36.639154+00:00"
+  },
+  "722595097": {
+    "id": "722595097",
+    "title": "Will Arbitrum close above $0.1606 before November 6, 2026?",
+    "tx": "0x768393cd28ba04b0f1a803aef208d89668fa6dd7a38f60d96fd67be3adced4db",
+    "openedAt": "2026-11-03T02:11:37.415233+00:00"
+  },
+  "723171890": {
+    "id": "723171890",
+    "title": "Will Mog Coin close above $0.0000001164 before November 6, 2026?",
+    "tx": "0x37c5ee81bb5bba8c44e78fb4919ffde24fb6a0cd7b70da3e9445970fd855f7e1",
+    "openedAt": "2026-11-03T02:11:38.131651+00:00"
+  },
+  "724498905": {
+    "id": "724498905",
+    "title": "Will Solana close above $96.20 before November 6, 2026?",
+    "tx": "0x67038244577bba553f459278f95fbf9e19c7e2b8762614ae9c029a526c776983",
+    "openedAt": "2026-11-03T02:11:38.890081+00:00"
+  },
+  "724696031": {
+    "id": "724696031",
+    "title": "Will Ethereum close above $2,330 before November 6, 2026?",
+    "tx": "0xaca4263a6b26e135e7e9b15b3635d372590612837e8ac43d5e222653b43dbe8e",
+    "openedAt": "2026-11-03T02:11:39.725553+00:00"
+  },
+  "725342171": {
+    "id": "725342171",
+    "title": "Will Aave close above $132.40 before November 6, 2026?",
+    "tx": "0xeab05cae18e256d1758ea473725ce4edf483f53caa92e07bdf27062f7cf3f6da",
+    "openedAt": "2026-11-03T02:40:31.445156+00:00"
+  },
+  "726098035": {
+    "id": "726098035",
+    "title": "Will Alphabet close below $267.50 before November 6, 2026?",
+    "tx": "0x1d18e9ec1c59361cdce84dcf19a7724eefd474956616a1cfe9691d2cf0e78c8c",
+    "openedAt": "2026-11-03T02:40:32.217309+00:00"
+  },
+  "727001641": {
+    "id": "727001641",
+    "title": "Will AMD close below $429.00 before November 6, 2026?",
+    "tx": "0x2d7eade177a30d569e3f7c2dfc60410c65263fe8d9ab75aa50738494259338b2",
+    "openedAt": "2026-11-03T02:40:32.958211+00:00"
+  },
+  "727440876": {
+    "id": "727440876",
+    "title": "Will Bitcoin close above $79,200 before November 6, 2026?",
+    "tx": "0x2043c8c4acd591af6dc80e46a5f62affad662b9031bec4f02059af66219505af",
+    "openedAt": "2026-11-03T02:40:33.674401+00:00"
+  },
+  "727642098": {
+    "id": "727642098",
+    "title": "Will Uniswap close below $6.70 before November 6, 2026?",
+    "tx": "0xb15c0e5cb799df819e18f6cff92016cad8150a134fb62b57ca1cf3fa1983f84a",
+    "openedAt": "2026-11-03T02:40:34.422588+00:00"
+  },
+  "727937775": {
+    "id": "727937775",
+    "title": "Will Zora close above $0.0063 before November 6, 2026?",
+    "tx": "0x7aacaa885546937bdb8efd1daf2c0c9a6786123bf70636c3e1297d33e6090ecb",
+    "openedAt": "2026-11-03T02:40:35.148385+00:00"
+  },
+  "721055037": {
+    "id": "721055037",
+    "title": "Will Ethereum TVL fall below $41.90B before November 30, 2026?",
+    "tx": "0x1916d5c898d04b4a7482f5aebe9abdee4a009d07d76b87e94c4fbbf4278c393c",
+    "openedAt": "2026-11-03T02:40:35.884698+00:00"
+  },
+  "721189250": {
+    "id": "721189250",
+    "title": "Will BTC dominance close above 60.3% before November 30, 2026?",
+    "tx": "0x627babcecafb9df85a2f59b2876367775cd49c3eebd77d6f05fdb4a2d8f46715",
+    "openedAt": "2026-11-03T02:40:36.640893+00:00"
+  },
+  "722300134": {
+    "id": "722300134",
+    "title": "Will Base TVL close above $6.20B before November 30, 2026?",
+    "tx": "0x9d035f648bcf249817dc962c48ca5310e0d5a84e87801129c4aa3001f330c08a",
+    "openedAt": "2026-11-03T02:40:37.442802+00:00"
+  },
+  "727549944": {
+    "id": "727549944",
+    "title": "Will the 10-year Treasury yield close below 4.84% before November 30, 2026?",
+    "tx": "0x9f680215146a87539572187a957d38dc2184b264a55c279b3c1d9f59b492574c",
+    "openedAt": "2026-11-03T02:40:38.145154+00:00"
+  },
+  "724422984": {
+    "id": "724422984",
+    "title": "Will the 10-year Treasury yield close above 5.14% before December 31, 2026?",
+    "tx": "0x43c979ef11e05b53a71002cc570ecc711727a141429200e1402e3fbe844641b0",
+    "openedAt": "2026-11-03T02:40:38.858852+00:00"
+  },
+  "726415151": {
+    "id": "726415151",
+    "title": "Will Base TVL cross $7.10B before December 31, 2026?",
+    "tx": "0xf7639fd14eb4271537473a0a8545ec790ad1348513c019b84820532e0e598ef1",
+    "openedAt": "2026-11-03T02:40:39.634399+00:00"
   }
 }

@@ -23,7 +23,8 @@ const OUT_EN = join(ROOT, ".data", "daily-funnel.txt");
 const OUT_CN = join(ROOT, ".data", "daily-funnel-cn.txt");
 const SITE = "https://predictionarena.online";
 const X_HANDLE = "@Predict065";
-const TG = "t.me/predictionarena_hq";
+const TG = "t.me/predictaing_bot";
+const TG_CHANNEL = "t.me/predictionarena_hq";
 const LIMIT = 280;
 const printOnly = process.argv.includes("--print");
 
@@ -82,7 +83,7 @@ function build(top: ReturnType<typeof loadTop>): string {
     `🪂 Genesis airdrop = 3 steps:`,
     `1. Follow ${X_HANDLE}`,
     `2. Drop your Base address in the comments`,
-    `3. Join ${TG}`,
+    `3. ${TG} → +500 pts (channel: ${TG_CHANNEL})`,
     ``,
   ];
   const point = `Every $1 staked = 1 genesis point.`;
@@ -114,7 +115,7 @@ const en = build(top);
 const cnOdds = top && top.yes !== null ? `YES ${top.yes}% · NO ${100 - top.yes}%\n` : "";
 const cn = top
   ? `🏴 ${top.title}\n${cnOdds}\n🪂 创世空投 3 步：\n1. 关注 @Predict065\n2. 评论区留下你的 Base 地址\n3. 进 ${TG}\n\n每下注 $1 = 1 创世积分\n${top.url}`
-  : `🪂 创世空投 3 步：关注 @Predict065 · 评论区留 Base 地址 · 进 ${TG}\n${SITE}?ref=x`;
+  : `🪂 创世空投 3 步：关注 @Predict065 · 评论区留 Base 地址 · ${TG} 领 500 分（频道 ${TG_CHANNEL}）\n${SITE}?ref=x`;
 
 console.log(`market: ${top ? `${top.id} · ${top.title}` : "(no hot board — generic copy)"}`);
 console.log(`EN weighted ${weighted(en)}/${LIMIT}`);
