@@ -61,7 +61,12 @@ async function main() {
     }
   }
 
-  const deployBlock = Number(process.env.NEXT_PUBLIC_ARENA_DEPLOY_BLOCK ?? 0) || Math.max(0, head - 45_000);
+  // Only the recent window is worth a getLogs call. The old 45k-block range (~26h of Base blocks)
+  // gets answered with -32011 "request limit reached" on the public endpoint, ethers then backs off
+  // and retries, and the tick sits there for minutes doing nothing — that is what wedged the hourly
+  // ops daemon for 68 minutes. Pools older than this window are already in the manifest anyway, so
+  // 2k blocks (~1.1h) covers exactly the case this scan exists for: a pool opened since the last tick.
+  const deployBlock = Number(process.env.NEXT_PUBLIC_ARENA_DEPLOY_BLOCK ?? 0) || Math.max(0, head - 2_000);
   try {
     const logs = await arena.queryFilter(arena.filters.PoolCreated(), deployBlock, head);
     for (const log of logs) {
@@ -104,22 +109,29 @@ async function main() {
       settled += 1;
     }
 
-    // 24h notional: sum of Bet amounts in the last 24h (best-effort; RPCs limit ranges)
+    // 24h notional: sum of Bet amounts in the last 24h (best-effort; RPCs limit ranges).
+    // A pool whose escrow is zero cannot have a single BetPlaced to sum, so skip the getLogs call:
+    // 232 empty pools used to cost 232 log queries, every one of them answered with a 429, which is
+    // what made a single ops tick take longer than the hour between ticks.
     let volume: bigint | null = null;
-    try {
-      const fromBlock = Math.max(deployBlock, head - 2_000);
-      const bets = await arena.queryFilter(arena.filters.BetPlaced(pid), fromBlock, head);
-      let sum = 0n;
-      for (const b of bets) {
-        const ts = (await ethers.provider.getBlock(b.blockNumber))?.timestamp ?? 0;
-        if (nowSec - Number(ts) <= 86_400) {
-          const args = (b as unknown as { args?: { amount?: bigint } }).args;
-          sum += args?.amount ?? 0n;
+    if (total === 0n) {
+      volume = 0n;
+    } else {
+      try {
+        const fromBlock = Math.max(deployBlock, head - 2_000);
+        const bets = await arena.queryFilter(arena.filters.BetPlaced(pid), fromBlock, head);
+        let sum = 0n;
+        for (const b of bets) {
+          const ts = (await ethers.provider.getBlock(b.blockNumber))?.timestamp ?? 0;
+          if (nowSec - Number(ts) <= 86_400) {
+            const args = (b as unknown as { args?: { amount?: bigint } }).args;
+            sum += args?.amount ?? 0n;
+          }
         }
+        volume = sum;
+      } catch {
+        volume = null; // rate-limited RPC → leave unknown rather than lie with 0
       }
-      volume = sum;
-    } catch {
-      volume = null; // rate-limited RPC → leave unknown rather than lie with 0
     }
 
     const side0 = (pool.option0Pool ?? 0n) as bigint;
