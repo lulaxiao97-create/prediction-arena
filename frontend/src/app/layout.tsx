@@ -8,6 +8,7 @@ import { RewardsProvider } from "@/components/RewardsProvider";
 import { ChunkReloadGuard } from "@/components/ChunkReloadGuard";
 import { PwaRegister } from "@/components/PwaRegister";
 import { Warmup } from "@/components/Warmup";
+import { TelemetryBeacon } from "@/components/TelemetryBeacon";
 import { ReferralCapture } from "@/components/ReferralCapture";
 import { DomainTrustNote } from "@/components/DomainTrustNote";
 import { SITE_URL } from "@/lib/site";
@@ -123,7 +124,10 @@ export default function RootLayout({
         <LocaleProvider>
           <Web3Provider>
             <ToastProvider>
-              <RewardsProvider>{children}</RewardsProvider>
+              <RewardsProvider>
+                <TelemetryBeacon />
+                {children}
+              </RewardsProvider>
             </ToastProvider>
           </Web3Provider>
         </LocaleProvider>
