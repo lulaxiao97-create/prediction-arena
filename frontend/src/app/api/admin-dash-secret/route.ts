@@ -36,6 +36,20 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "bad key" }, { status: 401, headers: { "cache-control": "no-store" } });
   }
 
+  // A 500 with an empty body is useless when the only copy of the data lives on the server. Any
+  // failure now returns a degraded payload that names the error, so the dashboard shows "this panel
+  // is empty because X" instead of a blank screen — and a remote operator can read the cause.
+  try {
+    return await buildPayload();
+  } catch (e) {
+    return NextResponse.json(
+      { ok: false, error: (e as Error).message, traffic: null, notes: ["data endpoint failed — see error"] },
+      { status: 200, headers: { "cache-control": "no-store" } },
+    );
+  }
+}
+
+async function buildPayload() {
   const traffic = summarise();
 
   const captains = Object.keys(readJson<{ captains?: Record<string, unknown> }>(join(DATA, "captains.json"), {}).captains ?? {}).length;

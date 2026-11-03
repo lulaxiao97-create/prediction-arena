@@ -12,6 +12,8 @@ import { useCallback, useEffect, useState } from "react";
 
 type Row = { ip: string; country: string | null; city: string | null; hits: number; last: string; source: string };
 type Payload = {
+  ok?: boolean;
+  error?: string;
   at: string;
   traffic: {
     totals: { events: number; events24h: number; views24h: number; wallets: number; uniqueIps24h: number };
@@ -106,6 +108,21 @@ export default function AdminDashSecret() {
     );
   }
 
+  if (data.ok === false || !data.traffic) {
+    return (
+      <main className="mx-auto max-w-lg space-y-3 p-6">
+        <h1 className="text-lg font-semibold text-white">Operator dashboard</h1>
+        <p className="text-sm text-red-400">Data endpoint failed: {data.error ?? "unknown error"}</p>
+        <p className="text-xs text-white/40">
+          The page and the key are fine — the API could not read its data files. On a host with an
+          ephemeral filesystem those files only exist after the first event is recorded.
+        </p>
+        <button className="rounded border border-white/15 px-3 py-1 text-sm text-white/70" onClick={() => void load(key)}>
+          retry
+        </button>
+      </main>
+    );
+  }
   const t = data.traffic;
   return (
     <main className="mx-auto max-w-6xl space-y-4 p-4 sm:p-6">
