@@ -17,7 +17,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { compose, passes } from "./reply-composer";
-import { weighted, X_LIMIT } from "./lib/genesis-copy";
+import { buildVampire, weighted, X_LIMIT } from "./lib/genesis-copy";
 
 const ROOT = join(import.meta.dir, "..");
 const QUEUE = join(ROOT, ".data", "intercept", "reply-queue");
@@ -34,6 +34,12 @@ const QUERIES = (process.env.SNIPE_QUERIES ??
   .map((q) => q.trim())
   .filter(Boolean);
 
+/** Queries where a direct CTA is contextually normal: the post is already about free money. */
+const CTA_QUERIES = (process.env.SNIPE_CTA_QUERIES ?? "airdrop|giveaway|whitelist|free mint")
+  .split("|")
+  .map((q) => q.trim())
+  .filter(Boolean);
+const CTA_PER_SWEEP = Number(process.env.SNIPE_CTA_MAX ?? 1);
 const FRESH_MS = Number(process.env.SNIPE_FRESH_MIN ?? 12) * 60_000;
 const MAX_PER_SWEEP = Number(process.env.SNIPE_MAX ?? 4);
 const dry = process.argv.includes("--dry");
@@ -100,6 +106,7 @@ async function main(): Promise<void> {
 
   const now = Date.now();
   let added = 0;
+  let ctaCount = 0;
   const log: string[] = [];
 
   for (const q of QUERIES) {
@@ -117,7 +124,12 @@ async function main(): Promise<void> {
       // somebody else's farm, and the thread is full of bots.
       if (/0x[0-9a-f]{6}|drop (your|ur) (wallet|address)/i.test(it.text) && !/prediction|market/i.test(it.text)) continue;
 
-      const out = await compose(it.user, it.text, null);
+      // Under an airdrop announcement the crowd is already primed to follow anything that looks like
+      // free money, so the direct CTA is on-topic there. Everywhere else it is an interruption.
+      const ctaLane = CTA_QUERIES.some((c) => q.toLowerCase().includes(c)) && ctaCount < CTA_PER_SWEEP;
+      const out = ctaLane
+        ? { text: buildVampire(null), source: "cta" }
+        : await compose(it.user, it.text, null);
       if (!passes(out.text).ok) {
         log.push(`  skip @${it.user}: composed reply failed rules (${passes(out.text).why})`);
         continue;
@@ -134,12 +146,13 @@ async function main(): Promise<void> {
           queuedAt: new Date().toISOString(),
           variant: "search",
           marketId: null,
-          lane: "search",
+          lane: ctaLane ? "cta" : "search",
         };
         writeFileSync(join(QUEUE, `${it.user}-${it.id}.json`), `${JSON.stringify(job, null, 2)}\n`);
         state[it.id] = new Date().toISOString();
       }
       added += 1;
+      if (ctaLane) ctaCount += 1;
       log.push(`  QUEUED @${it.user} ${it.id} · ${Math.round(age / 60000)}m old · "${it.text.slice(0, 60)}"`);
     }
   }
