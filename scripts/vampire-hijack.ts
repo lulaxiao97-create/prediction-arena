@@ -22,6 +22,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { buildVampire, weighted, X_LIMIT } from "./lib/genesis-copy";
+import { compose, passes } from "./reply-composer";
 
 const ROOT = join(import.meta.dir, "..");
 const CONFIG = join(ROOT, "scripts", "config", "vampire-targets.json");
@@ -104,7 +105,7 @@ function hottestId(): string | null {
   return hot.hot?.[0] ? String(hot.hot[0].id) : null;
 }
 
-function main(): void {
+async function main(): Promise<void> {
   const cfg = readJson<{ targets?: (string | Target)[] }>(CONFIG, { targets: [] });
   const targets: Target[] = (cfg.targets ?? []).map((t) => (typeof t === "string" ? { handle: t } : t));
   if (!targets.length) {
@@ -153,7 +154,25 @@ function main(): void {
       continue;
     }
 
-    const text = buildVampire(hottestId());
+    // Lane choice, from what the post is about rather than from a schedule:
+    //   · the post is already about markets/odds/prices → the blunt funnel actually answers it;
+    //   · anything else → a value reply with a number and a question, because an airdrop pitch under
+    //     a post that has nothing to do with us is what gets an account muted. The funnel then lives
+    //     in the profile and in our own daily post, which is where it belongs.
+    const isMarketTalk = /\b(predict|market|odds|probab|bet|price|forecast|trading|liquidity)\b/i.test(newest.title);
+    let text = "";
+    let lane = "value";
+    if (isMarketTalk) {
+      text = buildVampire(hottestId());
+      lane = "vampire";
+    } else {
+      const composed = await compose(t.handle, newest.title, null);
+      text = composed.text;
+      if (!passes(text).ok) {
+        lines.push(`  ${t.handle}: composed reply failed rules (${passes(text).why}), skipped`);
+        continue;
+      }
+    }
     if (weighted(text) > X_LIMIT) {
       lines.push(`  ${t.handle}: copy ${weighted(text)} > ${X_LIMIT}, skipped`);
       continue;
@@ -166,15 +185,15 @@ function main(): void {
         text,
         createdAt: newest.pubDate,
         queuedAt: new Date().toISOString(),
-        variant: "vampire",
-        marketId: hottestId(),
-        lane: "vampire",
+        variant: lane,
+        marketId: lane === "vampire" ? hottestId() : null,
+        lane,
       };
       writeFileSync(join(QUEUE, `${t.handle}-${newest.id}.json`), `${JSON.stringify(job, null, 2)}\n`);
     }
     queued.push({ handle: t.handle, id: newest.id });
     state[t.handle] = { ...prev, lastId: newest.id, seenAt: new Date().toISOString() };
-    lines.push(`  ${t.handle}: BITTEN ${newest.id} · ${Math.round(age / 1000)}s old · ${weighted(text)}/280 · “${newest.title.slice(0, 54)}”`);
+    lines.push(`  ${t.handle}: BIT ${lane} ${newest.id} · ${Math.round(age / 1000)}s old · ${weighted(text)}/280 · “${newest.title.slice(0, 44)}”`);
   }
 
   if (!dry) writeFileSync(STATE, `${JSON.stringify(state, null, 2)}\n`);
@@ -201,4 +220,4 @@ function main(): void {
   console.log(`  detection latency floor: poll ${took}s + mirror cache (1-4 min typical); delivery waits for an idle desk`);
 }
 
-main();
+await main();
