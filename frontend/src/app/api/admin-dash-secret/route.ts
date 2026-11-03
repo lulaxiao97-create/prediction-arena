@@ -43,7 +43,17 @@ export async function GET(req: NextRequest) {
   const refs = readJson<Record<string, { ref: string; at: string }>>(join(DATA, "refs.json"), {});
   const mults = readJson<Record<string, { multiplier: number; at: string; reason: string }>>(join(DOCS, "points", "multipliers.json"), {});
   const followback = readJson<Record<string, { count: number; seeds: Record<string, number> }>>(join(DATA, "followback.json"), {});
-  const growth = readFileSync(join(DATA, "growth.jsonl"), "utf8")
+  // growth.jsonl only exists on the operator's box: the deployed container has no .data directory.
+  // An unguarded read here is what turned this endpoint into a 500 in production while it worked
+  // locally, so every optional source below is read through a guard.
+  const growthRaw = (() => {
+    try {
+      return readFileSync(join(DATA, "growth.jsonl"), "utf8");
+    } catch {
+      return "";
+    }
+  })();
+  const growth = growthRaw
     .split("\n")
     .filter(Boolean)
     .slice(-48)
