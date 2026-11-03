@@ -2045,5 +2045,29 @@
     "title": "Will BTC dominance close above 60.9% before November 30, 2026?",
     "tx": "0x9b422a47b97371c8beddf22b0bde0487b5f4dba9e08bceed54b08898d5729e82",
     "openedAt": "2026-11-03T08:40:06.014099+00:00"
+  },
+  "720746953": {
+    "id": "720746953",
+    "title": "Will BTC dominance close above 60.8% before November 30, 2026?",
+    "tx": "0x17f83670dff73ede987f322bac3d68a674e991fcb0401b5a95accda8b3fe6e2e",
+    "openedAt": "2026-11-03T09:10:07.352230+00:00"
+  },
+  "722057383": {
+    "id": "722057383",
+    "title": "Will Ethereum TVL fall below $41.70B before November 30, 2026?",
+    "tx": "0x6e3a1b6314504a1e0ba70b2ef7f27d0d340b1d7e122d87218f636b080ecc15fc",
+    "openedAt": "2026-11-03T09:10:08.003501+00:00"
+  },
+  "727403438": {
+    "id": "727403438",
+    "title": "Will Ethereum TVL fall below $41.80B before November 30, 2026?",
+    "tx": "0x04f9675b8e163e6262f15fa8333e6b8f0755723fb360ae93cd19e48efadbfbb0",
+    "openedAt": "2026-11-03T10:10:06.180912+00:00"
+  },
+  "720165632": {
+    "id": "720165632",
+    "title": "Will the ETH/BTC ratio close above 0.031 before November 30, 2026?",
+    "tx": "0xd2b8647ba52f6b9629160a4cde7df1bf30efb54a3616331e143f45b90b06e948",
+    "openedAt": "2026-11-03T12:40:06.303960+00:00"
   }
 }
