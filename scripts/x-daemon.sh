@@ -23,7 +23,7 @@ STATE=".data/x-daemon-state.json"
 COPY=".data/daily-funnel.txt"
 POSTER="C:\\Users\\Administrator\\prediction-arena\\scripts\\x-poster.ps1"
 COPY_WIN="C:\\Users\\Administrator\\prediction-arena\\.data\\daily-funnel.txt"
-IDLE_REQUIRED="${IDLE_REQUIRED:-300}"   # seconds of no input before we are allowed to type
+IDLE_REQUIRED="${IDLE_REQUIRED:-120}"   # seconds of no input before we are allowed to type
 mkdir -p logs .data
 say() { echo "[$(date -Is)] $*" >>"$LOG"; }
 
@@ -62,13 +62,13 @@ while true; do
 
   if [[ -z "$READY" ]]; then
     say "skip: desk-ready.ps1 returned nothing (powershell failure) — not touching the desk"
-    sleep 300
+    sleep 120
     continue
   fi
 
   if [[ "$READY" != "ready" ]]; then
     say "skip: $READY"
-    sleep 300
+    sleep 120
     continue
   fi
 

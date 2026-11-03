@@ -32,7 +32,16 @@ type Pool = HotPool & { title: string; status?: number; endTimeUtc?: string };
 
 function load(): Pool[] {
   const board = JSON.parse(readFileSync(MANIFEST, "utf8")) as { pools?: Pool[] };
-  return (board.pools ?? []).filter((p) => (p.status ?? 1) === 1);
+  const now = Date.now();
+  // status=1 only tells us the pool has not been settled; a pool whose endTime has passed is dead to
+  // the reader even before the operator settles it. Promoting one (it used to be possible: this
+  // filtered on status alone) puts "ends in -28h" in front of the audience.
+  return (board.pools ?? []).filter((p) => {
+    if ((p.status ?? 1) !== 1) return false;
+    if (!p.endTimeUtc) return true;
+    const end = Date.parse(p.endTimeUtc);
+    return Number.isFinite(end) ? end > now : true;
+  });
 }
 
 function main(): void {

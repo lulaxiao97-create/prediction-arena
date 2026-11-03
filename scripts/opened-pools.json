@@ -2021,5 +2021,17 @@
     "title": "Will Base TVL cross $7.10B before December 31, 2026?",
     "tx": "0xf7639fd14eb4271537473a0a8545ec790ad1348513c019b84820532e0e598ef1",
     "openedAt": "2026-11-03T02:40:39.634399+00:00"
+  },
+  "724852655": {
+    "id": "724852655",
+    "title": "Will Ethereum TVL fall below $42.00B before November 30, 2026?",
+    "tx": "0x3b6eec53fc9a6b2d1555f98162c1bf7b3e53b2c93a9a9df43e09f6af3231f942",
+    "openedAt": "2026-11-03T03:10:09.564491+00:00"
+  },
+  "726624865": {
+    "id": "726624865",
+    "title": "Will total crypto market cap reclaim $2.70T before November 30, 2026?",
+    "tx": "0x51c650d3d36abfd33737a13000aa72489a180da9a568377ae27e575f6c54ce90",
+    "openedAt": "2026-11-03T03:10:10.304530+00:00"
   }
 }

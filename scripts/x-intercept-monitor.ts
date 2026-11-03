@@ -16,6 +16,7 @@
  */
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { buildReply, type Market } from "./lib/genesis-copy";
 
 const ROOT = join(import.meta.dir, "..");
 const CONFIG = join(ROOT, "scripts", "config", "intercept-targets.json");
@@ -40,6 +41,8 @@ type Job = {
   createdAt: string;
   queuedAt: string;
   variant: string;
+  /** The pool the copy is about, so the TTL collector can kill a job whose market has ended. */
+  marketId: string | null;
 };
 
 const SITE = "https://predictionarena.online";
@@ -106,85 +109,25 @@ function parseRss(xml: string): RssItem[] {
   return items;
 }
 
-function hottest(market?: { title: string; yes?: number }): { title: string; yes: number } {
-  const hot = readJson<{ hot?: { title: string; yes?: number }[] }>(HOT, {});
-  const p = market ?? hot.hot?.[0];
-  if (!p) return { title: "232 live markets on Base", yes: 50 };
-  return { title: p.title.replace(/\?$/, "").replace(/^Will /, ""), yes: p.yes ?? 50 };
-}
-
-/**
- * The short form a reply needs: "Ethena above $0.1782", not the whole question with a date in it.
- * Clipping the raw title at a word budget leaves "Ethena trade…", which reads like a bug.
- */
-function shortMarket(title: string): string {
-  const t = title.replace(/\?$/, "");
-  const m = t.match(/^Will (.+?) (?:trade|close) (above|below) (\$[\d.,]+)/i);
-  if (m) return `${m[1]} ${m[2]} ${m[3]}`;
-  const c = t.match(/^Will (.+?) close (above|below) (\$[\d.,]+)/i);
-  if (c) return `${c[1]} ${c[2]} ${c[3]}`;
-  return t.replace(/^Will /, "");
-}
-
-/** Trim a market title at a word boundary, dropping a dangling preposition so the cut reads clean. */
-function clipTitle(title: string, budget: number): string {
-  if (weighted(title) <= budget) return title;
-  const words = title.split(" ");
-  let out = "";
-  for (const w of words) {
-    if (weighted(`${out} ${w}`) > budget) break;
-    out = out ? `${out} ${w}` : w;
+/** The market the reply hangs off: the hottest live pool, with the numbers the copy needs. */
+function hottest(): Market | null {
+  try {
+    const hot = JSON.parse(readFileSync(HOT, "utf8")) as {
+      hot?: { id: string | number; title: string; yes?: number; oddsYes?: string; oddsNo?: string; endsIn?: string }[];
+    };
+    const p = hot.hot?.[0];
+    if (!p) return null;
+    return {
+      id: String(p.id),
+      title: String(p.title),
+      yes: typeof p.yes === "number" ? Math.round(p.yes) : 0,
+      oddsYes: p.oddsYes ?? "",
+      oddsNo: p.oddsNo ?? "",
+      endsIn: p.endsIn ?? "",
+    };
+  } catch {
+    return null;
   }
-  const kept = out.split(" ");
-  while (kept.length > 1 && /(before|above|below|after|at|to|on|by|than|close)$/i.test(kept[kept.length - 1])) kept.pop();
-  return `${kept.join(" ")}…`;
-}
-
-/**
- * Two rotating variants. Both carry the three-step funnel the boss fixed (follow → wallet in reply →
- * bot for the points), both name the account we actually own, and neither claims a token exists:
- * what is live is the points ledger, and 500 of them is what the bot writes on bind.
- *
- * The market line is what absorbs a long title — the funnel steps and the link are never trimmed.
- */
-function replyText(variant: "a" | "b"): string {
-  const m = hottest();
-  const short = shortMarket(m.title);
-  for (let budget = 90; budget >= 24; budget -= 6) {
-    const head = `${clipTitle(short, budget)} · YES ${m.yes}% / NO ${100 - m.yes}%`;
-    const text =
-      variant === "a"
-        ? [
-            `🏴 ${head}`,
-            `Priced by the crowd, paid by the wrong side.`,
-            ``,
-            `🚀 Genesis Points Season 1 is live on Base:`,
-            `1️⃣ Follow ${HANDLE}`,
-            `2️⃣ Drop your Base wallet in the reply 👇`,
-            `3️⃣ ${TG} → +500 points on bind`,
-            ``,
-            `${SITE}/?ref=x`,
-          ].join("\n")
-        : [
-            `🏴 ${head}`,
-            ``,
-            `One $1 = one genesis point, 1:1 at $ARENA launch.`,
-            ``,
-            `1️⃣ Follow ${HANDLE}`,
-            `2️⃣ Base wallet in the reply 👇 → +500 pts`,
-            `3️⃣ ${TG} for the rest`,
-            ``,
-            `${SITE}/?ref=x`,
-          ].join("\n");
-    if (weighted(text) <= X_LIMIT) return text;
-  }
-  return [
-    `🏴 ${clipTitle(m.title, 20)}`,
-    `1️⃣ Follow ${HANDLE}`,
-    `2️⃣ Base wallet in the reply 👇 (+500 pts)`,
-    `3️⃣ ${TG}`,
-    `${SITE}/?ref=x`,
-  ].join("\n");
 }
 
 /** Mirrors in preference order. twiiit rotates instances and 403s under load, so the fixed instance
@@ -255,7 +198,8 @@ function main() {
     }
 
     const variant: "a" | "b" = queued.length % 2 === 0 ? "a" : "b";
-    const text = replyText(variant);
+    const market = hottest();
+    const text = buildReply(market, variant);
     if (weighted(text) > X_LIMIT) {
       report.push(`  ${handle}: copy is ${weighted(text)} weighted chars — over ${X_LIMIT}, not queued`);
       continue;
@@ -268,6 +212,7 @@ function main() {
       createdAt: newest.pubDate,
       queuedAt: new Date().toISOString(),
       variant,
+      marketId: market?.id ?? null,
     };
     queued.push(job);
     state[handle] = { ...prev, lastId: newest.id, seenAt: new Date().toISOString() };

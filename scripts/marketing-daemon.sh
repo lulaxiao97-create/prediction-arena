@@ -81,6 +81,14 @@ while true; do
     fi
   fi
 
+  # TTL collector: a market that has ended must not survive in the funnel, the pack or the reply queue.
+  # It runs before the copy is rebuilt, so the rebuild always starts from a live board.
+  if "$BUN" scripts/clean-expired-queues.ts >>"$LOG" 2>&1; then
+    CLEAN_AT="$(date -Is)"
+  else
+    say "clean-expired-queues failed (stale copy may survive one cycle)"
+  fi
+
   # The X daemon posts .data/daily-funnel.txt once a day; regenerate it off the board that was just
   # ranked, otherwise the funnel copy freezes on whatever market was hot the day it was written.
   if "$BUN" scripts/funnel-copy.ts >>"$LOG" 2>&1; then

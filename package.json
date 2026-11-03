@@ -21,6 +21,8 @@
     "intercept:selftest": "bun scripts/active-x-interceptor.ts --self-test",
     "intercept:sweep": "bun scripts/x-intercept-monitor.ts",
     "intercept:cold": "bash scripts/x-intercept-daemon.sh",
+    "clean:queues": "bun scripts/clean-expired-queues.ts",
+    "llama:watch": "bun scripts/llama-pr-watch.ts",
     "intercept:reply": "bash scripts/x-intercept-daemon.sh",
     "cast": "bun scripts/farcaster-auto-cast.ts",
     "cast:selftest": "bun scripts/farcaster-auto-cast.ts --self-test",

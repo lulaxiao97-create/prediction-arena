@@ -34,11 +34,11 @@ STATE_DIR=".data/intercept"
 QUEUE="$STATE_DIR/reply-queue"
 TMP="tmp/reply"
 STATUS="$STATE_DIR/status.json"
-SWEEP_INTERVAL="${SWEEP_INTERVAL:-180}"
+SWEEP_INTERVAL="${SWEEP_INTERVAL:-60}"
 MIN_GAP="${MIN_GAP:-240}"
 MAX_HOUR="${MAX_HOUR:-6}"
 MAX_DAY="${MAX_DAY:-20}"
-IDLE_REQUIRED="${IDLE_REQUIRED:-300}"
+IDLE_REQUIRED="${IDLE_REQUIRED:-120}"
 REPLY_PS1='C:\Users\Administrator\prediction-arena\scripts\x-reply.ps1'
 
 mkdir -p logs "$QUEUE" "$TMP" "$STATE_DIR"
@@ -104,6 +104,10 @@ EOF
 LAST_REPLY=0
 
 while true; do
+  # Kill expired jobs before anything can be typed: a reply advertising a dead market is worse than
+  # no reply at all, and the check is a JSON read (no network).
+  "$BUN" scripts/clean-expired-queues.ts >>"$LOG" 2>&1
+
   OUT="$("$BUN" scripts/x-intercept-monitor.ts 2>&1)"
   echo "$OUT" >>"$LOG"
 
