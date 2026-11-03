@@ -21,3 +21,5 @@ HANDOFF.md
 
 # runtime state (interception queue, captain register) — never part of the repo
 .data/
+tmp/
+marketing/

@@ -25,7 +25,6 @@ import { dirname, join } from "node:path";
 
 const ROOT = join(import.meta.dir, "..");
 const MANIFEST = join(ROOT, "frontend", "public", "pools.json");
-const DESKTOP_FALLBACK = join(process.env.HOME ?? ".", "Desktop", "PredictionArena_Marketing");
 
 type Pool = {
   id: string | number;
@@ -57,15 +56,9 @@ function parseArgs(argv: string[]): Args {
   return args;
 }
 
-function desktopDir(): string {
+function packDir(): string {
   if (process.env.MARKETING_DIR) return join(process.env.MARKETING_DIR, "PredictionArena_Marketing");
-  if (existsSync("/mnt/c/Users")) {
-    for (const user of readdirSync("/mnt/c/Users")) {
-      const candidate = join("/mnt/c/Users", user, "Desktop");
-      if (existsSync(candidate)) return join(candidate, "PredictionArena_Marketing");
-    }
-  }
-  return DESKTOP_FALLBACK;
+  return join(ROOT, "marketing", "PredictionArena_Marketing");
 }
 
 function openPools(): Pool[] {
@@ -311,7 +304,7 @@ async function main(): Promise<void> {
       : [...pools].sort((a, b) => (b.traders ?? 0) - (a.traders ?? 0))[0]);
   if (!pool) throw new Error(`market ${args.market} not found in the open board or the snapshot`);
 
-  const out = args.out ?? join(desktopDir(), "01-market-card.png");
+  const out = args.out ?? join(packDir(), "01-market-card.png");
   mkdirSync(dirname(out), { recursive: true });
 
   const req = createRequire(join(ROOT, "frontend", "package.json"));

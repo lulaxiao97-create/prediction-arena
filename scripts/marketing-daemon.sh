@@ -36,9 +36,23 @@ mkdir -p logs .data
 # the process, not about the string.
 exec 9>"$STATUS.lock"
 if ! flock -n 9; then
-  echo "marketing engine already running (lock held)"
-  exit 0
+  # A killed daemon can leave an orphaned `sleep` holding the inherited lock fd, and then every
+  # cron tick prints "already running" forever while nothing runs. Only a *sleep* holding the fd
+  # means the owner is gone — a real daemon holding it looks nothing like that.
+  HOLDER="$(fuser "$STATUS.lock" 2>/dev/null | tr -s ' ' '\n' | grep -E '^[0-9]+$' | head -1)"
+  if [[ -n "${HOLDER:-}" ]] && ps -o cmd= -p "$HOLDER" 2>/dev/null | grep -q '^sleep '; then
+    echo "[$(date -Is)] reclaiming stale lock from orphaned sleep pid=$HOLDER" >>"$LOG"
+    kill "$HOLDER" 2>/dev/null || true
+    sleep 1
+  fi
+  if ! flock -n 9; then
+    echo "marketing engine already running (lock held)"
+    exit 0
+  fi
 fi
+
+# Never leave a child `sleep` behind on shutdown — it is what causes the stale lock above.
+trap 'pkill -P $$ 2>/dev/null; exit 0' TERM INT
 
 say() { echo "[$(date -Is)] $*" >>"$LOG"; }
 
@@ -67,6 +81,14 @@ while true; do
     fi
   fi
 
+  # The X daemon posts .data/daily-funnel.txt once a day; regenerate it off the board that was just
+  # ranked, otherwise the funnel copy freezes on whatever market was hot the day it was written.
+  if "$BUN" scripts/funnel-copy.ts >>"$LOG" 2>&1; then
+    FUNNEL_AT="$(date -Is)"
+  else
+    say "funnel copy failed — the X daemon keeps the previous text"
+  fi
+
   "$BUN" -e '
     const { writeFileSync } = require("node:fs");
     const status = {
@@ -75,11 +97,12 @@ while true; do
       updatedAt: new Date().toISOString(),
       lastHotAt: process.argv[3] || null,
       lastPackAt: process.argv[4] || null,
+      lastFunnelAt: process.argv[6] || null,
       hotTop: process.argv[5] || null,
       note: "hots every 15m, pack every 6h; X delivery is desktop-only (see x_post_gui.ps1)",
     };
     writeFileSync(".data/engine-status.json", JSON.stringify(status, null, 2) + "\n");
-  ' "$$" "$STARTED" "${HOT_AT:-}" "${PACK_AT:-}" "${TOP:-}" >>"$LOG" 2>&1
+  ' "$$" "$STARTED" "${HOT_AT:-}" "${PACK_AT:-}" "${TOP:-}" "${FUNNEL_AT:-}" >>"$LOG" 2>&1
 
   sleep "$HOT_INTERVAL"
 done

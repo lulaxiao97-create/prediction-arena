@@ -24,7 +24,7 @@
  *   bun run push:marketing --dir=/tmp/pack  # somewhere other than the desktop
  */
 
-import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { heatScore, pickContrarian } from "./lib/hot";
 import { SITE, X_HANDLE, bar, bothOdds, clipped, price, shortTrackedUrl, timeLeft, trackedUrl, weight } from "./lib/copy-kit";
@@ -77,19 +77,14 @@ function parseArgs(argv: string[]): Args {
 }
 
 /**
- * Where the Windows desktop is. WSL sees it as /mnt/c/Users/<name>/Desktop; on a plain Linux box
- * (or in CI, where this script is pointless) it falls back to $HOME/Desktop so the code still runs.
+ * Where the pack is written. It lives INSIDE the project (`marketing/PredictionArena_Marketing`),
+ * never on the Windows desktop: the boss's rule is that automated artefacts — screenshots, image
+ * caches, generated packs — go under the project directory and get cleaned up, because a desktop
+ * full of script output is litter. MARKETING_DIR overrides it for a one-off.
  */
-function desktopDir(): string {
+function packDir(): string {
   if (process.env.MARKETING_DIR) return join(process.env.MARKETING_DIR, FOLDER);
-  for (const base of ["/mnt/c/Users", "/mnt/d/Users"]) {
-    if (!existsSync(base)) continue;
-    for (const user of readdirSync(base)) {
-      const desktop = join(base, user, "Desktop");
-      if (existsSync(desktop) && statSync(desktop).isDirectory()) return join(desktop, FOLDER);
-    }
-  }
-  return join(process.env.HOME ?? ".", "Desktop", FOLDER);
+  return join(ROOT, "marketing", FOLDER);
 }
 
 function openPools(): Pool[] {
@@ -899,7 +894,7 @@ function renderCard(marketId: string | number, out: string, snapshot: string | n
 
 function main(): void {
   const args = parseArgs(process.argv);
-  const dir = args.dir ?? desktopDir();
+  const dir = args.dir ?? packDir();
   const pools = openPools();
   if (pools.length === 0) {
     console.error("no open markets in the manifest — run scripts/refresh-board.sh first");

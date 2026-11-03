@@ -8,7 +8,7 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 BUN="${BUN:-$HOME/.bun/bin/bun}"
-TEXT="${1:-/mnt/c/Users/Administrator/Desktop/PredictionArena_Marketing/01-main-tweet.txt}"
+TEXT="${1:-/mnt/c/Users/Administrator/prediction-arena/marketing/PredictionArena_Marketing/01-main-tweet.txt}"
 
 MARKET=$(grep -oE '/market/[0-9]+' "$TEXT" | head -1 | tr -dc '0-9')
 if [[ -n "$MARKET" ]]; then
