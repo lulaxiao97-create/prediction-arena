@@ -126,8 +126,11 @@ while true; do
         ID="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["tweetId"])' "$JOB" 2>/dev/null)"
         URL="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["url"])' "$JOB" 2>/dev/null)"
 
-        if [[ -z "${ID:-}" ]]; then
-          say "bad job file: $JOB"
+        # A reply lands near the top only while the thread is young. A job that has been waiting longer
+        # than the freshness window is dropped instead of posted hours late.
+        AGE=$(( $(date +%s) - $(date -d "$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["queuedAt"])' "$JOB" 2>/dev/null)" +%s 2>/dev/null || echo 0) ))
+        if [[ -z "${ID:-}" || "$AGE" -gt 2700 ]]; then
+          say "drop job $JOB (age ${AGE}s, limit 2700s or unreadable)"
           rm -f "$JOB"
         else
           TXT="$TMP/$ID.txt"
