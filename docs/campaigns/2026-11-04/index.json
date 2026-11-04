@@ -1,0 +1,36 @@
+{
+  "day": "2026-11-04",
+  "posts": [
+    {
+      "id": "726156812",
+      "title": "Will Mog Coin trade above $0.0000001012 before November 5 2026, 03:00 UTC?",
+      "pick": "tribal",
+      "tweet": "🏴 Will Mog Coin trade above $0.0000001012 before November 5 2026,…\n\nYES ████░░░░ 51% → 2.0×\nNO  ████░░░░ 49% → 2.0×\n\n253 already picked a side. 10h left. The wrong side pays the right side.\n\nhttps://predictionarena.online/market/726156812?utm_source=x&utm_medium=social&utm_campaign=auto_market&utm_content=726156812&ref=x\n@Predict065",
+      "tweetWeight": 227,
+      "cast": "🏴 Will Mog Coin trade above $0.0000001012 before November 5 2026, 0…\n\nYES ████░░░░ 51% · 2.0×\nNO  ████░░░░ 49% · 2.0×\n253 in · MOG $0.0000000962 now\n\nhttps://predictionarena.online/market/726156812?utm_source=farcaster&utm_medium=cast&utm_campaign=auto_market&utm_content=726156812&ref=fc",
+      "castChars": 289,
+      "telegram": "🏴 DAILY BOARD — 2026-11-04\n\n🔥 Will Mog Coin trade above $0.0000001012 before November 5 2026, 03:00 UTC?\nYES ████░░░░ 51% · pays 2.0×\nNO  ████░░░░ 49% · pays 2.0×\n253 traders · $70.8K liquidity · 10h left\n\nTake a side → https://predictionarena.online/market/726156812?utm_source=telegram&utm_medium=social&utm_campaign=auto_market&utm_content=726156812&ref=telegram\n\n🧑‍💼 CAPTAIN PROGRAM — copy your referral link from the portfolio drawer (Portfolio → Invite & Earn),\nshare this market, and automatically earn a cut of the 4% platform fee on-chain.\nMechanically: the arena credits the referrer 30% of that 4% rake per referred position, paid by the contract at settlement — not by us, and not out of anyone's stake.\n\nOnly official links: https://predictionarena.online · x.com/Predict065 · t.me/predictionarena_hq\nContract: 0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5 (Base, v3)",
+      "links": {
+        "x": "https://predictionarena.online/market/726156812?utm_source=x&utm_medium=social&utm_campaign=auto_market&utm_content=726156812&ref=x",
+        "farcaster": "https://predictionarena.online/market/726156812?utm_source=farcaster&utm_medium=cast&utm_campaign=auto_market&utm_content=726156812&ref=fc",
+        "telegram": "https://predictionarena.online/market/726156812?utm_source=telegram&utm_medium=social&utm_campaign=auto_market&utm_content=726156812&ref=telegram"
+      },
+      "tribal": {
+        "base": 10,
+        "adaptive": 0,
+        "total": 10,
+        "leader": null
+      },
+      "snapshot": {
+        "yes": 51,
+        "traders": 253,
+        "liquidityUsdc": 70800,
+        "asset": "MOG",
+        "strikeUsd": 1.012e-7,
+        "spotUsd": 9.6197e-8,
+        "endTimeUtc": "2026-11-05T03:00:00.000Z"
+      },
+      "generatedAt": "2026-11-04T17:06:22.287Z"
+    }
+  ]
+}
