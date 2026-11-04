@@ -28,7 +28,7 @@ type Pool = { id: string; endTimeUtc?: string };
 const manifest = JSON.parse(readFileSync(path.join(ROOT, "frontend/public/pools.json"), "utf8")) as { pools?: Pool[] };
 const now = Date.now();
 
-const statics = ["/", "/docs", "/whitepaper", "/credits"].map((p) => `${SITE}${p}`);
+const statics = ["/", "/markets", "/docs", "/whitepaper", "/credits"].map((p) => `${SITE}${p}`);
 const markets = (manifest.pools ?? [])
   .filter((p) => p?.id)
   .filter((p) => {
