@@ -23,6 +23,11 @@ export type ManifestPool = {
   totalNetPool?: string | null;
   traders?: number;
   tags?: string[];
+  /** Long-form copy that gen-board writes for every market — also the page's meta description. */
+  description?: string;
+  /** The exact condition that settles the market; rendered as the Question's accepted answer. */
+  resolution?: string;
+  endTimeUtc?: string;
   dataSource?: string;
   dataAsOf?: string;
   /** Resolved artwork written by gen-board; the OG card reads it as its backdrop. */

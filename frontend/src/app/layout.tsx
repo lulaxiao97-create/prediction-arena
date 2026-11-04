@@ -76,10 +76,36 @@ export const metadata: Metadata = {
 /** Ties the site to its official profiles for crawlers and social previews. */
 const ORGANIZATION_LD = {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "Prediction Arena",
-  url: siteUrlBase,
-  sameAs: [SOCIAL.x.url, SOCIAL.telegram.url, SOCIAL.github.url],
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${siteUrlBase}/#org`,
+      name: "Prediction Arena",
+      url: siteUrlBase,
+      logo: `${siteUrlBase}/icon-512.png`,
+      sameAs: [SOCIAL.x.url, SOCIAL.telegram.url, SOCIAL.github.url],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${siteUrlBase}/#website`,
+      url: siteUrlBase,
+      name: "Prediction Arena",
+      publisher: { "@id": `${siteUrlBase}/#org` },
+      inLanguage: "en",
+    },
+    {
+      // The product itself, so a crawler can tell "this is an app that takes USDC on Base"
+      // from "this is an article about prediction markets".
+      "@type": "WebApplication",
+      name: "Prediction Arena",
+      applicationCategory: "FinanceApplication",
+      operatingSystem: "Web",
+      url: siteUrlBase,
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      description:
+        "Binary prediction markets priced from live market data, argued by AI agents, settled in USDC on Base.",
+    },
+  ],
 };
 
 export const viewport: Viewport = {
