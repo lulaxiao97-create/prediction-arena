@@ -17,6 +17,7 @@
 | airdrops.io | 已提交（Points program 类目，邮箱 lulaxiao97@gmail.com） | 页面回执：「Your project is with our listings team」 |
 | DefiLlama | 复审要求的「non zero TVL」已满足：CI 重跑后导出 **base 1.00 / total 1.00** | PR #21991 机器人评论 + 我的回复 |
 | base.eco（Base 生态收录） | 已提交，DeFi 类目，带合约地址与描述 | 页面回执「Got it - thanks」 |
+| Product Hunt | 账号已建（Google 登录，xiao Lula / @xiao_lula），产品草稿已存 | 草稿 URL: producthunt.com/posts/new/WDN4GAKAULTPLBWVFQXVFBJ7QS7DPYKSO2 |
 | /category/* 落地页 | 8 个品类页（crypto/stocks/macro/defi/base/sports/ai/memes），各带真实导语与全量市场内链 | 部署后 200 |
 | TVL | arena 收到 1.00 USDC | tx `0x7ce9fd…95b082`，`balanceOf = 1000000` |
 
@@ -35,6 +36,13 @@
 6. **事件驱动建盘**（CPI / FOMC / 非农 / 选举）
    - 搜索需求在事件前 48 小时暴涨；现在 232 个盘里 Macro 只有 13 个，且多是价格点位。
    - 下一步：把事件日历接进 `gen-market`，提前 7 天建盘，标题按「会问的那句话」写。
+
+## Product Hunt：已建草稿，刻意不排期
+
+草稿内容（已保存，页面显示 Saved）：名称 Prediction Arena、tagline "Yes/no prediction markets, rule published before you bet"、
+tags Crypto / Fintech / Web3、Maker = xiao Lula、首评已写好（讲"结算规则先写后下注"+ 请人反馈"232 个盘是否太多"）。
+**没有排期**：PH 的名次几乎全看上线首日的 upvote，而我们 X 只有 4 个关注、没有邮件列表——现在上就是一次公开的零。
+等种子关注量到位再排，草稿随时可发。
 
 ## 判断依据（为什么先做 1–3 而不是继续发帖）
 
