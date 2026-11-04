@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-04T04:05:21.628Z",
+  "updatedAt": "2026-11-04T05:05:24.603Z",
   "sources": {
     "binance": "ok",
     "coingecko": "ok",
@@ -9,166 +9,166 @@
   },
   "assets": {
     "BTC": {
-      "usd": 76692.92,
-      "change24h": -0.113,
+      "usd": 77365.39,
+      "change24h": 0.71,
       "source": "binance",
-      "asOf": "2026-11-04T04:05:02.662Z"
+      "asOf": "2026-11-04T05:05:02.338Z"
     },
     "ETH": {
-      "usd": 2256.52,
-      "change24h": 0.328,
+      "usd": 2280.83,
+      "change24h": 1.198,
       "source": "binance",
-      "asOf": "2026-11-04T04:05:02.662Z"
+      "asOf": "2026-11-04T05:05:02.338Z"
     },
     "SOL": {
-      "usd": 91.65,
-      "change24h": -0.359,
+      "usd": 92.26,
+      "change24h": 0.217,
       "source": "binance",
-      "asOf": "2026-11-04T04:05:02.662Z"
+      "asOf": "2026-11-04T05:05:02.338Z"
     },
     "BNB": {
-      "usd": 688.11,
-      "change24h": -1.138,
+      "usd": 694.08,
+      "change24h": -0.307,
       "source": "binance",
-      "asOf": "2026-11-04T04:05:02.662Z"
+      "asOf": "2026-11-04T05:05:02.338Z"
     },
     "XRP": {
-      "usd": 1.2644,
-      "change24h": 1.152,
+      "usd": 1.271,
+      "change24h": 1.518,
       "source": "binance",
-      "asOf": "2026-11-04T04:05:02.662Z"
+      "asOf": "2026-11-04T05:05:02.338Z"
     },
     "DOGE": {
-      "usd": 0.07365,
-      "change24h": -0.379,
+      "usd": 0.07421,
+      "change24h": 0.203,
       "source": "binance",
-      "asOf": "2026-11-04T04:05:02.662Z"
+      "asOf": "2026-11-04T05:05:02.338Z"
     },
     "AVAX": {
-      "usd": 8.447,
-      "change24h": 1.356,
+      "usd": 8.519,
+      "change24h": 2.024,
       "source": "binance",
-      "asOf": "2026-11-04T04:05:02.662Z"
+      "asOf": "2026-11-04T05:05:02.338Z"
     },
     "LINK": {
-      "usd": 10.822,
-      "change24h": -2.61,
+      "usd": 10.965,
+      "change24h": -1.412,
       "source": "binance",
-      "asOf": "2026-11-04T04:05:02.662Z"
+      "asOf": "2026-11-04T05:05:02.338Z"
     },
     "UNI": {
-      "usd": 7.16,
-      "change24h": 3.633,
+      "usd": 7.197,
+      "change24h": 3.45,
       "source": "binance",
-      "asOf": "2026-11-04T04:05:02.662Z"
+      "asOf": "2026-11-04T05:05:02.338Z"
     },
     "AAVE": {
-      "usd": 126.01,
-      "change24h": 1.018,
+      "usd": 127.94,
+      "change24h": 1.588,
       "source": "binance",
-      "asOf": "2026-11-04T04:05:02.662Z"
+      "asOf": "2026-11-04T05:05:02.338Z"
     },
     "ARB": {
-      "usd": 0.1559,
-      "change24h": 2.163,
+      "usd": 0.1572,
+      "change24h": 3.217,
       "source": "binance",
-      "asOf": "2026-11-04T04:05:02.662Z"
+      "asOf": "2026-11-04T05:05:02.338Z"
     },
     "OP": {
-      "usd": 0.108,
-      "change24h": -0.093,
+      "usd": 0.1092,
+      "change24h": 1.111,
       "source": "binance",
-      "asOf": "2026-11-04T04:05:02.662Z"
+      "asOf": "2026-11-04T05:05:02.338Z"
     },
     "SUI": {
-      "usd": 0.8789,
-      "change24h": 1.572,
+      "usd": 0.8851,
+      "change24h": 2.147,
       "source": "binance",
-      "asOf": "2026-11-04T04:05:02.662Z"
+      "asOf": "2026-11-04T05:05:02.338Z"
     },
     "ENA": {
-      "usd": 0.1713,
-      "change24h": 0.765,
+      "usd": 0.1753,
+      "change24h": 2.635,
       "source": "binance",
-      "asOf": "2026-11-04T04:05:02.662Z"
+      "asOf": "2026-11-04T05:05:02.338Z"
     },
     "ONDO": {
-      "usd": 0.3852,
-      "change24h": 0.601,
+      "usd": 0.3907,
+      "change24h": 2.01,
       "source": "binance",
-      "asOf": "2026-11-04T04:05:02.662Z"
+      "asOf": "2026-11-04T05:05:02.338Z"
     },
     "TAO": {
-      "usd": 222.8,
-      "change24h": -0.179,
+      "usd": 225.4,
+      "change24h": 1.076,
       "source": "binance",
-      "asOf": "2026-11-04T04:05:02.662Z"
+      "asOf": "2026-11-04T05:05:02.338Z"
     },
     "HYPE": {
-      "usd": 83.46,
-      "change24h": 0.385,
+      "usd": 83.88,
+      "change24h": 0.407,
       "source": "binance",
-      "asOf": "2026-11-04T04:05:02.662Z"
+      "asOf": "2026-11-04T05:05:02.338Z"
     },
     "PEPE": {
-      "usd": 0.00000488,
-      "change24h": 4.497,
+      "usd": 0.00000487,
+      "change24h": 3.617,
       "source": "binance",
-      "asOf": "2026-11-04T04:05:02.662Z"
+      "asOf": "2026-11-04T05:05:02.338Z"
     },
     "WIF": {
-      "usd": 0.1701,
-      "change24h": 1.31,
+      "usd": 0.1714,
+      "change24h": 1.902,
       "source": "binance",
-      "asOf": "2026-11-04T04:05:02.662Z"
+      "asOf": "2026-11-04T05:05:02.338Z"
     },
     "PAXG": {
-      "usd": 3947.14,
-      "change24h": 0.436,
+      "usd": 3954.55,
+      "change24h": 0.629,
       "source": "binance",
-      "asOf": "2026-11-04T04:05:02.662Z"
+      "asOf": "2026-11-04T05:05:02.338Z"
     },
     "AERO": {
-      "usd": 0.612609,
-      "change24h": 2.413917724713488,
+      "usd": 0.62791,
+      "change24h": 4.665021686861774,
       "source": "coingecko",
-      "asOf": "2026-11-04T04:05:07.202Z"
+      "asOf": "2026-11-04T05:05:10.161Z"
     },
     "DEGEN": {
-      "usd": 0.00084775,
-      "change24h": 1.2357112011389964,
+      "usd": 0.00084611,
+      "change24h": 0.8251070073435895,
       "source": "coingecko",
-      "asOf": "2026-11-04T04:05:07.202Z"
+      "asOf": "2026-11-04T05:05:10.161Z"
     },
     "BRETT": {
-      "usd": 0.00401865,
-      "change24h": -2.6539783580980383,
+      "usd": 0.00406959,
+      "change24h": -1.1933355118004898,
       "source": "coingecko",
-      "asOf": "2026-11-04T04:05:07.202Z"
+      "asOf": "2026-11-04T05:05:10.161Z"
     },
     "TOSHI": {
-      "usd": 0.00010078,
-      "change24h": 0.8536101026380438,
+      "usd": 0.00010204,
+      "change24h": 1.5960272404159752,
       "source": "coingecko",
-      "asOf": "2026-11-04T04:05:07.202Z"
+      "asOf": "2026-11-04T05:05:10.161Z"
     },
     "MOG": {
-      "usd": 9.1914e-8,
-      "change24h": -1.2299741585520108,
+      "usd": 9.349e-8,
+      "change24h": 0.17928251650371754,
       "source": "coingecko",
-      "asOf": "2026-11-04T04:05:07.202Z"
+      "asOf": "2026-11-04T05:05:10.161Z"
     },
     "ZORA": {
-      "usd": 0.00542831,
-      "change24h": -0.2511982495139032,
+      "usd": 0.0055216,
+      "change24h": 0.52718081162065,
       "source": "coingecko",
-      "asOf": "2026-11-04T04:05:07.202Z"
+      "asOf": "2026-11-04T05:05:10.161Z"
     },
     "USDC": {
-      "usd": 0.999469,
-      "change24h": 0.014383487087835833,
+      "usd": 0.999566,
+      "change24h": 0.028264447106071434,
       "source": "coingecko",
-      "asOf": "2026-11-04T04:05:07.202Z"
+      "asOf": "2026-11-04T05:05:10.161Z"
     },
     "NVDA": {
       "usd": 206.69,
@@ -216,7 +216,7 @@
       "usd": 7568.92,
       "change24h": 0.365,
       "source": "yahoo",
-      "asOf": "2026-11-03T21:30:13.000Z"
+      "asOf": "2026-11-03T21:00:00.000Z"
     },
     "NDX": {
       "usd": 25372.01,
@@ -225,62 +225,62 @@
       "asOf": "2026-11-03T22:15:59.000Z"
     },
     "GOLD": {
-      "usd": 3947.8,
-      "change24h": 0.188,
+      "usd": 3964.4,
+      "change24h": -0.131,
       "source": "yahoo",
-      "asOf": "2026-11-04T03:55:05.000Z"
+      "asOf": "2026-11-04T04:55:11.000Z"
     },
     "SILVER": {
-      "usd": 49.275,
-      "change24h": -0.629,
+      "usd": 49.89,
+      "change24h": -1.636,
       "source": "yahoo",
-      "asOf": "2026-11-04T03:55:12.000Z"
+      "asOf": "2026-11-04T04:55:16.000Z"
     },
     "OIL": {
-      "usd": 95.59,
-      "change24h": -0.52,
+      "usd": 95.61,
+      "change24h": -0.881,
       "source": "yahoo",
-      "asOf": "2026-11-04T03:54:58.000Z"
+      "asOf": "2026-11-04T04:55:09.000Z"
     },
     "DXY": {
-      "usd": 101.356,
-      "change24h": -0.505,
+      "usd": 101.415,
+      "change24h": -0.329,
       "source": "yahoo",
-      "asOf": "2026-11-04T03:55:12.000Z"
+      "asOf": "2026-11-04T04:55:16.000Z"
     }
   },
   "global": {
-    "totalMarketCapUsd": 2585822818739.378,
-    "change24h": -2.993906083806382,
-    "btcDominance": 59.24694078991725
+    "totalMarketCapUsd": 2608794705492.8774,
+    "change24h": -2.0280080961793936,
+    "btcDominance": 59.3178372795491
   },
   "chains": {
-    "avalanche": {
-      "tvlUsd": 578345557.9881619,
+    "arbitrum": {
+      "tvlUsd": 1441708475.7155325,
       "source": "defillama"
     },
     "polygon": {
-      "tvlUsd": 714872328.8420658,
-      "source": "defillama"
-    },
-    "arbitrum": {
-      "tvlUsd": 1447645961.9949677,
+      "tvlUsd": 710055601.0277154,
       "source": "defillama"
     },
     "ethereum": {
-      "tvlUsd": 43717838120.9229,
+      "tvlUsd": 43438541331.40133,
       "source": "defillama"
     },
-    "unichain": {
-      "tvlUsd": 25344042.29574815,
+    "avalanche": {
+      "tvlUsd": 577160587.3000442,
       "source": "defillama"
     },
     "base": {
-      "tvlUsd": 5911164639.148542,
+      "tvlUsd": 5905771335.085516,
+      "source": "defillama"
+    },
+    "unichain": {
+      "tvlUsd": 25176740.748891443,
       "source": "defillama"
     },
     "solana": {
-      "tvlUsd": 5403427586.05835,
+      "tvlUsd": 5381396368.875091,
       "source": "defillama"
     }
   },
