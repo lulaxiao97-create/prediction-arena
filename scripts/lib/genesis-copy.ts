@@ -1,12 +1,14 @@
 /**
  * One place for the genesis copy, because the same claim was being written three times and drifting.
  *
- * The hook is as aggressive as the brief asks for — 42% of supply, no presale, no team allocation,
- * $0 TVL stated out loud — but every number in it is checkable:
+ * The hook is as aggressive as the brief asks for — 42% of supply, no presale, no team allocation —
+ * but every number in it is checkable:
  *
  *   · 42% / 1B supply / zero team reserve   → docs/TOKENOMICS.md, frontend/public/WHITEPAPER.md
  *   · "N markets live"                      → count of status=1 pools with endTime in the future
- *   · "$0 TVL"                              → usdc.balanceOf(arena), which is literally 0 today
+ *   · TVL is deliberately NOT quoted any more: on 2026-11-04 the arena received its first 1.00
+ *     USDC, so "$0" became false the moment it was written. A number that changes daily does not go
+ *     in static copy; the live figure is usdc.balanceOf(arena).
  *   · "+500 points on bind"                 → the grant telegram-bot.ts writes to docs/points/grants.json
  *
  * What is deliberately NOT claimed, even though the brief included it:
@@ -94,7 +96,7 @@ const PITCH = "42% of $ARENA supply goes to points holders (1:1 at launch). No p
  */
 export function buildFunnel(m: Market | null): string {
   const live = liveMarketCount();
-  const social = `📊 ${live} markets · $0 TVL · zero team allocation.`;
+  const social = `📊 ${live} markets · settled on-chain · zero team allocation.`;
   const pitch = `🚀 Genesis S1 is live: 42% of $ARENA supply → points holders, 1:1 at launch.`;
   const link = m ? `${SITE}/market/${m.id}?ref=x` : `${SITE}/?ref=x`;
   const tail = [``, `🪂 3 steps:`, ...steps(), ``, link];
@@ -128,7 +130,7 @@ export function buildReply(m: Market | null, variant: "a" | "b"): string {
       head,
       ``,
       `🚀 Genesis Points S1 is live: ${PITCH}`,
-      `📊 ${live} markets · $0 TVL · 0% team reserve.`,
+      `📊 ${live} 个盘口 · 结算上链 · 零团队预留。`,
       ``,
       `🪂 +500 pts in 3 steps:`,
       ...steps(),
@@ -139,7 +141,7 @@ export function buildReply(m: Market | null, variant: "a" | "b"): string {
       head,
       ``,
       `Every $1 staked = 1 point, 1:1 at $ARENA launch. 42% of supply, no presale, no team allocation.`,
-      `${live} markets live. TVL $0. First movers eat the spread.`,
+      `${live} markets live. Every settlement rule is published before you bet.`,
       ``,
       `1️⃣ Follow ${X_HANDLE}`,
       `2️⃣ Base wallet in the reply 👇 (+500 pts)`,
