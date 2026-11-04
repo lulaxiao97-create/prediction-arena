@@ -22,6 +22,9 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
+# cron 的 PATH 缺 WSL interop 目录 → powershell.exe 找不到（2026-11-04 修）
+export PATH="$PATH:/mnt/c/Windows/System32/WindowsPowerShell/v1.0:/mnt/c/Windows/system32:/mnt/c/Windows"
+
 LOG="logs/followback.log"
 STATE=".data/followback.json"
 PS1_WIN='C:\Users\Administrator\prediction-arena\scripts\x-grow-followback.ps1'
