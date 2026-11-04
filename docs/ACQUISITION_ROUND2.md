@@ -15,7 +15,9 @@
 | `/markets` 爬虫枢纽 | 232 个市场全量内链（首页只链 86 个） | 部署后 200 |
 | `/llms.txt` | 给 ChatGPT/Perplexity/Claude 的机器可读说明 | 部署后 200 |
 | airdrops.io | 已提交（Points program 类目，邮箱 lulaxiao97@gmail.com） | 页面回执：「Your project is with our listings team」 |
-| DefiLlama | PR #21991 已补评论：TVL 不再是 0（1.00 USDC 首笔） | 评论 #6623962558 + 地址更正 |
+| DefiLlama | 复审要求的「non zero TVL」已满足：CI 重跑后导出 **base 1.00 / total 1.00** | PR #21991 机器人评论 + 我的回复 |
+| base.eco（Base 生态收录） | 已提交，DeFi 类目，带合约地址与描述 | 页面回执「Got it - thanks」 |
+| /category/* 落地页 | 8 个品类页（crypto/stocks/macro/defi/base/sports/ai/memes），各带真实导语与全量市场内链 | 部署后 200 |
 | TVL | arena 收到 1.00 USDC | tx `0x7ce9fd…95b082`，`balanceOf = 1000000` |
 
 ## 下一批（按预期曝光量排序）

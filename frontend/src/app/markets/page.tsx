@@ -31,6 +31,19 @@ export const metadata: Metadata = {
 
 export const revalidate = 900;
 
+// Category pages only exist for the categories with enough live markets to be worth
+// a page; the rest stay as headings here. Kept in sync with app/category/[slug].
+const CATEGORY_SLUGS: Record<string, string> = {
+  "Crypto Core": "crypto",
+  "Global Stocks": "stocks",
+  "Macro Economy": "macro",
+  "DeFi & Yield": "defi",
+  "Layer 2 & Base": "base",
+  "Sports & Gaming": "sports",
+  "AI Agents & Tech": "ai",
+  "Memes & Social": "memes",
+};
+
 export default async function MarketsPage() {
   const manifest = await readManifest();
   const pools = (manifest?.pools ?? []).filter((p) => p.id && (p.status === 1 || p.status === undefined));
@@ -69,7 +82,14 @@ export default async function MarketsPage() {
       {categories.map(([category, list]) => (
         <section key={category} className="mt-10">
           <h2 className="text-lg font-medium text-ink">
-            {category} <span className="text-xs text-muted">· {list.length}</span>
+            {CATEGORY_SLUGS[category] ? (
+              <Link className="hover:underline" href={`/category/${CATEGORY_SLUGS[category]}`}>
+                {category}
+              </Link>
+            ) : (
+              category
+            )}{" "}
+            <span className="text-xs text-muted">· {list.length}</span>
           </h2>
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
             {list.map((p) => {

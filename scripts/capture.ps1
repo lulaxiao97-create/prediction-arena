@@ -39,6 +39,10 @@ $bounds = $null
 if ($Process) {
   $p = Get-Process -Name $Process -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowHandle -ne 0 } | Select-Object -First 1
   if ($p) {
+    # Bring the target window to the front first: CopyFromScreen grabs whatever is on top, and the
+    # agent's own console sits over Chrome. Without this the capture is a photo of the terminal.
+    [void][CAPAPI]::SetForegroundWindow($p.MainWindowHandle)
+    Start-Sleep -Milliseconds 400
     [void][CAPAPI]::GetWindowRect($p.MainWindowHandle, [ref]$rect)
     $bounds = New-Object System.Drawing.Rectangle($rect.Left, $rect.Top, ($rect.Right - $rect.Left), ($rect.Bottom - $rect.Top))
   }

@@ -28,6 +28,11 @@ type Pool = {
 const STATIC_ROUTES: MetadataRoute.Sitemap = [
   { url: SITE_URL, changeFrequency: "hourly", priority: 1 },
   { url: `${SITE_URL}/markets`, changeFrequency: "hourly", priority: 0.9 },
+  ...["crypto", "stocks", "macro", "defi", "base", "sports", "ai", "memes"].map((slug) => ({
+    url: `${SITE_URL}/category/${slug}`,
+    changeFrequency: "hourly" as const,
+    priority: 0.8,
+  })),
   { url: `${SITE_URL}/docs`, changeFrequency: "weekly", priority: 0.6 },
   { url: `${SITE_URL}/whitepaper`, changeFrequency: "monthly", priority: 0.5 },
   { url: `${SITE_URL}/credits`, changeFrequency: "monthly", priority: 0.3 },
