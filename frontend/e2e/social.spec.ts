@@ -6,15 +6,20 @@ import { expect, test } from "@playwright/test";
  * A placeholder here is not cosmetic: `x.com/PredictionArena` is an unrelated account, so a link that
  * drifts back to a guessable handle sends our visitors to a stranger. These assertions pin the exact
  * URLs, the new-tab behaviour, and the absence of the bare `x.com` / `telegram.org` placeholders.
+ *
+ * Bluesky replaced X as the primary channel on 2026-11-09: the X account is behind a liveness check
+ * that needs a camera. The assertions moved with it — a footer that still advertises a locked account
+ * is worse than one that advertises nothing.
  */
-const X_URL = "https://x.com/Predict065";
+const BSKY_URL = "https://bsky.app/profile/predictionarena.bsky.social";
+const BSKY_HANDLE = "@predictionarena.bsky.social";
 const TG_URL = "https://t.me/predictionarena_hq";
 
-test("footer and header link to the official accounts, safely", async ({ page }) => {
+test("footer links to the official accounts, safely", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.locator("footer").scrollIntoViewIfNeeded();
 
-  for (const url of [X_URL, TG_URL]) {
+  for (const url of [BSKY_URL, TG_URL]) {
     const link = page.locator(`a[href="${url}"]`).first();
     await expect(link, `${url} must be mounted`).toBeVisible();
     await expect(link).toHaveAttribute("target", "_blank");
@@ -22,17 +27,13 @@ test("footer and header link to the official accounts, safely", async ({ page })
     await expect(link).toHaveAttribute("rel", /noreferrer/);
   }
 
-  // header carries the same channels
-  expect(await page.locator(`header a[href="${X_URL}"]`).count()).toBeGreaterThan(0);
-  expect(await page.locator(`header a[href="${TG_URL}"]`).count()).toBeGreaterThan(0);
-
   // placeholders are gone, and the impostor handle never appears
   expect(await page.locator('a[href="https://x.com"]').count()).toBe(0);
   expect(await page.locator('a[href="https://telegram.org"]').count()).toBe(0);
   expect(await page.locator('a[href*="x.com/PredictionArena"]').count()).toBe(0);
 
-  // the footer prints the handles, not just an icon
-  await expect(page.locator("footer").getByText("@Predict065", { exact: false }).first()).toBeVisible();
+  // the footer prints the handle, not just an icon
+  await expect(page.locator("footer").getByText(BSKY_HANDLE, { exact: false }).first()).toBeVisible();
   await expect(page.locator("footer").getByText("@predictionarena_hq", { exact: false }).first()).toBeVisible();
 });
 
@@ -40,19 +41,19 @@ test("docs page names the official channels and the v3 contract", async ({ page 
   await page.goto("/docs/security", { waitUntil: "domcontentloaded" });
 
   const body = await page.locator("body").innerText();
-  expect(body).toContain("@Predict065");
+  expect(body).toContain("@predictionarena.bsky.social");
   expect(body).toContain("@predictionarena_hq");
   expect(body.toLowerCase()).toContain("0x961872d75ea6e7a2859b9b04c6c7b1c73cf510b5");
   expect(body.toLowerCase()).not.toContain("0x108d5cdc23123fa97929cf197151fb9dc29a5d93");
   expect(body.toLowerCase()).toContain("impostor");
 });
 
-test("page metadata credits the official handle", async ({ page }) => {
+test("page metadata credits the official channels", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
   const html = await page.content();
-  expect(html).toContain('twitter:site');
-  expect(html).toContain("@Predict065");
-  // structured data links the site to both profiles
+  // structured data links the site to the channels that actually publish
   expect(html).toContain('"@type":"Organization"');
+  expect(html).toContain("bsky.app/profile/predictionarena.bsky.social");
   expect(html).toContain("t.me/predictionarena_hq");
 });
+

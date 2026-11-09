@@ -103,16 +103,12 @@ function score(p: Post, now: number): number {
   return recency * 0.6 + length * 0.25 + hasNumber;
 }
 
-const jwtToken = jwt();
-void jwtToken;
 const now = Date.now();
 const seen = new Map<string, Post>();
 
 for (const q of QUERIES) {
   for (const p of await search(q)) {
     if (seen.has(p.uri)) continue;
-    const t = p.record_text ?? (p as any).record?.text ?? "";
-    void t;
     seen.set(p.uri, p);
   }
 }

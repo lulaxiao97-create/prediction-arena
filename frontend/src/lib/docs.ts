@@ -316,7 +316,7 @@ if your side wins:
         {
           kind: "list",
           items: [
-            "X: @Predict065 — x.com/Predict065 is the only account. x.com/PredictionArena belongs to an unrelated sports-news account, and the retired @Pred_Arena is no longer ours.",
+            "Bluesky: @predictionarena.bsky.social is the only account we post from. x.com/PredictionArena belongs to an unrelated sports-news account, and the retired @Pred_Arena is no longer ours.",
             "Telegram: @predictionarena_hq — t.me/predictionarena_hq is the only channel.",
             "GitHub: github.com/lulaxiao97-create/prediction-arena — the only source of truth for the deployed code.",
             "No admin, moderator or support agent will ever DM you first, ask for your seed phrase, or offer a private sale, airdrop claim or 'rescue' service.",
@@ -370,7 +370,7 @@ if your side wins:
         {
           kind: "list",
           items: [
-            "X：@Predict065 —— 唯一帳號是 x.com/Predict065。x.com/PredictionArena 屬於一個無關的體育新聞帳號，舊的 @Pred_Arena 已停用。",
+            "Bluesky：@predictionarena.bsky.social 是我們唯一發文的帳號。x.com/PredictionArena 屬於一個無關的體育新聞帳號，舊的 @Pred_Arena 已停用。",
             "Telegram：@predictionarena_hq —— 唯一頻道是 t.me/predictionarena_hq。",
             "GitHub：github.com/lulaxiao97-create/prediction-arena —— 部署程式碼的唯一來源。",
             "任何管理員、版主或客服都不會主動私訊你、不會索要助記詞，也不會提供私募、空投領取或「救援」服務。",
