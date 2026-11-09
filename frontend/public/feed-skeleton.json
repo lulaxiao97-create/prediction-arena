@@ -1,6 +1,6 @@
 {
- "updatedAt": "2026-11-09T08:00:07.295Z",
- "count": 87,
+ "updatedAt": "2026-11-09T08:30:07.788Z",
+ "count": 91,
  "posts": [
   {
    "uri": "at://did:plc:6kv5inxd5x4tuydxlob27f36/app.bsky.feed.post/3mztz7o7xg22s",
@@ -159,6 +159,24 @@
    "handle": "fablepaint.bsky.social"
   },
   {
+   "uri": "at://did:plc:wzlw5nsbpcebsiccs6iu7ipj/app.bsky.feed.post/3mzuicrmkhb2z",
+   "cid": "bafyreifpbphddox2yeavr2bejqo76uylqxebtqnmb5cq5nohunlxlttxke",
+   "text": "🚨 NEW POLYMARKET: Who will receive the second mandate to form Israel's next government?",
+   "handle": "polymarket.extwitter.link"
+  },
+  {
+   "uri": "at://did:plc:t7yfvr663z5hunuau2lutuco/app.bsky.feed.post/3mzuhkfi3el2z",
+   "cid": "bafyreiglndwipf4p22ypbeqxvw5fb3aqwtymxs2fxf4zqijdtgkvmb2dgy",
+   "text": "Kalshi/Polymarket journal: real P&L after fees, plus calibration. Do your 70% calls hit ~70%?\n\nRecord keeping, not advic",
+   "handle": "marketpulsestudio.bsky.social"
+  },
+  {
+   "uri": "at://did:plc:n6kvs77digrsz5ekq3wnlmcy/app.bsky.feed.post/3mzuhimvrsq2t",
+   "cid": "bafyreicoxqa4wapxjg275l3xt7e74uh6negzvmsd6k2qfesfattosurr5u",
+   "text": "Buffalo Bills’ Logo Outside New Stadium Is Already Falling Off\n\n#BuffaloBills #NFL #Polymarket #Entertainment\n\nhttps://b",
+   "handle": "popculture91.bsky.social"
+  },
+  {
    "uri": "at://did:plc:im6f54t52eyvrbzvwff7jnuk/app.bsky.feed.post/3mzufwqlkoa2s",
    "cid": "bafyreidxntvvnmxbx4lyvp2poulkdjskgy5dqlwf4yuxm4a5jtdu5bwxqu",
    "text": "Polymarket referral code “CLEVE” upgrades $25 bonus for NFL today - Cleveland.com\n\nPolymarket referral code “CLEVE” upgr",
@@ -279,6 +297,12 @@
    "handle": "roryblank.bsky.social"
   },
   {
+   "uri": "at://did:plc:ey7nw55nd5yvxwhofmwvrpwb/app.bsky.feed.post/3mzuhq2aok72v",
+   "cid": "bafyreiattwvfvww4aepew45vsdoiqzxlfjq7thqk6awwsmu4mhar2ac7vq",
+   "text": "CFTC Orders US Exchanges to End Geographic Blocks on Traders\n\nhttps://newisty.com/blog/cftc-orders-us-exchanges-to-end-g",
+   "handle": "newisty.com"
+  },
+  {
    "uri": "at://did:plc:dlpepxog53t2ldt6qkibdzvw/app.bsky.feed.post/3mzua4oaqfv27",
    "cid": "bafyreier656qay24p5yx56lz5vjkrns7je3b23llmryo3w5iipros5jzgm",
    "text": "trend-edge paper bot: 0 hypothetical Kalshi YES fills mapped from Google/YouTube trends; 0 settled, 0 wins, mean 0.0c/tr",
@@ -337,30 +361,6 @@
    "cid": "bafyreieovg3dm6nj37a5j2wzsgmqvwky4yq436enypatusa3aykf6hk644",
    "text": "Why does the corgi that picks game have kalshi as a sponsor? They can't help but push gambling on sports watchers",
    "handle": "the3jsmom.blacksky.app"
-  },
-  {
-   "uri": "at://did:plc:ak2pn34qepmd7b3hkf6docgd/app.bsky.feed.post/3mztvaboohk2x",
-   "cid": "bafyreidhxqgqhwgbnnsrzg6hinspwhipjfpjg6qmko36oejx4dnva7eeou",
-   "text": "Is Kalshi offering odds on Jensen Huang fleeing to China?",
-   "handle": "craigerflights.bsky.social"
-  },
-  {
-   "uri": "at://did:plc:mvguaj66xfac3xlig5x2bhw6/app.bsky.feed.post/3mztuuuhvvk2q",
-   "cid": "bafyreid2ka7w37g37jsy3my3oekbjsnylzs2jbt6gxrmrbeidy7hskvq4m",
-   "text": "Is there a Kalshi Market for how long it will take for Kalshi to sort this all out?",
-   "handle": "johnpneedham.bsky.social"
-  },
-  {
-   "uri": "at://did:plc:huhbu2ibm3gvhlxtp3t7iurm/app.bsky.feed.post/3mztukuwrsc2l",
-   "cid": "bafyreiacizrc6w6b6pp5ep2zffckigel7rqbzwbrkbq54b5nyuj6ox2yvm",
-   "text": "\"Elon Musk Inseminates Huang's Sperm Into Elizabeth Holmes For Meliana Documentary; Sponsored By Kalshi\"\n\n🤣",
-   "handle": "spiritbirdfreedom.bsky.social"
-  },
-  {
-   "uri": "at://did:plc:mbibvyfrjxza6nuoecwhdrlu/app.bsky.feed.post/3mzttdeioba2a",
-   "cid": "bafyreiewrljamurx44aj7z7qbcurukrzgg3s4enofzngkvxw2ekl3ele7q",
-   "text": "Buy Verified Kalshi Account From SmmPaidService #BuyVerifiedKalshiAccount\n#BuyKalshiAccount\n#SmmPaidService\n#StockMarket",
-   "handle": "polymarkettrading.bsky.social"
   }
  ]
 }
