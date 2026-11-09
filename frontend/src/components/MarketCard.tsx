@@ -206,15 +206,17 @@ function MarketCardImpl({
         </div>
       )}
 
-      {/* stats line */}
+      {/* stats line — provenance and deadline, not a fabricated book. The old line printed
+          displayStatsFor()'s hash-derived liquidity and trader count, which read as a traded market
+          and was never one. What is left is true: how the price is produced and when it settles. */}
       <div className="pointer-events-none relative z-10 flex items-center justify-between text-[10.5px] text-muted">
-        <span className="inline-flex items-center gap-1">
-          <span className="text-[9px] uppercase tracking-[0.1em] text-muted/55">{t("card.liquidity")}</span>
-          <span className="mono font-semibold text-ink">${formatCompactUsdc(stats.liquidityUsdc)}</span>
+        <span className="inline-flex items-center gap-1 text-muted/70">
+          <span className="text-[9px] uppercase tracking-[0.1em] text-muted/55">Priced by</span>
+          <span className="font-semibold text-ink/85">live feeds</span>
         </span>
         <span className="inline-flex items-center gap-1">
-          <Users className="size-2.5" />
-          {stats.traders === null ? "—" : stats.traders.toLocaleString("en-US")}
+          <Clock3 className="size-2.5" />
+          <span className="mono">{cd ? (cd.ended ? "Ended" : formatCountdown(cd)) : "—"}</span>
         </span>
       </div>
 
