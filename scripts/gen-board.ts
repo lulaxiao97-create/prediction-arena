@@ -1342,6 +1342,57 @@ function buildBoard(snap: PriceSnapshot, now: Date, sticky: Record<string, Stick
 
   /* ══ 8. Macro & Economy — FRED-struck, no invented levels ════════════════ */
   const m = macro;
+  /* ── Event-driven: the FOMC meeting itself ─────────────────────────────────
+     Rate-point markets ("range at or below X before quarter end") do not answer the
+     question people actually search on the day of a meeting. This block opens three
+     markets per upcoming meeting, but only inside a 31-day window — earlier than that
+     the probability is noise and the market would sit stale for a month.
+     Dates come from federalreserve.gov/monetarypolicy/fomccalendars.htm (2026
+     schedule, read 2026-11-09). Nothing here is a guessed date: 27-28 Jan, 17-18 Mar,
+     28-29 Apr, 16-17 Jun, 28-29 Jul, 15-16 Sep, 27-28 Oct, 8-9 Dec.
+     Resolution is the published statement, which lands the day after the meeting. */
+  const FOMC_MEETINGS = [
+    "2026-01-28", "2026-03-18", "2026-04-29", "2026-06-17",
+    "2026-07-29", "2026-09-16", "2026-10-28", "2026-12-09",
+  ];
+  const nextMeeting = FOMC_MEETINGS
+    .map((d) => new Date(`${d}T21:00:00Z`))
+    .find((d) => d.getTime() > now.getTime());
+  if (nextMeeting && (nextMeeting.getTime() - now.getTime()) / 86_400_000 <= 31 && m.FED_UPPER) {
+    const rate = m.FED_UPPER.value;
+    const decisionDeadline = new Date(nextMeeting.getTime() + 86_400_000);
+    const when = label(nextMeeting);
+    ed({
+      lane: E,
+      title: `Will the Fed cut rates at the ${when} FOMC meeting?`,
+      deadline: decisionDeadline,
+      p: 0.3,
+      tags: ["Fed", "FOMC", when, "event-driven"],
+      why: `The target range is ${rate.toFixed(2)}% going in. A cut at this meeting is the one print that reprices every rate-sensitive market on the board.`,
+      resolution: `YES if the FOMC statement released on ${day(decisionDeadline)} announces a target range with an upper bound below ${rate.toFixed(2)}%.`,
+      source: "Federal Reserve FOMC statement",
+    });
+    ed({
+      lane: E,
+      title: `Will the Fed hold rates at the ${when} FOMC meeting?`,
+      deadline: decisionDeadline,
+      p: 0.62,
+      tags: ["Fed", "FOMC", "hold", when],
+      why: `A hold keeps the range at ${rate.toFixed(2)}%. It is the least dramatic outcome and the one headline-driven pricing usually undervalues.`,
+      resolution: `YES if the FOMC statement released on ${day(decisionDeadline)} keeps the target range upper bound at ${rate.toFixed(2)}%.`,
+      source: "Federal Reserve FOMC statement",
+    });
+    ed({
+      lane: E,
+      title: `Will the Fed raise rates at the ${when} FOMC meeting?`,
+      deadline: decisionDeadline,
+      p: 0.06,
+      tags: ["Fed", "FOMC", "hike", when],
+      why: "A hike is the tail nobody prices until it happens. Resolution is the published statement, not the press conference.",
+      resolution: `YES if the FOMC statement released on ${day(decisionDeadline)} announces a target range with an upper bound above ${rate.toFixed(2)}%.`,
+      source: "Federal Reserve FOMC statement",
+    });
+  }
   if (m.FED_UPPER) {
     const nowRate = m.FED_UPPER.value;
     const cutTarget = Number((nowRate - 0.25).toFixed(2));
