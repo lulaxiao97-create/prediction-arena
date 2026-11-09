@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-09T06:08:52.593Z",
+ "updatedAt": "2026-11-09T06:30:06.720Z",
  "count": 86,
  "posts": [
   {
@@ -61,6 +61,12 @@
    "cid": "bafyreidu7eeu524es4d6ppffwmcvalmpyuljz2tqv6v5iwxixcztjrgtie",
    "text": "Just follow the money. 💰\n\nSharp's Prediction Market tools show you where the biggest moves are happening and where smar",
    "handle": "thesharpapp.bsky.social"
+  },
+  {
+   "uri": "at://did:plc:7k4vfws3kkxokmrg5co7n2b6/app.bsky.feed.post/3mzuc4nzfgf2f",
+   "cid": "bafyreiebtsflxawcnymway352iqi422636lxxui7w4ojeadwax737cltji",
+   "text": "Traders apparently knew an election poll's numbers before the public did — the NYT flags the suspicious flow. My reactio",
+   "handle": "greatmatrix.bsky.social"
   },
   {
    "uri": "at://did:plc:cjpg75lrlw55tzwbdxgc7gln/app.bsky.feed.post/3mzuabgjd732v",
@@ -355,12 +361,6 @@
    "cid": "bafyreiaksyvhyoinbzso3c75igajeikgnnwfll7bbzcatdq6xj5o2uzt4m",
    "text": "Interesting: In one prediction market, the odds of T leaving office in the next two years (prior to Jan 1, 2029) has gon",
    "handle": "sonomablue.bsky.social"
-  },
-  {
-   "uri": "at://did:plc:kxlbbeyyfbgstfdyobv6n32y/app.bsky.feed.post/3mzsefill5y2b",
-   "cid": "bafyreibjxafcwlprhvgzkmiyftekzjjfzxndlitkcm6cgsxdknvam7yeni",
-   "text": "Inter come into this as overwhelming favorites on both the quality ratings and the betting market. The disparity in over",
-   "handle": "linechoes.bsky.social"
   }
  ]
 }
