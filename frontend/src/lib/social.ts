@@ -18,6 +18,22 @@ export const SOCIAL = {
     label: "Telegram",
     handle: "@predictionarena_hq",
     url: "https://t.me/predictionarena_hq",
+    /**
+     * Named invite link for this surface. The bot is a channel admin, so it receives a
+     * `chat_member` update carrying the invite link a new subscriber arrived through; giving every
+     * surface its own named link (site / x / tg) turns "we gained subscribers" into "which surface
+     * gained them". This one is the site footer.
+     */
+    inviteUrl: "https://t.me/+N50apEvzAvJlYTZh",
+  },
+  /**
+   * DefiLlama lists the arena as a Base protocol (`category: Prediction Market`). Linking to the
+   * listing is a two-way reference: their page is the one place strangers can find us without
+   * following anything, and the link proves the TVL number is theirs, not ours.
+   */
+  defillama: {
+    label: "DefiLlama",
+    url: "https://defillama.com/protocol/prediction-arena",
   },
   github: {
     label: "GitHub",

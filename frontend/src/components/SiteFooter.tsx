@@ -116,12 +116,22 @@ export function SiteFooter() {
               </li>
               <li>
                 <a
-                  href={SOCIAL.telegram.url}
+                  href={SOCIAL.telegram.inviteUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mono text-muted/70 transition-colors hover:text-gold-bright"
                 >
                   {SOCIAL.telegram.handle} <span className="text-muted/40">on Telegram</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href={SOCIAL.defillama.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mono text-muted/70 transition-colors hover:text-gold-bright"
+                >
+                  TVL <span className="text-muted/40">tracked by DefiLlama</span>
                 </a>
               </li>
             </ul>

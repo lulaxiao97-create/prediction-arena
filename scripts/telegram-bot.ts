@@ -29,7 +29,7 @@
  * without it, and a bot that "should work" is not a deliverable.
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -66,7 +66,15 @@ type Message = {
   text?: string;
   date?: number;
 };
-type Update = { update_id: number; message?: Message };
+type Update = { update_id: number; message?: Message; chat_member?: ChatMemberUpdate };
+
+type ChatMemberUpdate = {
+  chat: { id: number; title?: string; username?: string };
+  date: number;
+  old_chat_member?: { status: string };
+  new_chat_member?: { status: string; user?: { id: number; username?: string; first_name?: string } };
+  invite_link?: { invite_link: string; name?: string };
+};
 
 type Outgoing = {
   text: string;
@@ -1040,8 +1048,38 @@ async function handleUpdate(api: string, update: Update, sessions: Map<number, S
   console.log(`[${new Date().toISOString()}] ${chatId} · ${text.slice(0, 40)} → ${out.replies.length} repl${out.replies.length === 1 ? "y" : "ies"}`);
 }
 
+/** Append a channel join so growth can be attributed to the invite link that produced it.
+ *
+ *  Bot API will not list channel members, but it does deliver `chat_member` updates to a bot that
+ *  is a channel admin, and that update carries the `invite_link` the person joined through. Giving
+ *  every surface its own named link (x / tg / site) turns "we got three subscribers" into "two came
+ *  from the X bio, one from the site footer".
+ */
+function recordJoin(cm: ChatMemberUpdate): void {
+  const was = cm.old_chat_member?.status ?? "left";
+  const now = cm.new_chat_member?.status ?? "?";
+  if (now !== "member" && now !== "administrator") return;
+  if (was === "member" || was === "administrator") return;
+  const row = {
+    at: new Date((cm.date ?? Math.floor(Date.now() / 1000)) * 1000).toISOString(),
+    chat: cm.chat?.username ?? String(cm.chat?.id ?? ""),
+    userId: cm.new_chat_member?.user?.id ?? null,
+    username: cm.new_chat_member?.user?.username ?? null,
+    name: cm.invite_link?.name ?? null,
+    link: cm.invite_link?.invite_link ?? null,
+  };
+  const file = join(ROOT, ".data", "tg-joins.jsonl");
+  try {
+    mkdirSync(join(ROOT, ".data"), { recursive: true });
+    appendFileSync(file, `${JSON.stringify(row)}\n`, "utf8");
+    console.log(`[${row.at}] join ${row.username ?? row.userId} via ${row.name ?? "direct"}`);
+  } catch (err) {
+    console.error(`join log failed: ${(err as Error).message}`);
+  }
+}
+
 async function drainOnce(api: string, offset: number, sessions: Map<number, Session>): Promise<number> {
-  const res = await fetch(`${api}/getUpdates?timeout=0&offset=${offset}&allowed_updates=["message","callback_query"]`);
+  const res = await fetch(`${api}/getUpdates?timeout=0&offset=${offset}&allowed_updates=["message","callback_query","chat_member"]`);
   if (!res.ok) {
     console.error(`getUpdates → HTTP ${res.status}`);
     return offset;
@@ -1051,6 +1089,10 @@ async function drainOnce(api: string, offset: number, sessions: Map<number, Sess
   let next = offset;
   for (const update of data.result) {
     next = Math.max(next, update.update_id + 1);
+    if (update.chat_member) {
+      recordJoin(update.chat_member);
+      continue;
+    }
     await handleUpdate(api, update, sessions);
   }
   return next;
@@ -1128,7 +1170,7 @@ async function main(): Promise<void> {
   // Long-poll loop. A single failed request must not kill a process that is meant to run for weeks.
   for (;;) {
     try {
-      const res = await fetch(`${api}/getUpdates?timeout=30&offset=${offset}&allowed_updates=["message","callback_query"]`);
+      const res = await fetch(`${api}/getUpdates?timeout=30&offset=${offset}&allowed_updates=["message","callback_query","chat_member"]`);
       if (!res.ok) {
         await new Promise((r) => setTimeout(r, 3_000));
         continue;
@@ -1136,6 +1178,10 @@ async function main(): Promise<void> {
       const data = (await res.json()) as { ok: boolean; result?: Update[] };
       for (const update of data.result ?? []) {
         offset = Math.max(offset, update.update_id + 1);
+        if (update.chat_member) {
+          recordJoin(update.chat_member);
+          continue;
+        }
         await handleUpdate(api, update, sessions);
       }
       if (Date.now() >= nextBroadcast) {
