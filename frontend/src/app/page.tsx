@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
   BadgeCheck,
@@ -158,25 +158,29 @@ export default function Home() {
    * with a pick recorded against a different pool. The lock makes the first non-narrowed resolution
    * sticky until that market settles.
    */
-  const heroLock = useRef<string | null>(null);
-  const hero = useMemo(() => {
+  const [lockedHeroId, setLockedHeroId] = useState<string | null>(null);
+  const heroBase = useMemo(() => {
     if (!filtered.length) return null;
     const narrowed = category !== "all" || query.trim().length > 0;
-
-    if (!narrowed && heroLock.current) {
-      const locked = pools.find((p) => String(p.id) === heroLock.current);
-      if (locked && locked.status === 1) return { pool: locked, auto: false };
-    }
-
-    let resolved: { pool: (typeof filtered)[number]; auto: boolean };
     if (featured && featured.status === 1 && (!narrowed || filtered.some((p) => p.id === featured.id))) {
-      resolved = { pool: featured, auto: false };
-    } else {
-      resolved = { pool: filtered.find((p) => p.status === 1) ?? filtered[0], auto: true };
+      return { pool: featured, auto: false };
     }
-    if (!narrowed && resolved.pool) heroLock.current = String(resolved.pool.id);
-    return resolved;
-  }, [filtered, featured, category, query, pools]);
+    return { pool: filtered.find((p) => p.status === 1) ?? filtered[0], auto: true };
+  }, [filtered, featured, category, query]);
+
+  // Lock the first un-narrowed resolution so a later manifest refresh cannot move the question
+  // under the visitor's finger. Kept in state (not a ref) because it is read during render.
+  useEffect(() => {
+    if (lockedHeroId || !heroBase) return;
+    if (category !== "all" || query.trim().length > 0) return;
+    setLockedHeroId(String(heroBase.pool.id));
+  }, [lockedHeroId, heroBase, category, query]);
+
+  const hero = useMemo(() => {
+    if (!lockedHeroId) return heroBase;
+    const locked = pools.find((p) => String(p.id) === lockedHeroId);
+    return locked && locked.status === 1 ? { pool: locked, auto: false } : heroBase;
+  }, [lockedHeroId, heroBase, pools]);
 
   return (
     <div className="min-h-screen">

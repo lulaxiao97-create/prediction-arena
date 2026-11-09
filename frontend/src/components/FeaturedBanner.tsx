@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Clock3, Flame, ShieldCheck, Users } from "lucide-react";
+import { ArrowRight, Clock3, Flame, ShieldCheck} from "lucide-react";
 import type { ArenaPool } from "@/lib/types";
 import { countdown, formatCompactUsdc, formatCountdown, formatProbability } from "@/lib/format";
 import { poolSideMultiplier, poolSideShare, poolStats } from "@/lib/display-stats";
@@ -33,8 +33,6 @@ export function FeaturedBanner({
   const multiplier0 = poolSideMultiplier(pool, 0);
   const multiplier1 = poolSideMultiplier(pool, 1);
   const stats = poolStats(pool);
-  const liquidity = stats.liquidityUsdc;
-  const traders = stats.traders;
   const cd = mounted ? countdown(pool.endTime) : null;
   const href = `/market/${pool.id.toString()}`;
   const cover = coverOf(pool);
@@ -66,13 +64,17 @@ export function FeaturedBanner({
           <h2 className="mt-3 text-[22px] font-bold leading-tight text-ink sm:text-[28px]">{pool.title}</h2>
 
           <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11.5px] text-muted">
+            {/*
+              These two figures used to be synthetic — `displayStatsFor()` derives a $12.5k–$88.5k
+              liquidity and an 85–320 trader count from a hash of the market id, purely so the card
+              would not read "$0 / 0 traders". That is the one thing this venue cannot do: the
+              product's claim is that the numbers are checkable on-chain, and a made-up trader count
+              on the hero is the exact lie a skeptic would use to dismiss everything else. So the
+              card states how the price was produced instead, which is true and verifiable.
+            */}
             <span className="inline-flex items-center gap-1.5">
-              <span className="text-[9.5px] uppercase tracking-[0.12em] text-muted/60">{t("featured.liquidity")}</span>
-              <span className="mono text-[13px] font-semibold text-ink">${formatCompactUsdc(liquidity)}</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Users className="size-3" />
-              {traders === null ? "—" : traders.toLocaleString("en-US")}
+              <span className="text-[9.5px] uppercase tracking-[0.12em] text-muted/60">Priced by</span>
+              <span className="text-[12px] font-semibold text-ink/85">live feeds</span>
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Clock3 className="size-3" />
@@ -126,7 +128,7 @@ export function FeaturedBanner({
             <div className="h-full flex-1 rounded-r-full bg-gradient-to-r from-loss to-loss/70" />
           </div>
           <p className="text-[10.5px] leading-relaxed text-muted/80">
-            ${formatCompactUsdc(liquidity)} {t("featured.liquidity")}
+            Implied odds from live feeds · settles on-chain
           </p>
         </div>
       </div>
