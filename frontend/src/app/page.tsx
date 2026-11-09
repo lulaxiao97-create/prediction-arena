@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   BadgeCheck,
@@ -149,14 +149,34 @@ export default function Home() {
    * Only a genuinely empty result set (a search with no hits) yields no hero, and that case
    * renders an honest "nothing matches" card rather than the marketing copy.
    */
+  /**
+   * The hero question must not change under the visitor's finger.
+   *
+   * The seed manifest ships with the build; the runtime manifest arrives a moment later and can
+   * order rows differently. Recomputing the hero from scratch on that arrival swapped the featured
+   * question one frame after mount — a visitor who tapped "I say yes" on the Fed market ended up
+   * with a pick recorded against a different pool. The lock makes the first non-narrowed resolution
+   * sticky until that market settles.
+   */
+  const heroLock = useRef<string | null>(null);
   const hero = useMemo(() => {
     if (!filtered.length) return null;
-    if (featured && featured.status === 1 && filtered.some((p) => p.id === featured.id)) {
-      return { pool: featured, auto: false };
+    const narrowed = category !== "all" || query.trim().length > 0;
+
+    if (!narrowed && heroLock.current) {
+      const locked = pools.find((p) => String(p.id) === heroLock.current);
+      if (locked && locked.status === 1) return { pool: locked, auto: false };
     }
-    const open = filtered.find((p) => p.status === 1) ?? filtered[0];
-    return { pool: open, auto: true };
-  }, [filtered, featured]);
+
+    let resolved: { pool: (typeof filtered)[number]; auto: boolean };
+    if (featured && featured.status === 1 && (!narrowed || filtered.some((p) => p.id === featured.id))) {
+      resolved = { pool: featured, auto: false };
+    } else {
+      resolved = { pool: filtered.find((p) => p.status === 1) ?? filtered[0], auto: true };
+    }
+    if (!narrowed && resolved.pool) heroLock.current = String(resolved.pool.id);
+    return resolved;
+  }, [filtered, featured, category, query, pools]);
 
   return (
     <div className="min-h-screen">
