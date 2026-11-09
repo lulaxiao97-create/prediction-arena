@@ -17,13 +17,13 @@ import { SITE_URL } from "@/lib/site";
  */
 
 export const metadata: Metadata = {
-  title: "All prediction markets — 232 live questions on Base | Prediction Arena",
+  title: "All prediction markets — 235 live questions on Base | Prediction Arena",
   description:
     "Every open binary market on Prediction Arena: crypto, macro, sports, tech. Each one states its settlement rule before you can bet, and settles in USDC on Base.",
   alternates: { canonical: "/markets" },
   openGraph: {
     title: "All prediction markets — Prediction Arena",
-    description: "232 live binary markets on Base, each with its settlement rule on-chain.",
+    description: "235 live binary markets on Base, each with its settlement rule on-chain.",
     url: "/markets",
     type: "website",
   },

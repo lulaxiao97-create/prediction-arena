@@ -59,7 +59,7 @@ export default function WhitepaperCard() {
 
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           <div style={{ display: "flex", color: INK, fontSize: 78, fontWeight: 700, lineHeight: 1.05 }}>
-            232 markets. 19 sectors.
+            235 markets. 19 sectors.
           </div>
           <div style={{ display: "flex", color: INK, fontSize: 78, fontWeight: 700, lineHeight: 1.05 }}>
             One on-chain venue.

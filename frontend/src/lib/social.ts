@@ -9,10 +9,22 @@
  */
 
 export const SOCIAL = {
+  /**
+   * X is listed but currently unusable: the account is locked behind a palm/facial liveness check
+   * that needs a camera this machine does not have. Keep the entry so nothing 404s, but every
+   * surface that can choose a primary channel should prefer Bluesky until the X account is live.
+   */
   x: {
     label: "X / Twitter",
     handle: "@Predict065",
     url: "https://x.com/Predict065",
+    active: false,
+  },
+  bluesky: {
+    label: "Bluesky",
+    handle: "@predictionarena.bsky.social",
+    url: "https://bsky.app/profile/predictionarena.bsky.social",
+    active: true,
   },
   telegram: {
     label: "Telegram",

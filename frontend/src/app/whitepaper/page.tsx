@@ -16,10 +16,10 @@ const DOC_BODY = WHITEPAPER_MARKDOWN.replace(/^#\s+.*\n/, "");
 export const metadata: Metadata = {
   title: "Whitepaper v1.0 · Prediction Arena",
   description:
-    "232 markets across 19 sectors, 100% on-chain settlement in USDC on Base, a points ledger replayed from chain history, and a 1B-supply token with a 42% genesis airdrop.",
+    "235 markets across 19 sectors, 100% on-chain settlement in USDC on Base, a points ledger replayed from chain history, and a 1B-supply token with a 42% genesis airdrop.",
   openGraph: {
     title: "Prediction Arena — Whitepaper v1.0",
-    description: "24/7 autonomous prediction markets on Base. 232 markets · 19 sectors · USDC escrow.",
+    description: "24/7 autonomous prediction markets on Base. 235 markets · 19 sectors · USDC escrow.",
     type: "article",
   },
 };
@@ -49,7 +49,7 @@ export default function WhitepaperPage() {
           Prediction Arena
         </h1>
         <p className="mt-2 max-w-[62ch] text-[12.5px] leading-relaxed text-muted">
-          24/7 autonomous prediction markets on Base. 232 markets · 19 sectors · USDC escrow · a points
+          24/7 autonomous prediction markets on Base. 235 markets · 19 sectors · USDC escrow · a points
           ledger you can rebuild from chain history.
         </p>
         <div className="mt-6">

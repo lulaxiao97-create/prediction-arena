@@ -11,7 +11,6 @@ import { BRAND_PATHS, BrandIcon } from "@/lib/brand-icons";
 
 const COMMUNITY = [
   { label: SOCIAL.github.label, href: SOCIAL.github.url, handle: null, path: BRAND_PATHS.github },
-  { label: SOCIAL.x.label, href: SOCIAL.x.url, handle: SOCIAL.x.handle, path: BRAND_PATHS.x },
   {
     label: SOCIAL.telegram.label,
     href: SOCIAL.telegram.url,
@@ -106,12 +105,12 @@ export function SiteFooter() {
             <ul className="mt-3 space-y-1 text-[10.5px]">
               <li>
                 <a
-                  href={SOCIAL.x.url}
+                  href={SOCIAL.bluesky.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mono text-muted/70 transition-colors hover:text-gold-bright"
                 >
-                  {SOCIAL.x.handle} <span className="text-muted/40">on X</span>
+                  {SOCIAL.bluesky.handle} <span className="text-muted/40">on Bluesky</span>
                 </a>
               </li>
               <li>

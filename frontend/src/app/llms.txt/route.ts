@@ -19,7 +19,7 @@ export function GET() {
 ## Key facts
 - Chain: Base (8453)
 - Arena contract: 0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5 (no proxy, no mint, no owner withdrawal path)
-- Markets: 232 live, each with a published settlement rule
+- Markets: 235 live, each with a published settlement rule
 - Collateral: native USDC on Base
 - Token: none yet. 42% of the planned ARENA supply is reserved for points holders, distributed 1:1 at launch. No presale.
 - Team allocation: 0%
@@ -37,8 +37,9 @@ A market resolves YES when the condition written in its rule is met at the state
 publishes the evidence hash on-chain with the payout. Fees are 4%, escrowed per market and auditable.
 
 ## Contact
-- X: https://x.com/Predict065
+- Bluesky: https://bsky.app/profile/predictionarena.bsky.social
 - Telegram: https://t.me/predictionarena_hq
+- GitHub: https://github.com/lulaxiao97-create/prediction-arena
 `;
   return new Response(body, {
     headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" },

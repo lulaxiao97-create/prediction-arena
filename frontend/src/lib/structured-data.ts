@@ -62,7 +62,11 @@ export function siteJsonLd(): string {
         name: "Prediction Arena",
         url: SITE_URL,
         logo: `${SITE_URL}/icon-512.png`,
-        sameAs: ["https://x.com/Predict065", "https://github.com/lulaxiao97-create/prediction-arena"],
+        sameAs: [
+          "https://bsky.app/profile/predictionarena.bsky.social",
+          "https://github.com/lulaxiao97-create/prediction-arena",
+          "https://t.me/predictionarena_hq",
+        ],
       },
       {
         "@type": "WebSite",
