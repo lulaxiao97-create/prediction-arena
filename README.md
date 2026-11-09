@@ -16,6 +16,7 @@
 [![Live](https://img.shields.io/badge/Live-app-16C784?style=for-the-badge&logo=cloudflare&logoColor=white)](https://predictionarena.online)
 [![CI](https://github.com/lulaxiao97-create/prediction-arena/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/lulaxiao97-create/prediction-arena/actions/workflows/ci.yml)
 [![Base Mainnet](https://img.shields.io/badge/Base-Mainnet%20%C2%B7%208453-0052FF?style=for-the-badge&logo=coinbase&logoColor=white)](https://basescan.org/address/0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5)
+[![DefiLlama](https://img.shields.io/badge/TVL%20tracked%20by-DefiLlama-2172E5?style=for-the-badge)](https://defillama.com/protocol/prediction-arena)
 [![Contract V3](https://img.shields.io/badge/Contract-V3%20%C2%B7%20Live-16C784?style=for-the-badge)](https://basescan.org/address/0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5)
 [![Settled in USDC](https://img.shields.io/badge/Settled%20in-USDC-2775CA?style=for-the-badge&logo=usd-coin&logoColor=white)](#smart-contract-v2)
 [![Next.js 16](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](#architecture)
