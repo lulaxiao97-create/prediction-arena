@@ -91,3 +91,40 @@ Bluesky 用户对营销腔的容忍度比 X 低得多。emoji 三连、"🚀 加
 - `scripts/bluesky-content.ts` — 三种格式的文案生成，数据全部来自 `pools.json` / `prices.json`。
 - `scripts/bluesky-daily.sh` — 按小时选格式并发布。
 - 账号：`@predictionarena.bsky.social`（头像、简介、首帖已配置）。
+
+---
+
+## 已上线：Prediction Markets 自定义 Feed
+
+订阅地址：
+
+```
+at://did:plc:hn527g3nbpxkgs4c4xbwnq2y/app.bsky.feed.generator/prediction-markets
+```
+
+网页入口（登录后可直接点 Add）：
+
+```
+https://bsky.app/profile/predictionarena.bsky.social/feed/prediction-markets
+```
+
+这条 feed 把全 Bluesky 上关于事件合约、赔率、Polymarket / Kalshi、forecast market 的讨论聚到一起，
+由我们运营。它解决的是冷启动问题：一个 0 粉丝的账号发帖没人看，但一个「预测市场信息源」本身就
+有订阅价值 —— 订阅者每次打开 Bluesky 都会看到这个 feed，而 feed 的运营者是我们。
+
+### 怎么做的（也解释了为什么它不会挂）
+
+- `frontend/public/.well-known/did.json` 声明 `did:web:predictionarena.online`，service 指向本站。
+- `/xrpc/app.bsky.feed.getFeedSkeleton` 读 `public/feed-skeleton.json`，只做分页和缓存，不联网，
+  所以不会超时。
+- `scripts/bsky-feed-refresh.ts` 才是联网的那一半：八个关键词搜索、过滤回复/广告/非英文/不点名主题
+  的帖子，按新鲜度+信息量+是否含数字打分排序。它在这台机器上跑（会话在这里），把结果写成文件。
+- `scripts/bsky-feed-cron.sh` 每 30 分钟刷新并推送，Render 自动部署。搜索失败时保留上一版，
+  feed 不会空。
+- Access token 两小时过期，脚本会自动 refresh —— 否则重启后 feed 会静默冻结。
+
+### 运营这条 feed 的价值
+
+1. 订阅数是最诚实的指标：它衡量"有人主动要这个信息源"，不是点赞虚荣。
+2. feed 里的帖子来自别人，我们只是编辑 —— 这让我们有理由去回复那些作者，而不是自说自话。
+3. 等第一笔真实结算发生，"settled" 格式的帖子可以让 feed 里出现只有我们能提供的内容。
