@@ -15,6 +15,9 @@ import { join } from "node:path";
  */
 
 const FEED_DID = "did:web:predictionarena.online";
+/** The publisher: the account whose repo holds the feed record. AppView sends this URI, not the
+ * service DID, so validating only `FEED_DID` rejected every real request as UnknownFeed. */
+const PUBLISHER_DID = "did:plc:hn527g3nbpxkgs4c4xbwnq2y";
 const PAGE = 30;
 
 type Skeleton = {
@@ -32,7 +35,10 @@ export async function GET(req: Request) {
   const limit = Math.min(Math.max(Number(url.searchParams.get("limit")) || PAGE, 1), 100);
   const offset = Math.max(Number(url.searchParams.get("cursor")) || 0, 0);
 
-  if (!feed.startsWith(`at://${FEED_DID}/app.bsky.feed.generator/`)) {
+  const isOurs =
+    feed.startsWith(`at://${PUBLISHER_DID}/app.bsky.feed.generator/`) ||
+    feed.startsWith(`at://${FEED_DID}/app.bsky.feed.generator/`);
+  if (!isOurs) {
     return fail("UnknownFeed");
   }
 
