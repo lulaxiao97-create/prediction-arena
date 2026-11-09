@@ -16,3 +16,11 @@ Automated overnight:
 · follows  — x-followback-daemon, 8 per 15 min, cap 150/day, seeds rotated
 · metrics  — growth-metrics every 15 min into .data/growth.jsonl
 · dashboard— /admin-dash-secret (key arena-ops-2026)
+Predict065: 3 → 5 followers in 138h (+2)
+posts 24 → 38 · following 44 → 89
+  2026-11-08T23:45:02.946Z  followers=5 posts=38
+  2026-11-09T00:00:01.857Z  followers=5 posts=38
+  2026-11-09T00:15:02.780Z  followers=5 posts=38
+  2026-11-09T00:30:02.965Z  followers=5 posts=38
+  2026-11-09T00:45:03.729Z  followers=5 posts=38
+  2026-11-09T01:00:02.861Z  followers=5 posts=38
