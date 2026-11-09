@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { HeroMasthead } from "@/components/HeroMasthead";
+import { QuickGuess } from "@/components/QuickGuess";
 import { GrowthStrip } from "@/components/GrowthStrip";
 import { RakebackBanner } from "@/components/RakebackBanner";
 import { LiveProofToast } from "@/components/LiveProofToast";
@@ -172,11 +173,16 @@ export default function Home() {
         {/* ── featured + dashboard ───────────────────────────────── */}
         <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[1.6fr_1fr]">
           {hero ? (
-            <FeaturedBanner
-              pool={hero.pool}
-              auto={hero.auto}
-              onBet={(pool, option) => setSelected({ pool, option })}
-            />
+            <div className="flex min-w-0 flex-col gap-3">
+              <FeaturedBanner
+                pool={hero.pool}
+                auto={hero.auto}
+                onBet={(pool, option) => setSelected({ pool, option })}
+              />
+              {/* The low-commitment door. Stakeable YES/NO stays above; this exists for the
+                  visitor who will never connect a wallet, which is most of them. */}
+              <QuickGuess pool={hero.pool} />
+            </div>
           ) : (
             <div className="glass flex min-w-0 flex-col justify-center gap-3 rounded-3xl p-6">
               <h2 className="text-[20px] font-semibold leading-tight text-ink">
