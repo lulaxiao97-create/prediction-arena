@@ -94,8 +94,37 @@ for attempt in 1 2 3; do
   if HTTPS_PROXY="$PROXY_VAL" git "${GITCFG[@]}" fetch "$PUSH_URL" '+main:refs/remotes/board-push/main' >> "$LOG" 2>&1; then
     # --autostash: a dirty tree (a half-written snapshot, or an operator editing a script) must not
     # be what stops the board from shipping; the stash is restored after the rebase either way.
-    if ! HTTPS_PROXY="$PROXY_VAL" git -c user.name="$(git log -1 --format=%an)" \
-         -c user.email="$(git log -1 --format=%ae)" rebase --autostash refs/remotes/board-push/main >> "$LOG" 2>&1; then
+    #
+    # Conflicts are expected on generated data: the cloud content factory also rewrites
+    # docs/campaigns/*.json every day, and during a long outage both writers touch the same files.
+    # For those files the local snapshot is the newer truth, so take it and keep the rebase going.
+    # A conflict in anything else is a real merge problem — abort and leave the board local.
+    rebased=0
+    for _step in 1 2 3 4 5 6 7 8; do
+      if HTTPS_PROXY="$PROXY_VAL" git -c user.name="$(git log -1 --format=%an)" \
+           -c user.email="$(git log -1 --format=%ae)" rebase --autostash refs/remotes/board-push/main >> "$LOG" 2>&1; then
+        rebased=1; break
+      fi
+      conflicted="$(git diff --name-only --diff-filter=U | tr '\n' ' ')"
+      if [[ -z "$conflicted" ]]; then break; fi
+      ok=1
+      for f in $conflicted; do
+        case "$f" in
+          docs/campaigns/*.json|docs/points/*.json|frontend/public/points.json|frontend/public/pools.json|frontend/public/prices.json)
+            git checkout --theirs -- "$f" >> "$LOG" 2>&1 && git add -- "$f" >> "$LOG" 2>&1 ;;
+          *) ok=0 ;;
+        esac
+      done
+      if [[ "$ok" != "1" ]]; then
+        git rebase --abort >> "$LOG" 2>&1 || true
+        say "ERROR rebase conflict outside generated data ($conflicted) — board stays local"
+        exit 1
+      fi
+      say "rebase: took the local snapshot for generated files ($conflicted)"
+      GIT_EDITOR=true git -c user.name="$(git log -1 --format=%an)" \
+        -c user.email="$(git log -1 --format=%ae)" rebase --continue >> "$LOG" 2>&1 || true
+    done
+    if [[ "$rebased" != "1" ]]; then
       git rebase --abort >> "$LOG" 2>&1 || true
       say "ERROR could not rebase onto the other writer (conflict or dirty tree) — board stays local"
       exit 1

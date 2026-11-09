@@ -43,7 +43,7 @@ REGISTRY="scripts/opened-pools.json"
 STATE="logs/opened-batch.log"
 DRY_RUN="${DRY_RUN:-0}"
 
-RPC="${BASE_RPC_URL:?BASE_RPC_URL missing}"
+RPC="${OPEN_RPC:-${BASE_RPC_URL:?BASE_RPC_URL missing}}"   # OPEN_RPC lets a tick use a different endpoint (publicnode 403s on send)
 ARENA="${ARENA_ADDRESS:?ARENA_ADDRESS missing}"
 SIGNER=$(cast wallet address --private-key "$PRIVATE_KEY" 2>/dev/null) || { echo "bad PRIVATE_KEY" >&2; exit 1; }
 BAL=$(cast balance "$SIGNER" --rpc-url "$RPC" --ether 2>/dev/null || echo 0)

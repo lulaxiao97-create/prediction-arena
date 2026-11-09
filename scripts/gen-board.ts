@@ -1797,6 +1797,9 @@ function main() {
   const chainRows = (previous.pools ?? []).filter((p) => p.source === "chain");
 
   const usedDemoIds = new Set<string>();
+  const previousStatus = new Map<string, number>(
+    (previous.pools ?? []).map((p) => [String(p.id), Number(p.status ?? 1)])
+  );
   const generated: Pool[] = drafts.map((d) => {
     // Stable id: hash of the normalised title. Two questions that differ only in the strike or the
     // date are different markets and get different ids; the same question rebuilt 30 minutes later
@@ -1814,8 +1817,11 @@ function main() {
       title: d.title,
       category: d.category,
       tags: d.tags,
-      source: "demo",
-      status: 1,
+      source: openedById.has(demoId) ? "chain" : "demo",
+      // A row whose id is in the open registry has a real pool behind it, so the contract — not
+      // this generator — owns its status. Rebuilding the board used to reset a cancelled pool
+      // back to "open", which put markets on the page that revert on bet().
+      status: openedById.has(demoId) ? (previousStatus.get(demoId) ?? 1) : 1,
       endTimeUtc: d.deadline.toISOString(),
       liquidityUsdc: String(stats.liquidityUsdc),
       yesShare: d.yesShare,
@@ -1878,7 +1884,15 @@ function main() {
     stats: {
       tvlUsdc: previous.stats && (previous.stats as { tvlUsdc?: string }).tvlUsdc ? (previous.stats as { tvlUsdc: string }).tvlUsdc : "0",
       volume24hUsdc: null,
-      activeMarkets: generated.length + chainRows.length,
+      activeMarkets: (() => {
+        // chainRows and generated overlap by id (a generated row for an already-open pool is
+        // promoted to source:"chain" but still appears in both lists), so counting the two
+        // arrays added together double-counted every market — the dashboard read 461 for a
+        // 232-market board. Dedupe by id first, then count only what is actually Open.
+        const byId = new Map<string, Pool>();
+        for (const row of [...chainRows, ...generated]) byId.set(String(row.id), row);
+        return [...byId.values()].filter((r) => Number(r.status) === 1).length;
+      })(),
       settledMarkets: 0,
     },
     pools: (() => {

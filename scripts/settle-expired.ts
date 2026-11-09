@@ -64,11 +64,17 @@ let failures = 0;
 for (const p of stale) {
   const hours = Math.round((nowSec - Number(p.endTime)) / 3600);
   const view = cast(["call", ARENA, "getPools(uint256[])((string,string,uint64,uint8,uint8,uint256,uint256,uint256,bytes32)[])", `[${p.id}]`]);
-  // The tuple comes back as (title, category, endTime, winningOption, status, totalNetPool, o0, o1, hash).
-  const nums = view.out.match(/\b\d+\b/g) ?? [];
-  const option0 = Number(nums[6] ?? 0);
-  const option1 = Number(nums[7] ?? 0);
-  const staked = option0 > 0 || option1 > 0;
+  // Read the two option pools from their own getter. Scanning digits out of the tuple text used to
+  // work but silently broke: the title itself contains numbers ("November 5 2026", "$0.00000502"),
+  // so the positional match counted those first and every pool looked staked. The mapping is
+  // public, so ask it directly and parse one integer per call.
+  const grab = (s: string) => {
+    const m = s.trim().match(/^\d+/);
+    return m ? Number(m[0]) : 0;
+  };
+  const opt0 = grab(cast(["call", ARENA, "optionPool(uint256,uint8)(uint256)", p.id, "0"]).out);
+  const opt1 = grab(cast(["call", ARENA, "optionPool(uint256,uint8)(uint256)", p.id, "1"]).out);
+  const staked = opt0 > 0 || opt1 > 0;
   const supplied = results.get(p.id);
 
   const action = staked ? (supplied ? "settle" : "refuse") : "cancel";
@@ -83,7 +89,7 @@ for (const p of stale) {
     title: p.title,
     endTime: p.endTime,
     endedHoursAgo: hours,
-    onChain: { option0, option1, raw: view.out.slice(0, 400) },
+    onChain: { option0: opt0, option1: opt1, raw: view.out.slice(0, 400) },
     action,
     why,
     decidedAt: new Date().toISOString(),
@@ -99,7 +105,7 @@ for (const p of stale) {
   const sha = new Bun.CryptoHasher("sha256").update(readFileSync(path)).digest("hex");
 
   console.log(`\n${p.id} · ${p.title.slice(0, 62)}`);
-  console.log(`  ended ${hours}h ago · option0=${option0} option1=${option1} → ${action.toUpperCase()}`);
+  console.log(`  ended ${hours}h ago · option0=${opt0} option1=${opt1} → ${action.toUpperCase()}`);
   console.log(`  ${why}`);
   console.log(`  evidence: ${path} sha256=${sha.slice(0, 16)}…`);
 
