@@ -108,6 +108,27 @@ export function useMarkets() {
     [manifest, now]
   );
 
+  /**
+   * Manifest rows the chain did not answer for.
+   *
+   * Since the board went fully on-chain (every pool is `source: "chain"`), a failed or stubbed RPC
+   * used to leave the grid empty: the manifest row was skipped because it was not demo, and the
+   * chain row never arrived. That made the board depend on RPC availability for its *shape*, not
+   * just its numbers — and it is why the E2E suite, which deliberately stubs "no pools on chain",
+   * rendered zero cards while the live site was fine.
+   *
+   * Rendering the manifest row here is the same bargain `/api/board` already makes: a stale card
+   * beats an empty board. The row keeps `source: "demo"` on the model so the payout figures are
+   * read as presentation numbers rather than escrowed money.
+   */
+  const manifestOnly = useMemo<ArenaPool[]>(() => {
+    const answered = new Set(chainPools.map((p) => p.id.toString()));
+    return (manifest?.pools ?? [])
+      .filter((p) => (p.source ?? "chain") === "chain")
+      .filter((p) => !answered.has(String(p.id)))
+      .map((p) => demoPoolToArena(p, now));
+  }, [manifest, chainPools, now]);
+
   const pools = useMemo<ArenaPool[]>(() => {
     const enrichedChain = chainPools.map((pool) => {
       const meta = manifestMeta[String(pool.id)];
@@ -141,6 +162,11 @@ export function useMarkets() {
     // what the visitor sees, and the id behind it is the same pool the bet goes to.
     const byId = new Map<string, ArenaPool>();
     for (const row of enrichedChain) byId.set(row.id.toString(), row);
+    // Chain answered for these ids — a manifest row for the same id would only overwrite fresher
+    // numbers, so they are skipped below by the same map.
+    for (const row of manifestOnly) {
+      if (!byId.has(row.id.toString())) byId.set(row.id.toString(), row);
+    }
     for (const row of demoPools) {
       const onchain = byId.get(row.id.toString());
       // Real liquidity takes precedence: the moment the contract holds stake for this id, the card
@@ -162,7 +188,7 @@ export function useMarkets() {
       }
     }
     return [...byId.values()];
-  }, [chainPools, demoPools, manifestMeta]);
+  }, [chainPools, demoPools, manifestOnly, manifestMeta]);
 
   const stats = useMemo(() => {
     // Presentation totals, summed from the same per-card figures the grid renders — a header that
