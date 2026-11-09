@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-09T08:30:07.788Z",
+ "updatedAt": "2026-11-09T09:00:07.257Z",
  "count": 91,
  "posts": [
   {
@@ -157,6 +157,12 @@
    "cid": "bafyreie2o46puci4hbqythaddiu42i7gxyyznnloc7howz6gxvy7fmgrwu",
    "text": "Had a nice chat with a guy at the spa, but it's amazing how quickly my energy for the convo dipped as soon as he mention",
    "handle": "fablepaint.bsky.social"
+  },
+  {
+   "uri": "at://did:plc:yxexlao7brww6qazrmbmj3er/app.bsky.feed.post/3mzujqg2qkf2g",
+   "cid": "bafyreicvd2i3icjj53j3sfyr7cywehpk4ue4kxbp3x6i77xj47egld4m2m",
+   "text": "arb on polymarket. 4 cents of spread. bot took both legs in 300ms. eleven dollars. this is the whole job.",
+   "handle": "mitsukoharada.com"
   },
   {
    "uri": "at://did:plc:wzlw5nsbpcebsiccs6iu7ipj/app.bsky.feed.post/3mzuicrmkhb2z",
@@ -355,12 +361,6 @@
    "cid": "bafyreibwcicegeq6alple7vyruhzwi7z46nl7dk6cimbgpgqyn3m6447ny",
    "text": "There's a Kalshi ad about a CA goat farmer hedging his risk of increased wages for his shepherds with a Kalshi contract.",
    "handle": "lloid.bsky.social"
-  },
-  {
-   "uri": "at://did:plc:l4yx7ucvt5jmedhab3gtr4bq/app.bsky.feed.post/3mzu4liaisc24",
-   "cid": "bafyreieovg3dm6nj37a5j2wzsgmqvwky4yq436enypatusa3aykf6hk644",
-   "text": "Why does the corgi that picks game have kalshi as a sponsor? They can't help but push gambling on sports watchers",
-   "handle": "the3jsmom.blacksky.app"
   }
  ]
 }
