@@ -1924,7 +1924,22 @@ function main() {
     chainId: previous.chainId ?? 8453,
     deployBlock: Number((process.env.ARENA_DEPLOY_BLOCK ?? "").trim()) || previous.deployBlock || 53150166,
     updatedAt: now.toISOString(),
-    featured: generated.find((p) => p.source === "chain")?.id ?? chainRows[0]?.id ?? generated[0]?.id,
+    // The homepage hero is the single hook — one question, one number, one button. A price-strike
+    // market is the weakest possible choice for it (the answer is "the chart says so"), so the
+    // event markets win when one is live: they are the only rows a stranger can have an opinion
+    // about without understanding the product. Falls back to the first chain row.
+    featured:
+      generated.find(
+        (p) =>
+          p.status === 1 &&
+          p.source === "chain" &&
+          /FOMC|Federal Reserve|Fed (?:cut|hold|raise|decision)/i.test(
+            `${p.title} ${(p.tags ?? []).join(" ")}`
+          )
+      )?.id ??
+      generated.find((p) => p.source === "chain")?.id ??
+      chainRows[0]?.id ??
+      generated[0]?.id,
     dataSources: {
       prices: "Binance /api/v3/ticker/24hr (majors) + CoinGecko /simple/price (Base tokens) + Yahoo Finance chart (equities/indices/metals/FX)",
       global: "CoinGecko /global",
