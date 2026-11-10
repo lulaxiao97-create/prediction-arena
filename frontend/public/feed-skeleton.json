@@ -1,7 +1,13 @@
 {
- "updatedAt": "2026-11-10T11:00:06.881Z",
+ "updatedAt": "2026-11-10T11:30:07.380Z",
  "count": 84,
  "posts": [
+  {
+   "uri": "at://did:plc:zplu3icl7jqkrogq7x4gxuwo/app.bsky.feed.post/3mzxbwry5ly22",
+   "cid": "bafyreiavnt36kp6aktbtr6c2ib7ffg32vxprym7rysiti34pdqmdrmmblm",
+   "text": "Prediction markets often move 48-72 hours ahead of the news cycle. PredictIntel tracks SEC filings, credit stress, and p",
+   "handle": "predictintel.bsky.social"
+  },
   {
    "uri": "at://did:plc:clnbplxqeizq53334ska4dr7/app.bsky.feed.post/3mzxbpdauh224",
    "cid": "bafyreihvafflzdd32dbpzuotkuwf4ptpmezqhl7pvc6vghs2abzmm3tnfq",
@@ -87,10 +93,10 @@
    "handle": "pushalt88.bsky.social"
   },
   {
-   "uri": "at://did:plc:zplu3icl7jqkrogq7x4gxuwo/app.bsky.feed.post/3mzxbwry5ly22",
-   "cid": "bafyreiavnt36kp6aktbtr6c2ib7ffg32vxprym7rysiti34pdqmdrmmblm",
-   "text": "Prediction markets often move 48-72 hours ahead of the news cycle. PredictIntel tracks SEC filings, credit stress, and p",
-   "handle": "predictintel.bsky.social"
+   "uri": "at://did:plc:kfsguavdslw42t6avj6ckjob/app.bsky.feed.post/3mzxbzuldkg2t",
+   "cid": "bafyreiecoelf5uw6ktinzyonmy64cu6unkpfugxy3st4zx2vpox4unj654",
+   "text": "⚠️ Regulation\n\n'Tough Questions' Ahead: Warren Targets Prediction Markets, Trump Crypto as Banking Chair\n\nBTC-USD bearis",
+   "handle": "shingou-io.bsky.social"
   },
   {
    "uri": "at://did:plc:iqoyar2mdkpg6mskhmri3nr6/app.bsky.feed.post/3mzxb2zjuz52e",
@@ -153,16 +159,22 @@
    "handle": "unormal.bsky.social"
   },
   {
-   "uri": "at://did:plc:n4765ftlk5sxhgd5low6rqbd/app.bsky.feed.post/3mzwpsdu2as22",
-   "cid": "bafyreieucn4s4kryttiwwhdrkhi3l54pgqzvvppmxuwdkhgqmig7ed5nrq",
-   "text": "if you could get rid of AI *or* prediction markets which one would you choose",
-   "handle": "unormal.bsky.social"
+   "uri": "at://did:plc:im6f54t52eyvrbzvwff7jnuk/app.bsky.feed.post/3mzxccms6432y",
+   "cid": "bafyreiddnqkznjxp2badtuqlrw4ieni7cc6dmqblzrg43whs2ruecp5klq",
+   "text": "Polymarket Sign-Up Bonus Code SBWIRE | Get $25 for NFL, NBA, Politics & More - Argus Leader\n\nPolymarket Sign-Up Bonus Co",
+   "handle": "globalnews3.bsky.social"
   },
   {
-   "uri": "at://did:plc:4dcsr7eynoanetytoo7knyz3/app.bsky.feed.post/3mzwnxypeak2f",
-   "cid": "bafyreier5trhuiasaz3yzul2y3qqo5447g2hkt6s3fbwak24i7ti6fxg34",
-   "text": "It seems clear that prediction markets are being abused by people who can afford to lose a million dollars. They place a",
-   "handle": "tlc-ron-low.bsky.social"
+   "uri": "at://did:plc:yulot74li3ifsdsjrh4662nx/app.bsky.feed.post/3mzxca6wett2h",
+   "cid": "bafyreiabibr4mmb755py2p3jeupmlvth4v4k5e4lnvkwgnybgfpk3m3dyi",
+   "text": "La Fed est en mode hausse : Waller soutient au moins +0,25 pt en décembre. Sur Polymarket, « pas de changement » est pas",
+   "handle": "centsbot.bsky.social"
+  },
+  {
+   "uri": "at://did:plc:hwvnehcprk4qhz3dk6nu3qxw/app.bsky.feed.post/3mzxbxu7p3s2y",
+   "cid": "bafyreicfdhbf6s2u5dvrprhm6xx4svqydskded3gsdrrelwsp7gu43qwf4",
+   "text": "Our worst call in October.\n\n\"Will Ethereum reach $2,800 in October?\" We said 100%. Polymarket said 79.5%. It didn't.\n\nBr",
+   "handle": "neuportal.bsky.social"
   },
   {
    "uri": "at://did:plc:ayviswzzj5bcktqko7x74oni/app.bsky.feed.post/3mzxattq7mk2a",
@@ -309,12 +321,6 @@
    "handle": "suggestionboxlive.bsky.social"
   },
   {
-   "uri": "at://did:plc:6zn5jncu7r6oa5hxud5lfxpo/app.bsky.feed.post/3mzwh4c343c25",
-   "cid": "bafyreiatwog72ctthxfyommhcukf7kqjri6ygrwvo3z5sj4jarwy5yloam",
-   "text": "I’ve been betting on movies rotten tomatoes scores on Polymarket and I’ve never lost 😊😊😊",
-   "handle": "yonny23.bsky.social"
-  },
-  {
    "uri": "at://did:plc:l3sddn27fv77yifw42xsqrkm/app.bsky.feed.post/3mzx7mp74y52k",
    "cid": "bafyreig7os7i2jppdhsd7cxrf6guldcurl7evmh7r25eiwnlp67qmgk7eu",
    "text": "Will Donald Trump's approval rating on approval rating be above 44% during Dec 2025 to Dec 2026 according to VoteHub?\n\nK",
@@ -355,12 +361,6 @@
    "cid": "bafyreifwjyn3q3pmebg6zqayizniguot2csqrxalcmaw2fe5zk7oqx5f6m",
    "text": "newsweek\nThe shift on Kalshi comes as Trump sparked some confusion over the weekend after he said he offered UFC CEO Dan",
    "handle": "zaswadosaze.bsky.social"
-  },
-  {
-   "uri": "at://did:plc:uxxttuwrg2ri2fksomjoxznu/app.bsky.feed.post/3mzwswxg5bj2l",
-   "cid": "bafyreiejk37amza5t2i3zel5hpruy4lkyhtrtyzeduikt5hnovjpgkyriy",
-   "text": "🚨 BREAKING: Coinbase, Kalshi, Payward, DRW, Jump, Paradigm file amicus brief defending CFTC’s jurisdiction over single‑",
-   "handle": "yourweb3guy.bsky.social"
   }
  ]
 }
