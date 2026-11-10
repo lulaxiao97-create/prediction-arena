@@ -44,10 +44,13 @@ function MarketCardImpl({
   pool,
   onBet,
   index = 0,
+  taps,
 }: {
   pool: ArenaPool;
   onBet: (pool: ArenaPool, option: 0 | 1) => void;
   index?: number;
+  /** Wallet-less picks on this market, counted server-side. Absent while the board is loading. */
+  taps?: { yes: number; no: number } | null;
 }) {
   const { t } = useI18n();
   const mounted = useMounted();
@@ -206,14 +209,24 @@ function MarketCardImpl({
         </div>
       )}
 
-      {/* stats line — provenance and deadline, not a fabricated book. The old line printed
-          displayStatsFor()'s hash-derived liquidity and trader count, which read as a traded market
-          and was never one. What is left is true: how the price is produced and when it settles. */}
+      {/* Stats line — one number that is measured, or an honest invitation.
+          The old line printed displayStatsFor()'s hash-derived liquidity and trader count; those are
+          gone. What replaces them is the only crowd figure this venue actually produces: the
+          wallet-less picks counted by /api/guess. A market with none says so and asks for the first
+          mover — which is the truth, and also the only line on the card that asks the reader to act. */}
       <div className="pointer-events-none relative z-10 flex items-center justify-between text-[10.5px] text-muted">
-        <span className="inline-flex items-center gap-1 text-muted/70">
-          <span className="text-[9px] uppercase tracking-[0.1em] text-muted/55">Priced by</span>
-          <span className="font-semibold text-ink/85">live feeds</span>
-        </span>
+        {taps && taps.yes + taps.no > 0 ? (
+          <span className="inline-flex items-center gap-1 text-muted/80">
+            <Users className="size-2.5" />
+            <span className="mono">
+              {taps.yes + taps.no} {taps.yes + taps.no === 1 ? "pick" : "picks"} · {taps.yes} yes / {taps.no} no
+            </span>
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 text-[9.5px] uppercase tracking-[0.12em] text-gold/75">
+            <Users className="size-2.5" /> be the first
+          </span>
+        )}
         <span className="inline-flex items-center gap-1">
           <Clock3 className="size-2.5" />
           <span className="mono">{cd ? (cd.ended ? "Ended" : formatCountdown(cd)) : "—"}</span>

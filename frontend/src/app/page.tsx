@@ -19,6 +19,7 @@ import { HeroMasthead } from "@/components/HeroMasthead";
 import { QuickGuess } from "@/components/QuickGuess";
 import { GrowthStrip } from "@/components/GrowthStrip";
 import { RakebackBanner } from "@/components/RakebackBanner";
+import { FirstBetInsurance } from "@/components/FirstBetInsurance";
 import { LiveProofToast } from "@/components/LiveProofToast";
 import { TrendTicker } from "@/components/TrendTicker";
 import { LiveTicker } from "@/components/LiveTicker";
@@ -52,6 +53,28 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("ending");
   const [selected, setSelected] = useState<{ pool: ArenaPool; option: 0 | 1 } | null>(null);
+  /**
+   * Wallet-less picks, one fetch for the whole board.
+   *
+   * The card's crowd line used to be a hash; now it is this. A single `GET /api/guess` returns every
+   * market's count (cached 60s server-side), so 247 cards cost one request instead of 247. `null`
+   * while the fetch is in flight keeps the card on "be the first" rather than flashing a zero.
+   */
+  const [taps, setTaps] = useState<Record<string, { yes: number; no: number }> | null>(null);
+  useEffect(() => {
+    let live = true;
+    fetch("/api/guess", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((json: { counts?: Record<string, { yes: number; no: number }> }) => {
+        if (live) setTaps(json.counts ?? {});
+      })
+      .catch(() => {
+        /* the card falls back to "be the first" */
+      });
+    return () => {
+      live = false;
+    };
+  }, []);
 
   // Stable identity so memoised cards do not re-render on every keystroke in the search box.
   const handleBet = useCallback((pool: ArenaPool, option: 0 | 1) => setSelected({ pool, option }), []);
@@ -187,6 +210,7 @@ export default function Home() {
 
       <main className="mx-auto w-full max-w-[1400px] overflow-x-clip px-4 pb-10 pt-5 sm:px-6">
         <RakebackBanner />
+        <FirstBetInsurance />
         <HeroMasthead />
         <GrowthStrip />
 
@@ -285,7 +309,7 @@ export default function Home() {
                 key={String(pool.id)}
                 style={{ contentVisibility: "auto", containIntrinsicSize: "auto 320px" }}
               >
-                <MarketCard pool={pool} index={index} onBet={handleBet} />
+                <MarketCard pool={pool} index={index} onBet={handleBet} taps={taps?.[String(pool.id)] ?? null} />
               </div>
             ))}
           </div>
