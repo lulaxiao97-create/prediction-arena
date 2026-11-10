@@ -1,7 +1,13 @@
 {
- "updatedAt": "2026-11-10T08:00:07.223Z",
- "count": 84,
+ "updatedAt": "2026-11-10T08:30:07.631Z",
+ "count": 86,
  "posts": [
+  {
+   "uri": "at://did:plc:r4l6gesutgzks7ytpvf2bpb5/app.bsky.feed.post/3mzwyiih3ac27",
+   "cid": "bafyreidwym4osop6vrflk555bbn76yqz2syrix3wgy5gl7ojj37ckxm6ee",
+   "text": "What if real-world opinions could become market opportunities?\n\nExplore prediction market platform development with real",
+   "handle": "malgotech.bsky.social"
+  },
   {
    "uri": "at://did:plc:7k4vfws3kkxokmrg5co7n2b6/app.bsky.feed.post/3mzwq3ud4l22v",
    "cid": "bafyreig33h6kk6bm53oyelxg4rorhc7a65zxqipgmkhdo3rsoupxfa5w3e",
@@ -75,12 +81,6 @@
    "handle": "quartzmedia.bsky.social"
   },
   {
-   "uri": "at://did:plc:ck7aajho5ziqo6lrs64rm4oc/app.bsky.feed.post/3mzvtasvre22x",
-   "cid": "bafyreihrt76w3olik5h33qebaozarvpl7nupw5zaowbgjr5sbx4qf74d7q",
-   "text": "Bills vs. Vikings betting promos: Get nearly $4K in sportsbook, prediction market bonuses for 'Monday Night Football'",
-   "handle": "nypost.com"
-  },
-  {
    "uri": "at://did:plc:xwgpkn266d3ac4bwepb7zd67/app.bsky.feed.post/3mzwwf4benr22",
    "cid": "bafyreig2msrk64cw555vwcp7oqmofsj3nfie6x5a3fh5pm5xrxhzsyxgvm",
    "text": "Elizabeth Warren vows scrutiny of prediction markets, Trump family crypto ventures as Senate Banking chair",
@@ -145,6 +145,12 @@
    "cid": "bafyreiappurqau4sbveewt4qocnoyimseax4pvfzmqeecq7mhgwmuvhmdu",
    "text": "Bills got a first down and you just know a bunch of people made money in the prediction markets.",
    "handle": "scottwhitmore.bsky.social"
+  },
+  {
+   "uri": "at://did:plc:zcxlusmrmdjnv6ju6wychhsx/app.bsky.feed.post/3mzwye27kxd2y",
+   "cid": "bafyreigmauk3ykgco7puor2f7gjlvsuwsypk2cdmlxv7q5taiz2vwlox7a",
+   "text": "Will Kai Cenat finish his GTA marathon by November 11, 7:59 AM ET?\n\n📈 YES 35% → 71% (+36) in 1h\n\nPolymarket ↗",
+   "handle": "big-move-tracker.bsky.social"
   },
   {
    "uri": "at://did:plc:im6f54t52eyvrbzvwff7jnuk/app.bsky.feed.post/3mzwxfd3xwv2g",
@@ -267,6 +273,12 @@
    "handle": "psychedelicnoel.bsky.social"
   },
   {
+   "uri": "at://did:plc:psheobgudjnoddik2e2pceeg/app.bsky.feed.post/3mzwz4r4bpc26",
+   "cid": "bafyreicnlndj5uksfvehippkdidkvmw2dr4n4mwbig7jevxtsuwoaj3ohy",
+   "text": "Ethical Super Bowl: Jags v Bears\n\nDegenerate Kalshi SB: Chiefs v Rams\n\nOld Head SB: Bills v Packers\n\n80’s Are Back SB: B",
+   "handle": "guccibedpan.bsky.social"
+  },
+  {
    "uri": "at://did:plc:owu2lfrumlvvpoputmlmcwpd/app.bsky.feed.post/3mzwvwubbd52n",
    "cid": "bafyreibdblwoauqhhciftvs6znifxcqc3h2znbsfndjlzn4wmu6bg77xoq",
    "text": "Coinbase, Kalshi and Payward Back CFTC in Single-Stock Perpetual Futures Fight, Filing Amicus Brief\n\n#COIN #Coinbase #Ka",
@@ -349,18 +361,6 @@
    "cid": "bafyreifmuoax2tcfg2v5hhhb2ntxpehrpwkvvgndu2bfxvxbdpyrarsfny",
    "text": "Someone check Wentz’ Kalshi account because what is this? He looks like Caleb Williams tonight (derogatory).",
    "handle": "gentlellama.bsky.social"
-  },
-  {
-   "uri": "at://did:plc:ef3pb4ayru3qffqsovyl3kb5/app.bsky.feed.post/3mzwjulwjss2r",
-   "cid": "bafyreifnldkf5nng4mixlmvk242q4q6dumlqddzizukkslqdbcvx5mhs4i",
-   "text": "SEC Publishes New Kalshi Security-Futures Filing as Perpetual Contracts Advance\n\nThe SEC published a November 6 notice o",
-   "handle": "crypto.at.thenote.app"
-  },
-  {
-   "uri": "at://did:plc:uo7wtr2bu24lv5med5tqwfzj/app.bsky.feed.post/3mzwjsch3ps25",
-   "cid": "bafyreifcrqfianieitwq2fznvllm45wlnzn4poy3aqgv5mjtbrrjopbn34",
-   "text": "Carson Wentz has to have a secret Kalshi account because there's no way an NFL quarterback is this bad",
-   "handle": "radda.bsky.social"
   }
  ]
 }
