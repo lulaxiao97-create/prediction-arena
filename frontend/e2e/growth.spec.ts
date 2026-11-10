@@ -72,6 +72,37 @@ test("market share intent carries per-market attribution", async ({ page, reques
 });
 
 
+/**
+ * The free pick has to be a real count, not a rendering.
+ *
+ * /api/guess is the only number on the landing page that a visitor produces, and the whole point of
+ * adding it was to stop showing an aggregate that nothing measured. These assertions pin the three
+ * things that make it honest: it starts at zero, a tap moves it by exactly one, and the same client
+ * tapping twice does not move it again.
+ */
+test("a wallet-less pick is counted server-side, once per client", async ({ request }) => {
+  // A synthetic id: the counter does not require the market to exist, and using a real id would make
+  // the assertions depend on other tests' traffic.
+  const id = String(9_000_000_000 + Math.floor(Math.random() * 89_999));
+  const read = async () => (await (await request.get(`/api/guess?id=${id}`)).json()) as { total: number; yes: number; no: number };
+
+  expect((await read()).total).toBe(0);
+
+  const first = await request.post("/api/guess", { data: { id, side: "yes" } });
+  expect(first.ok()).toBeTruthy();
+  const afterFirst = (await first.json()) as { total: number; yes: number; duplicate?: boolean };
+  expect(afterFirst.duplicate).toBeUndefined();
+  expect(afterFirst.total).toBe(1);
+  expect(afterFirst.yes).toBe(1);
+
+  const second = await request.post("/api/guess", { data: { id, side: "no" } });
+  const afterSecond = (await second.json()) as { total: number; duplicate?: boolean };
+  expect(afterSecond.duplicate).toBe(true);
+  expect(afterSecond.total).toBe(1);
+
+  expect((await read()).total).toBe(1);
+});
+
 test("growth attribution endpoint answers with a JSON contract", async ({ request }) => {
   const res = await request.get("/api/growth/summary?chunks=1");
   // 200 when the public Base RPC allows the scan, 503 when it throttles. Both are the contract:
