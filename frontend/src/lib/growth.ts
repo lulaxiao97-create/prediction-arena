@@ -88,6 +88,8 @@ type TrendPool = {
   option0Pool?: bigint;
   option1Pool?: bigint;
   endTimeUtc?: string;
+  /** Unix seconds from the manifest / contract. The rail's own cards carry this, not the ISO string. */
+  endTime?: number;
 };
 
 /**
@@ -134,8 +136,16 @@ export function trendPoints(pools: TrendPool[], limit = 6): TrendPoint[] {
   const now = Date.now();
   return pools
     .filter((p) => (p.status ?? 1) === 1)
+    // A deadline in the past is not "hot", it is expired-and-unsettled: the rail must not lead with
+    // a market whose clock already ran out.
+    .filter((p) => {
+      const end = p.endTimeUtc ? Date.parse(p.endTimeUtc) : p.endTime ? p.endTime * 1000 : NaN;
+      return !Number.isFinite(end) || end > now;
+    })
     .map((p) => {
-      const end = p.endTimeUtc ? Date.parse(p.endTimeUtc) : NaN;
+      // Either shape arrives here: the manifest ships `endTimeUtc`, a hydrated pool carries `endTime`
+      // in seconds. Reading only the ISO form made every rail line say "365d".
+      const end = p.endTimeUtc ? Date.parse(p.endTimeUtc) : p.endTime ? p.endTime * 1000 : NaN;
       const hours = Number.isFinite(end) ? Math.max(0, (end - now) / 3_600_000) : 24 * 365;
       const depth = Number(p.totalNetPool ?? 0n) / 1e6;
       return { pool: p, hours, score: -hours + Math.min(depth, 1000) / 50_000 };
