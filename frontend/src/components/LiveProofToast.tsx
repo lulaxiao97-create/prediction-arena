@@ -110,8 +110,8 @@ export function LiveProofToast({ pools }: { pools: ArenaPool[] }) {
           >
             {t("growth.proofLine", {
               title: point.title,
-              traders: point.traders,
-              mult: point.mult.toFixed(1),
+              yes: point.yesPct,
+              ends: point.endsIn,
             })}
           </Link>
         </div>

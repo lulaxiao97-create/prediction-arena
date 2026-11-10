@@ -1,3 +1,10 @@
+> **WITHDRAWN 2026-11-10.** This document describes a token allocation and a points programme that
+> no longer exist. The points ledger was funded by nothing: the ad venue (HypeLab) declined the site
+> for being under its impression floor, and the 42% "genesis airdrop" was denominated in a token that
+> has no contract. The product removed the ledger, the API, the watch-to-earn unit and the bot's
+> grants on 2026-11-10. Kept here as a record of what was promised and why it was withdrawn.
+> The current description of the venue is `docs/WHITEPAPER.md` v1.1.
+
 # $ARENA — 代币经济学（精简版）
 
 > **先说实话**：现在**没有** $ARENA 代币，也没有任何预售、私募或可购买的份额。本文描述的是

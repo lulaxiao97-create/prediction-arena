@@ -53,9 +53,7 @@ async function buildPayload() {
   const traffic = summarise();
 
   const captains = Object.keys(readJson<{ captains?: Record<string, unknown> }>(join(DATA, "captains.json"), {}).captains ?? {}).length;
-  const grants = readJson<{ address: string; points: number; reason: string; date: string }[]>(join(DOCS, "points", "grants.json"), []);
   const refs = readJson<Record<string, { ref: string; at: string }>>(join(DATA, "refs.json"), {});
-  const mults = readJson<Record<string, { multiplier: number; at: string; reason: string }>>(join(DOCS, "points", "multipliers.json"), {});
   const followback = readJson<Record<string, { count: number; seeds: Record<string, number> }>>(join(DATA, "followback.json"), {});
   // growth.jsonl only exists on the operator's box: the deployed container has no .data directory.
   // An unguarded read here is what turned this endpoint into a 500 in production while it worked
@@ -99,9 +97,6 @@ async function buildPayload() {
       traffic,
       telegram: {
         captains,
-        bindGrants: grants.filter((g) => g.reason.startsWith("bind:")).length,
-        crewGrants: grants.filter((g) => g.reason.startsWith("crew:")).length,
-        boosts: Object.keys(mults).length,
         referralEdges: Object.keys(refs).length,
         topReferrers: Object.entries(chiefCount)
           .sort((a, b) => b[1] - a[1])

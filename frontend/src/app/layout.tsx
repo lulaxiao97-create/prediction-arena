@@ -4,7 +4,6 @@ import "./globals.css";
 import { Web3Provider } from "@/providers/Web3Provider";
 import { LocaleProvider } from "@/components/LocaleProvider";
 import { ToastProvider } from "@/components/Toast";
-import { RewardsProvider } from "@/components/RewardsProvider";
 import { ChunkReloadGuard } from "@/components/ChunkReloadGuard";
 import { PwaRegister } from "@/components/PwaRegister";
 import { Warmup } from "@/components/Warmup";
@@ -150,10 +149,8 @@ export default function RootLayout({
         <LocaleProvider>
           <Web3Provider>
             <ToastProvider>
-              <RewardsProvider>
-                <TelemetryBeacon />
-                {children}
-              </RewardsProvider>
+              <TelemetryBeacon />
+              {children}
             </ToastProvider>
           </Web3Provider>
         </LocaleProvider>

@@ -191,11 +191,8 @@ export default function AdminDashSecret() {
           ))}
         </Card>
 
-        <Card title="Telegram / points">
+        <Card title="Telegram / captains">
           <Stat label="captains bound" value={data.telegram.captains} />
-          <Stat label="bind grants" value={data.telegram.bindGrants} />
-          <Stat label="channel grants" value={data.telegram.crewGrants} />
-          <Stat label="5× boosts" value={data.telegram.boosts} />
           <Stat label="referral edges" value={data.telegram.referralEdges} />
           {data.telegram.topReferrers.map((r) => (
             <div key={r.wallet} className="flex justify-between font-mono text-xs text-white/60">

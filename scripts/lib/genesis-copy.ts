@@ -1,22 +1,19 @@
 /**
- * One place for the genesis copy, because the same claim was being written three times and drifting.
+ * One place for the X copy, because the same claim was being written six times and drifting.
  *
- * The hook is as aggressive as the brief asks for — 42% of supply, no presale, no team allocation —
- * but every number in it is checkable:
+ * Every number here is checkable, and every one of them is about the venue rather than about a
+ * future token:
  *
- *   · 42% / 1B supply / zero team reserve   → docs/TOKENOMICS.md, frontend/public/WHITEPAPER.md
- *   · "N markets live"                      → count of status=1 pools with endTime in the future
- *   · TVL is deliberately NOT quoted any more: on 2026-11-04 the arena received its first 1.00
- *     USDC, so "$0" became false the moment it was written. A number that changes daily does not go
- *     in static copy; the live figure is usdc.balanceOf(arena).
- *   · "+500 points on bind"                 → the grant telegram-bot.ts writes to docs/points/grants.json
+ *   · "N markets live"     → count of status=1 pools with endTime in the future
+ *   · "4% fee" / "30% to the referrer" / "claimable" → PredictionArena.sol, basescan
+ *   · "rule published before you bet" → each pool carries its resolution source in the manifest
  *
- * What is deliberately NOT claimed, even though the brief included it:
- *   · "$ARENA airdrop is LIVE" — no token contract exists yet. What is live is the points ledger.
- *   · "USDC seed grants" — no such programme exists anywhere in the product or the docs. Inventing a
- *     grant to win a click is the kind of claim that gets screenshotted and kills the account.
- *   · "@PredictionArena" — not our handle (@Predict065); pointing followers at somebody else is worse
- *     than no funnel at all.
+ * What is deliberately NOT claimed any more (removed 2026-11-10):
+ *   · "$ARENA", "points", "airdrop", "42% of supply" — no token contract exists, the points ledger
+ *     is gone, and the ad venue never onboarded us. Every one of those lines was a promise with no
+ *     counterparty; they are replaced below with what the contract actually does.
+ *   · "USDC seed grants" — no such programme exists anywhere in the product or the docs.
+ *   · "@PredictionArena" — not our handle (@Predict065).
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -80,28 +77,28 @@ export function liveMarketCount(): number {
 export function steps(line: string[] = []): string[] {
   return [
     `1️⃣ Follow ${X_HANDLE}`,
-    `2️⃣ Base wallet 👇 in reply`,
-    `3️⃣ ${TG_BOT} +500 pts`,
+    `2️⃣ Read the resolution rule, then take a side`,
+    `3️⃣ ${TG_BOT} for settlement notices`,
     ...line,
   ];
 }
 
-const PITCH = "42% of $ARENA supply goes to points holders (1:1 at launch). No presale. No team allocation.";
+const PITCH = "USDC escrow, 4% fee on the losing side, winnings claimable on-chain. No KYC, no custody.";
 
 /**
  * The daily tweet. Greedy by priority, not "all or nothing": the funnel steps and the link are
- * mandatory, then the "$0 TVL / N markets" honesty line, then the 42% pitch, then the odds — each is
+ * mandatory, then the "N markets / rule published" line, then the fee pitch, then the odds — each is
  * added only if the whole post still fits 280. The old version tried three fixed templates and fell
  * straight through to a bare four-line stub, which is how the strongest claim ended up on the floor.
  */
 export function buildFunnel(m: Market | null): string {
   const live = liveMarketCount();
-  const social = `📊 ${live} markets · settled on-chain · zero team allocation.`;
-  const pitch = `🚀 Genesis S1 is live: 42% of $ARENA supply → points holders, 1:1 at launch.`;
+  const social = `📊 ${live} markets · every resolution rule published before you bet.`;
+  const pitch = `🏦 ${PITCH}`;
   const link = m ? `${SITE}/market/${m.id}?ref=x` : `${SITE}/?ref=x`;
-  const tail = [``, `🪂 3 steps:`, ...steps(), ``, link];
+  const tail = [``, `How it works:`, ...steps(), ``, link];
 
-  if (!m) return [`🚀 Genesis Points Season 1 is live on Base.`, pitch, social, ...tail].join("\n");
+  if (!m) return [`🏴 ${live} binary markets on Base, priced by the crowd.`, pitch, social, ...tail].join("\n");
 
   const head = `🏴 ${clipTitle(shortMarket(m.title), 84)}`;
   const odds = `YES ${m.yes}% → ${m.oddsYes}× · NO ${100 - m.yes}% → ${m.oddsNo}×${m.endsIn ? ` · ${m.endsIn}` : ""}`;
@@ -129,10 +126,10 @@ export function buildReply(m: Market | null, variant: "a" | "b"): string {
     [
       head,
       ``,
-      `🚀 Genesis Points S1 is live: ${PITCH}`,
-      `📊 ${live} 个盘口 · 结算上链 · 零团队预留。`,
+      `🏦 ${PITCH}`,
+      `📊 ${live} 个盘口 · 结算上链 · 每条结算规则下注前公开。`,
       ``,
-      `🪂 +500 pts in 3 steps:`,
+      `How it works:`,
       ...steps(),
       ``,
       `${SITE}/?ref=x`,
@@ -140,12 +137,12 @@ export function buildReply(m: Market | null, variant: "a" | "b"): string {
     [
       head,
       ``,
-      `Every $1 staked = 1 point, 1:1 at $ARENA launch. 42% of supply, no presale, no team allocation.`,
-      `${live} markets live. Every settlement rule is published before you bet.`,
+      `Binary market, USDC escrow: the losing side's stake pays the winners, minus a 4% fee.`,
+      `${live} markets live. Every resolution rule is published before you bet — read it first.`,
       ``,
       `1️⃣ Follow ${X_HANDLE}`,
-      `2️⃣ Base wallet in the reply 👇 (+500 pts)`,
-      `3️⃣ ${TG_BOT} for the channel`,
+      `2️⃣ Take a side on Base (no KYC, no custody)`,
+      `3️⃣ ${TG_BOT} for settlement notices`,
       ``,
       `${SITE}/?ref=x`,
     ].join("\n"),
@@ -154,9 +151,9 @@ export function buildReply(m: Market | null, variant: "a" | "b"): string {
   if (weighted(text) <= X_LIMIT) return text;
   return [
     head,
-    `🚀 Genesis Points S1 · ${PITCH}`,
+    `🏦 USDC escrow · 4% fee on the losing side · winnings claimable on-chain.`,
     `1️⃣ Follow ${X_HANDLE}`,
-    `2️⃣ Base wallet 👇 → +500 pts`,
+    `2️⃣ Take a side on Base`,
     `3️⃣ ${TG_BOT}`,
     `${SITE}/?ref=x`,
   ].join("\n");
@@ -166,15 +163,13 @@ export function buildReply(m: Market | null, variant: "a" | "b"): string {
  * The vampire lane's copy: blunt, DeGen, no brand voice. Same funnel, same facts, one opening line
  * that names the thing the reader is actually doing (chasing dead memes) instead of describing us.
  *
- * Every number is the same checkable set as the rest of the file. The only claim that changed is the
- * verb: "Genesis S1 is live" refers to the points season, which really is live and really does grant
- * 500 on bind — not to a token, which does not exist.
+ * Every number is the same checkable set as the rest of the file, and none of them is a token: the
+ * claim is what a bet does — escrow, a 4% fee on the losing side, a published resolution rule.
  */
 export function buildVampire(marketId: string | null): string {
   const core =
-    "Still chasing dead memes? Prediction Arena Genesis S1 is live on Base: 42% of $ARENA supply for early points holders, zero team allocation. Drop your Base wallet & join " +
-    TG_BOT +
-    " to claim 500 points now 👇";
+    "Still chasing dead memes? Trade an actual yes/no on Base instead: USDC escrow, 4% fee on the losing side, the resolution rule is published before you bet. No KYC, no custody — " +
+    `${SITE}/?ref=x`;
   const link = marketId ? `${SITE}/market/${marketId}?ref=x` : `${SITE}/?ref=x`;
   const withMarket = marketId ? `🏴 ${shortMarket(marketTitle(marketId) ?? "")}` : "";
 

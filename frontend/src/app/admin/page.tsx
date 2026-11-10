@@ -1,37 +1,32 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useAccount, useReadContract, useSignMessage, useWriteContract } from "wagmi";
+import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { keccak256, toHex } from "viem";
-import { Check, Copy, ExternalLink, Loader2, Pause, Play, RefreshCw, ShieldCheck, TriangleAlert } from "lucide-react";
+import { ExternalLink, Loader2, Pause, Play, TriangleAlert } from "lucide-react";
 
-import { adminMessage } from "@/lib/admin-auth";
 import { SocialLinks } from "@/components/SocialLinks";
 import { GrowthAttribution } from "@/components/GrowthAttribution";
 import { SOCIAL } from "@/lib/social";
 import { ARENA_ABI, ARENA_ADDRESS, usePools } from "@/hooks/usePredictionArena";
 import { useMarkets } from "@/hooks/useMarkets";
-import type { Cashout, Grant, OpsSnapshot } from "@/lib/ops-metrics";
 import { formatCompactUsdc } from "@/lib/format";
 
 /**
  * Operations console (internal).
  *
- * Access = an allowlisted address (`NEXT_PUBLIC_ADMIN_ADDRESSES`) plus an EIP-191 signature, which
- * the metrics API re-verifies server-side. The console itself moves no money: settlement, pausing
- * and USDC transfers are all wallet transactions the operator signs, and the contract's `onlyOwner`
- * is the real permission check. This page is a view + a well-formed transaction builder.
+ * Access = an allowlisted address (`NEXT_PUBLIC_ADMIN_ADDRESSES`). The page moves no money it can
+ * reach by itself: settlement, pausing and USDC transfers are all wallet transactions the operator
+ * signs, and the contract's `onlyOwner` is the real permission check. This page is a view plus a
+ * well-formed transaction builder.
+ *
+ * The monetisation, payout-queue and points-ledger panels are gone with the systems they watched:
+ * the ad venue never onboarded us (predictionarena.online is under the impression floor), so there
+ * are no auctions to count, no ad credits to pay out and no points to audit. Settlement is the only
+ * thing an operator still does here.
  */
-
-type Tab = "ads" | "payouts" | "settle" | "ledger";
-
-const ECPM_USD = 3.5; // conservative HypeLab display estimate, editable in the UI
-
-function usd(cents: number) {
-  return `$${(cents / 100).toFixed(2)}`;
-}
 
 function Pill({ tone, children }: { tone: "ok" | "warn" | "mute" | "bad"; children: React.ReactNode }) {
   const cls =
@@ -61,7 +56,6 @@ function Stat({ label, value, hint }: { label: string; value: React.ReactNode; h
 
 export default function AdminPage() {
   const { address, isConnected } = useAccount();
-  const { signMessageAsync } = useSignMessage();
 
   const allow = useMemo(
     () =>
@@ -73,52 +67,6 @@ export default function AdminPage() {
   );
   const isOperator = Boolean(address && allow.includes(address.toLowerCase()));
 
-  const [auth, setAuth] = useState<{ address: string; ts: number; sig: string } | null>(null);
-  const [snapshot, setSnapshot] = useState<OpsSnapshot | null>(null);
-  const [apiError, setApiError] = useState<string | null>(null);
-  const [tab, setTab] = useState<Tab>("ads");
-  const [busy, setBusy] = useState(false);
-
-  const signIn = useCallback(async () => {
-    if (!address) return;
-    setApiError(null);
-    setBusy(true);
-    try {
-      const ts = Date.now();
-      const sig = await signMessageAsync({ message: adminMessage(address, ts) });
-      setAuth({ address, ts, sig });
-    } catch (e) {
-      setApiError((e as Error)?.message ?? "signature rejected");
-    } finally {
-      setBusy(false);
-    }
-  }, [address, signMessageAsync]);
-
-  const load = useCallback(async () => {
-    if (!auth) return;
-    try {
-      const q = new URLSearchParams({ address: auth.address, ts: String(auth.ts), sig: auth.sig });
-      const res = await fetch(`/api/admin/metrics?${q}`, { cache: "no-store" });
-      if (!res.ok) {
-        const body = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(body.error ?? `HTTP ${res.status}`);
-      }
-      setSnapshot((await res.json()) as OpsSnapshot);
-      setApiError(null);
-    } catch (e) {
-      setApiError((e as Error)?.message ?? "metrics unavailable");
-    }
-  }, [auth]);
-
-  useEffect(() => {
-    if (!auth) return;
-    void load();
-    const timer = window.setInterval(() => {
-      if (document.visibilityState === "visible") void load();
-    }, 15_000);
-    return () => window.clearInterval(timer);
-  }, [auth, load]);
-
   return (
     <main className="mx-auto w-full max-w-6xl px-4 pb-24 pt-8 sm:px-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
@@ -126,7 +74,7 @@ export default function AdminPage() {
           <p className="text-[10px] uppercase tracking-[0.18em] text-gold/70">Internal</p>
           <h1 className="mt-1 text-2xl font-semibold text-ink">Operations console</h1>
           <p className="mt-1 text-[12px] text-muted">
-            Monetisation, payouts, settlement and ledger for PredictionArena · Base mainnet ·{" "}
+            Settlement and circuit breaker for PredictionArena · Base mainnet ·{" "}
             <a
               href={`https://basescan.org/address/${ARENA_ADDRESS ?? ""}`}
               target="_blank"
@@ -176,208 +124,19 @@ export default function AdminPage() {
             <TriangleAlert className="size-4" /> Wallet not on the operator allowlist
           </p>
           <p className="mt-2 break-all text-[12px] text-muted">
-            {address} — add it to <span className="mono">ADMIN_ADDRESSES</span> (and{" "}
-            <span className="mono">NEXT_PUBLIC_ADMIN_ADDRESSES</span>) to grant access.
+            {address} — add it to <span className="mono">NEXT_PUBLIC_ADMIN_ADDRESSES</span> to grant access.
           </p>
         </div>
       )}
 
-      {isOperator && !auth && (
-        <div className="mt-8 rounded-2xl border border-gold/25 bg-gold/[0.04] p-6">
-          <p className="text-sm text-ink">Sign a timestamped message to unlock the metrics API.</p>
-          <p className="mt-1 text-[12px] text-muted">No gas, no transaction — the signature expires in 5 minutes.</p>
-          <button
-            onClick={() => void signIn()}
-            disabled={busy}
-            className="btn-gold mt-4 inline-flex items-center gap-2 px-4 py-2 text-[13px] font-semibold"
-          >
-            {busy ? <Loader2 className="size-4 animate-spin" /> : <ShieldCheck className="size-4" />}
-            Sign in
-          </button>
-          {apiError && <p className="mt-3 text-[12px] text-loss">{apiError}</p>}
-        </div>
-      )}
-
-      {isOperator && auth && (
+      {isOperator && (
         <>
-          <nav className="mt-6 flex flex-wrap items-center gap-2">
-            {(
-              [
-                ["ads", "Monetisation"],
-                ["payouts", snapshot ? `Payouts (${snapshot.cashouts.pending})` : "Payouts"],
-                ["settle", "Settlement"],
-                ["ledger", "Ledger audit"],
-              ] as [Tab, string][]
-            ).map(([id, label]) => (
-              <button
-                key={id}
-                onClick={() => setTab(id)}
-                className={
-                  tab === id
-                    ? "rounded-full border border-gold/40 bg-gold/15 px-3.5 py-1.5 text-[12px] font-medium text-gold-bright"
-                    : "rounded-full border border-white/8 bg-white/[0.02] px-3.5 py-1.5 text-[12px] text-muted hover:text-ink"
-                }
-              >
-                {label}
-              </button>
-            ))}
-            <button
-              onClick={() => void load()}
-              className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-white/8 px-3 py-1.5 text-[11px] text-muted hover:text-ink"
-            >
-              <RefreshCw className="size-3" /> Refresh
-            </button>
-            <span className="mono text-[10px] text-muted/50">
-              signed in as {auth.address.slice(0, 6)}…{auth.address.slice(-4)}
-            </span>
-          </nav>
-
-          {apiError && (
-            <p className="mt-3 rounded-lg border border-loss/25 bg-loss/[0.05] px-3 py-2 text-[12px] text-loss">{apiError}</p>
-          )}
-
           {/* Chain-side attribution first: it is the only number here that nobody can fake. */}
           <GrowthAttribution />
-
-          {tab === "ads" && <AdsPanel snapshot={snapshot} />}
-          {tab === "payouts" && <PayoutsPanel snapshot={snapshot} auth={auth} onChanged={load} />}
-          {tab === "settle" && <SettlePanel />}
-          {tab === "ledger" && <LedgerPanel snapshot={snapshot} />}
-
-          <p className="mt-8 text-[10.5px] leading-relaxed text-muted/45">
-            Counters are held in the server process: they reset on the next deploy and are per-instance. The
-            dashboard says so instead of implying a database that does not exist.
-          </p>
+          <SettlePanel />
         </>
       )}
     </main>
-  );
-}
-
-/* ── Monetisation ─────────────────────────────────────────────────────── */
-
-function AdsPanel({ snapshot }: { snapshot: OpsSnapshot | null }) {
-  const [ecpm, setEcpm] = useState(ECPM_USD);
-  if (!snapshot) return <PanelSkeleton />;
-
-  const { attempts, filled, empty204, fillRate, recent } = snapshot.ads;
-  const revenue = (filled * ecpm) / 1000;
-
-  return (
-    <section className="mt-5 space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Auctions" value={attempts} hint="visible mounts + off-screen probes" />
-        <Stat label="Filled (200)" value={filled} hint={`${(fillRate * 100).toFixed(1)}% fill rate`} />
-        <Stat label="No bid (204)" value={empty204} hint={attempts ? `${((empty204 / attempts) * 100).toFixed(1)}% empty` : "—"} />
-        <Stat label="Est. revenue" value={`$${revenue.toFixed(2)}`} hint={`at $${ecpm.toFixed(2)} eCPM`} />
-      </div>
-
-      <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-[12px] text-muted">Assumed eCPM (display only — the venue&apos;s real rate comes from HypeLab reporting)</p>
-          <label className="inline-flex items-center gap-2 text-[12px] text-muted">
-            $
-            <input
-              type="number"
-              step="0.5"
-              min="0"
-              value={ecpm}
-              onChange={(e) => setEcpm(Number(e.target.value) || 0)}
-              className="mono w-20 rounded-lg border border-white/10 bg-void px-2 py-1 text-ink outline-none focus:border-gold/50"
-            />
-          </label>
-        </div>
-      </div>
-
-      <Table
-        head={["Time", "Surface", "Status", "Result"]}
-        rows={recent.slice(0, 20).map((r) => [
-          new Date(r.ts).toLocaleTimeString(),
-          r.surface,
-          String(r.status),
-          r.filled ? <Pill tone="ok" key={r.ts}>filled</Pill> : <Pill tone="mute" key={r.ts}>no bid</Pill>,
-        ])}
-        empty="No auction attempts since the last deploy."
-      />
-    </section>
-  );
-}
-
-/* ── Payouts ──────────────────────────────────────────────────────────── */
-
-function PayoutsPanel({
-  snapshot,
-  auth,
-  onChanged,
-}: {
-  snapshot: OpsSnapshot | null;
-  auth: { address: string; ts: number; sig: string };
-  onChanged: () => Promise<void> | void;
-}) {
-  const [copied, setCopied] = useState<string | null>(null);
-  if (!snapshot) return <PanelSkeleton />;
-
-  const copy = async (row: Cashout) => {
-    const payload = {
-      network: "base",
-      chainId: 8453,
-      asset: "USDC",
-      amount: (row.amountCents / 100).toFixed(2),
-      to: row.address,
-      ref: row.ref,
-    };
-    await navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
-    setCopied(row.ref);
-    window.setTimeout(() => setCopied(null), 1500);
-  };
-
-  const markSent = async (row: Cashout) => {
-    await fetch("/api/admin/metrics", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ ...auth, ref: row.ref }),
-    });
-    await onChanged();
-  };
-
-  return (
-    <section className="mt-5 space-y-4">
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Stat label="Requests" value={snapshot.cashouts.count} hint="since deploy" />
-        <Stat label="Pending" value={snapshot.cashouts.pending} hint="waiting on a transfer" />
-        <Stat label="Pending value" value={usd(snapshot.cashouts.pendingCents)} hint="realised profit only" />
-      </div>
-
-      <Table
-        head={["Requested", "Base address", "Amount", "Ref", ""]}
-        rows={snapshot.cashouts.recent.map((row) => [
-          new Date(row.ts).toLocaleString(),
-          <span className="mono break-all text-[11px] text-ink" key={`a${row.ref}`}>{row.address}</span>,
-          <span className="mono" key={`c${row.ref}`}>{usd(row.amountCents)}</span>,
-          <span className="mono text-[11px] text-muted" key={`r${row.ref}`}>{row.ref}</span>,
-          <span className="flex items-center gap-1.5" key={`x${row.ref}`}>
-            <button
-              onClick={() => void copy(row)}
-              className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[11px] text-muted hover:text-ink"
-            >
-              {copied === row.ref ? <Check className="size-3 text-profit" /> : <Copy className="size-3" />}
-              payload
-            </button>
-            {row.status === "pending" ? (
-              <button
-                onClick={() => void markSent(row)}
-                className="inline-flex items-center gap-1 rounded-lg border border-profit/30 bg-profit/10 px-2 py-1 text-[11px] text-profit"
-              >
-                mark sent
-              </button>
-            ) : (
-              <Pill tone="ok">sent</Pill>
-            )}
-          </span>,
-        ])}
-        empty="No payout requests since the last deploy."
-      />
-    </section>
   );
 }
 
@@ -584,47 +343,7 @@ function SettlePanel() {
   );
 }
 
-/* ── Ledger ───────────────────────────────────────────────────────────── */
-
-function LedgerPanel({ snapshot }: { snapshot: OpsSnapshot | null }) {
-  if (!snapshot) return <PanelSkeleton />;
-  return (
-    <section className="mt-5 space-y-4">
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Stat label="Grants" value={snapshot.grants.count} hint="ad credits + ticket redemptions" />
-        <Stat label="Points moved" value={snapshot.grants.points} hint="signed server-side only" />
-        <Stat label="Uptime" value={`${Math.floor(snapshot.uptimeSec / 60)}m`} hint="counters live in this process" />
-      </div>
-
-      <Table
-        head={["Time", "Kind", "Points", "Note"]}
-        rows={snapshot.grants.recent.map((g: Grant) => [
-          new Date(g.ts).toLocaleTimeString(),
-          <Pill tone={g.kind === "ad" ? "ok" : "mute"} key={`k${g.ts}${g.kind}`}>{g.kind}</Pill>,
-          <span className="mono" key={`p${g.ts}${g.kind}`}>{g.points > 0 ? `+${g.points}` : g.points}</span>,
-          g.note ?? "",
-        ])}
-        empty="No grants since the last deploy."
-      />
-
-      <p className="text-[11px] leading-relaxed text-muted/60">
-        Points are only credited against a receipt the server signed at ad-start (≥14s, single-use, daily-capped), so
-        a replayed or hand-crafted request cannot mint points. Ad credits, redemptions and cashout requests appear
-        here as they happen; the ledger itself stays in a signed cookie, never in a database.
-      </p>
-    </section>
-  );
-}
-
 /* ── Shared bits ──────────────────────────────────────────────────────── */
-
-function PanelSkeleton() {
-  return (
-    <div className="mt-5 flex items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.02] p-6 text-[12px] text-muted">
-      <Loader2 className="size-3.5 animate-spin" /> loading metrics…
-    </div>
-  );
-}
 
 function Table({
   head,

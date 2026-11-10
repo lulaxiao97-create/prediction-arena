@@ -11,7 +11,7 @@
  * market is cancelled.
  */
 
-import { displayLiquidityUsdc, displayTraders, fallbackShareFor, PLATFORM_FEE_RATE } from "@/lib/display-stats";
+import { fallbackShareFor, PLATFORM_FEE_RATE } from "@/lib/display-stats";
 
 export const FEE_PCT = Math.round(PLATFORM_FEE_RATE * 100);
 
@@ -74,21 +74,20 @@ export const GROWTH_OFFERS: GrowthOffer[] = [
 export type TrendPoint = {
   href: string;
   title: string;
-  traders: number;
-  liquidityUsdc: number;
   yesPct: number;
   mult: number;
+  /** Human deadline from the manifest ("3d", "14h"), empty when the pool carries none. */
+  endsIn: string;
 };
 
 type TrendPool = {
   id: string | number | bigint;
   title: string;
   status?: number;
-  traders?: number;
-  liquidityUsdc?: string | number;
   totalNetPool?: bigint;
   option0Pool?: bigint;
   option1Pool?: bigint;
+  endTimeUtc?: string;
 };
 
 /**
@@ -120,29 +119,37 @@ function sideShare(pool: TrendPool): number {
 }
 
 /**
- * The rail reads the same manifest the cards do, so the numbers on the rail and the numbers in the
- * grid never disagree. Sorted by who is actually busy: traders first, turnover as tie-break — a
- * market with 300 people in it is a better hook than a bigger pool nobody is trading.
+ * The rail reads real signals only.
+ *
+ * It used to rank by `displayTraders(p.id)` — a hash-derived 85–320 that made every market look
+ * busy — and print that count next to a `$12.5k` liquidity figure from the same generator. Both were
+ * removed from the cards on 2026-11-09; this function kept importing them, which is why the marquee
+ * still said "311 traders" while the card below it had already stopped.
+ *
+ * What is left can be checked: a market is "hot" when it settles soonest (a deadline is a fact) and,
+ * as a tie-break, when the pool holds more real stake (`totalNetPool`, read from the contract). The
+ * copy shows the paying side's share and the deadline, and nothing that has to be invented.
  */
 export function trendPoints(pools: TrendPool[], limit = 6): TrendPoint[] {
+  const now = Date.now();
   return pools
     .filter((p) => (p.status ?? 1) === 1)
     .map((p) => {
-      const traders = p.traders ?? displayTraders(p.id);
-      const liquidity = usdc(p.liquidityUsdc ?? 0) || usdc(displayLiquidityUsdc(p.id));
-      return { pool: p, traders, liquidity, score: traders * 1_000 + Math.min(liquidity, 99_999) / 100 };
+      const end = p.endTimeUtc ? Date.parse(p.endTimeUtc) : NaN;
+      const hours = Number.isFinite(end) ? Math.max(0, (end - now) / 3_600_000) : 24 * 365;
+      const depth = Number(p.totalNetPool ?? 0n) / 1e6;
+      return { pool: p, hours, score: -hours + Math.min(depth, 1000) / 50_000 };
     })
-    .sort((a, b) => b.score - a.score)
+    .sort((x, y) => y.score - x.score)
     .slice(0, limit)
-    .map(({ pool, traders, liquidity }) => {
+    .map(({ pool, hours }) => {
       const yes = Math.max(2, Math.min(98, Math.round(sideShare(pool) * 100)));
       return {
         href: `/market/${pool.id}`,
         title: clip(pool.title, 64),
-        traders,
-        liquidityUsdc: liquidity,
         yesPct: yes,
         mult: Number((1 / (yes / 100)).toFixed(1)),
+        endsIn: hours < 1 ? "<1h" : hours < 48 ? `${Math.round(hours)}h` : `${Math.round(hours / 24)}d`,
       };
     });
 }

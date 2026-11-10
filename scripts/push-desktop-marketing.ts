@@ -1005,17 +1005,42 @@ function main(): void {
     ) + "\n",
   };
 
+  // Copy blocks below predate the 2026-11-10 withdrawal of the points system and the $ARENA airdrop.
+  // Anything that still names them is withheld in both dry-run and a real run.
+  const WITHDRAWN = /\$ARENA|Arena Points|points\.json|airdrop|genesis points|1:1 at/i;
+
   if (args.dryRun) {
     console.log(`# dry run — would write to ${dir}`);
     console.log(`# plus 01-market-card.png for market ${tweetId} (1200x675, rendered by scripts/generate-marketing-image.ts)\n`);
+    let wouldWithhold = 0;
     for (const [name, body] of Object.entries(files)) {
+      if (WITHDRAWN.test(body)) {
+        wouldWithhold += 1;
+        console.warn(`\n# WITHHELD ${name}: still contains a withdrawn points/token claim`);
+        continue;
+      }
       console.log(`\n${"=".repeat(72)}\n${name}\n${"=".repeat(72)}\n${body}`);
     }
+    console.log(`\n# ${wouldWithhold} file(s) would be withheld`);
     return;
   }
 
   mkdirSync(dir, { recursive: true });
-  for (const [name, body] of Object.entries(files)) writeFileSync(join(dir, name), body, "utf8");
+  // Fail closed on withdrawn promises. The points system and the $ARENA airdrop were removed from the
+  // product on 2026-11-10 (the ad venue declined us and nothing funded the ledger), but a dozen copy
+  // blocks in this file were written against them. Rather than let a stale string reach the operator's
+  // clipboard, any file whose body still mentions them is skipped and named in the log — the pack
+  // ships clean or it ships less, never a claim the venue cannot keep.
+  let withheld = 0;
+  for (const [name, body] of Object.entries(files)) {
+    if (WITHDRAWN.test(body)) {
+      withheld += 1;
+      console.warn(`withheld ${name}: still contains a withdrawn points/token claim — rewrite before shipping`);
+      continue;
+    }
+    writeFileSync(join(dir, name), body, "utf8");
+  }
+  if (withheld > 0) console.warn(`${withheld} file(s) withheld from ${dir}`);
 
   // The picture ships with the copy, from the same manifest row. Best effort: a missing Chromium
   // must not cost the operator the text pack.

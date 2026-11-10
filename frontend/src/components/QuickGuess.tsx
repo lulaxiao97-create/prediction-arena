@@ -10,9 +10,10 @@
  *
  * So this records intent, not money:
  *   · the pick lives in localStorage, keyed by pool id, with the timestamp it was made
- *   · nothing is transmitted, nothing is signed, no address is required
- *   · the aggregate count is NOT shown, because with no server there is no honest count to show —
- *     inventing one would be the exact lie this venue is built to avoid
+ *   · the pick is also posted to /api/guess, which counts taps per market server-side
+ *   · the crowd number under the buttons is that count — the taps that actually arrived, nothing
+ *     derived, nothing smoothed. Until now the component showed no aggregate at all, because there
+ *     was no server count to show and inventing one would be the exact lie this venue avoids.
  *
  * The stakeable YES/NO buttons are untouched; this sits beside them as the low-commitment door.
  */
@@ -22,6 +23,7 @@ import type { ArenaPool } from "@/lib/types";
 type Side = "yes" | "no";
 
 type Pick = { side: Side; at: number };
+type Count = { yes: number; no: number; total: number };
 
 const keyFor = (id: string) => `pa.guess.${id}`;
 
@@ -46,10 +48,27 @@ function daysUntil(unixSeconds: number): number {
 
 export function QuickGuess({ pool }: { pool: ArenaPool }) {
   const [pick, setPick] = useState<Pick | null>(null);
+  const [count, setCount] = useState<Count | null>(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     setPick(readPick(String(pool.id)));
+  }, [pool.id]);
+
+  // The crowd number is fetched once per market and refreshed after a pick lands.
+  useEffect(() => {
+    let live = true;
+    fetch(`/api/guess?id=${pool.id}`, { cache: "no-store" })
+      .then((r) => r.json())
+      .then((json: Count) => {
+        if (live && typeof json?.total === "number") setCount({ yes: json.yes, no: json.no, total: json.total });
+      })
+      .catch(() => {
+        /* the door still works without a count */
+      });
+    return () => {
+      live = false;
+    };
   }, [pool.id]);
 
   const choose = useCallback(
@@ -61,6 +80,19 @@ export function QuickGuess({ pool }: { pool: ArenaPool }) {
       } catch {
         /* private mode: the feature degrades to a no-op, never an error */
       }
+      fetch("/api/guess", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ id: String(pool.id), side }),
+        cache: "no-store",
+      })
+        .then((r) => r.json())
+        .then((json: Count) => {
+          if (typeof json?.total === "number") setCount({ yes: json.yes, no: json.no, total: json.total });
+        })
+        .catch(() => {
+          /* counted locally; the server copy is best-effort */
+        });
     },
     [pool.id]
   );
@@ -80,7 +112,8 @@ export function QuickGuess({ pool }: { pool: ArenaPool }) {
 
   const share = useCallback(async () => {
     if (!pick) return;
-    const url = `${window.location.origin}/market/${pool.id}`;
+    const pageUrl = `${window.location.origin}/market/${pool.id}`;
+    const cardUrl = `${window.location.origin}/api/share/${pool.id}?side=${pick.side}`;
     const side = pick.side === "yes" ? "YES" : "NO";
     const line =
       correct === null
@@ -89,11 +122,21 @@ export function QuickGuess({ pool }: { pool: ArenaPool }) {
           ? `Called it: ${side} on "${pool.title}".`
           : `Wrong on this one: I said ${side} on "${pool.title}".`;
     try {
-      if (navigator.share) {
-        await navigator.share({ text: line, url });
+      // A picture travels in group chats and on X; a sentence only works in a quote tweet. Try the
+      // image first and fall back to text, never to a silent no-op.
+      const png = await fetch(cardUrl, { cache: "force-cache" })
+        .then((r) => (r.ok ? r.blob() : null))
+        .catch(() => null);
+      if (png && typeof File !== "undefined" && navigator.canShare?.({ files: [new File([png], "call.png", { type: "image/png" })] })) {
+        const file = new File([png], "predictionarena-call.png", { type: "image/png" });
+        await navigator.share({ text: line, url: pageUrl, files: [file] });
         return;
       }
-      await navigator.clipboard.writeText(`${line} ${url}`);
+      if (navigator.share) {
+        await navigator.share({ text: line, url: pageUrl });
+        return;
+      }
+      await navigator.clipboard.writeText(`${line} ${pageUrl}`);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2200);
     } catch {
@@ -143,6 +186,13 @@ export function QuickGuess({ pool }: { pool: ArenaPool }) {
           </button>
         </div>
       </div>
+
+      {count && count.total > 0 ? (
+        <p className="mono text-[10.5px] text-muted/65">
+          {count.total} {count.total === 1 ? "tap here" : "taps here"} · {count.yes} yes / {count.no} no
+          <span className="text-muted/40"> — counted by this server, not estimated</span>
+        </p>
+      ) : null}
 
       {pick ? (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">

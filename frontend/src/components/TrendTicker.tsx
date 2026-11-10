@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { Flame } from "lucide-react";
-import { money, trendPoints, type TrendPoint } from "@/lib/growth";
+import { trendPoints, type TrendPoint } from "@/lib/growth";
 import { useI18n } from "@/components/LocaleProvider";
 import type { ArenaPool } from "@/lib/types";
 
@@ -33,9 +33,8 @@ export function TrendTicker({ pools }: { pools: ArenaPool[] }) {
           >
             {t("growth.trendLine", {
               title: p.title,
-              traders: p.traders,
-              liquidity: money(p.liquidityUsdc),
-              mult: p.mult.toFixed(1),
+              yes: p.yesPct,
+              ends: p.endsIn,
             })}
           </Link>
           <span aria-hidden className="text-gold/30">

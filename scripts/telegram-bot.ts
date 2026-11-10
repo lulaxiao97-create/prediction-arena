@@ -23,7 +23,7 @@
  *   bun scripts/telegram-bot.ts --once          # drain one batch and exit (cron-friendly)
  *   bun scripts/telegram-bot.ts --broadcast     # DM the newest market to every captain
  *   bun scripts/telegram-bot.ts --captains      # who is registered (masked wallets)
- *   bun scripts/telegram-bot.ts --leaderboard   # DM every captain their points + projected airdrop
+ *   bun scripts/telegram-bot.ts --report        # DM every captain their crew count + today's market
  *
  * `--self-test` exists because the token lives in GitHub secrets: the flow has to be provable
  * without it, and a bot that "should work" is not a deliverable.
@@ -37,25 +37,24 @@ const ROOT = join(import.meta.dir, "..");
 const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://predictionarena.online").replace(/\/+$/, "");
 const CONTACT = "@Predict065";
 
-/** Points minted for a first-time wallet bind - the hook the 3-step funnel promises (+500). */
-const BIND_POINTS = Number(process.env.BIND_POINTS ?? 500);
-/** `--self-test` must not touch the ledger: an offline conversation check cannot mint points. */
+/** `--self-test` must not write to .data: an offline conversation check cannot register anyone. */
 const SELF_TEST = process.argv.includes("--self-test");
 
 /**
- * The one line every captain message carries while the genesis season is open.
+ * The one line every captain message carries.
  *
- * It says three things and stops: points exist, bets and referrals earn them, and they convert at
- * genesis. It does NOT promise a price — the ledger is a scoreboard until a token actually exists,
- * and the disclaimer in docs/TOKENOMICS.md is the long version of that.
+ * It states only what the contract does: a position that arrives through the captain's link carries
+ * their address as `referrer`, and settlement pays them 30% of the 4% fee. No points, no airdrop, no
+ * projected token — the previous version promised all three and the platform has no token to convert
+ * into, which made every captain message a claim we could not keep.
  */
-const AIRDROP_CN =
-  "🔥 <b>Arena Points - genesis season</b> — every bet and every wallet that comes in through your link stacks points for you; at genesis they convert 1:1 into $ARENA.";
+const PAYOUT_CN =
+  "💸 <b>返佣是链上的</b> — 通过你的链接进来的每一笔仓位，结算时合约把这笔 4% 手续费里的 30% 直接打到你绑定的地址，可在 Basescan 逐笔核对。";
 /** The whitepaper entry point, in one place: every captain-facing menu links to the same URL. */
-const WHITEPAPER_BTN = { text: "📄 Token whitepaper", url: `${SITE}/whitepaper` };
+const WHITEPAPER_BTN = { text: "📄 How the venue works", url: `${SITE}/whitepaper` };
 
-const AIRDROP_EN =
-  "🔥 <b>Arena Points genesis airdrop</b> — every bet and every referral earns points; points convert 1:1 into $ARENA at genesis.";
+const PAYOUT_EN =
+  "💸 <b>The referral cut is on-chain</b> — every position that arrives through your link names your address as `referrer`, and settlement pays you 30% of that market's 4% fee, verifiable per tx on Basescan.";
 
 
 type Chat = { id: number; type: string; username?: string };
@@ -171,7 +170,7 @@ function groupTemplate(address: string): string {
     "",
     "Take a side on today's board → " + link,
     "",
-    "(I take a cut of the fee: the contract pays me 30% at settlement, and locking 50% of earned points for 90 days lifts it to 50% - it never touches your payout.)",
+    "(I take a cut of the fee: the contract pays me 30% at settlement - it never touches your payout.)",
   ].join("\n");
 }
 
@@ -184,8 +183,8 @@ function groupTemplateEn(address: string): string {
     "",
     "Take a side → " + link,
     "",
-    "(I get 30% of the protocol fee from this link at settlement; lock 50% of earned points for 90",
-    "days and it rises to 50%. It comes out of the fee, not out of your payout.)",
+    "(I get 30% of the protocol fee from this link at settlement. It comes out of the fee, not",
+    "out of your payout.)",
   ].join("\n");
 }
 
@@ -196,7 +195,7 @@ const HELP: Outgoing = {
     "/captain — get your referral link (30% of the 4% fee, paid on-chain)",
     "/link — resend the link for the wallet you already gave me",
     "/markets — where to find today's board",
-    "/crew — join the channel, claim 500 Arena Points (verified by me, not by a screenshot)",
+    "/crew — join the channel (I verify membership against Telegram itself)",
     "/help — this message",
     "",
     "No sign-up, no KYC, no custody. The contract pays the address you give me, at settlement.",
@@ -212,9 +211,6 @@ const HELP: Outgoing = {
  * (`/start ref_0x...`) and then bound an address of its own. That is the gate: N distinct bound wallets.
  */
 const REFS_FILE = join(ROOT, ".data", "refs.json");
-const MULT_FILE = join(ROOT, "docs", "points", "multipliers.json");
-const BOOST_REFERRALS = Number(process.env.BOOST_REFERRALS ?? 3);
-const BOOST_MULTIPLIER = Number(process.env.BOOST_MULTIPLIER ?? 5);
 
 function readRefs(): Record<string, { ref: string; at: string }> {
   try {
@@ -238,24 +234,6 @@ function chiefsOf(wallet: string): number {
   return Object.values(readRefs()).filter((r) => r.ref === key).length;
 }
 
-function readMults(): Record<string, { multiplier: number; at: string; reason: string }> {
-  try {
-    return JSON.parse(readFileSync(MULT_FILE, "utf8"));
-  } catch {
-    return {};
-  }
-}
-
-function grantMultiplier(wallet: string): boolean {
-  const m = readMults();
-  const key = wallet.toLowerCase();
-  if (m[key]) return false;
-  m[key] = { multiplier: BOOST_MULTIPLIER, at: new Date().toISOString(), reason: `boost:${BOOST_REFERRALS}refs+channel` };
-  mkdirSync(join(ROOT, "docs", "points"), { recursive: true });
-  writeFileSync(MULT_FILE, `${JSON.stringify(m, null, 2)}\n`);
-  return true;
-}
-
 /**
  * The whole conversation, as a pure function of (text, session). Keeping it pure is what makes
  * `--self-test` meaningful: the same code path answers a real update and a synthetic one.
@@ -272,9 +250,6 @@ function respond(
   // A bare address is the answer to the wallet question, whatever else is in the message.
   if (WALLET_RE.test(raw)) {
     const address = raw;
-    // Bind reward: 500 points, once per wallet, written to the same public ledger as the crew grant.
-    // Skipped in --self-test so an offline conversation check cannot mint points to a dummy address.
-    const bind = SELF_TEST ? { granted: false, note: "self-test" } : grantPoints(address, BIND_POINTS, "bind:wallet");
     const referrer = session.pendingRef && session.pendingRef.toLowerCase() !== address.toLowerCase() ? session.pendingRef : null;
     if (referrer && !SELF_TEST) recordRef(address, referrer);
     replies.push({
@@ -282,19 +257,16 @@ function respond(
         "✅ Locked in. Your payout address:",
         `\`${address}\``,
         "",
-        ...(bind.granted ? [`🎁 <b>+${BIND_POINTS} Arena Points credited</b> (bind bonus, public ledger at docs/points/grants.json)`, ""] : []),
         "Your personal link (this address is the on-chain payee):",
         refLink(address),
         "",
         "📣 <b>Send this ref link to friends, or drop it in your crypto groups</b>:",
-        "· Every active crew member you bring adds +20% to your captain points (hashpower boost)",
-        "· On every one of their settlements the contract pays 30% of the platform's 4% fee straight to the address above (50% if you lock for 90 days)",
+        "· On every one of their settlements the contract pays 30% of that market's 4% fee straight to the address above",
         "· Not us wiring you money - the contract pays it at settlement, every tx is on Basescan",
         "",
-        AIRDROP_CN,
+        PAYOUT_CN,
         "",
-        "Simple rules: every position that comes in through this link pays you 30% of the platform's 4% fee at settlement.",
-        "Points: 10 per $1 bet, ×2 on the underdog, ×1.5 on markets closing within 48h; your captain points = 20% of your crew's points.",
+        "Simple rules: every position that comes in through this link pays you 30% of the market's 4% fee at settlement.",
         "No transfer from us - the contract pays directly, so you don't have to trust anyone. It's all visible on Basescan.",
         "",
         "Here's the copy for group owners / group chats - paste it straight in:",
@@ -316,58 +288,21 @@ function respond(
     });
     replies.push({
       text: [
-        `⚡ <b>Want the ${BOOST_MULTIPLIER}× points multiplier?</b>`,
-        `Two conditions, and the bot checks both itself:`,
-        `1️⃣ You're in ${CREW_CHANNEL} (send /crew and I verify it)`,
-        `2️⃣ At least ${BOOST_REFERRALS} wallets that came in through your link have bound an address (you have ${chiefsOf(address)})`,
+        `📣 <b>Your crew so far: ${chiefsOf(address)} wallet(s)</b>`,
+        "A crew member is a wallet that arrived through your link and bound a payout address - the bot counts them by reading the same register it writes.",
         "",
-        `Post this in your groups - anyone who taps in and binds is your crew:`,
+        `Post this in your groups (anyone who taps in and binds is your crew):`,
         `· On-site (with ref): ${refLink(address)}`,
-        `· Straight into Telegram (this one counts crew): https://t.me/predictaing_bot?start=ref_${address}`,
+        `· Straight into Telegram: https://t.me/predictaing_bot?start=ref_${address}`,
         "",
-        `Then send /boost - I verify on the spot and switch on ${BOOST_MULTIPLIER}×.`,
+        `Send /crew to confirm you're in ${CREW_CHANNEL} - settlement notices and new markets land there first.`,
       ].join("\n"),
       buttons: [
-        [{ text: `⚡ Check my multiplier (/boost)`, command: "/boost" }],
         [{ text: "📣 Join the channel", url: `https://t.me/${CREW_CHANNEL.replace(/^@/, "")}` }],
-      ],
-    });
-    return { replies, session: { awaitingWallet: false, wallet: address, pendingRef: session.pendingRef } };
-  }
-
-  if (lower.startsWith("/boost")) {
-    const wallet = session.wallet;
-    if (!wallet) {
-      replies.push({
-        text: "Send /captain and bind your Base payout address first - then I can put the multiplier on your name.",
-        buttons: [[{ text: "Start binding", command: "/start captain" }]],
-      });
-      return { replies, session };
-    }
-    const chiefs = chiefsOf(wallet);
-    const have0 = readMults()[wallet.toLowerCase()];
-    const have = have0;
-    replies.push({
-      text: [
-        have
-          ? `✅ Your ${have.multiplier}× multiplier is live (${have.reason}).`
-          : `⚡ Multiplier check:`,
-        "",
-        `· Channel member: verify with /crew first (the bot asks Telegram directly)`,
-        `· Active crew: ${chiefs}/${BOOST_REFERRALS}`,
-        "",
-        have
-          ? "Every points calculation carries this multiplier; public ledger at docs/points/multipliers.json."
-          : chiefs >= BOOST_REFERRALS
-            ? `Crew count clears the gate. Send /crew once to verify the channel - both pass and I write it to the ledger.`
-            : `You're ${BOOST_REFERRALS - chiefs} crew short. Post your link in a group - only bound wallets count:\n${refLink(wallet)}`,
-      ].join("\n"),
-      buttons: [
-        [{ text: "⚡ Verify channel (/crew)", command: "/crew" }],
         [{ text: "🏴 See today's board", url: SITE }],
       ],
     });
-    return { replies, session };
+    return { replies, session: { awaitingWallet: false, wallet: address, pendingRef: session.pendingRef } };
   }
 
   if (lower.startsWith("/start") || lower.startsWith("/captain")) {
@@ -390,9 +325,9 @@ function respond(
     }
     replies.push({
       text: [
-        AIRDROP_CN,
+        PAYOUT_CN,
         "",
-        "🧑‍💼 Captain program - 30% of the platform's 4% fee, paid by the contract at settlement; lock 50% of earned points for 90 days and your cut rises to 50% (opens after genesis).",
+        "🧑‍💼 Captain program - 30% of the platform's 4% fee on every position that arrives through your link, paid by the contract at settlement.",
         "",
         "The job: swap the market links in your group for your own.",
         "",
@@ -412,12 +347,12 @@ function respond(
       session.wallet
         ? {
             text: [
-              "🎟 Crew pass - join the channel and claim 500 Arena Points (I verify it myself, no screenshots).",
+              `🎟 Crew pass - join ${CREW_CHANNEL} and I verify it myself, no screenshots.`,
               "",
-              `Step 1: join ${CREW_CHANNEL}`,
-              "Step 2: come back and send /crew - I check the member list and credit it.",
+              "Step 1: join the channel",
+              "Step 2: come back and send /crew - I ask Telegram for the member list.",
               "",
-              "Points go into the public ledger (points.json) and convert 1:1 into $ARENA at genesis.",
+              "What you get there: new markets as they open, settlement notices with the tx, and the fee maths written out.",
             ].join("\n"),
             buttons: [
               [{ text: "📣 Join the channel", url: "https://t.me/predictionarena_hq" }],
@@ -425,7 +360,7 @@ function respond(
             ],
           }
         : {
-            text: "Send me your Base payout address first (0x + 40), then I'll credit the channel reward to you.",
+            text: "Send me your Base payout address first (0x + 40), then I'll check the channel against it.",
             buttons: [[{ text: "Start binding", command: "/start captain" }]],
           },
     );
@@ -664,26 +599,14 @@ async function broadcast(opts: { api: string | null; dryRun: boolean; force?: bo
 }
 
 /**
- * The daily points DM: every captain gets their own score, their rank and their projected slice of
- * the genesis allocation. This is the FOMO loop — a captain who can see the number moving posts more
- * than one who was told "there is a referral programme somewhere".
+ * The daily crew DM: how many wallets a captain has actually brought in, and the market worth
+ * forwarding today.
  *
- * Reads the ledger scripts/sync-points.ts writes (frontend/public/points.json). No ledger file (or an
- * empty one) is not an error: the message still goes out, honestly reading zero.
+ * Everything here is a fact the bot itself wrote: `crew` is the count of bound wallets whose first
+ * referrer is this captain (.data/refs.json), and the market comes from the same manifest the site
+ * renders. There is deliberately no score, no rank and no projected token — those were the parts of
+ * this message that could not be verified.
  */
-type PointsLedger = {
-  totals?: { points?: number; wallets?: number; bets?: number };
-  holders?: Record<string, { points?: number; fromReferrals?: number; bets?: number }>;
-  generatedAt?: string;
-};
-
-function readPointsLedger(): PointsLedger {
-  try {
-    return JSON.parse(readFileSync(join(ROOT, "frontend", "public", "points.json"), "utf8")) as PointsLedger;
-  } catch {
-    return {};
-  }
-}
 
 
 /**
@@ -713,52 +636,38 @@ function hottestMarket(): HotPool | null {
   }
 }
 
-async function leaderboardPush(opts: { api: string | null; dryRun: boolean }): Promise<BroadcastResult> {
+async function crewReport(opts: { api: string | null; dryRun: boolean }): Promise<BroadcastResult> {
   const store = loadStore();
   const captains = Object.values(store.captains);
   if (captains.length === 0) return { sent: 0, skipped: "no registered captains yet", failed: 0 };
-  const ledger = readPointsLedger();
-  const holders = ledger.holders ?? {};
-  const total = ledger.totals?.points ?? 0;
-  const ranked = Object.entries(holders)
-    .sort((a, b) => (b[1].points ?? 0) - (a[1].points ?? 0))
-    .map(([addr]) => addr);
 
   let sent = 0;
   let failed = 0;
   for (const captain of captains) {
-    const key = captain.wallet.toLowerCase();
-    const row = holders[key];
-    const points = row?.points ?? 0;
-    const rank = ranked.indexOf(key) + 1;
-    const est = total > 0 ? Math.floor((points / total) * 420_000_000) : 0;
+    const crew = chiefsOf(captain.wallet);
     const hot = hottestMarket();
     const text = [
-      "📊 <b>Arena Points · 24h report</b>",
+      "📊 <b>Your referral report</b>",
       "",
-      `Your points: <b>${points.toLocaleString("en-US")}</b>${rank > 0 ? ` (rank ${rank} of ${ranked.length})` : ""}`,
-      `Of which 20% from your crew: ${(row?.fromReferrals ?? 0).toLocaleString("en-US")}`,
-      `Projected genesis share: <b>${est.toLocaleString("en-US")} $ARENA</b>`,
-      "",
-      `Sitewide: ${(ledger.totals?.wallets ?? 0)} wallets, ${total.toLocaleString("en-US")} points, ${(ledger.totals?.bets ?? 0)} bets.`,
+      `Crew bound through your link: <b>${crew}</b> wallet(s)`,
+      "A crew member is counted when a wallet arrives through your link and binds a payout address.",
       "",
       ...(hot
         ? [
-            `🔥 Hottest today: ${hot.title}`,
+            `🔥 Worth forwarding today: ${hot.title}`,
             `YES ${Math.round(Number(hot.yesShare ?? 0.5) * 100)}% · ${hot.traders ?? 0} in → forward this to your group:`,
             `${SITE}/market/${hot.id}?ref=${captain.wallet}&utm_source=telegram&utm_medium=referral&utm_campaign=daily`,
             "",
           ]
         : []),
-      AIRDROP_CN,
-      "Your crew's points convert 1:1 into $ARENA at genesis; forward your ref link to your groups - every bet your crew places adds another 20% hashpower boost.",
+      PAYOUT_CN,
       "",
       `Your link: ${refLink(captain.wallet)}`,
-      "(Points are a record of early participation - no token yet, not for sale, no value promised; 1:1 at launch.)",
+      "(Per-position payout only. There is no token, no points balance and no promised income - the contract pays 30% of the fee on positions your link carries.)",
     ].join("\n");
 
     if (opts.dryRun) {
-      console.log(`\n--- points DM → ${captain.chatId} (${captain.wallet.slice(0, 6)}…${captain.wallet.slice(-4)})\n${text}`);
+      console.log(`\n--- crew DM → ${captain.chatId} (${captain.wallet.slice(0, 6)}…${captain.wallet.slice(-4)})\n${text}`);
       sent += 1;
       continue;
     }
@@ -786,7 +695,7 @@ async function leaderboardPush(opts: { api: string | null; dryRun: boolean }): P
     if (res.ok) sent += 1;
     else {
       failed += 1;
-      console.error(`points DM chat ${captain.chatId} → HTTP ${res.status}: ${(await res.text()).slice(0, 160)}`);
+      console.error(`crew DM chat ${captain.chatId} → HTTP ${res.status}: ${(await res.text()).slice(0, 160)}`);
     }
   }
   return { sent, skipped: null, failed };
@@ -794,15 +703,13 @@ async function leaderboardPush(opts: { api: string | null; dryRun: boolean }): P
 
 
 /**
- * Crew: channel membership → points.
+ * Crew: channel membership, verified rather than claimed.
  *
- * The one engagement reward this bot can verify by itself. `getChatMember` answers for a user id in
- * a channel the bot administers, so "joined the channel" is a fact, not a claim — everything else
- * (follow, repost, a good reply) is judged by a human and written to docs/points/grants.json with a
- * reason attached. Both paths land in the same public ledger.
+ * `getChatMember` answers for a user id in a channel the bot administers, so "you're in the channel"
+ * is a fact Telegram states, not a screenshot. There is no reward attached to it — the answer is
+ * used to decide whether the bot can tell the person what the channel is for, and nothing else.
  */
 const CREW_CHANNEL = process.env.CREW_CHANNEL ?? "@predictionarena_hq";
-const CREW_POINTS = Number(process.env.CREW_POINTS ?? 500);
 
 async function channelMember(api: string, userId: number): Promise<boolean> {
   try {
@@ -816,52 +723,11 @@ async function channelMember(api: string, userId: number): Promise<boolean> {
   }
 }
 
-/**
- * Append-only, deduped points grants: one grant per (wallet, reason family) forever.
- *
- * The family is the part of the reason before the colon, so "bind:wallet" and "crew:channel" are
- * independent one-shots — a user can get the bind bonus AND the channel bonus, but not either twice.
- */
-function grantPoints(address: string, points: number, reason: string): { granted: boolean; note: string } {
-  const file = join(ROOT, "docs", "points", "grants.json");
-  let rows: { address: string; points: number; reason: string; date: string; ref?: string }[] = [];
-  try {
-    rows = JSON.parse(readFileSync(file, "utf8"));
-  } catch {
-    rows = [];
-  }
-  const key = address.toLowerCase();
-  const family = `${reason.split(":")[0]}:`;
-  if (rows.some((g) => g.address.toLowerCase() === key && g.reason.startsWith(family))) {
-    return { granted: false, note: "already granted" };
-  }
-  rows.push({ address, points, reason, date: new Date().toISOString().slice(0, 10) });
-  mkdirSync(join(ROOT, "docs", "points"), { recursive: true });
-  writeFileSync(file, `${JSON.stringify(rows, null, 2)}\n`);
-  return { granted: true, note: `${points} points → ${address.slice(0, 6)}…${address.slice(-4)}` };
-}
-
-/** Channel-membership grant: the one reward this bot can verify by itself. */
-const crewGrant = (address: string, points: number, reason: string) => grantPoints(address, points, reason);
-
-/** Does the public ledger already carry a bind grant for this address? Used by --self-test. */
-function ledgerHasBindGrant(address: string): boolean {
-  try {
-    const rows = JSON.parse(readFileSync(join(ROOT, "docs", "points", "grants.json"), "utf8")) as {
-      address: string;
-      reason: string;
-    }[];
-    return rows.some((g) => g.address.toLowerCase() === address.toLowerCase() && g.reason.startsWith("bind:"));
-  } catch {
-    return false;
-  }
-}
-
 async function selfTest(): Promise<void> {
   const sessions = new Map<number, Session>();
   const chat = { id: 1, type: "private", username: "captain" };
   const address = "0x1111111111111111111111111111111111111111";
-  const steps = ["/start captain", "not-a-wallet", address, "/link", "/boost", "/help"];
+  const steps = ["/start captain", "not-a-wallet", address, "/link", "/crew", "/help"];
   let failures = 0;
   let session: Session = { awaitingWallet: false };
   const check = (ok: boolean, label: string) => {
@@ -899,28 +765,18 @@ async function selfTest(): Promise<void> {
         console.error("  ✗ did not include a group template");
         failures += 1;
       }
-      if (!/20%/.test(joined) || !/hashpower|boost/i.test(joined)) {
-        console.error("  ✗ did not state the 20% referral boost");
+      if (/points|\$ARENA|airdrop/i.test(joined)) {
+        console.error("  ✗ bind flow still promises points or a token");
         failures += 1;
       }
-      if (!/30%/.test(joined) || !/50%/.test(joined)) {
-        console.error("  ✗ did not state the 30%→50% on-chain fee cut");
-        failures += 1;
-      }
-      if (ledgerHasBindGrant(address)) {
-        console.error("  ✗ --self-test minted points: it must not touch the ledger");
+      if (!/crew/i.test(joined)) {
+        console.error("  ✗ bind flow did not mention the crew count");
         failures += 1;
       }
     }
-    if (step === "/boost") {
-      if (!/crew/i.test(joined) || !/multiplier/i.test(joined)) {
-        console.error("  ✗ /boost did not report the multiplier gate");
-        failures += 1;
-      }
-      if (!joined.includes(`ref=${address}`)) {
-        console.error("  ✗ /boost did not hand back the captain's own link");
-        failures += 1;
-      }
+    if (step === "/crew" && !/channel/i.test(joined)) {
+      console.error("  ✗ /crew did not explain the channel");
+      failures += 1;
     }
     if (step === "/link" && !joined.includes(`ref=${address}`)) {
       console.error("  ✗ /link did not resend the bound link");
@@ -999,7 +855,7 @@ async function handleUpdate(api: string, update: Update, sessions: Map<number, S
     const wallet = session.wallet ?? store().captains[String(chatId)]?.wallet;
     if (!wallet) {
       await send(api, chatId, {
-        text: "Send /start captain to bind your Base payout address first, then I'll credit the channel reward.",
+        text: "Send /start captain to bind your Base payout address first, then I'll check the channel against it.",
         buttons: [[{ text: "Start binding", command: "/start captain" }]],
       });
       return;
@@ -1015,24 +871,21 @@ async function handleUpdate(api: string, update: Update, sessions: Map<number, S
       });
       return;
     }
-    const result = crewGrant(wallet, CREW_POINTS, `crew:channel ${CREW_CHANNEL}`);
-    // Membership is now a fact Telegram just confirmed, so the multiplier gate is finally checkable:
-    // channel = yes, and the referral count is read from wallets that actually bound.
+    // Membership is a fact Telegram just confirmed. Nothing is minted for it: the bot reports the
+    // crew count it can read from the register and points at the channel's actual purpose.
     const chiefs = chiefsOf(wallet);
-    let boost = "";
-    if (chiefs >= BOOST_REFERRALS && grantMultiplier(wallet)) {
-      boost = `\n\n⚡ <b>${BOOST_MULTIPLIER}× multiplier unlocked</b>: channel verified + ${chiefs} active crew. Written to docs/points/multipliers.json.`;
-    } else if (chiefs < BOOST_REFERRALS) {
-      boost = `\n\n⚡ ${BOOST_MULTIPLIER}× needs ${BOOST_REFERRALS - chiefs} more crew (${chiefs}/${BOOST_REFERRALS}): send your link to group chats - only bound wallets count.`;
-    }
     await send(api, chatId, {
-      text:
-        (result.granted
-          ? `✅ Verified: you're in ${CREW_CHANNEL}.\n\n+${CREW_POINTS} Arena Points written to the public ledger (points.json), 1:1 into $ARENA at genesis.\n\nAlso: reply to any market with your take - the 3 best each day get 1,000 points.`
-          : `You're already on the list (one grant per wallet).\n\nKeep stacking: reply to a market with your take (3 best per day, 1,000 each), or post a link with ?ref= (30% of the fee on every bet).`) + boost,
+      text: [
+        `✅ Verified: you're in ${CREW_CHANNEL}.`,
+        "",
+        `Crew bound through your link: <b>${chiefs}</b>`,
+        "The channel carries new markets as they open and settlement notices with the tx hash.",
+        "",
+        "Your payout is per position, on-chain: 30% of that market's 4% fee, paid at settlement to the address you bound.",
+      ].join("\n"),
       buttons: [[{ text: "🏴 Today's board", url: SITE }], [WHITEPAPER_BTN]],
     });
-    console.log(`[${new Date().toISOString()}] crew grant: chat ${chatId} → ${result.note}`);
+    console.log(`[${new Date().toISOString()}] crew verified: chat ${chatId} (${chiefs} crew)`);
     return;
   }
 
@@ -1127,11 +980,11 @@ async function main(): Promise<void> {
   }
   const api = tok ? `https://api.telegram.org/bot${tok}` : "";
 
-  if (process.argv.includes("--leaderboard")) {
+  if (process.argv.includes("--report")) {
     const dryRun = process.argv.includes("--dry-run");
-    const result = await leaderboardPush({ api: api || null, dryRun });
+    const result = await crewReport({ api: api || null, dryRun });
     console.log(
-      `leaderboard: ${result.skipped ? `skipped — ${result.skipped}` : `${result.sent} sent`}${result.failed ? `, ${result.failed} failed` : ""}`,
+      `report: ${result.skipped ? `skipped — ${result.skipped}` : `${result.sent} sent`}${result.failed ? `, ${result.failed} failed` : ""}`,
     );
     return;
   }

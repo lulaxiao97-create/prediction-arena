@@ -32,8 +32,6 @@ import { SiteFooter } from "@/components/SiteFooter";
 
 import { useI18n } from "@/components/LocaleProvider";
 import { useMarkets } from "@/hooks/useMarkets";
-import { useRewards } from "@/components/RewardsProvider";
-import { adsConfig } from "@/lib/ads";
 import { useMounted } from "@/hooks/useMounted";
 import { CATEGORY_TABS, matchesTab, type MarketCategory } from "@/lib/categories";
 import { formatCompactUsdc } from "@/lib/format";
@@ -77,8 +75,6 @@ export default function Home() {
   const { pools, stats, featured, loading } = useMarkets();
 
   const mounted = useMounted();
-  const { view: rewards, openAd } = useRewards();
-  const adsReady = adsConfig().ready;
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -254,20 +250,6 @@ export default function Home() {
                   <BrainCircuit className="size-3.5" /> {t("hero.debate")}
                 </a>
               </div>
-
-              {/* Watch-to-earn entry: the same modal the portfolio drawer opens. It lives here
-                  because a rewarded unit nobody can find earns nothing. */}
-              <button
-                onClick={openAd}
-                className="flex items-center justify-between gap-2 rounded-xl border border-cyan/25 bg-cyan/[0.05] px-2.5 py-2 text-left transition-colors hover:border-cyan/45 hover:bg-cyan/[0.09]"
-              >
-                <span className="flex items-center gap-1.5 text-[11.5px] font-medium text-cyan-bright">
-                  <Play className="size-3" /> {adsReady ? t("rewards.watchCta") : t("rewards.adUnconfiguredTitle")}
-                </span>
-                <span className="mono shrink-0 text-[10px] text-muted">
-                  {rewards ? `${rewards.points} pts · ${rewards.tickets} 🎟` : "—"}
-                </span>
-              </button>
             </div>
 
             <LiveActivityFeed pools={pools} />

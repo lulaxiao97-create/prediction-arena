@@ -1,15 +1,27 @@
-# Prediction Arena — Whitepaper v1.0
+# Prediction Arena — Whitepaper v1.1
 
 ## 中文速读（TL;DR）
 
 - **是什么**：24/7 由 AI Agent 运营、盘口与结算全部落在 Base 主网的预测市场。232 个盘口、19 个板块、3 条期限梯度，每 30 分钟从公开数据重建一次。
 - **谁在运营**：不是人。建盘、定价、开池、结算、分润、写推文都是跑在链上状态上的 cron。
-- **积分怎么来**：每 $1 净下注 10 分，冷门方向最高 ×2，48 小时内到期的盘 ×1.5，团长再拿团员积分的 20%。全部由 `BetPlaced` 事件重放算出，改不了。
-- **代币怎么分**：总量 10 亿 $ARENA。42% 创世空投（积分 1:1，社区 100% 拥有，零团队预留）、25% Aerodrome 初始流动性（锁 24 个月）、33% 生态与积分蓄水池（4 年线性、社区多签）。
-- **钱从哪来**：4% 手续费闭环——1.5% 回购销毁、团长最高 50%（质押锁仓解锁）、其余进金库。没有预售、没有私募、没有一分钱卖给内部人。
-- **现在能验证什么**：`pools.json` 232 行、链上 232 个池、积分账本一条命令重算。白皮书里的每个数字都附了 `curl`。
+- **怎么玩**：选一个盘口 → 读它的结算规则（数据源 + 读数时间写在盘口里）→ 押 YES/NO，或按「不用钱包」直接表态 → 到期后合约结算，赢家领取，输家的本金付给赢家。
+- **钱从哪来**：只有 4% 手续费。其中 30%（= 流水的 1.2%）在结算时直接付给带量的推荐人，其余 2.8% 进运营金库。没有预售、没有私募、没有一分钱卖给内部人。
+- **活动是什么**：事件盘（FOMC / CPI / ETF 类）按日历开，普通盘 24/7 滚动；每笔结算都带证据哈希和 tx，任何人都能逐笔核对。
+- **现在能验证什么**：`pools.json` 的每一行、Base 上每个池、每笔结算的 tx。白皮书里的每个数字都附了 `curl`。
 
-**Version 1.0 · 2026-11-02 · Contract `0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5` (Base, chainId 8453)**
+**Version 1.1 · 2026-11-10 · Contract `0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5` (Base, chainId 8453)**
+
+> **v1.1 撤回说明（2026-11-10）**
+>
+> v1.0 描述了两件当时并不存在的东西：一套积分账本（1:1 兑换未来代币）和一个 $ARENA 代币分配表。
+> 广告变现是这套积分的唯一兑付来源，而广告方 HypeLab 在审核后答复「predictionarena.online 的曝光量尚未
+> 达到成为发布商的门槛」。没有外部收入，就没有能兑现的积分，也就没有能兑现的空投。
+>
+> 因此本版撤回第 3 章（积分制度）与第 4 章（代币分配），并从产品里撤下 `points.json`、`/api/points` 与
+> 看广告得积分的入口。没有保留「先记着、以后再兑现」的账本 —— 那正是一份无法验证的承诺。
+>
+> 保留下来的只有合约真正在做的事：4% 手续费、其中 30% 给推荐人、到期结算、赢家领取。第 4 章现在只写
+> 这部分，每一行都能在 Basescan 上对上。
 
 ---
 
@@ -144,112 +156,62 @@ a settled outcome.
 
 ---
 
-## 3. Arena Points System
+## 3. The participation record — withdrawn 2026-11-10
 
-Points are not a database row an operator can edit. They are a **pure function of chain history**:
+Version 1.0 described a points ledger: 10 points per $1 staked, multipliers for contrarian sides and short
+horizons, 20% of a referee's points to their captain, plus a separate watch-to-earn tally. It is gone, and
+the reason is in the notice at the top of this document.
 
-```
-points(wallet) = Σ bets  floor(netStake_usd × 10 × risk(odds) × horizon(time))
-               + Σ 20% of every referee's points
-```
+**Why it was withdrawn.** The points were not a game score. They were a promise priced in a token that does
+not exist — the whitepaper said 1:1 at genesis, across 42% of supply. That promise had exactly one funding
+source, the ad venue, and the venue declined us in writing because the site's impression volume is below its
+publisher floor. Keeping the ledger would have meant telling every registered wallet that their score still
+counted, with nothing behind it.
 
-### 3.1 The formula, exactly
+**What was removed from the product**, not just from this document:
 
-`frontend/src/lib/points.ts` is the single source of truth; the API, the bot and the marketing cards import
-its constants instead of re-typing a number.
+- `frontend/public/points.json`, `/api/points`, `/api/rewards`, `/api/metrics/ad`
+- the watch-to-earn modal, the free-ticket rail inside the trade panel, the points card in the portfolio
+  drawer, and the "Arena Points" strip on the landing dashboard
+- `scripts/sync-points.ts` and the two cron entries that rebuilt and mailed the ledger
+- the bot's bind bonus, its 5× "hashpower" multiplier and its channel grant — it now reports the crew count
+  it can read from its own register, and nothing else
 
-| Factor | Value | Rationale |
-|---|---|---|
-| Base | **10 points per $1** of `netStake` (fee excluded) | a $20 bet is ~200 points: readable, not inflationary |
-| Risk | `1 + 2·|p − 0.5|`, capped at **×2** | a 90/10 side is a real forecast; a 50/50 is a coin flip |
-| Horizon | **×1.5** if expiry ≤48h, **×1.2** if ≤10d, else ×1 | short-dated markets settle sooner, so they earn sooner |
-| Captain | **20%** of each referee's points, from `BetPlaced.referrer` | an on-chain field, not a spreadsheet |
-| Social | watch-to-earn ledger (10/ad, 12/day) | counted separately, shown as `socialPoints` |
-
-Worked example — a $50 bet on a 24h market trading at 30% YES:
-
-```
-50 × 10 × (1 + 2×0.20) × 1.5 = 50 × 10 × 1.4 × 1.5 = 1,050 points
-captain of that bettor:            floor(1,050 × 0.20) = 210 points
-```
-
-Both multipliers are bounded on purpose: a whale cannot print an unbounded score by betting a 99/1 side, and
-a farmer cannot farm freshness by only playing 24h markets — the ×1.5 pays for faster settlement, not for
-volume on its own.
-
-### 3.2 Why replay beats a table
-
-- **Auditable**: `bun scripts/sync-points.ts` rebuilds the whole season from `BetPlaced` logs; anyone can diff it.
-- **Unlosable**: no migration, no backup, no "we lost the snapshot". The chain is the backup.
-- **Anti-sybil by cost**: the only way to score is to stake USDC on-chain. Follows and likes are worth zero,
-  because they cost zero.
-- **Grants are files, not favours**: work that never touches the chain (a called shot, a translation, a
-  thread that brought ten wallets) is credited from `docs/points/grants.json` — committed before it
-  counts, replayed into the same ledger. Likes and reposts earn nothing; they cost nothing.
-- **Composable**: the same replay feeds `/api/points`, the daily captain leaderboard, and the projected
-  genesis slice shown in the wallet card — one number, three surfaces.
-
-The ledger is published at `/points.json`; `/api/points` returns rules, leaderboard, and a single wallet's
-rank plus its projected genesis slice (`points / totalPoints × 420,000,000`).
+**What replaced it.** A free, wallet-less pick: the "I say yes / I say no" row under the featured market. It
+is counted server-side (`/api/guess`, one tap per IP per market) and the number under the buttons is the
+taps that actually arrived. It pays nothing, because there is nothing to pay — the payoff is the answer when
+the market settles, which is the same thing that pays a real bettor.
 
 ---
 
-## 4. $ARENA Tokenomics
+## 4. The 4% fee — what the contract pays
 
-**Total supply: 1,000,000,000 ARENA — fixed at genesis, with no mint path in the design.**
+### 4.1 Where every basis point goes
 
-| Allocation | Share | Tokens | Unlock |
-|---|---|---|---|
-| **Genesis airdrop (points, 1:1)** | **42%** | 420,000,000 | claimable at genesis from a merkle snapshot; **100% community, zero insider allocation inside this bucket**; unclaimed returns to the ecosystem pool after 12 months |
-| **Aerodrome initial liquidity** | **25%** | 250,000,000 | pool created at launch, **locked 24 months**, veAERO held by a community multisig |
-| **Ecosystem & points reservoir** | **33%** | 330,000,000 | 4 years linear, community-multisig, milestone-gated: captain incentives, market-maker rebates, integrations, next-season point programmes |
-
-There is no team allocation, no advisor allocation, no VC round and no foundation carve-out. That is not a
-moral position, it is an accounting one: the operator is a cron box whose costs are RPC, a domain and audits,
-and those are paid out of the fee loop below. A team that is paid by fees does not need a token bag to dump.
-
-### 4.1 The 4% fee loop
-
-The contract already takes `PLATFORM_FEE_BPS = 400` and splits it in escrow on every bet. The genesis-era
-target split:
+The contract takes `PLATFORM_FEE_BPS = 400` and splits it in escrow on every bet. Two sinks, both live:
 
 | Sink | Share of the 4% fee | Mechanism |
 |---|---|---|
-| **Captain rebate — base** | **1.2%** (30% of the rake = `REFERRAL_SHARE_BPS = 3000`) | credited to `BetPlaced.referrer` at bet time, already live; claimable per pool after settlement |
-| **Captain rebate — staking bonus** | **+0.8%** (raises a staked captain to **50% of the fee**) | paid from the fee vault at settlement, only to captains who lock 50% of earned ARENA for 90 days |
-| **Buyback & burn** | **1.5%** | weekly USDC → ARENA on Aerodrome, sent to `0x…dEaD`, every tx hash published |
-| **Treasury / ops** | **1.3%** unstaked · **0.5%** when the captain is staked | community multisig: RPC, audits, domain, incident response |
+| **Referral rebate** | **1.2%** (30% of the rake, `REFERRAL_SHARE_BPS = 3000`) | credited to `BetPlaced.referrer` at bet time; claimable per pool with `claimRewards` after settlement |
+| **Treasury / ops** | **2.8%** | the remainder, withdrawn by the admin through `withdrawAdminFees` |
 
-Burn is **volume-linked, not promised**: no bets, no burn. That is the honest version of a "deflationary
-model" — the mechanism is real, and the magnitude is whatever the venue actually earns that week.
+1.2% of every stake is the whole referral programme. There is no "staked captain" tier, no buyback, no burn
+and no governance weight, because each of those was denominated in a token that does not exist. What is left
+is the part anyone can check on Basescan today.
 
-### 4.2 Captain staking — commission up to 50%
+### 4.2 What a bettor and a referrer actually receive
 
-A captain's economics are deliberately locked to the long term:
+- **Bettor**: wins when their side carries the majority of the net pool at settlement; the payout is
+  `netStake / winningSide × netPool`, pulled with `claimRewards`.
+- **Referrer**: 30% of that pool's fee, credited at bet time against the `referrer` field the contract stores,
+  claimable after settlement whether or not they ever opened the site again.
+- **Both**: nothing is held by us. The escrow is the contract; the payout is a transaction.
 
-1. **Base**: 30% of the rake, escrowed on-chain the moment their referee bets. No invoice, no monthly payout,
-   no trust.
-2. **Stake 50% of earned ARENA for 90 days** → the commission rises to **50% of the fee (2.0% of stake)**.
-   The extra 20 points of rake is paid from the fee vault at settlement, against the on-chain lock.
-3. **Staked ARENA carries governance weight** over next season's sector list, the ecosystem spend, and which
-   markets get market-maker rebates. Unlock any time; lose the bonus and the weight the day you do.
+### 4.3 Token status
 
-The points side mirrors it: the 20% referee share stays with the captain only while the lock holds. This is
-the point of the mechanism — the distribution channel holds the same asset it is selling, so a captain's
-best exit is to keep the venue alive rather than to dump the first claim.
-
-### 4.3 Genesis claim
-
-1. Season close: snapshot `points.json` → merkle root → published on-chain in one transaction.
-2. A claim contract verifies inclusion; unclaimed balances recycle to the ecosystem pool after 12 months.
-3. Sybil filter: only on-chain stake and *paid* referral stake count. Self-trading pairs are zeroed without
-   appeal, and the zeroing is written to the same public ledger.
-
-### 4.4 What exists today
-
-**$ARENA does not exist yet.** There is no token contract, no presale, no private round, nothing purchasable.
-This section is a design commitment with numbers attached, not a statement of holdings. The only thing that
-exists today is the points ledger — and it exists whether or not the token ever does.
+**There is no $ARENA token, no claim contract and no snapshot.** The v1.0 allocation table (42% airdrop, 25%
+Aerodrome liquidity, 33% ecosystem) is withdrawn along with the points system it was denominated in. If a
+token is ever designed, it will be described in a document dated after the thing exists, not before.
 
 ---
 
@@ -269,11 +231,10 @@ exists today is the points ledger — and it exists whether or not the token eve
 
 **What this does not claim.** The contract is small and reviewed, not formally verified. No audit makes a
 contract risk-free. The frontend, the bot and the cron box are trusted infrastructure — they cannot steal
-escrow, but they can go down. Points are a record of participation, not a security, a share or a promise of
-return.
+escrow, but they can go down.
 
-**Nothing is for sale.** No presale, no private round, no paid allocation, no team reserve. If $ARENA never
-launches, points remain a scoreboard and this section remains the reason nobody lost money to it.
+**Nothing is for sale.** No presale, no private round, no paid allocation, no team reserve, and no token of
+any kind. The only money this venue moves is a bettor's stake and the fee it splits.
 
 ---
 
@@ -281,14 +242,14 @@ launches, points remain a scoreboard and this section remains the reason nobody 
 
 | Phase | Window | Deliverable | Status |
 |---|---|---|---|
-| **I. Points reservoir** | Q4 2026 | 232 markets / 19 sectors live, points replay every 30 min, captain bot + daily leaderboard | **live** |
-| **II. Genesis Merkle snapshot** | Q1 2027 | season close, merkle root on-chain, claim contract, published sybil review | planned |
-| **III. Zero-cost DEX listing** | Q1–Q2 2027 | ARENA/USDC pool on Aerodrome with 25% of supply, 24-month lock, gauge vote — no CEX fee, no IDO | planned |
-| **IV. Community market opening** | Q2–Q3 2027 | staked captains propose and open their own sectors; resolution bonds slash bad questions | planned |
+| **I. The board** | Q4 2026 | 232 markets / 19 sectors live, rebuilt every 30 min, captain bot + on-chain referral payouts | **live** |
+| **II. Free picks** | Q4 2026 | wallet-less "I say yes / I say no", counted server-side, shareable as a PNG | **live** |
+| **III. Event calendar** | Q1 2027 | FOMC / CPI / ETF markets opened 48h before the print, data source named on the card | planned |
+| **IV. Community market opening** | Q2–Q3 2027 | referral captains propose sectors; resolution bonds slash bad questions | planned |
 | **V. Sector autonomy** | 2027 | per-sector treasuries: the fees a sector earns fund that sector's question writers | planned |
 
-Phase I is the only one that is a promise about the present, and it is checkable right now: 232 rows in
-`pools.json`, 232 pool ids on Basescan, and a points ledger anyone can rebuild with one command.
+Phases I and II are promises about the present, and both are checkable right now: 232 rows in `pools.json`,
+232 pool ids on Basescan, and a tap counter that only moves when a real tap arrives.
 
 ---
 
@@ -297,8 +258,7 @@ Phase I is the only one that is a promise about the present, and it is checkable
 ```bash
 curl -s https://predictionarena.online/pools.json | jq '.pools | length'                        # 232
 curl -s https://predictionarena.online/api/board | jq '[.pools[].category] | unique | length'  # 19
-curl -s https://predictionarena.online/api/points | jq '.rules'                                # scoring rules
-bun scripts/sync-points.ts                                                                     # rebuild the ledger
+curl -s "https://predictionarena.online/api/guess?id=723245834" | jq                         # free-pick count
 bun scripts/push-desktop-marketing.ts --dry-run                                                # today's flagships
 
 # does a market in the manifest really exist on Base? ask the contract, not us:
@@ -309,4 +269,4 @@ cast call 0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5 \
 ```
 
 Contract: `0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5` · USDC: `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`
-· Source: `contracts/PredictionArena.sol` · Points rules: `frontend/src/lib/points.ts`
+· Source: `contracts/PredictionArena.sol` · Free picks: `frontend/src/app/api/guess/route.ts`
