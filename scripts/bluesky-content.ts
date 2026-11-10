@@ -87,10 +87,12 @@ function mismatch(): string | null {
     const gap = Math.abs(odds - (implied ? 62 : 38)) + Math.abs(moved) * 6;
     if (!best || gap > best.gap) {
       const when = p.endTimeUtc ? new Date(p.endTimeUtc).toISOString().slice(0, 10) : "";
+      // The link is the whole point: a post with a take and no door is a diary entry. It carries
+      // `challenge`, so whoever opens it lands on the side that is still empty.
       const text =
         `${lv.sym} is ${moved >= 0 ? "up" : "down"} ${Math.abs(moved).toFixed(1)}% today ($${fmt(spot)}). ` +
-        `Our board still prices "${p.title.replace(/\?$/, "")}" at ${odds.toFixed(0)}% YES for ${when}.\n\n` +
-        `Either the market is slow, or it knows something the tape doesn't.`;
+        `Board still prices "${p.title.replace(/\?$/, "")}" at ${odds.toFixed(0)}% YES for ${when}.\n\n` +
+        `Market is slow, or the tape is wrong — your call:\n${SITE}/market/${p.id}?challenge=${up ? "yes" : "no"}`;
       best = { text, gap };
     }
   }
@@ -115,9 +117,15 @@ function question(): string | null {
   };
   const a = pick(0);
   const b = pick(7);
-  const line = (p: Pool) =>
-    `· ${p.title.replace(/\?$/, "")} — ${(Number(p.yesShare) * 100).toFixed(0)}% YES`;
-  return `Two markets, two very different prices. One of them is wrong.\n\n${line(a)}\n${line(b)}\n\nWhich side would you take?`;
+  // Bluesky caps a post at 300 graphemes and a 100-character question twice over blows it, so the
+  // titles are clipped — the link matters more than the tail of a question.
+  // Cut at the deadline clause rather than mid-number: "above $1.11" reads, "07:0" does not.
+  const short = (t: string) => {
+    const head = t.replace(/\?$/, "").split(/ before | prior to | by /i)[0];
+    return head.length > 56 ? `${head.slice(0, 55).trimEnd()}…` : head;
+  };
+  const line = (p: Pool) => `· ${short(p.title)} — ${(Number(p.yesShare) * 100).toFixed(0)}% YES`;
+  return `Two markets. One is wrong.\n\n${line(a)}\n${line(b)}\n\nWhich side?\n${SITE}/markets`;
 }
 
 /** Settled: we are the only venue that can show a settlement hash. That is the content. */
