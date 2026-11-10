@@ -27,6 +27,7 @@ const ROOT = join(import.meta.dir, "..");
 const PDS = process.env.BSKY_PDS ?? "https://bsky.social";
 const SESSION = join(homedir(), ".hermes", ".bsky_session.json");
 const SEEN = join(ROOT, ".data", "bsky-replied.json");
+const FOLLOWED = join(ROOT, ".data", "bsky-followed.json");
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://predictionarena.online";
 
 const args = process.argv.slice(2);
@@ -165,16 +166,50 @@ async function reply(s: Session, p: Post, text: string): Promise<boolean> {
   return true;
 }
 
+/**
+ * Following is the only thing that moves the follower count on Bluesky: there is no algorithm to
+ * borrow. A venue account with 2 followers gets 0 reach per post, so the engine has to go to the
+ * people who already talk about this subject and follow them — roughly one in five follows back, and
+ * those are the only humans who will ever see a launch post.
+ */
+async function follow(s: Session, did: string): Promise<boolean> {
+  const res = await fetch(`${PDS}/xrpc/com.atproto.repo.createRecord`, {
+    method: "POST",
+    headers: { authorization: `Bearer ${s.accessJwt}`, "content-type": "application/json" },
+    body: JSON.stringify({
+      repo: s.did,
+      collection: "app.bsky.graph.follow",
+      record: { $type: "app.bsky.graph.follow", subject: did, createdAt: new Date().toISOString() },
+    }),
+  });
+  if (!res.ok) {
+    console.error(`follow ${did} → HTTP ${res.status}: ${(await res.text()).slice(0, 120)}`);
+    return false;
+  }
+  return true;
+}
+
 async function main(): Promise<void> {
   const s = session();
   const seen = readSeen();
+  const followed: Record<string, string> = (() => {
+    try {
+      return JSON.parse(readFileSync(FOLLOWED, "utf8"));
+    } catch {
+      return {};
+    }
+  })();
   const candidates: Post[] = [];
+  const authors = new Map<string, { handle: string; did: string }>();
   const byUri = new Set<string>();
 
   for (const q of QUERIES) {
     for (const p of await search(s, q)) {
       if (byUri.has(p.uri)) continue;
       byUri.add(p.uri);
+      // Everyone in the result set is somebody who posts about a subject this board prices — they
+      // are the follow candidates, whether or not their post is answerable.
+      if (p.author?.did && p.author.did !== s.did && !followed[p.author.did]) authors.set(p.author.did, p.author);
       if (worthAnswering(p, seen)) candidates.push(p);
     }
     await new Promise((r) => setTimeout(r, 700));
@@ -212,6 +247,27 @@ async function main(): Promise<void> {
     }
   }
   console.log(`\n${LIVE ? "sent" : "would send"} ${sent}`);
+
+  // Follow pass. No reply attached, no link — just the request that makes their posts appear in our
+  // feed later, which is what a new account needs more than anything it can write.
+  const followCap = Math.max(0, Math.min(40, Number(flag("follow", "15"))));
+  let followCount = 0;
+  for (const a of authors.values()) {
+    if (followCount >= followCap) break;
+    if (!LIVE) {
+      console.log(`  would follow @${a.handle}`);
+      followCount += 1;
+      continue;
+    }
+    if (await follow(s, a.did)) {
+      followed[a.did] = new Date().toISOString();
+      writeFileSync(FOLLOWED, `${JSON.stringify(followed, null, 2)}\n`);
+      followCount += 1;
+      console.log(`  + followed @${a.handle}`);
+      await new Promise((r) => setTimeout(r, 2_500));
+    }
+  }
+  console.log(`${LIVE ? "followed" : "would follow"} ${followCount}`);
 }
 
 main().catch((e) => {
