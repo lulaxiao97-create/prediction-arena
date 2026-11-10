@@ -141,7 +141,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             >
               <span className="block text-sm text-ink/90">{p.title}</span>
               <span className="mt-1 block text-xs text-muted">
-                YES {Math.round(impliedYes(p) * 100)}% · {p.traders ?? 0} traders
+                YES {Math.round(impliedYes(p) * 100)}%
                 {p.endTimeUtc ? ` · ends ${new Date(p.endTimeUtc).toISOString().slice(0, 10)}` : ""}
               </span>
             </Link>

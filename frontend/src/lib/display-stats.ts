@@ -95,13 +95,12 @@ export function poolStats(pool: {
   if (live) {
     return { liquidityUsdc: onchain, traders: null, volume24hUsdc: 0n, source: "chain" };
   }
-  const demo = displayStatsFor(pool.id);
-  return {
-    liquidityUsdc: BigInt(demo.liquidityUsdc) * USDC,
-    traders: demo.traders,
-    volume24hUsdc: BigInt(demo.volume24hUsdc) * USDC,
-    source: "demo",
-  };
+  // A demo row holds no money, so it reports none. The old branch returned displayStatsFor()'s
+  // hash-derived liquidity (12.5k–88.5k), trader count (85–320) and turnover — the figures the cards
+  // stopped printing on 2026-11-09. They were still feeding the dashboard's TVL, the market header
+  // and the trend rail, which is why a venue with 1.00 USDC in escrow showed "$12.5M". Zero is the
+  // honest number and the UI already renders `null` traders as an em dash.
+  return { liquidityUsdc: 0n, traders: null, volume24hUsdc: 0n, source: "demo" };
 }
 
 /**

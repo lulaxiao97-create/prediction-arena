@@ -14,10 +14,12 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const title = pool?.title ?? `Market #${id}`;
   const yes = Math.round(impliedYes(pool) * 100);
   // Share previews are the ad unit: a title with no number gets scrolled past, so the description
-  // leads with the payout multiple and the crowd size — both read straight from the manifest.
+  // leads with the payout multiple. The crowd size used to sit here too — `pool.traders`, written by
+  // gen-board as `40 + p * 260`, i.e. a number the generator made up. It is gone: the preview now
+  // says when the market settles, which is in the manifest and true.
   const mult = (1 / Math.max(0.02, yes / 100)).toFixed(1);
-  const traders = pool?.traders ?? 0;
-  const description = `${yes}% YES · pays ${mult}× · ${traders} traders. Binary market on Base, settled in native USDC with on-chain evidence.`;
+  const ends = pool?.endTimeUtc ? new Date(pool.endTimeUtc).toISOString().slice(0, 10) : null;
+  const description = `${yes}% YES · pays ${mult}×${ends ? ` · settles ${ends}` : ""}. Binary market on Base, settled in native USDC with on-chain evidence.`;
 
   return {
     title,

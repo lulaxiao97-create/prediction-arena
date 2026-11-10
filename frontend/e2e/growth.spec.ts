@@ -15,9 +15,13 @@ test("landing page carries the growth strip and the trust hooks", async ({ page 
   const strip = page.getByLabel("Launch offers");
   await expect(strip).toBeVisible();
 
-  // both offers
+  // both offers. The second card used to sell "100 points = a $1 trial ticket"; the points system
+  // was withdrawn on 2026-11-10 (the ad venue never onboarded, so nothing funded the ledger) and the
+  // card now sells the free pick. Assert the replacement AND the absence of the withdrawn claim —
+  // a copy edit that quietly brings the ticket back is the regression this pins.
   await expect(strip.getByText("Launch special: your fee is escrowed, not spent")).toBeVisible();
-  await expect(strip.getByText("100 points = a $1 trial ticket")).toBeVisible();
+  await expect(strip.getByText("Say yes or no — one tap, no money")).toBeVisible();
+  await expect(strip.getByText(/trial ticket|Arena Points|points/i)).toHaveCount(0);
 
   // the three objections
   await expect(strip.getByText("Audited v3 contract")).toBeVisible();
@@ -31,9 +35,12 @@ test("hot-trends rail lists real markets with numbers", async ({ page }) => {
   const rail = page.getByLabel("Trending markets");
   await expect(rail).toBeVisible();
 
-  // at least one line names a trader count and a payout multiple, i.e. the manifest reached it
-  const line = rail.getByText(/traders · \$[\d.,]+[KM]? liquidity · [\d.]+× on YES/).first();
+  // A line carries the side's share and the deadline — both facts. It used to carry "N traders ·
+  // $X liquidity · M× on YES", where every number came from displayStatsFor()'s hash. Those are gone
+  // from the rail, so this asserts the real line and the absence of the invented one.
+  const line = rail.getByText(/YES \d+% · settles in/).first();
   await expect(line).toBeVisible();
+  await expect(rail.getByText(/traders · \$/)).toHaveCount(0);
 });
 
 test("market share intent carries per-market attribution", async ({ page, request }) => {
@@ -90,7 +97,10 @@ test("market share metadata leads with the payout multiple", async ({ page, requ
   expect(id).not.toBe("");
   await page.goto(`/market/${id}`, { waitUntil: "domcontentloaded" });
   const html = await page.content();
-  expect(html).toMatch(/\d+% YES · pays \d+\.\d× · \d+ traders/);
+  // The preview used to claim a crowd size (`pool.traders`, generated as 40 + p·260). It now names
+  // the settlement date, which the manifest actually carries.
+  expect(html).toMatch(/\d+% YES · pays \d+\.\d× · settles \d{4}-\d{2}-\d{2}/);
+  expect(html).not.toMatch(/\d+ traders/);
 });
 
 /**

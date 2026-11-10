@@ -514,10 +514,10 @@ function buildBoard(snap: PriceSnapshot, now: Date, sticky: Record<string, Stick
       ],
       deadline,
       tier: tierOf(deadline),
-      liquidityUsdc: liquidity,
+      // No liquidityUsdc / volume24hUsdc / traders: those were generated here (18.5k–38.5k book,
+      // 16–66% turnover, 40 + p·260 traders) and read as a traded market. The contract holds the real
+      // figure and the card reads it from there; a row with no stake has none to print.
       yesShare: Number(p.toFixed(3)),
-      volume24hUsdc: turnover24h(title, liquidity),
-      traders: Math.round(40 + p * 260),
       description: `${note} Spot is ${fmtMoney(spot)} (${changeTxt}); the strike is ${movePct > 0 ? "+" : ""}${movePct}% versus it.`,
       resolution: touch
         ? `YES if the ${opts.sym}/USDT pair on ${a[opts.sym]?.source === "yahoo" ? "Nasdaq/NYSE (Yahoo Finance)" : "Binance"} prints at or ${direction} ${fmtMoney(strike)} at any moment before ${tsLabel(deadline)}. A print counts; no close is required.`
@@ -548,10 +548,7 @@ function buildBoard(snap: PriceSnapshot, now: Date, sticky: Record<string, Stick
       tags: opts.tags,
       deadline: opts.deadline,
       tier: tierOf(opts.deadline),
-      liquidityUsdc: liquidity,
       yesShare: Number(clamp(opts.p, 0.05, 0.92).toFixed(3)),
-      volume24hUsdc: turnover24h(opts.title, liquidity),
-      traders: Math.round(30 + opts.p * 300),
       description: opts.why ?? opts.tags.join(" · "),
       resolution: opts.resolution,
       dataSource: opts.source,
@@ -1858,11 +1855,6 @@ function main() {
     let demoId = String(ID_BASE + (fnv1a(d.title) % ID_SPAN));
     while (usedDemoIds.has(demoId)) demoId = String(Number(demoId) + 1);
     usedDemoIds.add(demoId);
-    // Presentation numbers come from the id alone (lib/display-stats), the same function the card
-    // calls at render time: liquidity $12.5k–$88.5k, 85–320 traders, turnover 16–66% of liquidity.
-    // Derived from the id rather than from the model's probability, so a card never reads $0.00 and
-    // never changes on a rebuild that only moved spot.
-    const stats = displayStatsFor(demoId);
     return {
       id: demoId,
       title: d.title,
@@ -1874,10 +1866,7 @@ function main() {
       // back to "open", which put markets on the page that revert on bet().
       status: openedById.has(demoId) ? (previousStatus.get(demoId) ?? 1) : 1,
       endTimeUtc: d.deadline.toISOString(),
-      liquidityUsdc: String(stats.liquidityUsdc),
       yesShare: d.yesShare,
-      volume24hUsdc: String(stats.volume24hUsdc),
-      traders: stats.traders,
       description: d.description,
       resolution: d.resolution,
       dataSource: d.dataSource,

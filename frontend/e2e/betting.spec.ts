@@ -136,10 +136,15 @@ test("admin console is gated: foreign wallet sees the allowlist notice, API reje
   await connect(page);
   await expect(page.getByText(/not on the operator allowlist/i)).toBeVisible({ timeout: 20_000 });
 
-  const res = await request.get(
+  // The signed /api/admin/metrics endpoint was deleted with the ads / payouts / points panels it
+  // fed, so an unsigned call now has nothing to authorise. What still has to hold: the endpoint is
+  // gone (404, not silently 200) and the remaining operator surface refuses an unkeyed read.
+  const gone = await request.get(
     `/api/admin/metrics?address=${TEST_ACCOUNT}&ts=${Date.now()}&sig=0x${"11".repeat(65)}`
   );
-  expect([401, 403]).toContain(res.status());
+  expect(gone.status()).toBe(404);
+  const guarded = await request.get("/api/admin-dash-secret");
+  expect([401, 403]).toContain(guarded.status());
 });
 
 test("board api serves the runtime manifest with a 60s cache header", async ({ request }) => {

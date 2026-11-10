@@ -102,7 +102,7 @@ export default async function MarketsPage() {
                   >
                     <span className="block leading-snug">{p.title}</span>
                     <span className="mt-1 block text-xs text-muted">
-                      YES {yes}% · {p.traders ?? 0} traders
+                      YES {yes}%{p.endTimeUtc ? ` · ends ${new Date(p.endTimeUtc).toISOString().slice(0, 10)}` : ""}
                     </span>
                   </Link>
                 </li>

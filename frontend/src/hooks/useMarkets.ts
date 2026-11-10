@@ -191,9 +191,10 @@ export function useMarkets() {
   }, [chainPools, demoPools, manifestOnly, manifestMeta]);
 
   const stats = useMemo(() => {
-    // Presentation totals, summed from the same per-card figures the grid renders — a header that
-    // added up real pool balances would read $0 next to cards showing $40k.
-    const tvl = pools.reduce((sum, p) => sum + poolStats(p).liquidityUsdc, 0n);
+    // Real escrow only. This used to sum displayStatsFor()'s generated liquidity so the header would
+    // not read $0 next to cards showing $40k — i.e. the header was tuned to match a fabricated card.
+    // The cards stopped printing those figures on 2026-11-09; this is the same rule applied here.
+    const tvl = pools.reduce((sum, p) => (p.source === "chain" ? sum + (p.totalNetPool ?? 0n) : sum), 0n);
     const volume24h = pools.reduce((sum, p) => sum + poolStats(p).volume24hUsdc, 0n);
     return {
       tvl,
