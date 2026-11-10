@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { impliedYes, liquidityLabel, readPool } from "@/lib/market-manifest";
+import { impliedYes, readPool } from "@/lib/market-manifest";
 import { coverOf } from "@/lib/covers";
 
 // Node runtime: the market manifest and the brand mark are read straight off disk, so a
@@ -103,7 +103,10 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const no = 100 - yes;
   const title = clampTitle(pool?.title ?? `Market #${id}`);
   const category = (pool?.category ?? "market").toUpperCase();
-  const liquidity = liquidityLabel(pool);
+  // The card used to print "LIQUIDITY $36.8K" here, read from a field gen-board generated as
+  // 9_000 + p·50_000 — a number no contract held. What replaces it is the deadline, which is in the
+  // manifest and true: the same fact the page's meta description now leads with.
+  const settles = pool?.endTimeUtc ? new Date(pool.endTimeUtc).toISOString().slice(0, 10) : null;
   const titleSize = title.length > 70 ? 44 : 54;
 
   // Provenance badge: only claim a live feed when the manifest actually carries the numbers.
@@ -286,7 +289,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
             {cover.entity}
           </div>
           <div style={{ display: "flex", marginLeft: "auto", fontSize: 14, color: MUTED, letterSpacing: 1.2 }}>
-            {`LIQUIDITY ${liquidity}`}
+            {settles ? `SETTLES ${settles}` : "OPEN MARKET"}
           </div>
         </div>
         <div
