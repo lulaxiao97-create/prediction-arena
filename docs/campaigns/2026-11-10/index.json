@@ -62,6 +62,37 @@
         "endTimeUtc": "2026-11-15T23:59:59.000Z"
       },
       "generatedAt": "2026-11-10T16:58:19.993Z"
+    },
+    {
+      "id": "722971078",
+      "title": "Will Degen trade above $0.000868 before November 11 2026, 07:00 UTC?",
+      "pick": "tribal",
+      "tweet": "🏴 Will Degen trade above $0.000868 before November 11 2026, 07:00…\n\nYES ██████░░ 74% → 1.4×\nNO  ██░░░░░░ 26% → 3.8×\n\n0 already picked a side. 9h left. The wrong side pays the right side.\n\nhttps://predictionarena.online/market/722971078?utm_source=x&utm_medium=social&utm_campaign=auto_market&utm_content=722971078&ref=x\n@Predict065",
+      "tweetWeight": 224,
+      "cast": "🏴 Will Degen trade above $0.000868 before November 11 2026, 07:00 U…\n\nYES ██████░░ 74% · 1.4×\nNO  ██░░░░░░ 26% · 3.8×\n0 in · DEGEN $0.000867 now\n\nhttps://predictionarena.online/market/722971078?utm_source=farcaster&utm_medium=cast&utm_campaign=auto_market&utm_content=722971078&ref=fc",
+      "castChars": 285,
+      "telegram": "🏴 DAILY BOARD — 2026-11-10\n\n🔥 Will Degen trade above $0.000868 before November 11 2026, 07:00 UTC?\nYES ██████░░ 74% · pays 1.4×\nNO  ██░░░░░░ 26% · pays 3.8×\n0 traders · $0 liquidity · 9h left\n\nTake a side → https://predictionarena.online/market/722971078?utm_source=telegram&utm_medium=social&utm_campaign=auto_market&utm_content=722971078&ref=telegram\n\n🧑‍💼 CAPTAIN PROGRAM — copy your referral link from the portfolio drawer (Portfolio → Invite & Earn),\nshare this market, and automatically earn a cut of the 4% platform fee on-chain.\nMechanically: the arena credits the referrer 30% of that 4% rake per referred position, paid by the contract at settlement — not by us, and not out of anyone's stake.\n\nOnly official links: https://predictionarena.online · x.com/Predict065 · t.me/predictionarena_hq\nContract: 0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5 (Base, v3)",
+      "links": {
+        "x": "https://predictionarena.online/market/722971078?utm_source=x&utm_medium=social&utm_campaign=auto_market&utm_content=722971078&ref=x",
+        "farcaster": "https://predictionarena.online/market/722971078?utm_source=farcaster&utm_medium=cast&utm_campaign=auto_market&utm_content=722971078&ref=fc",
+        "telegram": "https://predictionarena.online/market/722971078?utm_source=telegram&utm_medium=social&utm_campaign=auto_market&utm_content=722971078&ref=telegram"
+      },
+      "tribal": {
+        "base": 9,
+        "adaptive": 0,
+        "total": 9,
+        "leader": null
+      },
+      "snapshot": {
+        "yes": 74,
+        "traders": 0,
+        "liquidityUsdc": 0,
+        "asset": "DEGEN",
+        "strikeUsd": 0.000868,
+        "spotUsd": 0.00086659,
+        "endTimeUtc": "2026-11-11T07:00:00.000Z"
+      },
+      "generatedAt": "2026-11-10T22:20:08.980Z"
     }
   ]
 }
