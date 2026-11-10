@@ -112,7 +112,9 @@ export function QuickGuess({ pool }: { pool: ArenaPool }) {
 
   const share = useCallback(async () => {
     if (!pick) return;
-    const pageUrl = `${window.location.origin}/market/${pool.id}`;
+    // The link carries the side, so whoever opens it lands on the other one. That is the whole
+    // growth loop: a pick is worth more when it can be answered.
+    const pageUrl = `${window.location.origin}/market/${pool.id}?challenge=${pick.side}`;
     const cardUrl = `${window.location.origin}/api/share/${pool.id}?side=${pick.side}`;
     const side = pick.side === "yes" ? "YES" : "NO";
     const line =

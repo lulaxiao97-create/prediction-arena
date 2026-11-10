@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useAccount, useBalance } from "wagmi";
-import { ArrowRight, CheckCircle2, ChevronDown, Coins, ExternalLink, Fuel, Info, Loader2, ShieldAlert, Wallet } from "lucide-react";
+import { ArrowRight, CheckCircle2, ChevronDown, Coins, ExternalLink, Fuel, Info, Loader2, ShieldAlert, Swords, Wallet } from "lucide-react";
 import type { ArenaPool } from "@/lib/types";
 import { cn, explorerTx, formatProbability, formatUsdc, impliedMultiplier } from "@/lib/format";
 import { quickAmountsFor, resolveTradeGuard } from "@/lib/trade-guard";
@@ -44,7 +45,32 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
   // still cannot transact. Checked separately so the CTA can say which one is missing.
   const { data: ethBalance } = useBalance({ address, query: { enabled: Boolean(address) } });
   const { bet, step, error, hash, reset } = useBet();
-  const [option, setOption] = useState<0 | 1>(0);
+  /**
+   * A challenge link is the cheapest growth loop this venue has: one person takes a side, sends
+   * `/market/<id>?challenge=yes` to a friend, and the friend's job is simply the other side. No
+   * operator liquidity, no incentive budget — the two positions are each other's counterparty,
+   * which is what a pari-mutuel pool needs to price at all.
+   *
+   * Defaulting to the opposite side is the whole point; a banner that leaves them on the same side
+   * just doubles the lopsidedness the link was meant to fix.
+   */
+  const challenge = useSearchParams()?.get("challenge")?.toLowerCase() ?? null;
+  const challengedFrom = challenge === "yes" || challenge === "no" ? challenge : null;
+  const [option, setOption] = useState<0 | 1>(challengedFrom === "yes" ? 1 : 0);
+  const [challenged, setChallenged] = useState(false);
+  const challengeFriend = useCallback(async () => {
+    const url = new URL(window.location.href);
+    url.pathname = `/market/${pool.id}`;
+    url.searchParams.set("challenge", option === 0 ? "yes" : "no");
+    try {
+      await navigator.clipboard.writeText(url.toString());
+      setChallenged(true);
+      window.setTimeout(() => setChallenged(false), 2200);
+    } catch {
+      window.prompt("Copy this link:", url.toString());
+    }
+  }, [option, pool.id]);
+
   const [amountInput, setAmountInput] = useState("50");
   const toastId = useRef<string | null>(null);
   const recorded = useRef(false);
@@ -190,6 +216,19 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
       </div>
 
       {!live && <DemoBadge />}
+
+      {/* A challenge link lands here. The point is not to inform, it is to make the other side
+          obvious — so the copy names the side they have to take and the option is already selected. */}
+      {challengedFrom && (
+        <div className="rounded-xl border border-gold/30 bg-gold/[0.07] px-3 py-2">
+          <p className="text-[11.5px] font-semibold text-gold-bright">
+            ⚔️ Someone took {challengedFrom === "yes" ? "YES" : "NO"} here — {challengedFrom === "yes" ? "NO" : "YES"} is open
+          </p>
+          <p className="mt-0.5 text-[10.5px] leading-relaxed text-muted/85">
+            Two sides is all this pool needs to price a real market. Your side is already selected below.
+          </p>
+        </div>
+      )}
 
       {/* outcome selector — colour follows the choice immediately */}
       <div className="grid grid-cols-2 gap-2">
@@ -416,6 +455,16 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
 
       <p className="text-[10px] leading-relaxed text-muted/60">{t("trade.oneClick")}</p>
       <p className="text-[10px] leading-relaxed text-muted/45">{t("trade.walletChecks")}</p>
+
+      {/* The only share button that asks for something specific. "Share" gets a like; "your side is
+          the other one" gets a position on the opposite side, which is what this pool needs. */}
+      <button
+        onClick={() => void challengeFriend()}
+        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1.5 text-[11px] text-muted transition-colors hover:border-gold/40 hover:text-gold-bright"
+      >
+        <Swords className="size-3" />
+        {challenged ? "Challenge link copied" : `Challenge a friend to take ${option === 0 ? "NO" : "YES"}`}
+      </button>
     </div>
   );
 }
