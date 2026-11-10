@@ -43,6 +43,11 @@ const QUERIES = [
   "cpi inflation",
   "nvidia earnings",
   "gold price",
+  // People already trading prediction markets are the only audience that needs no education — they
+  // are comparing prices, which is exactly what an empty pool invites them to do.
+  "polymarket",
+  "kalshi",
+  "prediction market",
 ];
 
 type Session = { did: string; handle: string; accessJwt: string; refreshJwt?: string };
