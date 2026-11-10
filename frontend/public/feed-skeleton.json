@@ -1,7 +1,13 @@
 {
- "updatedAt": "2026-11-10T10:30:07.184Z",
- "count": 81,
+ "updatedAt": "2026-11-10T11:00:06.881Z",
+ "count": 84,
  "posts": [
+  {
+   "uri": "at://did:plc:clnbplxqeizq53334ska4dr7/app.bsky.feed.post/3mzxbpdauh224",
+   "cid": "bafyreihvafflzdd32dbpzuotkuwf4ptpmezqhl7pvc6vghs2abzmm3tnfq",
+   "text": "Which prediction market has a prediction market on when prediction markets get outlawed?",
+   "handle": "six18sfoundry.bsky.social"
+  },
   {
    "uri": "at://did:plc:h4n26nzbgw3nxyg4656uoqmj/app.bsky.feed.post/3mzxa3gf4av2w",
    "cid": "bafyreif2rjia5p2x2us77rmrit6fjyfmrs6cf6yay24j4fatqadrxvjxuy",
@@ -81,6 +87,18 @@
    "handle": "pushalt88.bsky.social"
   },
   {
+   "uri": "at://did:plc:zplu3icl7jqkrogq7x4gxuwo/app.bsky.feed.post/3mzxbwry5ly22",
+   "cid": "bafyreiavnt36kp6aktbtr6c2ib7ffg32vxprym7rysiti34pdqmdrmmblm",
+   "text": "Prediction markets often move 48-72 hours ahead of the news cycle. PredictIntel tracks SEC filings, credit stress, and p",
+   "handle": "predictintel.bsky.social"
+  },
+  {
+   "uri": "at://did:plc:iqoyar2mdkpg6mskhmri3nr6/app.bsky.feed.post/3mzxb2zjuz52e",
+   "cid": "bafyreibvqqdapynuj4igtovl3pwdoxkcvt4y6757jena6wrg5v3q2itigm",
+   "text": "'Tough Questions' Ahead: Warren Targets Prediction Markets, Trump Crypto as Banking Chair",
+   "handle": "decrypt.co"
+  },
+  {
    "uri": "at://did:plc:chkh3qo3cdvmsycdvtoirih6/app.bsky.feed.post/3mzx7rrtnsz2c",
    "cid": "bafyreihejgb2owxfukxntfwksvosgxr5mcy7vwe4g7jbej5tv6u4q7f5wy",
    "text": "Sens. Warren and Merkley criticize the White House for inadequate action after Trump's teleprompter operator profited fr",
@@ -147,10 +165,10 @@
    "handle": "tlc-ron-low.bsky.social"
   },
   {
-   "uri": "at://did:plc:7s4o3tuufxok4rzusbmcquc7/app.bsky.feed.post/3mzwm2sixcz2w",
-   "cid": "bafyreigja5cqup2a456ggv5ygd6dw6nkixu2griqcb2iwtafwyccx2ts3a",
-   "text": "The latest update for #KnowBe4 includes \"Report: Social Engineering Remained the Top Initial Access Vector in Q3 2026\" a",
-   "handle": "opsmatters.com"
+   "uri": "at://did:plc:ayviswzzj5bcktqko7x74oni/app.bsky.feed.post/3mzxattq7mk2a",
+   "cid": "bafyreibrrf6xcxhtg2h5tkcpedhfcfsjrojsk3cf4ml76zn2tk5jvdbxfi",
+   "text": "Polymarket rembourse 3,9 M$ après une attaque\n\nUn code tiers, des comptes touchés en quelques minutes, une plateforme à ",
+   "handle": "chateaudesables.bsky.social"
   },
   {
    "uri": "at://did:plc:zcxlusmrmdjnv6ju6wychhsx/app.bsky.feed.post/3mzx5wuh4gz2a",
@@ -343,24 +361,6 @@
    "cid": "bafyreiejk37amza5t2i3zel5hpruy4lkyhtrtyzeduikt5hnovjpgkyriy",
    "text": "🚨 BREAKING: Coinbase, Kalshi, Payward, DRW, Jump, Paradigm file amicus brief defending CFTC’s jurisdiction over single‑",
    "handle": "yourweb3guy.bsky.social"
-  },
-  {
-   "uri": "at://did:plc:asrjrunwc7akpidodoubbbpd/app.bsky.feed.post/3mzwsivwvm52n",
-   "cid": "bafyreiaae426ryuu7qh6jf4yf2di3rmjgv3uvktxojvflhtjzxhghhgkxu",
-   "text": "⚡ Coinbase, Kalshi and Payward backs CFTC in lawsuit over single-stock perp futures\n\nhttps://www.theblock.co/news/regula",
-   "handle": "cryptopulse86.bsky.social"
-  },
-  {
-   "uri": "at://did:plc:wdipfwnptaic2jtd6dzxqxnj/app.bsky.feed.post/3mzwscumvfd2y",
-   "cid": "bafyreidurr5hthu7an2vgsq3yqryyhvgyz6nybztesnpbuey3fafblepc4",
-   "text": "🇺🇸 Coinbase, Kalshi, and Payward supported the CFTC in a lawsuit concerning the regulation of single-stock futures\n\n#C",
-   "handle": "cryptovka.com"
-  },
-  {
-   "uri": "at://did:plc:dlpepxog53t2ldt6qkibdzvw/app.bsky.feed.post/3mzwqmduokx2t",
-   "cid": "bafyreie4qzfgx77tqy6u7xxgcp6lttiqowqfmpld6lpcliebs2nq24yxwe",
-   "text": "trend-edge paper bot: 0 hypothetical Kalshi YES fills mapped from Google/YouTube trends; 0 settled, 0 wins, mean 0.0c/tr",
-   "handle": "darwinevolute.bsky.social"
   }
  ]
 }
