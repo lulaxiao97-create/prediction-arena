@@ -1,6 +1,6 @@
 {
- "updatedAt": "2026-11-10T07:30:06.973Z",
- "count": 85,
+ "updatedAt": "2026-11-10T08:00:07.223Z",
+ "count": 84,
  "posts": [
   {
    "uri": "at://did:plc:7k4vfws3kkxokmrg5co7n2b6/app.bsky.feed.post/3mzwq3ud4l22v",
@@ -81,10 +81,10 @@
    "handle": "nypost.com"
   },
   {
-   "uri": "at://did:plc:rpvuwy2qhgrphmhu6uyuv36p/app.bsky.feed.post/3mzvszybggy2w",
-   "cid": "bafyreibhbkecikpt6wrtnrxarxjsbndfca7ia6karw4eee3dlrnxvn7fzm",
-   "text": "Sen. Elizabeth Warren is preparing to target prediction markets, citing a \"Wild West-style lack of oversight,\" as she re",
-   "handle": "cryptointel.bsky.social"
+   "uri": "at://did:plc:xwgpkn266d3ac4bwepb7zd67/app.bsky.feed.post/3mzwwf4benr22",
+   "cid": "bafyreig2msrk64cw555vwcp7oqmofsj3nfie6x5a3fh5pm5xrxhzsyxgvm",
+   "text": "Elizabeth Warren vows scrutiny of prediction markets, Trump family crypto ventures as Senate Banking chair",
+   "handle": "toriaezu-dottocom.bsky.social"
   },
   {
    "uri": "at://did:plc:5btck35raquvjha4f7r5n4qy/app.bsky.feed.post/3mzwv6aqs6f24",
@@ -147,10 +147,16 @@
    "handle": "scottwhitmore.bsky.social"
   },
   {
-   "uri": "at://did:plc:6vrzrtu4gprur45gwurt4pk3/app.bsky.feed.post/3mzwena3urc2e",
-   "cid": "bafyreihjngy6anyndghhhwnzfoqyg25yu2pdtsbwxg3hw6vrp6ykjxtjzq",
-   "text": "It's not just men but women as well\n\nThey're draining the wealth of those that don't realize they're addicted to gamblin",
-   "handle": "doyourresearch1.bsky.social"
+   "uri": "at://did:plc:im6f54t52eyvrbzvwff7jnuk/app.bsky.feed.post/3mzwxfd3xwv2g",
+   "cid": "bafyreifcu6nc6acx7pxstroag47wnxr22r6pxy472gjrtzkt5m6iyydujy",
+   "text": "Polymarket Referral Code SBWIRE $25 Bonus for NFL, NBA, Politics & More (Nov. 9) - USA Today\n\nPolymarket Referral Code S",
+   "handle": "globalnews3.bsky.social"
+  },
+  {
+   "uri": "at://did:plc:jor4ctcmmwvlch5vftf5v3n2/app.bsky.feed.post/3mzwwa5ndus2k",
+   "cid": "bafyreidpusr3yb2u4macwwcigqfjqxtn7tvxg2jqxri3xq4lwjvzfkh7iq",
+   "text": "La data du jour : selon les parieurs de Polymarket (pas un sondage), probabilité de victoire au 10 novembre 2026 : Marin",
+   "handle": "isoloir2027.bsky.social"
   },
   {
    "uri": "at://did:plc:zo7f7x3o7s5sqvdyvzxmk53a/app.bsky.feed.post/3mzwvakfn4k2x",
@@ -261,18 +267,6 @@
    "handle": "psychedelicnoel.bsky.social"
   },
   {
-   "uri": "at://did:plc:nimvzyr542hju26s6ab6lelf/app.bsky.feed.post/3mzwdb7cfds2x",
-   "cid": "bafyreicl4nwl7ndvqptj6jm535xn6kylt5hg2h4hqkevyqwen6pccwbai4",
-   "text": "When does Donald Trump finally go away? Does Polymarket have a bet?",
-   "handle": "tharpa108.bsky.social"
-  },
-  {
-   "uri": "at://did:plc:uayevtgtbwot25zhocjzb6lv/app.bsky.feed.post/3mzwcw4oems2n",
-   "cid": "bafyreideehglttzjldoj33waowe3ewbpdwesmi2ya43zujpo5k6s6z5oau",
-   "text": "Polymarket and Kalshi are not \"prediction markets.\" They are apps designed to drain young men of their money by developi",
-   "handle": "mrsbettybowers.bsky.social"
-  },
-  {
    "uri": "at://did:plc:owu2lfrumlvvpoputmlmcwpd/app.bsky.feed.post/3mzwvwubbd52n",
    "cid": "bafyreibdblwoauqhhciftvs6znifxcqc3h2znbsfndjlzn4wmu6bg77xoq",
    "text": "Coinbase, Kalshi and Payward Back CFTC in Single-Stock Perpetual Futures Fight, Filing Amicus Brief\n\n#COIN #Coinbase #Ka",
@@ -361,6 +355,12 @@
    "cid": "bafyreifnldkf5nng4mixlmvk242q4q6dumlqddzizukkslqdbcvx5mhs4i",
    "text": "SEC Publishes New Kalshi Security-Futures Filing as Perpetual Contracts Advance\n\nThe SEC published a November 6 notice o",
    "handle": "crypto.at.thenote.app"
+  },
+  {
+   "uri": "at://did:plc:uo7wtr2bu24lv5med5tqwfzj/app.bsky.feed.post/3mzwjsch3ps25",
+   "cid": "bafyreifcrqfianieitwq2fznvllm45wlnzn4poy3aqgv5mjtbrrjopbn34",
+   "text": "Carson Wentz has to have a secret Kalshi account because there's no way an NFL quarterback is this bad",
+   "handle": "radda.bsky.social"
   }
  ]
 }
