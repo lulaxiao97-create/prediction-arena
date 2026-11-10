@@ -1955,7 +1955,16 @@ function main() {
       // generated rows come last, so a freshly built demo card replaces a stale chain row that
       // was written by an earlier pass (the pool behind the id is unaffected).
       for (const row of [...chainRows, ...generated]) byId.set(row.id, row);
-      return [...byId.values()];
+      // Strip the two fields this generator used to invent. A row that has carried them since an
+      // earlier build would otherwise keep printing them even though nothing writes them now;
+      // `volume24hUsdc` is kept because ops-refresh/sync-pool-list fill it from the chain (or leave
+      // it null), and `totalNetPool` is the real escrow the card reads.
+      return [...byId.values()].map((row) => {
+        const clean = { ...row } as Pool & { traders?: unknown; liquidityUsdc?: unknown };
+        delete clean.traders;
+        delete clean.liquidityUsdc;
+        return clean;
+      });
     })(),
   };
 

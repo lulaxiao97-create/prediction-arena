@@ -77,9 +77,15 @@ export function impliedYes(pool: ManifestPool | null): number {
   return a / (a + b);
 }
 
-/** Liquidity label for share cards: `$89.6K`, `$1.2M`, or `—`. */
+/**
+ * Escrow label for share cards: `$1.2M`, `$89.6K`, or `—`.
+ *
+ * Reads `totalNetPool` (the contract's net pool) and nothing else. It used to prefer
+ * `pool.liquidityUsdc`, a field gen-board generated as `9_000 + p·50_000` — so a market with no
+ * stake drew a card claiming $27K of depth. A market with no stake has no number to print.
+ */
 export function liquidityLabel(pool: ManifestPool | null): string {
-  const raw = Number(pool?.liquidityUsdc ?? pool?.totalNetPool ?? 0);
+  const raw = Number(pool?.totalNetPool ?? 0);
   if (!raw) return "—";
   if (raw >= 1_000_000) return `$${(raw / 1_000_000).toFixed(1)}M`;
   if (raw >= 1_000) return `$${(raw / 1_000).toFixed(1)}K`;
