@@ -43,9 +43,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
+          gap: 20,
           width: "100%",
           height: "100%",
-          padding: "50px 58px",
+          padding: "48px 58px",
           backgroundColor: OBSIDIAN,
           fontFamily: "sans-serif",
         }}
@@ -84,8 +85,24 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
           </div>
         </div>
 
-        <div style={{ display: "flex", fontSize: titleSize, fontWeight: 700, color: INK, lineHeight: 1.24 }}>
-          {title}
+        <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", flex: 1, gap: 26 }}>
+          <div style={{ display: "flex", fontSize: titleSize, fontWeight: 700, color: INK, lineHeight: 1.24 }}>
+            {title}
+          </div>
+          {/* the crowd's split, drawn — the two numbers on the right are the same two colours */}
+          <div
+            style={{
+              display: "flex",
+              width: "100%",
+              height: 12,
+              borderRadius: 9999,
+              overflow: "hidden",
+              backgroundColor: "rgba(255,255,255,0.08)",
+            }}
+          >
+            <div style={{ display: "flex", width: `${yes}%`, height: "100%", backgroundColor: GOLD }} />
+            <div style={{ display: "flex", flex: 1, height: "100%", backgroundColor: CYAN }} />
+          </div>
         </div>
 
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
