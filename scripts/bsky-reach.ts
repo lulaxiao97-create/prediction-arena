@@ -124,7 +124,22 @@ function worthAnswering(p: Post, seen: Record<string, string>): boolean {
   return true;
 }
 
-/** The market on this board that matches the subject, if one is open. */
+/**
+ * The subject of a *market title*, not of a post.
+ *
+ * `title.includes(subject)` was the bug that linked a gold article to the ETH/BTC ratio market: "BTC"
+ * appears inside the title of anything mentioning the ratio, so the first match won. A market's
+ * subject is the thing right after "Will", before the verb — nothing else counts.
+ */
+function subjectOfTitle(title: string): string | null {
+  const m = title.match(/^Will\s+(.+?)\s+(?:trade|close|hit|reach|fall|rise|be|stay|end|print)/i);
+  if (!m) return null;
+  const head = m[1].toUpperCase();
+  for (const s of SUBJECTS) if (s.re.test(head)) return s.key;
+  return null;
+}
+
+/** The market on this board whose *subject* matches — same asset, not merely a substring. */
 function matchMarket(subject: string): { id: string; title: string } | null {
   try {
     const board = JSON.parse(readFileSync(join(ROOT, "frontend", "public", "pools.json"), "utf8")) as {
@@ -133,12 +148,15 @@ function matchMarket(subject: string): { id: string; title: string } | null {
     const now = Date.now();
     const pool = (board.pools ?? [])
       .filter((p) => (p.status ?? 1) === 1 && (!p.endTimeUtc || Date.parse(p.endTimeUtc) > now))
-      .find((p) => p.title.toUpperCase().includes(subject));
+      .find((p) => subjectOfTitle(p.title) === subject);
     return pool ? { id: String(pool.id), title: pool.title } : null;
   } catch {
     return null;
   }
 }
+
+/** Accounts a venue should never be seen following — the first run followed an onlyfans promo. */
+const JUNK = /onlyfans|camgirl|porn|nude|escort|casino|bonus|follow ?back|f4f|giveaway|airdrop hunt|nudes/i;
 
 function replyText(m: { id: string; title: string }, url: string): string {
   return `Same question is on an on-chain board: "${m.title}"\n\nIts pool is empty, so the price is whatever the first taker says — not what a market maker decides.\n\n${url}`;
@@ -209,7 +227,17 @@ async function main(): Promise<void> {
       byUri.add(p.uri);
       // Everyone in the result set is somebody who posts about a subject this board prices — they
       // are the follow candidates, whether or not their post is answerable.
-      if (p.author?.did && p.author.did !== s.did && !followed[p.author.did]) authors.set(p.author.did, p.author);
+      // Only people actually posting about a subject this board prices, and never an account whose
+      // handle smells like a promo — the brand's following list is public and it is a first impression.
+      if (
+        p.author?.did &&
+        p.author.did !== s.did &&
+        !followed[p.author.did] &&
+        subjectOf(p.record.text ?? "") &&
+        !JUNK.test(p.author.handle ?? "")
+      ) {
+        authors.set(p.author.did, p.author);
+      }
       if (worthAnswering(p, seen)) candidates.push(p);
     }
     await new Promise((r) => setTimeout(r, 700));
