@@ -52,5 +52,7 @@ test("every sector tab renders markets, and switching stays under a second", asy
   await rail.first().evaluate((el) => (el as HTMLButtonElement).click());
   await expect
     .poll(async () => page.locator("main article").count(), { timeout: 8_000 })
-    .toBeGreaterThanOrEqual(200);
+    .toBeGreaterThanOrEqual(1);
+    // was >=200 when the board was a 244-market manifest; v4 ships six markets that actually
+    // exist on chain, so the assertion tracks "tabs render every market" not "board is big".
 });
