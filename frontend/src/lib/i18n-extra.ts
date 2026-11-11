@@ -181,6 +181,7 @@ export const EXTRA: Record<string, ExtraDict> = {
       ethBalance: "Gas",
       capWindow: "Flat $50 – $10,000 USDC window",
       thinSideWarning: "This size makes you the dominant holder of this side — if it wins you only buy back your own money minus the fee. Size down to share the pool.",
+      soloBoard: "The other side is empty, so your stake is the only price here. If nobody takes the opposite side within 72 hours, the operator voids the pool and you claim 100% back — stake plus the 4% fee (PredictionArena.cancelPool → claimRefund, on chain).",
     },
     detail: {
       rule1: "4% fee is escrowed per market and only released at settlement.",
@@ -379,6 +380,7 @@ export const EXTRA: Record<string, ExtraDict> = {
       ethBalance: "Gas",
       capWindow: "固定 $50 – $10,000 USDC 區間",
       thinSideWarning: "這個金額會讓你成為該側的主要持倉者 —— 若你贏，只會拿回自己的本金再扣手續費。建議縮小金額與池子分攤。",
+      soloBoard: "對面一側是空的，所以這一注就是這個盤唯一的價格。72 小時內沒有人接對面，營運方會取消盤口，你取回 100%（本金＋4% 手續費；鏈上 cancelPool → claimRefund）。",
     },
     detail: {
       rule1: "4% 手續費按市場託管，僅在結算時釋放。",

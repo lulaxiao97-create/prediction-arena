@@ -90,6 +90,10 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
   const fee = (amount * FEE_BPS) / BPS;
   const netStake = amount - fee;
   const side = option === 0 ? pool.option0Pool : pool.option1Pool;
+  // Zero liquidity on the other side is a different state from "your side is thin": the payout
+  // estimate below is then just your own stake, and the only honest exit is the contract's
+  // cancel → 100% refund path. Say that instead of telling the user to size down into nothing.
+  const oppositeEmpty = (option === 0 ? pool.option1Pool : pool.option0Pool) === 0n;
   const totalAfter = pool.totalNetPool + netStake;
   const sideAfter = side + netStake;
   const probability = sideAfter > 0n ? Number(sideAfter) / Number(totalAfter) : 0.5;
@@ -401,7 +405,13 @@ export function TradePanel({ pool, sticky = true }: { pool: ArenaPool; sticky?: 
       )}
 
       {error && <p className="rounded-lg border border-loss/30 bg-loss/10 px-2.5 py-2 text-[11px] text-loss">{error}</p>}
-      {amount > 0n && payout > 0n && payout < amount && (
+      {marketOpen && oppositeEmpty && (
+        <p className="flex items-start gap-1.5 rounded-lg border border-cyan/25 bg-cyan/[0.07] px-2.5 py-2 text-[10px] leading-relaxed text-cyan-bright/90">
+          <Info className="mt-0.5 size-3 shrink-0" />
+          {t("trade.soloBoard")}
+        </p>
+      )}
+      {!oppositeEmpty && amount > 0n && payout > 0n && payout < amount && (
         <p className="flex items-start gap-1.5 rounded-lg border border-gold/25 bg-gold/[0.06] px-2.5 py-2 text-[10px] leading-relaxed text-gold-bright/90">
           <Info className="mt-0.5 size-3 shrink-0" />
           {t("trade.thinSideWarning")}
