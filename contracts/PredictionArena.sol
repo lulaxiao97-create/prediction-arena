@@ -85,7 +85,12 @@ contract PredictionArena is Ownable, ReentrancyGuard, Pausable {
     ///         from the same net pool (pari-mutuel), so a large one-sided ticket can only hurt
     ///         itself by moving the odds against everyone else. What it does change is who can
     ///         dominate a thin pool — that is a product trade-off, not a fund-safety one.
-    uint256 public constant MIN_BET = 50e6; // 50 USDC
+    /// @notice Minimum ticket size, fixed at deploy time (v4). Was a 50 USDC constant; on a board
+    ///         with no counterparty yet that floor is the whole product problem — a first mover had
+    ///         to risk $50 to find out whether anyone would take the other side. Immutable rather
+    ///         than constant so each deployment picks its own floor, and `arena.MIN_BET()` keeps
+    ///         working for every script that already reads it.
+    uint256 public immutable MIN_BET;
     uint256 public constant MAX_BET = 10_000e6; // 10,000 USDC
     uint8 public constant OPTION_COUNT = 2;
     uint256 public constant MAX_POOL_DURATION = 365 days;
@@ -181,6 +186,7 @@ contract PredictionArena is Ownable, ReentrancyGuard, Pausable {
     error PoolNotSettled(uint256 poolId);
     error PoolNotCanceled(uint256 poolId);
     error BetBelowMinimum(uint256 amount, uint256 minimum);
+    error InvalidMinBet(uint256 minBet);
     error BetExceedsCap(uint256 amount, uint256 cap);
     error NoWinningStake(uint8 option);
     error ZeroDataHash();
@@ -196,8 +202,14 @@ contract PredictionArena is Ownable, ReentrancyGuard, Pausable {
     // Constructor
     // ---------------------------------------------------------------------
 
-    constructor(address usdc_, address feeVault_, address initialOwner) Ownable(initialOwner) {
+    constructor(address usdc_, address feeVault_, address initialOwner, uint256 minBet_)
+        Ownable(initialOwner)
+    {
         if (usdc_ == address(0) || feeVault_ == address(0) || initialOwner == address(0)) revert ZeroAddress();
+        // A floor of zero would let dust tickets grief the pool split, and one above the cap would
+        // make every ticket revert — both are deploy-time mistakes, not runtime states.
+        if (minBet_ == 0 || minBet_ > MAX_BET) revert InvalidMinBet(minBet_);
+        MIN_BET = minBet_;
         usdc = IERC20(usdc_);
         feeVault = feeVault_;
         emit FeeVaultUpdated(address(0), feeVault_);

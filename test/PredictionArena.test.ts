@@ -38,6 +38,7 @@ describe("PredictionArena (post-P0 hardening)", function () {
       await usdc.getAddress(),
       feeVault.address,
       owner.address,
+      usdcUnits(50),
     ]);
     await arena.waitForDeployment();
     arenaAddr = await arena.getAddress();
@@ -64,10 +65,10 @@ describe("PredictionArena (post-P0 hardening)", function () {
 
     it("rejects zero addresses", async () => {
       await expect(
-        ethers.deployContract("PredictionArena", [ethers.ZeroAddress, feeVault.address, owner.address])
+        ethers.deployContract("PredictionArena", [ethers.ZeroAddress, feeVault.address, owner.address, usdcUnits(50)])
       ).to.be.revertedWithCustomError(arena, "ZeroAddress");
       await expect(
-        ethers.deployContract("PredictionArena", [await usdc.getAddress(), ethers.ZeroAddress, owner.address])
+        ethers.deployContract("PredictionArena", [await usdc.getAddress(), ethers.ZeroAddress, owner.address, usdcUnits(50)])
       ).to.be.revertedWithCustomError(arena, "ZeroAddress");
     });
 

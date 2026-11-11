@@ -113,7 +113,11 @@ async function main() {
   // ---------------------------------------------------------------- deploy
   console.log("Deploying PredictionArena ...");
   const Arena = await ethers.getContractFactory("PredictionArena");
-  const arena = await Arena.deploy(usdcAddress, feeReceiver, deployer.address);
+  // v4: the ticket floor is a deployment choice, not a constant. 1 USDC by default — a board with
+  // no counterparty yet cannot ask a first mover for $50 to test whether anyone will answer.
+  const minBetUsdc = process.env.MIN_BET_USDC ?? "1";
+  const minBetUnits = ethers.parseUnits(minBetUsdc, 6);
+  const arena = await Arena.deploy(usdcAddress, feeReceiver, deployer.address, minBetUnits);
   const tx = arena.deploymentTransaction();
   await arena.waitForDeployment();
 
