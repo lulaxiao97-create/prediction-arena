@@ -43,7 +43,7 @@ test("docs page names the official channels and the v3 contract", async ({ page 
   const body = await page.locator("body").innerText();
   expect(body).toContain("@predictionarena.bsky.social");
   expect(body).toContain("@predictionarena_hq");
-  expect(body.toLowerCase()).toContain("0xdFaF86Cf3B53c14f7Ef60d032E6C501161682a3a");
+  expect(body.toLowerCase()).toContain("0xdfaf86cf3b53c14f7ef60d032e6c501161682a3a");
   expect(body.toLowerCase()).not.toContain("0x108d5cdc23123fa97929cf197151fb9dc29a5d93");
   expect(body.toLowerCase()).toContain("impostor");
 });
