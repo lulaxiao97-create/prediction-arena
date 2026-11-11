@@ -1,8 +1,8 @@
 {
   "contractName": "PredictionArena",
   "chainId": 8453,
-  "address": "0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5",
-  "exportedAt": "2026-10-27T08:28:33.765Z",
+  "address": "0xdFaF86Cf3B53c14f7Ef60d032E6C501161682a3a",
+  "exportedAt": "2026-11-11T02:19:52.969Z",
   "abi": [
     {
       "inputs": [
@@ -20,6 +20,11 @@
           "internalType": "address",
           "name": "initialOwner",
           "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minBet_",
+          "type": "uint256"
         }
       ],
       "stateMutability": "nonpayable",
@@ -101,6 +106,17 @@
     {
       "inputs": [],
       "name": "InvalidEndTime",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "minBet",
+          "type": "uint256"
+        }
+      ],
+      "name": "InvalidMinBet",
       "type": "error"
     },
     {

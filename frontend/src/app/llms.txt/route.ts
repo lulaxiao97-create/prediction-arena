@@ -18,7 +18,7 @@ export function GET() {
 
 ## Key facts
 - Chain: Base (8453)
-- Arena contract: 0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5 (no proxy, no mint, no owner withdrawal path)
+- Arena contract: 0xdFaF86Cf3B53c14f7Ef60d032E6C501161682a3a (no proxy, no mint, no owner withdrawal path)
 - Markets: 235 live, each with a published settlement rule
 - Collateral: native USDC on Base
 - Token: none yet. 42% of the planned ARENA supply is reserved for points holders, distributed 1:1 at launch. No presale.

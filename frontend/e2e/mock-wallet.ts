@@ -77,7 +77,7 @@ function abiString(value: string): string {
 }
 
 /** The deployed arena. Calls to it revert (an arena with no pools), everything else answers zeros. */
-const ARENA = (process.env.NEXT_PUBLIC_ARENA_ADDRESS ?? "0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5").toLowerCase();
+const ARENA = (process.env.NEXT_PUBLIC_ARENA_ADDRESS ?? "0xdFaF86Cf3B53c14f7Ef60d032E6C501161682a3a").toLowerCase();
 
 function rpcResult(method: string, params: unknown[]): unknown {
   switch (method) {

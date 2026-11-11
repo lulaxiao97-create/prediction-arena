@@ -32,7 +32,7 @@ export type Doc = {
  *  the docs pointing at a retired contract. */
 export const ARENA_ADDRESS =
   (process.env.NEXT_PUBLIC_ARENA_ADDRESS as `0x${string}` | undefined) ??
-  "0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5";
+  "0xdFaF86Cf3B53c14f7Ef60d032E6C501161682a3a";
 export const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 
 export const DOC_SECTIONS: { id: DocSection; emoji: string; labelKey: string }[] = [
@@ -320,7 +320,7 @@ if your side wins:
             "Telegram: @predictionarena_hq — t.me/predictionarena_hq is the only channel.",
             "GitHub: github.com/lulaxiao97-create/prediction-arena — the only source of truth for the deployed code.",
             "No admin, moderator or support agent will ever DM you first, ask for your seed phrase, or offer a private sale, airdrop claim or 'rescue' service.",
-            "The contract address is 0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5 on Base. Anything else is not this protocol.",
+            "The contract address is 0xdFaF86Cf3B53c14f7Ef60d032E6C501161682a3a on Base. Anything else is not this protocol.",
           ],
         },
       ],
@@ -374,7 +374,7 @@ if your side wins:
             "Telegram：@predictionarena_hq —— 唯一頻道是 t.me/predictionarena_hq。",
             "GitHub：github.com/lulaxiao97-create/prediction-arena —— 部署程式碼的唯一來源。",
             "任何管理員、版主或客服都不會主動私訊你、不會索要助記詞，也不會提供私募、空投領取或「救援」服務。",
-            "合約地址是 Base 上的 0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5，其餘皆非本協議。",
+            "合約地址是 Base 上的 0xdFaF86Cf3B53c14f7Ef60d032E6C501161682a3a，其餘皆非本協議。",
           ],
         },
       ],
