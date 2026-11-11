@@ -9,7 +9,7 @@
 - **活动是什么**：事件盘（FOMC / CPI / ETF 类）按日历开，普通盘 24/7 滚动；每笔结算都带证据哈希和 tx，任何人都能逐笔核对。
 - **现在能验证什么**：`pools.json` 的每一行、Base 上每个池、每笔结算的 tx。白皮书里的每个数字都附了 `curl`。
 
-**Version 1.1 · 2026-11-10 · Contract `0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5` (Base, chainId 8453)**
+**Version 1.1 · 2026-11-10 · Contract `0xdFaF86Cf3B53c14f7Ef60d032E6C501161682a3a` (Base, chainId 8453)**
 
 > **v1.1 撤回说明（2026-11-10）**
 >
@@ -262,11 +262,11 @@ curl -s "https://predictionarena.online/api/guess?id=723245834" | jq            
 bun scripts/push-desktop-marketing.ts --dry-run                                                # today's flagships
 
 # does a market in the manifest really exist on Base? ask the contract, not us:
-cast call 0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5 \
+cast call 0xdFaF86Cf3B53c14f7Ef60d032E6C501161682a3a \
   "getPool(uint256)((string,string,uint64,uint8,uint8,uint256,uint256,uint256,bytes32))" \
   723245834 --rpc-url https://mainnet.base.org
 # → ("Will Bitcoin trade above $78,800 before November 3 2026, 02:00 UTC?", "Crypto Core", …)
 ```
 
-Contract: `0x961872d75ea6E7A2859B9b04C6C7B1C73CF510b5` · USDC: `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`
+Contract: `0xdFaF86Cf3B53c14f7Ef60d032E6C501161682a3a` · USDC: `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`
 · Source: `contracts/PredictionArena.sol` · Free picks: `frontend/src/app/api/guess/route.ts`
